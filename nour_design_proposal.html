@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nour — Design Proposal 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --g-deep:    #0A2018;
+  --g-primary: #1B4D38;
+  --g-medium:  #2A7A52;
+  --g-accent:  #3DAA72;
+  --g-glow:    rgba(45,120,80,0.25);
+  --gold:      #C8933A;
+  --gold-lt:   #E8BF6A;
+  --gold-pale: #F5E4C0;
+  --beige:     #F6F0E3;
+  --beige-dk:  #EAE0CF;
+  --beige-bd:  #D6C9AF;
+  --sand:      #C4AC88;
+  --t-dark:    #1A130A;
+  --t-mid:     #5A4833;
+  --t-light:   #8A7863;
+  --white:     #FDFAF4;
+  --r-sm: 10px; --r-md: 16px; --r-lg: 22px; --r-xl: 28px; --r-full: 999px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#060F09;font-family:'Outfit',sans-serif;color:var(--t-dark);overflow-x:hidden}
+
+/* ══ PAGE HEADER ══ */
+.pg-header{text-align:center;padding:72px 24px 56px;position:relative}
+.pg-header::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%,#1B4D3850,transparent)}
+.pg-tag{display:inline-block;background:rgba(200,147,58,0.15);border:1px solid rgba(200,147,58,0.3);
+  color:var(--gold-lt);font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;
+  padding:6px 16px;border-radius:var(--r-full);margin-bottom:20px;position:relative}
+.pg-header h1{font-size:52px;font-weight:900;color:#FDFAF4;letter-spacing:-2px;line-height:1;
+  position:relative}
+.pg-header h1 span{color:var(--gold-lt)}
+.pg-arabic{font-family:'Amiri',serif;font-size:30px;color:var(--gold-lt);display:block;margin:12px 0 14px}
+.pg-header p{color:#7AA48C;font-size:17px;font-weight:400;position:relative}
+
+/* ══ DESIGN SYSTEM ══ */
+.ds-wrap{max-width:1020px;margin:0 auto 64px;padding:0 40px}
+.ds-row{display:flex;gap:32px;align-items:flex-start;flex-wrap:wrap}
+.ds-col{flex:1;min-width:240px}
+.ds-title{color:#5A7A68;font-size:10px;font-weight:700;letter-spacing:2.5px;
+  text-transform:uppercase;margin-bottom:16px;padding-bottom:8px;
+  border-bottom:1px solid #1A3028}
+.palette{display:flex;gap:10px;flex-wrap:wrap}
+.chip{display:flex;flex-direction:column;align-items:center;gap:8px}
+.swatch{width:52px;height:52px;border-radius:14px;box-shadow:0 6px 20px rgba(0,0,0,0.35)}
+.swatch-label{color:#5A7A68;font-size:9px;text-align:center;line-height:1.4}
+.type-row{display:flex;flex-direction:column;gap:10px}
+.type-item{display:flex;align-items:baseline;gap:12px}
+.type-item span:first-child{color:#3A6A52;font-size:9px;font-weight:600;letter-spacing:1.5px;
+  text-transform:uppercase;min-width:68px}
+.type-h1{font-size:26px;font-weight:800;color:#FDFAF4;letter-spacing:-0.5px}
+.type-h2{font-size:20px;font-weight:700;color:#FDFAF4}
+.type-h3{font-size:15px;font-weight:600;color:#C0D4C8}
+.type-body{font-size:13px;font-weight:400;color:#8AA898}
+.type-ar{font-family:'Amiri',serif;font-size:22px;color:var(--gold-lt)}
+
+/* ══ SCREENS ══ */
+.screens-outer{overflow-x:auto;padding:0 40px 100px;scrollbar-width:none}
+.screens-outer::-webkit-scrollbar{display:none}
+.screens-row{display:flex;gap:40px;min-width:max-content;padding-bottom:16px}
+.screen-block{display:flex;flex-direction:column;align-items:center;gap:18px}
+.screen-label{color:#5A7A68;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase}
+.screen-num{width:28px;height:28px;border-radius:50%;background:var(--g-primary);
+  color:#FDFAF4;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+
+/* ── Phone Frame ── */
+.phone{width:318px;height:672px;border-radius:46px;overflow:hidden;position:relative;
+  background:var(--beige);flex-shrink:0;
+  box-shadow:0 0 0 7px #182E22,0 0 0 9px #0A180F,
+    0 50px 100px rgba(0,0,0,0.7),0 10px 40px rgba(0,0,0,0.4),
+    inset 0 0 0 1px rgba(255,255,255,0.05)}
+.phone-inner{height:100%;overflow:hidden;display:flex;flex-direction:column}
+
+/* status bar */
+.sbar{display:flex;justify-content:space-between;align-items:center;
+  padding:12px 22px 0;font-size:11px;font-weight:700;position:relative;z-index:20}
+.sbar-lt{display:flex;gap:5px;align-items:center}
+
+/* scrollable content area */
+.screen-scroll{flex:1;overflow:hidden;position:relative}
+
+/* bottom nav */
+.bnav{position:absolute;bottom:0;left:0;right:0;z-index:50;
+  background:var(--white);border-top:1px solid var(--beige-bd);
+  padding:10px 0 16px;display:flex;justify-content:space-around}
+.bnav-item{display:flex;flex-direction:column;align-items:center;gap:3px;
+  font-size:9px;font-weight:500;color:var(--t-light);cursor:pointer}
+.bnav-item.on{color:var(--g-primary)}
+.bnav-icon{font-size:17px;line-height:1}
+.bnav-dot{width:5px;height:5px;border-radius:50%;background:var(--g-accent);
+  display:none;margin-top:1px}
+.bnav-item.on .bnav-dot{display:block}
+
+/* ── Islamic star pattern SVG (inline) ── */
+.star-bg{position:absolute;inset:0;opacity:0.06;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpolygon points='30,4 35,20 50,20 38,30 43,46 30,36 17,46 22,30 10,20 25,20' fill='%23fff'/%3E%3C/svg%3E");
+  background-size:60px 60px}
+
+/* ════════════════════════════════════════
+   SCREEN 1 — ACCUEIL
+════════════════════════════════════════ */
+.s1-header{background:linear-gradient(155deg,#0A2018 0%,#1B4D38 55%,#1D5C40 100%);
+  padding:0 20px 22px;position:relative;overflow:hidden}
+.s1-topbar{display:flex;justify-content:space-between;align-items:center;
+  padding:14px 0 18px;position:relative;z-index:2}
+.s1-greeting .hello{font-size:11px;color:rgba(255,255,255,0.5);font-weight:400;letter-spacing:0.3px}
+.s1-greeting .name{font-size:19px;font-weight:700;color:#fff;margin-top:2px}
+.s1-avatar{width:38px;height:38px;border-radius:14px;
+  background:linear-gradient(135deg,var(--gold),var(--gold-lt));
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;box-shadow:0 4px 12px rgba(200,147,58,0.4)}
+.s1-stats{display:flex;gap:8px;position:relative;z-index:2}
+.s1-stat{background:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.12);
+  border-radius:12px;padding:8px 12px;display:flex;align-items:center;gap:6px;flex:1}
+.s1-stat-icon{font-size:14px}
+.s1-stat-val{font-size:14px;font-weight:800;color:#fff}
+.s1-stat-lbl{font-size:8px;color:rgba(255,255,255,0.45);font-weight:500;margin-top:1px}
+
+/* verset card */
+.verset-card{background:var(--white);border-radius:var(--r-xl);
+  margin:16px 16px 0;padding:20px 18px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.12),0 2px 8px rgba(0,0,0,0.06);
+  border:1px solid var(--beige-bd);position:relative;overflow:hidden}
+.verset-card::before{content:'';position:absolute;top:-20px;right:-20px;
+  width:100px;height:100px;border-radius:50%;
+  background:radial-gradient(circle,rgba(200,147,58,0.08),transparent)}
+.verset-tag{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--gold);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.verset-tag::before{content:'';display:block;width:16px;height:2px;
+  background:linear-gradient(90deg,var(--gold),transparent);border-radius:1px}
+.verset-ar{font-family:'Amiri',serif;font-size:21px;color:var(--t-dark);
+  text-align:right;line-height:1.7;direction:rtl;margin-bottom:12px}
+.verset-fr{font-size:11px;color:var(--t-mid);font-style:italic;line-height:1.5;margin-bottom:12px}
+.verset-ref{font-size:9px;color:var(--t-light);font-weight:600;letter-spacing:0.5px}
+.verset-btn{display:flex;align-items:center;justify-content:center;gap:6px;
+  margin-top:14px;background:linear-gradient(135deg,var(--g-primary),var(--g-medium));
+  color:#fff;font-size:12px;font-weight:600;padding:10px 16px;
+  border-radius:var(--r-full);letter-spacing:0.2px}
+.verset-btn-arrow{font-size:10px}
+
+/* continue banner */
+.continue-card{margin:12px 16px 0;background:linear-gradient(120deg,var(--g-primary),var(--g-medium));
+  border-radius:var(--r-lg);padding:14px 16px;
+  display:flex;align-items:center;justify-content:space-between;
+  box-shadow:0 8px 24px rgba(27,77,56,0.35)}
+.cc-left .cc-tag{font-size:9px;color:rgba(255,255,255,0.55);font-weight:500;margin-bottom:3px}
+.cc-left .cc-title{font-size:14px;font-weight:700;color:#fff}
+.cc-left .cc-sub{font-size:10px;color:rgba(255,255,255,0.6);margin-top:2px}
+.cc-btn{background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.25);
+  color:#fff;font-size:11px;font-weight:600;padding:8px 14px;
+  border-radius:var(--r-full);white-space:nowrap}
+
+/* modules section */
+.section-head{display:flex;justify-content:space-between;align-items:center;
+  padding:16px 16px 10px}
+.section-title{font-size:14px;font-weight:700;color:var(--t-dark)}
+.section-more{font-size:11px;color:var(--g-medium);font-weight:600}
+.modules-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px 80px}
+.mod{border-radius:var(--r-lg);padding:16px;position:relative;overflow:hidden;cursor:pointer}
+.mod-icon{font-size:26px;margin-bottom:8px;display:block}
+.mod-title{font-size:13px;font-weight:700;line-height:1.2}
+.mod-sub{font-size:10px;margin-top:3px;opacity:0.7}
+.mod-arrow{position:absolute;right:12px;bottom:12px;opacity:0.4;font-size:12px}
+.mod-badge{position:absolute;top:10px;right:10px;background:rgba(255,255,255,0.25);
+  font-size:8px;font-weight:700;padding:3px 7px;border-radius:var(--r-full);color:#fff}
+.mod-coran{background:linear-gradient(135deg,#1B4D38,#2A7A52);color:#fff}
+.mod-learn{background:linear-gradient(135deg,#7B3F00,#C47A35);color:#fff}
+.mod-hadith{background:linear-gradient(135deg,#2C3E5A,#4A6FA5);color:#fff}
+.mod-journal{background:linear-gradient(135deg,#4A3060,#7B5EA0);color:#fff}
+.mod-dhikr{background:linear-gradient(135deg,#1A3A3A,#2E6B6B);color:#fff}
+.mod-child{background:linear-gradient(135deg,#3A1A1A,#8B4040);color:#fff}
+.mod-big{grid-column:span 2;display:flex;align-items:center;gap:14px;padding:14px 16px}
+.mod-big .mod-icon{font-size:32px;margin:0}
+.mod-big-info{flex:1}
+.mod-big .mod-title{font-size:14px}
+.mod-big .mod-sub{font-size:11px}
+
+/* ════════════════════════════════════════
+   SCREEN 2 — APPRENTISSAGE
+════════════════════════════════════════ */
+.s2-header{background:linear-gradient(160deg,#0A2018,#1B4D38);padding:0 20px 20px;position:relative;overflow:hidden}
+.s2-topbar{display:flex;align-items:center;gap:10px;padding:14px 0 16px;position:relative;z-index:2}
+.back-btn{width:32px;height:32px;background:rgba(255,255,255,0.1);border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff}
+.s2-title{font-size:17px;font-weight:700;color:#fff;flex:1}
+.notif-btn{width:32px;height:32px;background:rgba(255,255,255,0.1);border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+.s2-stats{display:flex;gap:8px;position:relative;z-index:2}
+.s2-stat{flex:1;background:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.12);
+  border-radius:12px;padding:10px 8px;text-align:center}
+.s2-stat-val{font-size:18px;font-weight:800;color:#fff}
+.s2-stat-icon{font-size:14px;display:block;margin-bottom:2px}
+.s2-stat-lbl{font-size:8px;color:rgba(255,255,255,0.45);font-weight:500;margin-top:2px}
+
+.s2-body{padding:14px 16px;overflow:hidden;padding-bottom:80px}
+
+/* current lesson */
+.lesson-card{background:var(--white);border-radius:var(--r-xl);padding:16px;
+  box-shadow:0 8px 28px rgba(0,0,0,0.1);border:1px solid var(--beige-bd);margin-bottom:14px}
+.lc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.lc-tag{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--g-medium);background:rgba(42,122,82,0.1);padding:4px 10px;border-radius:var(--r-full)}
+.lc-badge{font-size:9px;font-weight:600;color:var(--gold);background:rgba(200,147,58,0.1);
+  padding:4px 10px;border-radius:var(--r-full)}
+.lc-title{font-size:17px;font-weight:800;color:var(--t-dark);margin-bottom:3px}
+.lc-sub{font-size:11px;color:var(--t-light);margin-bottom:12px}
+.progress-track{background:var(--beige-dk);border-radius:var(--r-full);height:6px;
+  margin-bottom:6px;overflow:hidden}
+.progress-fill{background:linear-gradient(90deg,var(--g-medium),var(--g-accent));
+  height:100%;border-radius:var(--r-full)}
+.progress-labels{display:flex;justify-content:space-between;font-size:9px;
+  color:var(--t-light);font-weight:500;margin-bottom:14px}
+.continue-btn{width:100%;background:linear-gradient(135deg,var(--g-primary),var(--g-medium));
+  color:#fff;font-size:13px;font-weight:700;padding:13px;border-radius:var(--r-lg);
+  text-align:center;letter-spacing:0.3px;box-shadow:0 8px 20px rgba(27,77,56,0.35)}
+
+/* review banner */
+.review-banner{background:linear-gradient(120deg,rgba(200,147,58,0.12),rgba(200,147,58,0.06));
+  border:1px solid rgba(200,147,58,0.25);border-radius:var(--r-lg);padding:12px 14px;
+  display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.rb-icon{font-size:20px}
+.rb-text{flex:1}
+.rb-title{font-size:12px;font-weight:700;color:var(--t-dark)}
+.rb-sub{font-size:10px;color:var(--t-light);margin-top:1px}
+.rb-action{font-size:11px;font-weight:700;color:var(--gold)}
+
+/* path list */
+.path-section-title{font-size:12px;font-weight:700;color:var(--t-dark);
+  margin-bottom:10px;text-transform:uppercase;letter-spacing:1px;font-size:10px;color:var(--t-light)}
+.path-item{background:var(--white);border-radius:var(--r-lg);padding:12px 14px;
+  display:flex;align-items:center;gap:12px;margin-bottom:8px;
+  border:1px solid var(--beige-bd)}
+.path-item.active{border-color:var(--g-medium);background:#F0F8F3}
+.path-icon{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;
+  justify-content:center;font-size:18px;flex-shrink:0}
+.path-info{flex:1;min-width:0}
+.path-title{font-size:13px;font-weight:700;color:var(--t-dark)}
+.path-sub{font-size:10px;color:var(--t-light);margin-top:2px}
+.path-mini-progress{margin-top:6px;background:var(--beige-dk);border-radius:var(--r-full);height:3px;overflow:hidden}
+.path-mini-fill{background:var(--g-medium);height:100%;border-radius:var(--r-full)}
+.path-chevron{font-size:12px;color:var(--t-light)}
+.path-lock{font-size:14px;opacity:0.3}
+
+/* ════════════════════════════════════════
+   SCREEN 3 — LECTURE CORAN
+════════════════════════════════════════ */
+.s3-header{background:linear-gradient(160deg,#0A2018,#1A3F2C);padding:0 20px 20px;position:relative;overflow:hidden}
+.s3-topbar{display:flex;align-items:center;gap:10px;padding:14px 0 14px;position:relative;z-index:2}
+.s3-surah-info{text-align:center;flex:1}
+.s3-surah-name{font-size:16px;font-weight:700;color:#fff}
+.s3-surah-sub{font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px}
+.s3-controls{display:flex;gap:8px;position:relative;z-index:2;justify-content:center}
+.s3-ctrl-btn{background:rgba(255,255,255,0.1);border-radius:10px;padding:8px 14px;
+  font-size:11px;color:rgba(255,255,255,0.8);font-weight:600;display:flex;align-items:center;gap:5px}
+.s3-ctrl-btn.active{background:rgba(200,147,58,0.25);color:var(--gold-lt)}
+
+.s3-body{padding:0 0 80px;background:var(--beige);overflow:hidden}
+.s3-bismillah{text-align:center;padding:16px 20px 12px;
+  font-family:'Amiri',serif;font-size:19px;color:var(--t-mid)}
+
+.verse-item{padding:14px 20px;border-bottom:1px solid var(--beige-bd)}
+.verse-item.active{background:rgba(200,147,58,0.06)}
+.verse-ar{font-family:'Amiri',serif;font-size:23px;color:var(--t-dark);
+  text-align:right;direction:rtl;line-height:1.8;margin-bottom:8px}
+.verse-num{display:inline-flex;width:22px;height:22px;align-items:center;justify-content:center;
+  background:var(--g-primary);color:#fff;font-size:8px;font-weight:700;
+  border-radius:50%;font-family:'Outfit',sans-serif}
+.verse-fr{font-size:11px;color:var(--t-mid);line-height:1.6;font-style:italic}
+.verse-actions{display:flex;gap:8px;margin-top:10px}
+.va-btn{font-size:10px;color:var(--t-light);display:flex;align-items:center;gap:3px;
+  background:var(--beige-dk);padding:5px 10px;border-radius:var(--r-full)}
+.va-btn.active-va{color:var(--g-medium);background:rgba(42,122,82,0.1)}
+
+/* ════════════════════════════════════════
+   SCREEN 4 — QUIZ / EXERCICE
+════════════════════════════════════════ */
+.s4-wrap{background:var(--beige);height:100%;display:flex;flex-direction:column}
+.s4-topbar{display:flex;align-items:center;gap:10px;padding:14px 20px 10px}
+.s4-close{width:28px;height:28px;background:var(--beige-dk);border-radius:9px;
+  display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--t-mid)}
+.s4-progress-track{flex:1;background:var(--beige-bd);border-radius:var(--r-full);height:6px;overflow:hidden}
+.s4-progress-fill{background:linear-gradient(90deg,var(--g-medium),var(--g-accent));height:100%;border-radius:var(--r-full)}
+.s4-hearts{display:flex;gap:2px;font-size:14px}
+
+.s4-body{flex:1;padding:10px 20px;display:flex;flex-direction:column}
+.s4-type{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--g-medium);margin-bottom:8px}
+.s4-question{font-size:18px;font-weight:800;color:var(--t-dark);line-height:1.3;margin-bottom:6px}
+.s4-hint{font-size:11px;color:var(--t-light);margin-bottom:20px}
+.s4-ar{font-family:'Amiri',serif;font-size:32px;color:var(--t-dark);
+  text-align:center;padding:16px;background:var(--white);border-radius:var(--r-xl);
+  border:2px solid var(--beige-bd);margin-bottom:20px;line-height:1.6;direction:rtl}
+.s4-options{display:flex;flex-direction:column;gap:10px;flex:1}
+.s4-opt{background:var(--white);border:2px solid var(--beige-bd);border-radius:var(--r-lg);
+  padding:14px 16px;font-size:13px;font-weight:500;color:var(--t-dark);
+  display:flex;align-items:center;gap:12px;cursor:pointer}
+.s4-opt.selected{border-color:var(--g-medium);background:#F0F8F3;color:var(--g-primary);font-weight:700}
+.s4-opt.correct{border-color:#3DAA72;background:rgba(61,170,114,0.1)}
+.s4-opt.wrong{border-color:#E55A4E;background:rgba(229,90,78,0.08)}
+.opt-letter{width:26px;height:26px;border-radius:9px;background:var(--beige-dk);
+  font-size:11px;font-weight:700;color:var(--t-mid);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.selected .opt-letter{background:var(--g-medium);color:#fff}
+.s4-check-btn{margin-top:14px;width:100%;background:linear-gradient(135deg,var(--g-primary),var(--g-medium));
+  color:#fff;font-size:14px;font-weight:700;padding:14px;border-radius:var(--r-lg);
+  text-align:center;box-shadow:0 8px 20px rgba(27,77,56,0.3);letter-spacing:0.3px}
+
+/* ════════════════════════════════════════
+   SCREEN 5 — PROGRESSION
+════════════════════════════════════════ */
+.s5-header{background:linear-gradient(160deg,#0A2018,#1B4D38);padding:0 20px 20px;position:relative;overflow:hidden}
+.s5-topbar{display:flex;align-items:center;gap:10px;padding:14px 0 16px;position:relative;z-index:2}
+.s5-title{font-size:17px;font-weight:700;color:#fff;flex:1}
+
+.s5-body{padding:14px 16px;padding-bottom:80px;overflow:hidden}
+
+/* ring stat */
+.ring-card{background:var(--white);border-radius:var(--r-xl);padding:16px;
+  box-shadow:0 8px 28px rgba(0,0,0,0.08);border:1px solid var(--beige-bd);
+  margin-bottom:12px;display:flex;align-items:center;gap:16px}
+.ring-svg{flex-shrink:0}
+.ring-info{flex:1}
+.ring-title{font-size:16px;font-weight:800;color:var(--t-dark)}
+.ring-sub{font-size:11px;color:var(--t-light);margin-top:2px}
+.ring-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.ring-tag{font-size:9px;font-weight:700;padding:4px 10px;border-radius:var(--r-full)}
+.rt-g{background:rgba(42,122,82,0.1);color:var(--g-medium)}
+.rt-go{background:rgba(200,147,58,0.1);color:var(--gold)}
+
+/* stats grid */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.stat-card{background:var(--white);border-radius:var(--r-lg);padding:14px;
+  border:1px solid var(--beige-bd)}
+.stat-card-icon{font-size:22px;margin-bottom:6px}
+.stat-card-val{font-size:22px;font-weight:900;color:var(--t-dark);line-height:1}
+.stat-card-lbl{font-size:9px;color:var(--t-light);font-weight:500;margin-top:3px}
+.stat-card-trend{font-size:9px;font-weight:700;color:var(--g-accent);margin-top:4px}
+
+/* heatmap */
+.heatmap-card{background:var(--white);border-radius:var(--r-lg);padding:14px;
+  border:1px solid var(--beige-bd);margin-bottom:12px}
+.hm-title{font-size:12px;font-weight:700;color:var(--t-dark);margin-bottom:10px}
+.hm-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:3px}
+.hm-day{aspect-ratio:1;border-radius:3px}
+.hm-0{background:var(--beige-dk)}
+.hm-1{background:#4CAF7A40}
+.hm-2{background:#4CAF7A80}
+.hm-3{background:#4CAF7ABB}
+.hm-4{background:#4CAF7A}
+
+/* badges */
+.badges-card{background:var(--white);border-radius:var(--r-lg);padding:14px;border:1px solid var(--beige-bd)}
+.badges-title{font-size:12px;font-weight:700;color:var(--t-dark);margin-bottom:10px}
+.badges-row{display:flex;gap:10px}
+.badge{display:flex;flex-direction:column;align-items:center;gap:4px}
+.badge-icon{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;
+  justify-content:center;font-size:20px}
+.bg-gold{background:linear-gradient(135deg,#C8933A,#E8C06A);box-shadow:0 4px 12px rgba(200,147,58,0.35)}
+.bg-g{background:linear-gradient(135deg,#1B4D38,#3DAA72);box-shadow:0 4px 12px rgba(27,77,56,0.35)}
+.bg-b{background:linear-gradient(135deg,#2C3E5A,#4A6FA5);box-shadow:0 4px 12px rgba(44,62,90,0.35)}
+.bg-dim{background:var(--beige-dk);opacity:0.5}
+.badge-lbl{font-size:8px;font-weight:600;color:var(--t-mid);text-align:center;max-width:44px}
+
+/* ════════════════════════════════════════
+   DESIGN NOTES SECTION
+════════════════════════════════════════ */
+.notes-section{max-width:1020px;margin:0 auto 80px;padding:0 40px}
+.notes-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.note-card{background:#0D1E15;border:1px solid #1E3A28;border-radius:20px;padding:20px}
+.note-icon{font-size:24px;margin-bottom:10px}
+.note-title{font-size:13px;font-weight:700;color:#FDFAF4;margin-bottom:6px}
+.note-body{font-size:11px;color:#6A8A78;line-height:1.6}
+
+/* footer */
+.pg-footer{text-align:center;padding:40px 24px 60px;color:#3A5A48;font-size:12px}
+.pg-footer span{color:var(--gold-lt)}
+</style>
+</head>
+<body>
+
+<!-- ══ PAGE HEADER ══ -->
+<div class="pg-header">
+  <div class="pg-tag">Design Proposal · 2026</div>
+  <h1>Nour · <span>نور</span></h1>
+  <span class="pg-arabic">نُورٌ عَلَى نُورٍ</span>
+  <p>Interface islamique premium — moderne, élégante et immersive</p>
+</div>
+
+<!-- ══ DESIGN SYSTEM ══ -->
+<div class="ds-wrap">
+  <div class="ds-row">
+    <div class="ds-col">
+      <div class="ds-title">Palette de couleurs</div>
+      <div class="palette">
+        <div class="chip"><div class="swatch" style="background:#0A2018"></div><div class="swatch-label">Vert<br>Profond</div></div>
+        <div class="chip"><div class="swatch" style="background:#1B4D38"></div><div class="swatch-label">Vert<br>Primaire</div></div>
+        <div class="chip"><div class="swatch" style="background:#2A7A52"></div><div class="swatch-label">Vert<br>Moyen</div></div>
+        <div class="chip"><div class="swatch" style="background:#C8933A"></div><div class="swatch-label">Or<br>Primaire</div></div>
+        <div class="chip"><div class="swatch" style="background:#E8BF6A"></div><div class="swatch-label">Or<br>Clair</div></div>
+        <div class="chip"><div class="swatch" style="background:#F6F0E3"></div><div class="swatch-label">Beige<br>Fond</div></div>
+        <div class="chip"><div class="swatch" style="background:#EAE0CF"></div><div class="swatch-label">Sable<br>Carte</div></div>
+        <div class="chip"><div class="swatch" style="background:#FDFAF4"></div><div class="swatch-label">Blanc<br>Pur</div></div>
+      </div>
+    </div>
+    <div class="ds-col">
+      <div class="ds-title">Typographie</div>
+      <div class="type-row">
+        <div class="type-item"><span>Titre H1</span><span class="type-h1">Apprendre</span></div>
+        <div class="type-item"><span>Titre H2</span><span class="type-h2">Al-Fatiha</span></div>
+        <div class="type-item"><span>Sous-titre</span><span class="type-h3">Leçon 4 · 12/23</span></div>
+        <div class="type-item"><span>Corps</span><span class="type-body">Continuer ton parcours</span></div>
+        <div class="type-item"><span>Arabe</span><span class="type-ar">بِسْمِ اللَّهِ</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCREENS ══ -->
+<div class="screens-outer">
+  <div class="screens-row">
+
+    <!-- ─── SCREEN 1: ACCUEIL ─── -->
+    <div class="screen-block">
+      <div class="screen-label">01 · Accueil</div>
+      <div class="phone">
+        <div class="phone-inner">
+          <!-- status bar -->
+          <div class="sbar" style="background:#0A2018;color:rgba(255,255,255,0.9)">
+            <span>9:41</span>
+            <div class="sbar-lt">
+              <svg width="15" height="11" viewBox="0 0 15 11" fill="none"><rect x="0" y="4" width="3" height="7" rx="1" fill="rgba(255,255,255,0.9)"/><rect x="4" y="2.5" width="3" height="8.5" rx="1" fill="rgba(255,255,255,0.9)"/><rect x="8" y="1" width="3" height="10" rx="1" fill="rgba(255,255,255,0.9)"/><rect x="12" y="0" width="3" height="11" rx="1" fill="rgba(255,255,255,0.9)"/></svg>
+              <svg width="14" height="11" viewBox="0 0 14 11" fill="rgba(255,255,255,0.9)"><path d="M7 2.5C9.5 2.5 11.7 3.6 13.2 5.3L14 4.4C12.2 2.5 9.7 1.3 7 1.3S1.8 2.5 0 4.4l.8.9C2.3 3.6 4.5 2.5 7 2.5z"/><path d="M7 5C8.7 5 10.2 5.8 11.2 7L12 6.1C10.8 4.7 9 3.8 7 3.8S3.2 4.7 2 6.1l.8.9C3.8 5.8 5.3 5 7 5z"/><circle cx="7" cy="9" r="1.5"/></svg>
+              <svg width="24" height="11" viewBox="0 0 24 11"><rect x="0" y="1" width="20" height="9" rx="2" stroke="rgba(255,255,255,0.6)" stroke-width="1" fill="none"/><rect x="1.5" y="2.5" width="14" height="6" rx="1" fill="rgba(255,255,255,0.9)"/><path d="M21 3.5v4c1.1-.5 1.1-3.5 0-4z" fill="rgba(255,255,255,0.5)"/></svg>
+            </div>
+          </div>
+
+          <!-- header -->
+          <div class="s1-header">
+            <div class="star-bg"></div>
+            <!-- top bar -->
+            <div class="s1-topbar">
+              <div class="s1-greeting">
+                <div class="hello">السلام عليكم</div>
+                <div class="name">Sam 👋</div>
+              </div>
+              <div class="s1-avatar">☪️</div>
+            </div>
+            <!-- stats row -->
+            <div class="s1-stats">
+              <div class="s1-stat">
+                <span class="s1-stat-icon">🔥</span>
+                <div><div class="s1-stat-val">5</div><div class="s1-stat-lbl">Jours</div></div>
+              </div>
+              <div class="s1-stat">
+                <span class="s1-stat-icon">⭐</span>
+                <div><div class="s1-stat-val">1 320</div><div class="s1-stat-lbl">XP total</div></div>
+              </div>
+              <div class="s1-stat">
+                <span class="s1-stat-icon">📖</span>
+                <div><div class="s1-stat-val">42</div><div class="s1-stat-lbl">Versets</div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- scroll body -->
+          <div style="overflow-y:auto;flex:1;padding-bottom:80px">
+            <!-- verset du jour -->
+            <div class="verset-card">
+              <div class="verset-tag">Verset du jour</div>
+              <div class="verset-ar">إِنَّ مَعَ الْعُسْرِ يُسْرًا</div>
+              <div class="verset-fr">« Certes, avec la difficulté vient la facilité. »</div>
+              <div class="verset-ref">Sourate Ash-Sharh 94:6</div>
+              <div class="verset-btn">Lire dans le Coran <span class="verset-btn-arrow">›</span></div>
+            </div>
+
+            <!-- continuer leçon -->
+            <div class="continue-card">
+              <div class="cc-left">
+                <div class="cc-tag">Continuer mon apprentissage</div>
+                <div class="cc-title">Al-Fatiha · Leçon 4</div>
+                <div class="cc-sub">Progression 40% · 12/23 exercices</div>
+              </div>
+              <div class="cc-btn">▶ Continuer</div>
+            </div>
+
+            <!-- modules -->
+            <div class="section-head">
+              <div class="section-title">Modules</div>
+              <div class="section-more">Voir tout ›</div>
+            </div>
+            <div class="modules-grid">
+              <div class="mod mod-coran" style="grid-column:span 2;display:flex;align-items:center;gap:14px;padding:14px 16px">
+                <span class="mod-icon" style="margin:0;font-size:30px">📖</span>
+                <div>
+                  <div class="mod-title">Lecture du Coran</div>
+                  <div class="mod-sub">114 sourates · Lecture & écoute</div>
+                </div>
+                <span style="margin-left:auto;opacity:0.5;font-size:14px">›</span>
+              </div>
+              <div class="mod mod-learn">
+                <span class="mod-icon">🎓</span>
+                <div class="mod-title">Apprentissage</div>
+                <div class="mod-sub">Mémorisation & quiz</div>
+                <span class="mod-badge">40%</span>
+                <span class="mod-arrow">›</span>
+              </div>
+              <div class="mod mod-hadith">
+                <span class="mod-icon">📜</span>
+                <div class="mod-title">Hadiths</div>
+                <div class="mod-sub">Sagesses du Prophète</div>
+                <span class="mod-arrow">›</span>
+              </div>
+              <div class="mod mod-journal">
+                <span class="mod-icon">✍️</span>
+                <div class="mod-title">Journal</div>
+                <div class="mod-sub">Réflexions spirituelles</div>
+                <span class="mod-arrow">›</span>
+              </div>
+              <div class="mod mod-dhikr">
+                <span class="mod-icon">🤲</span>
+                <div class="mod-title">Dhikr</div>
+                <div class="mod-sub">Rappels & invocations</div>
+                <span class="mod-arrow">›</span>
+              </div>
+              <div class="mod mod-child">
+                <span class="mod-icon">⭐</span>
+                <div class="mod-title">Enfants</div>
+                <div class="mod-sub">Apprentissage ludique</div>
+                <span class="mod-arrow">›</span>
+              </div>
+              <div class="mod" style="background:linear-gradient(135deg,#1A2A3A,#2E4A6A);color:#fff">
+                <span class="mod-icon">🌐</span>
+                <div class="mod-title">Communauté</div>
+                <div class="mod-sub">Apprendre ensemble</div>
+                <span class="mod-arrow">›</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- bottom nav -->
+          <div class="bnav">
+            <div class="bnav-item on"><div class="bnav-icon">🏠</div><span>Accueil</span><div class="bnav-dot"></div></div>
+            <div class="bnav-item"><div class="bnav-icon">📖</div><span>Coran</span></div>
+            <div class="bnav-item"><div class="bnav-icon">🎓</div><span>Apprendre</span></div>
+            <div class="bnav-item"><div class="bnav-icon">📊</div><span>Progrès</span></div>
+            <div class="bnav-item"><div class="bnav-icon">⚙️</div><span>Profil</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── SCREEN 2: APPRENTISSAGE ─── -->
+    <div class="screen-block">
+      <div class="screen-label">02 · Apprentissage</div>
+      <div class="phone">
+        <div class="phone-inner">
+          <div class="sbar" style="background:#0A2018;color:rgba(255,255,255,0.9)">
+            <span>9:41</span>
+            <div class="sbar-lt">
+              <svg width="15" height="11" viewBox="0 0 15 11" fill="none"><rect x="0" y="4" width="3" height="7" rx="1" fill="rgba(255,255,255,0.9)"/><rect x="4" y="2.5" width="3" height="8.5" rx="1" fill="rgba(255,255,255,0.9)"/><rect x="8" y="1" width="3" height="10" rx="1" fill="rgba(255,255,255,0.9)"/><rect x="12" y="0" width="3" height="11" rx="1" fill="rgba(255,255,255,0.9)"/></svg>
+              <svg width="24" height="11" viewBox="0 0 24 11"><rect x="0" y="1" width="20" height="9" rx="2" stroke="rgba(255,255,255,0.6)" stroke-width="1" fill="none"/><rect x="1.5" y="2.5" width="14" height="6" rx="1" fill="rgba(255,255,255,0.9)"/><path d="M21 3.5v4c1.1-.5 1.1-3.5 0-4z" fill="rgba(255,255,255,0.5)"/></svg>
+            </div>
+          </div>
+
+          <div class="s2-header">
+            <div class="star-bg"></div>
+            <div class="s2-topbar">
+              <div class="back-btn">‹</div>
+              <div class="s2-title">Apprendre le Coran</div>
+              <div class="notif-btn">🔔</div>
+            </div>
+            <div class="s2-stats">
+              <div class="s2-stat">
+                <span class="s2-stat-icon">🔥</span>
+                <div class="s2-stat-val">5</div>
+                <div class="s2-stat-lbl">Streak</div>
+              </div>
+              <div class="s2-stat">
+                <span class="s2-stat-icon">⭐</span>
+                <div class="s2-stat-val">1 320</div>
+                <div class="s2-stat-lbl">XP Total</div>
+              </div>
+              <div class="s2-stat">
+                <span class="s2-stat-icon">📖</span>
+                <div class="s2-stat-val">42</div>
+                <div class="s2-stat-lbl">Versets</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="overflow-y:auto;flex:1;padding:14px 16px 80px">
+            <!-- current lesson -->
+            <div class="lesson-card">
+              <div class="lc-header">
+                <span class="lc-tag">En cours</span>
+                <span class="lc-badge">⭐ +20 XP</span>
+              </div>
+              <div class="lc-title">Al-Fatiha · Leçon 4</div>
+              <div class="lc-sub">Mémorisation des versets 5 à 7</div>
+              <div class="progress-track"><div class="progress-fill" style="width:40%"></div></div>
+              <div class="progress-labels"><span>Progression 40%</span><span>12 / 23 exercices</span></div>
+              <div class="continue-btn">▶ Continuer la leçon</div>
+            </div>
+
+            <!-- review banner -->
+            <div class="review-banner">
+              <div class="rb-icon">📚</div>
+              <div class="rb-text">
+                <div class="rb-title">À revoir aujourd'hui</div>
+                <div class="rb-sub">2 versets arrivent à échéance</div>
+              </div>
+              <div class="rb-action">Réviser ›</div>
+            </div>
+
+            <!-- path -->
+            <div class="path-section-title">Parcours · Débutant</div>
+
+            <div class="path-item">
+              <div class="path-icon" style="background:#1B4D3820"><span style="font-size:18px">✅</span></div>
+              <div class="path-info">
+                <div class="path-title">Al-Fatiha · Intro</div>
+                <div class="path-sub">Leçons 1–3 terminées</div>
+                <div class="path-mini-progress"><div class="path-mini-fill" style="width:100%"></div></div>
+              </div>
+              <span class="path-chevron">›</span>
+            </div>
+
+            <div class="path-item active">
+              <div class="path-icon" style="background:#1B4D3830"><span style="font-size:18px">📖</span></div>
+              <div class="path-info">
+                <div class="path-title" style="color:#1B4D38">Al-Fatiha · Suite</div>
+                <div class="path-sub">Leçon 4 en cours</div>
+                <div class="path-mini-progress"><div class="path-mini-fill" style="width:40%"></div></div>
+              </div>
+              <span class="path-chevron" style="color:#1B4D38;font-weight:700">›</span>
+            </div>
+
+            <div class="path-item" style="opacity:0.6">
+              <div class="path-icon" style="background:#eee"><span style="font-size:18px">🔒</span></div>
+              <div class="path-info">
+                <div class="path-title">Al-Baqarah · Début</div>
+                <div class="path-sub">Débloque après Al-Fatiha</div>
+              </div>
+              <span class="path-lock">🔒</span>
+            </div>
+          </div>
+
+          <div class="bnav">
+            <div class="bnav-item"><div class="bnav-icon">🏠</div><span>Accueil</span></div>
+            <div class="bnav-item"><div class="bnav-icon">📖</div><span>Coran</span></div>
+            <div class="bnav-item on"><div class="bnav-icon">🎓</div><span>Apprendre</span><div class="bnav-dot"></div></div>
+            <div class="bnav-item"><div class="bnav-icon">📊</div><span>Progrès</span></div>
+            <div class="bnav-item"><div class="bnav-icon">⚙️</div><span>Profil</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── SCREEN 3: LECTURE CORAN ─── -->
+    <div class="screen-block">
+      <div class="screen-label">03 · Lecture Coran</div>
+      <div class="phone">
+        <div class="phone-inner">
+          <div class="sbar" style="background:#0A2018;color:rgba(255,255,255,0.9)">
+            <span>9:41</span>
+            <div class="sbar-lt">
+              <svg width="15" height="11" viewBox="0 0 15 11" fill="none"><rect x="0" y="4" width="3" height="7" rx="1" fill="rgba(255,255,255,0.9)"/><rect x="4" y="2.5" width="3" height="8.5" rx="1" fill="rgba(255,255,255,0.9)"/><rect x="8" y="1" width="3" height="10" rx="1" fill="rgba(255,255,255,0.9)"/></svg>
+              <svg width="24" height="11" viewBox="0 0 24 11"><rect x="0" y="1" width="20" height="9" rx="2" stroke="rgba(255,255,255,0.6)" stroke-width="1" fill="none"/><rect x="1.5" y="2.5" width="16" height="6" rx="1" fill="rgba(255,255,255,0.9)"/><path d="M21 3.5v4c1.1-.5 1.1-3.5 0-4z" fill="rgba(255,255,255,0.5)"/></svg>
+            </div>
+          </div>
+
+          <div class="s3-header">
+            <div class="star-bg"></div>
+            <div class="s3-topbar">
+              <div class="back-btn" style="background:rgba(255,255,255,0.1);border-radius:10px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px">‹</div>
+              <div class="s3-surah-info">
+                <div class="s3-surah-name">Al-Fatiha · الفاتحة</div>
+                <div class="s3-surah-sub">L'Ouverture · 7 versets · Mecquoise</div>
+              </div>
+              <div class="back-btn" style="background:rgba(255,255,255,0.1);border-radius:10px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:14px">⋯</div>
+            </div>
+            <div class="s3-controls">
+              <div class="s3-ctrl-btn active">🎧 Audio</div>
+              <div class="s3-ctrl-btn">🔤 Translitération</div>
+              <div class="s3-ctrl-btn">📖 Mode nuit</div>
+            </div>
+          </div>
+
+          <div style="overflow-y:auto;flex:1;background:var(--beige);padding-bottom:80px">
+            <div class="s3-bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+            <div style="text-align:center;font-size:9px;color:var(--t-light);margin-bottom:14px;letter-spacing:0.5px">Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux</div>
+
+            <div class="verse-item active">
+              <div class="verse-ar">ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَـٰلَمِينَ <span class="verse-num">١</span></div>
+              <div class="verse-fr">Louange à Allah, Seigneur des univers,</div>
+              <div class="verse-actions">
+                <div class="va-btn active-va">▶ Écouter</div>
+                <div class="va-btn">🔖 Marquer</div>
+                <div class="va-btn">📤 Partager</div>
+              </div>
+            </div>
+
+            <div class="verse-item">
+              <div class="verse-ar">ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ <span class="verse-num">٢</span></div>
+              <div class="verse-fr">le Tout Miséricordieux, le Très Miséricordieux,</div>
+            </div>
+
+            <div class="verse-item">
+              <div class="verse-ar">مَـٰلِكِ يَوْمِ ٱلدِّينِ <span class="verse-num">٣</span></div>
+              <div class="verse-fr">Maître du Jour de la rétribution.</div>
+            </div>
+
+            <div class="verse-item">
+              <div class="verse-ar">إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ <span class="verse-num">٤</span></div>
+              <div class="verse-fr">C'est Toi [Seul] que nous adorons, et c'est Toi [Seul] dont nous implorons le secours.</div>
+            </div>
+
+            <div class="verse-item">
+              <div class="verse-ar">ٱهْدِنَا ٱلصِّرَٰطَ ٱلْمُسْتَقِيمَ <span class="verse-num">٥</span></div>
+              <div class="verse-fr">Guide-nous dans le droit chemin,</div>
+            </div>
+          </div>
+
+          <div class="bnav">
+            <div class="bnav-item"><div class="bnav-icon">🏠</div><span>Accueil</span></div>
+            <div class="bnav-item on"><div class="bnav-icon">📖</div><span>Coran</span><div class="bnav-dot"></div></div>
+            <div class="bnav-item"><div class="bnav-icon">🎓</div><span>Apprendre</span></div>
+            <div class="bnav-item"><div class="bnav-icon">📊</div><span>Progrès</span></div>
+            <div class="bnav-item"><div class="bnav-icon">⚙️</div><span>Profil</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── SCREEN 4: QUIZ ─── -->
+    <div class="screen-block">
+      <div class="screen-label">04 · Quiz / Exercice</div>
+      <div class="phone">
+        <div class="phone-inner">
+          <div class="sbar" style="background:var(--beige);color:var(--t-dark)">
+            <span>9:41</span>
+            <div class="sbar-lt" style="gap:5px">
+              <svg width="15" height="11" viewBox="0 0 15 11" fill="none"><rect x="0" y="4" width="3" height="7" rx="1" fill="#5A4833"/><rect x="4" y="2.5" width="3" height="8.5" rx="1" fill="#5A4833"/><rect x="8" y="1" width="3" height="10" rx="1" fill="#5A4833"/><rect x="12" y="0" width="3" height="11" rx="1" fill="#5A4833"/></svg>
+              <svg width="24" height="11" viewBox="0 0 24 11"><rect x="0" y="1" width="20" height="9" rx="2" stroke="#5A4833" stroke-width="1" fill="none"/><rect x="1.5" y="2.5" width="14" height="6" rx="1" fill="#5A4833"/><path d="M21 3.5v4c1.1-.5 1.1-3.5 0-4z" fill="#8A7863"/></svg>
+            </div>
+          </div>
+
+          <div class="s4-wrap">
+            <div class="s4-topbar">
+              <div class="s4-close">✕</div>
+              <div class="s4-progress-track"><div class="s4-progress-fill" style="width:55%"></div></div>
+              <div class="s4-hearts">❤️❤️❤️</div>
+            </div>
+
+            <div class="s4-body">
+              <div class="s4-type">Choisir la traduction</div>
+              <div class="s4-question">Que signifie ce verset ?</div>
+              <div class="s4-hint">Sélectionne la traduction correcte en français</div>
+
+              <div class="s4-ar">ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَـٰلَمِينَ</div>
+
+              <div class="s4-options">
+                <div class="s4-opt">
+                  <div class="opt-letter">A</div>
+                  Au nom d'Allah, le Miséricordieux
+                </div>
+                <div class="s4-opt selected">
+                  <div class="opt-letter">B</div>
+                  Louange à Allah, Seigneur des univers
+                </div>
+                <div class="s4-opt">
+                  <div class="opt-letter">C</div>
+                  Guide-nous dans le droit chemin
+                </div>
+                <div class="s4-opt">
+                  <div class="opt-letter">D</div>
+                  Maître du Jour de la rétribution
+                </div>
+              </div>
+
+              <div class="s4-check-btn">Vérifier ›</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── SCREEN 5: PROGRESSION ─── -->
+    <div class="screen-block">
+      <div class="screen-label">05 · Ma Progression</div>
+      <div class="phone">
+        <div class="phone-inner">
+          <div class="sbar" style="background:#0A2018;color:rgba(255,255,255,0.9)">
+            <span>9:41</span>
+            <div class="sbar-lt">
+              <svg width="15" height="11" viewBox="0 0 15 11" fill="none"><rect x="0" y="4" width="3" height="7" rx="1" fill="rgba(255,255,255,0.9)"/><rect x="4" y="2.5" width="3" height="8.5" rx="1" fill="rgba(255,255,255,0.9)"/><rect x="8" y="1" width="3" height="10" rx="1" fill="rgba(255,255,255,0.9)"/></svg>
+              <svg width="24" height="11" viewBox="0 0 24 11"><rect x="0" y="1" width="20" height="9" rx="2" stroke="rgba(255,255,255,0.6)" stroke-width="1" fill="none"/><rect x="1.5" y="2.5" width="12" height="6" rx="1" fill="rgba(255,255,255,0.9)"/><path d="M21 3.5v4c1.1-.5 1.1-3.5 0-4z" fill="rgba(255,255,255,0.5)"/></svg>
+            </div>
+          </div>
+
+          <div class="s5-header">
+            <div class="star-bg"></div>
+            <div class="s5-topbar">
+              <div class="back-btn" style="background:rgba(255,255,255,0.1);border-radius:10px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px">‹</div>
+              <div class="s5-title">Ton progrès</div>
+              <div class="notif-btn" style="width:32px;height:32px;background:rgba(255,255,255,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px">⋯</div>
+            </div>
+          </div>
+
+          <div style="overflow-y:auto;flex:1;padding:14px 16px 80px;background:var(--beige)">
+            <!-- ring card -->
+            <div class="ring-card">
+              <svg class="ring-svg" width="80" height="80" viewBox="0 0 80 80">
+                <circle cx="40" cy="40" r="32" fill="none" stroke="#EAE0CF" stroke-width="8"/>
+                <circle cx="40" cy="40" r="32" fill="none" stroke="url(#ringGrad)" stroke-width="8"
+                  stroke-dasharray="201" stroke-dashoffset="121" stroke-linecap="round" transform="rotate(-90 40 40)"/>
+                <defs>
+                  <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#1B4D38"/>
+                    <stop offset="100%" stop-color="#3DAA72"/>
+                  </linearGradient>
+                </defs>
+                <text x="40" y="38" text-anchor="middle" font-size="15" font-weight="900" fill="#1A130A" font-family="Outfit,sans-serif">40%</text>
+                <text x="40" y="52" text-anchor="middle" font-size="8" fill="#8A7863" font-family="Outfit,sans-serif">Niveau 4</text>
+              </svg>
+              <div class="ring-info">
+                <div class="ring-title">Progression globale</div>
+                <div class="ring-sub">Al-Fatiha · Parcours Débutant</div>
+                <div class="ring-tags">
+                  <span class="ring-tag rt-g">🔥 5 jours streak</span>
+                  <span class="ring-tag rt-go">⭐ 1 320 XP</span>
+                  <span class="ring-tag rt-g">📖 42 versets</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- stats grid -->
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-card-icon">📅</div>
+                <div class="stat-card-val">23</div>
+                <div class="stat-card-lbl">Jours actifs</div>
+                <div class="stat-card-trend">↑ +3 ce mois</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-card-icon">⏱️</div>
+                <div class="stat-card-val">4h 20</div>
+                <div class="stat-card-lbl">Temps total</div>
+                <div class="stat-card-trend">↑ +45 min/sem</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-card-icon">✅</div>
+                <div class="stat-card-val">67</div>
+                <div class="stat-card-lbl">Exercices faits</div>
+                <div class="stat-card-trend">Précision 82%</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-card-icon">🎯</div>
+                <div class="stat-card-val">12</div>
+                <div class="stat-card-lbl">Leçons finies</div>
+                <div class="stat-card-trend">↑ +2 cette sem</div>
+              </div>
+            </div>
+
+            <!-- heatmap -->
+            <div class="heatmap-card">
+              <div class="hm-title">Activité — 10 derniers jours</div>
+              <div class="hm-grid">
+                <div class="hm-day hm-2"></div><div class="hm-day hm-0"></div>
+                <div class="hm-day hm-3"></div><div class="hm-day hm-4"></div>
+                <div class="hm-day hm-2"></div><div class="hm-day hm-1"></div>
+                <div class="hm-day hm-4"></div><div class="hm-day hm-3"></div>
+                <div class="hm-day hm-4"></div><div class="hm-day hm-4"></div>
+              </div>
+            </div>
+
+            <!-- badges -->
+            <div class="badges-card">
+              <div class="badges-title">Badges obtenus</div>
+              <div class="badges-row">
+                <div class="badge"><div class="badge-icon bg-gold">⭐</div><div class="badge-lbl">Premier pas</div></div>
+                <div class="badge"><div class="badge-icon bg-g">🔥</div><div class="badge-lbl">Streak 5j</div></div>
+                <div class="badge"><div class="badge-icon bg-b">📖</div><div class="badge-lbl">Lecteur</div></div>
+                <div class="badge"><div class="badge-icon bg-dim">🏆</div><div class="badge-lbl">À venir</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bnav">
+            <div class="bnav-item"><div class="bnav-icon">🏠</div><span>Accueil</span></div>
+            <div class="bnav-item"><div class="bnav-icon">📖</div><span>Coran</span></div>
+            <div class="bnav-item"><div class="bnav-icon">🎓</div><span>Apprendre</span></div>
+            <div class="bnav-item on"><div class="bnav-icon">📊</div><span>Progrès</span><div class="bnav-dot"></div></div>
+            <div class="bnav-item"><div class="bnav-icon">⚙️</div><span>Profil</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end screens-row -->
+</div><!-- end screens-outer -->
+
+<!-- ══ DESIGN NOTES ══ -->
+<div class="notes-section">
+  <div class="ds-title" style="margin-bottom:24px">Principes UX clés</div>
+  <div class="notes-grid">
+    <div class="note-card">
+      <div class="note-icon">👁️</div>
+      <div class="note-title">Hiérarchie claire</div>
+      <div class="note-body">L'accueil met en avant 3 actions en moins de 3 secondes : verset du jour, continuer la leçon, accès rapide aux modules.</div>
+    </div>
+    <div class="note-card">
+      <div class="note-icon">🎨</div>
+      <div class="note-title">Palette islamique moderne</div>
+      <div class="note-body">Vert profond + beige sable + or léger — cohérent sur tous les écrans. Fond clair pour la lecture, gradient sombre pour les headers.</div>
+    </div>
+    <div class="note-card">
+      <div class="note-icon">📐</div>
+      <div class="note-title">Design système</div>
+      <div class="note-body">Grid 8px, border-radius cohérents (10–28px), typographie en 2 polices : Outfit (UI) + Amiri (arabe). Aucun élément superflu.</div>
+    </div>
+    <div class="note-card">
+      <div class="note-icon">💚</div>
+      <div class="note-title">Émotion & spiritualité</div>
+      <div class="note-body">Le verset du jour est mis en valeur visuellement. Les stats de streak et XP encouragent la régularité sans gamification excessive.</div>
+    </div>
+    <div class="note-card">
+      <div class="note-icon">📱</div>
+      <div class="note-title">Navigation intuitive</div>
+      <div class="note-body">Bottom nav avec 5 onglets clairs. Indicateur visuel (point vert) pour l'onglet actif. Retour accessible depuis chaque écran.</div>
+    </div>
+    <div class="note-card">
+      <div class="note-icon">⚡</div>
+      <div class="note-title">Clarté du quiz</div>
+      <div class="note-body">Exercice épuré : barre de progression en haut, texte arabe large au centre, 4 options bien lisibles, bouton de validation proéminent.</div>
+    </div>
+  </div>
+</div>
+
+<div class="pg-footer">
+  Nour · <span>نور</span> — Design System v1.0 · 2026 — Proposition visuelle
+</div>
+
+</body>
+</html>
