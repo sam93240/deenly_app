@@ -1,4 +1,4 @@
-// protection_screen.dart — Module Protection · Application Deenly
+// protection_screen.dart — Module Protection · Application UpYourDeen
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';

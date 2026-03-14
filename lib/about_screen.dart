@@ -1,5 +1,5 @@
 // about_screen.dart
-// Écran À propos — Application Deenly
+// Écran À propos — Application UpYourDeen
 
 import 'package:flutter/material.dart';
 
@@ -69,7 +69,7 @@ class AboutScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Center(
-            child: Text('Deenly',
+            child: Text('UpYourDeen',
               style: TextStyle(
                 fontSize: 28, fontWeight: FontWeight.w800,
                 color: txtDk, letterSpacing: 1.5,
@@ -101,7 +101,7 @@ class AboutScreen extends StatelessWidget {
             iconColor: _kGreen,
             title: 'Notre mission',
             titleColor: txtDk,
-            content: 'Deenly est une application gratuite conçue pour '
+            content: 'UpYourDeen est une application gratuite conçue pour '
                 'accompagner chaque musulman(e) dans son cheminement spirituel. '
                 'Apprendre le Coran, comprendre les hadiths, renforcer sa foi '
                 'et éduquer sa famille — tout cela dans une seule app, '
@@ -119,7 +119,7 @@ class AboutScreen extends StatelessWidget {
             title: 'Nos valeurs',
             titleColor: txtDk,
             content: 'Pas de publicité. Pas de collecte de données personnelles. '
-                'Pas de contenu douteux. Deenly est un projet de Sadaqa Jariya — '
+                'Pas de contenu douteux. UpYourDeen est un projet de Sadaqa Jariya — '
                 'une aumône continue dont les récompenses perdurent, '
                 'insha\'Allah.',
             contentColor: txtMd,
@@ -134,7 +134,7 @@ class AboutScreen extends StatelessWidget {
             iconColor: _kGold,
             title: 'Sources',
             titleColor: txtDk,
-            content: 'Le contenu de Deenly provient de sources authentiques :\n'
+            content: 'Le contenu de UpYourDeen provient de sources authentiques :\n'
                 '• Coran : Mushaf Uthmani (Hafs)\n'
                 '• Hadiths : Sahih al-Bukhari, Sahih Muslim, Sunan compilations\n'
                 '• Adhkar : Hisnul Muslim (La Citadelle du Musulman)\n'
@@ -169,7 +169,7 @@ class AboutScreen extends StatelessWidget {
                   style: TextStyle(fontSize: 16, color: _kGold, fontWeight: FontWeight.w500),
                 ),
                 const SizedBox(height: 12),
-                Text('© 2026 Deenly. Tous droits réservés.',
+                Text('© 2026 UpYourDeen. Tous droits réservés.',
                   style: TextStyle(fontSize: 12, color: txtLt),
                 ),
                 const SizedBox(height: 4),

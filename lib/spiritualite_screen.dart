@@ -1,4 +1,4 @@
-// spiritualite_screen.dart — Module Spiritualité · Application Deenly
+// spiritualite_screen.dart — Module Spiritualité · Application UpYourDeen
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';

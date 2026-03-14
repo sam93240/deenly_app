@@ -1,5 +1,5 @@
 // consent_dialog.dart
-// Popup de consentement analytics — Application Deenly
+// Popup de consentement analytics — Application UpYourDeen
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -62,7 +62,7 @@ class _ConsentDialog extends StatelessWidget {
             // Explication
             Text(
               'As-salamu alaykum !\n\n'
-              'Pour améliorer Deenly, on aimerait collecter '
+              'Pour améliorer UpYourDeen, on aimerait collecter '
               'des données d\'utilisation anonymes (écrans visités, '
               'fonctionnalités utilisées). Aucune donnée personnelle '
               'n\'est collectée.\n\n'

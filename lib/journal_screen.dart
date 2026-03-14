@@ -1,11 +1,11 @@
 // journal_screen.dart
-// Module Journal Spirituel enrichi – Application Deenly : Lumière sur ta foi
+// Module Journal Spirituel enrichi – Application UpYourDeen : Lumière sur ta foi
 
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'journal_data.dart';
 
-// ── Palette Deenly ──────────────────────────────────────────────────
+// ── Palette UpYourDeen ──────────────────────────────────────────────────
 const _kDeep    = Color(0xFF0A2018);
 const _kPrimary = Color(0xFF1B4D38);
 const _kMedium  = Color(0xFF2A7A52);

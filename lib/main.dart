@@ -1,5 +1,5 @@
 // main.dart
-// Application Deenly : Lumière sur ta foi
+// Application UpYourDeen : Lumière sur ta foi
 // Framework : Flutter | Langage : Dart
 
 import 'package:flutter/material.dart';
@@ -151,7 +151,7 @@ class _DeenlyAppState extends State<DeenlyApp> {
         listenable: _profileProvider,
         builder: (context, _) {
           return MaterialApp(
-            title: 'Deenly – Lumière sur ta foi',
+            title: 'UpYourDeen – Élève ta foi',
             debugShowCheckedModeBanner: false,
             theme: _lightTheme,
             darkTheme: _darkTheme,

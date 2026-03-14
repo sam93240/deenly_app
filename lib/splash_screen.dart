@@ -1,5 +1,5 @@
 // splash_screen.dart
-// Écran de démarrage animé — Application Deenly
+// Écran de démarrage animé — Application UpYourDeen
 
 import 'dart:math' as math;
 import 'package:flutter/material.dart';

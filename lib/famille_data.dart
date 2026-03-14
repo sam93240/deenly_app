@@ -1,4 +1,4 @@
-// famille_data.dart — Données : Espace Familles · Application Deenly
+// famille_data.dart — Données : Espace Familles · Application UpYourDeen
 
 // ── Enums ─────────────────────────────────────────────────────────────────
 
@@ -144,7 +144,7 @@ const List<QuizBadge> kQuizBadges = [
   QuizBadge(id: 'imam_qisas', name: 'Imam al-Qisas', emoji: '👑',
     description: 'Maître des récits — tu as obtenu 90%+ à TOUS les quiz.',
     tier: BadgeTier.or, requiredScore: 90),
-  QuizBadge(id: 'nour', name: 'Deenly', emoji: '✨',
+  QuizBadge(id: 'nour', name: 'UpYourDeen', emoji: '✨',
     description: 'Lumière — tu as exploré chaque histoire et réussi chaque épreuve.',
     tier: BadgeTier.or, requiredScore: 95),
 ];

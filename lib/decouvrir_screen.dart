@@ -1,5 +1,5 @@
 // decouvrir_screen.dart
-// Module Découvrir – Application Deenly : Lumière sur ta foi
+// Module Découvrir – Application UpYourDeen : Lumière sur ta foi
 
 import 'dart:math';
 import 'package:flutter/material.dart';
@@ -1352,7 +1352,7 @@ class _AssistantScreenState extends State<_AssistantScreen> {
         title: const Row(children: [
           Text('\u{1F916} ',
               style: TextStyle(fontSize: 22)),
-          Text('Assistant Deenly',
+          Text('Assistant UpYourDeen',
               style: TextStyle(
                   color: Colors.white,
                   fontSize: 18,
@@ -1383,7 +1383,7 @@ class _AssistantScreenState extends State<_AssistantScreen> {
               // Welcome message
               if (_messages.isEmpty) ...[
                 _BotBubble(
-                  text: 'Assalamu alaykum ! Je suis l\'assistant Deenly. '
+                  text: 'Assalamu alaykum ! Je suis l\'assistant UpYourDeen. '
                       'Pose-moi une question sur l\'Islam et je ferai de mon '
                       'mieux pour te répondre avec des sources fiables.',
                 ),

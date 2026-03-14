@@ -1,5 +1,5 @@
 // user_profile.dart
-// Système de profil utilisateur — Application Deenly
+// Système de profil utilisateur — Application UpYourDeen
 
 import 'dart:convert';
 import 'package:flutter/material.dart';

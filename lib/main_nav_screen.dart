@@ -1,5 +1,5 @@
 // main_nav_screen.dart
-// Barre de navigation principale – Application Deenly
+// Barre de navigation principale – Application UpYourDeen
 
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
@@ -8,7 +8,7 @@ import 'hadith_screen.dart';
 import 'journal_screen.dart';
 import 'learning/learning_home_screen.dart';
 
-// ── Palette Deenly ──────────────────────────────────────────────────
+// ── Palette UpYourDeen ──────────────────────────────────────────────────
 const _kGreenDeep    = Color(0xFF0A2018);
 const _kGreenPrimary = Color(0xFF1B4D38);
 const _kGold         = Color(0xFFC8933A);
@@ -50,7 +50,7 @@ class _MainNavScreenState extends State<MainNavScreen> {
   }
 }
 
-// ── Barre de navigation Deenly ───────────────────────────────────────
+// ── Barre de navigation UpYourDeen ───────────────────────────────────────
 class _DeenlyBottomNav extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;

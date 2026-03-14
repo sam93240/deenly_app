@@ -1,5 +1,5 @@
 // onboarding_screen.dart
-// Parcours d'accueil – Application Deenly
+// Parcours d'accueil – Application UpYourDeen
 
 import 'package:flutter/material.dart';
 import 'user_profile.dart';
@@ -273,7 +273,7 @@ class _StepPrenom extends StatelessWidget {
           const Text('بسم الله الرحمن الرحيم',
               style: TextStyle(fontSize: 22, color: _kGold)),
           const SizedBox(height: 24),
-          const Text('Bienvenue sur Deenly',
+          const Text('Bienvenue sur UpYourDeen',
               style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w800,
@@ -644,7 +644,7 @@ class _StepAvatar extends StatelessWidget {
                   fontWeight: FontWeight.w800,
                   color: _kTxtDk)),
           const SizedBox(height: 8),
-          Text('L\'icône qui te représentera dans Deenly',
+          Text('L\'icône qui te représentera dans UpYourDeen',
               style: TextStyle(
                   fontSize: 13, color: _kTxtMd.withOpacity(0.6))),
           const SizedBox(height: 32),

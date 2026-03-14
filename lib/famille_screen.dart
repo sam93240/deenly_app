@@ -1,4 +1,4 @@
-// famille_screen.dart — Module Espace Familles · Application Deenly
+// famille_screen.dart — Module Espace Familles · Application UpYourDeen
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
@@ -295,7 +295,7 @@ class _ProphetDetailScreenState extends State<_ProphetDetailScreen> {
   String _badgeForScore(int score, int total) {
     if (total == 0) return '';
     final pct = (score * 100 ~/ total);
-    if (pct >= 95) return '✨ Deenly';
+    if (pct >= 95) return '✨ UpYourDeen';
     if (pct >= 90) return '👑 Imam al-Qisas';
     if (pct >= 80) return '🏆 \'Alim';
     if (pct >= 70) return '⭐ Faqih';

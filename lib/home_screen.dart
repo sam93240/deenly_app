@@ -1,4 +1,4 @@
-// home_screen.dart — Deenly · Page d'accueil v3
+// home_screen.dart — UpYourDeen · Page d'accueil v3
 
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
@@ -292,7 +292,7 @@ class _HomeScreenState extends State<HomeScreen>
                                     fontWeight: FontWeight.w500,
                                   ))
                             else
-                              Text('Lumière sur ta foi',
+                              Text('Élève ta foi',
                                   style: TextStyle(
                                     color: Colors.white.withOpacity(0.3),
                                     fontSize: 11,
@@ -301,7 +301,7 @@ class _HomeScreenState extends State<HomeScreen>
                           ],
                         ),
                       ),
-                      // Logo ديني compact
+                      // Logo UpYourDeen compact
                       Column(
                         children: [
                           Text('ديني',
@@ -1012,7 +1012,7 @@ class _ContinueCardState extends State<_ContinueCard>
                         fontWeight: FontWeight.w600,
                         letterSpacing: 1)),
                 const SizedBox(height: 4),
-                const Text('Al-Fatiha · Leçon 4',
+                const Text('Commencer votre lecture',
                     style: TextStyle(
                         color: Colors.white,
                         fontSize: 14,
@@ -1030,14 +1030,14 @@ class _ContinueCardState extends State<_ContinueCard>
                               )),
                           Container(
                               height: 4,
-                              width: c.maxWidth * 0.40,
+                              width: c.maxWidth * 0.0,
                               decoration: BoxDecoration(
                                 color: _kGoldLight,
                                 borderRadius: BorderRadius.circular(99),
                               )),
                         ])),
                 const SizedBox(height: 4),
-                Text('40 %',
+                Text('0 %',
                     style: TextStyle(
                         color: Colors.white.withOpacity(0.45), fontSize: 10)),
               ],

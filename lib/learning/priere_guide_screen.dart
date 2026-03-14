@@ -1,4 +1,4 @@
-// priere_guide_screen.dart — Deenly · Guide Pratique de la Prière
+// priere_guide_screen.dart — UpYourDeen · Guide Pratique de la Prière
 
 import 'package:flutter/material.dart';
 

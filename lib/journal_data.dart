@@ -1,5 +1,5 @@
 // journal_data.dart
-// Données enrichies pour le module Journal Spirituel – Application Deenly
+// Données enrichies pour le module Journal Spirituel – Application UpYourDeen
 
 // ── Catégories d'actions quotidiennes ─────────────────────────────
 

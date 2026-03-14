@@ -1,11 +1,11 @@
 {
-    "name": "Deenly",
-    "short_name": "Deenly",
+    "name": "UpYourDeen",
+    "short_name": "UpYourDeen",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "Deenly – Lumière sur ta foi",
+    "description": "UpYourDeen – Élève ta foi",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

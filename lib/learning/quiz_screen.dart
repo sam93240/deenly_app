@@ -1,4 +1,4 @@
-// quiz_screen.dart — Deenly · Quiz intermédiaire & final de sourate
+// quiz_screen.dart — UpYourDeen · Quiz intermédiaire & final de sourate
 
 import 'package:flutter/material.dart';
 import 'learning_models.dart';

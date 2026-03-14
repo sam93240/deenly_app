@@ -1,5 +1,5 @@
 // profile_screen.dart
-// Écran de profil utilisateur — Application Deenly
+// Écran de profil utilisateur — Application UpYourDeen
 
 import 'package:flutter/material.dart';
 import 'user_profile.dart';

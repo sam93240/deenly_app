@@ -1,5 +1,5 @@
 // decouvrir_data.dart
-// Données pour le module Découvrir – Application Deenly
+// Données pour le module Découvrir – Application UpYourDeen
 
 // ── Questions du Jour ─────────────────────────────────────────────
 

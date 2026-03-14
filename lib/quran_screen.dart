@@ -1,4 +1,4 @@
-// quran_screen.dart — Deenly · Design premium islamique
+// quran_screen.dart — UpYourDeen · Design premium islamique
 // Nouvelles features : sauvegarde de position + taille du texte réglable
 
 import 'dart:async';

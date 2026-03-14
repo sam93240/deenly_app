@@ -1,5 +1,5 @@
 // assistant_data.dart
-// Base de connaissances pour l'assistant islamique – Application Deenly
+// Base de connaissances pour l'assistant islamique – Application UpYourDeen
 
 // ── Structure ─────────────────────────────────────────────────────
 

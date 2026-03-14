@@ -1,5 +1,5 @@
 // notification_data.dart
-// Messages de notification — Application Deenly
+// Messages de notification — Application UpYourDeen
 // Ton : meilleur ami bienveillant, chaleureux, musulman
 // 100+ messages uniques
 
@@ -50,7 +50,7 @@ const kMotivationNotifs = <DeenlyNotif>[
     type: NotifType.motivation,
     emoji: '🌟',
     titre: 'Hey, ça fait plaisir de te voir !',
-    message: 'Tu sais quoi ? Le simple fait d\'ouvrir Deenly, c\'est déjà une intention de bien. Et Allah récompense les intentions. Tu veux lire un verset aujourd\'hui ?',
+    message: 'Tu sais quoi ? Le simple fait d\'ouvrir UpYourDeen, c\'est déjà une intention de bien. Et Allah récompense les intentions. Tu veux lire un verset aujourd\'hui ?',
     actionLabel: 'Lire le Coran',
     actionRoute: 'quran',
   ),
@@ -385,7 +385,7 @@ const kComebackNotifs = <DeenlyNotif>[
     type: NotifType.comeback,
     emoji: '🏠',
     titre: 'De retour à la maison !',
-    message: 'Deenly, c\'est un peu ta maison spirituelle. Tu peux partir, voyager, t\'absenter... mais tu seras toujours le/la bienvenu(e) ici. Alhamdulillah pour ton retour !',
+    message: 'UpYourDeen, c\'est un peu ta maison spirituelle. Tu peux partir, voyager, t\'absenter... mais tu seras toujours le/la bienvenu(e) ici. Alhamdulillah pour ton retour !',
   ),
   DeenlyNotif(
     type: NotifType.comeback,
@@ -421,7 +421,7 @@ const kComebackNotifs = <DeenlyNotif>[
     type: NotifType.comeback,
     emoji: '💪',
     titre: 'L\'important c\'est de revenir',
-    message: 'Abu Bakr ne jugeait jamais ceux qui trébuchaient. Il les relevait. Deenly aussi. Tu es tombé(e) ? Relève-toi. Tu as oublié ? Rappelle-toi. Tu es parti(e) ? Reviens. On t\'attend.',
+    message: 'Abu Bakr ne jugeait jamais ceux qui trébuchaient. Il les relevait. UpYourDeen aussi. Tu es tombé(e) ? Relève-toi. Tu as oublié ? Rappelle-toi. Tu es parti(e) ? Reviens. On t\'attend.',
     actionLabel: 'Se relever',
     actionRoute: 'learning',
   ),
@@ -715,54 +715,54 @@ const kSadaqaNotifs = <DeenlyNotif>[
     type: NotifType.sadaqaJariya,
     emoji: '💝',
     titre: 'Sadaqa Jariya',
-    message: 'Deenly est gratuite et le restera toujours, insha\'Allah. Mais si tu veux soutenir le projet, chaque don est une sadaqa jariya : tant que quelqu\'un apprend grâce à Deenly, tu en récoltes les récompenses. Même après ta mort.',
-    actionLabel: 'Soutenir Deenly',
+    message: 'UpYourDeen est gratuite et le restera toujours, insha\'Allah. Mais si tu veux soutenir le projet, chaque don est une sadaqa jariya : tant que quelqu\'un apprend grâce à UpYourDeen, tu en récoltes les récompenses. Même après ta mort.',
+    actionLabel: 'Soutenir UpYourDeen',
   ),
   DeenlyNotif(
     type: NotifType.sadaqaJariya,
     emoji: '🌍',
     titre: 'Aide-nous à grandir',
-    message: 'Chaque verset lu sur Deenly, chaque histoire apprise par un enfant, chaque dhikr récité... tout ça grâce à des gens comme toi. Un don, même de 1€, aide à maintenir cette lumière allumée.',
+    message: 'Chaque verset lu sur UpYourDeen, chaque histoire apprise par un enfant, chaque dhikr récité... tout ça grâce à des gens comme toi. Un don, même de 1€, aide à maintenir cette lumière allumée.',
     actionLabel: 'Contribuer',
   ),
   DeenlyNotif(
     type: NotifType.sadaqaJariya,
     emoji: '📢',
-    titre: 'Partage Deenly autour de toi',
-    message: 'Le Prophète ﷺ a dit : « Celui qui guide vers un bien a la même récompense que celui qui le fait. » Partage Deenly avec un ami, un cousin, un voisin. C\'est une sadaqa gratuite !',
+    titre: 'Partage UpYourDeen autour de toi',
+    message: 'Le Prophète ﷺ a dit : « Celui qui guide vers un bien a la même récompense que celui qui le fait. » Partage UpYourDeen avec un ami, un cousin, un voisin. C\'est une sadaqa gratuite !',
     actionLabel: 'Partager',
   ),
   DeenlyNotif(
     type: NotifType.sadaqaJariya,
     emoji: '🤲',
-    titre: 'Une du\'a pour Deenly',
-    message: 'Si tu ne peux pas donner d\'argent, fais une du\'a pour que Deenly aide le plus de musulmans possible. La du\'a est la plus belle des aumônes.',
+    titre: 'Une du\'a pour UpYourDeen',
+    message: 'Si tu ne peux pas donner d\'argent, fais une du\'a pour que UpYourDeen aide le plus de musulmans possible. La du\'a est la plus belle des aumônes.',
   ),
   DeenlyNotif(
     type: NotifType.sadaqaJariya,
     emoji: '👨‍👩‍👧‍👦',
-    titre: 'Offre Deenly à une famille',
-    message: 'Tu connais une famille qui cherche à éduquer ses enfants dans l\'Islam ? Parle-leur de Deenly. Les histoires des prophètes, le Coran, les hadiths... tout est là, gratuit.',
+    titre: 'Offre UpYourDeen à une famille',
+    message: 'Tu connais une famille qui cherche à éduquer ses enfants dans l\'Islam ? Parle-leur de UpYourDeen. Les histoires des prophètes, le Coran, les hadiths... tout est là, gratuit.',
     actionLabel: 'Partager',
   ),
   DeenlyNotif(
     type: NotifType.sadaqaJariya,
     emoji: '💎',
     titre: 'L\'investissement éternel',
-    message: 'Le Prophète ﷺ a dit que 3 choses profitent au croyant après sa mort : un enfant pieux, un savoir utile, et une sadaqa jariya. En soutenant Deenly, tu cumules les 3.',
+    message: 'Le Prophète ﷺ a dit que 3 choses profitent au croyant après sa mort : un enfant pieux, un savoir utile, et une sadaqa jariya. En soutenant UpYourDeen, tu cumules les 3.',
     actionLabel: 'Investir',
   ),
   DeenlyNotif(
     type: NotifType.sadaqaJariya,
     emoji: '⭐',
     titre: 'Laisse un avis',
-    message: 'Tu aimes Deenly ? Laisse un avis 5 étoiles sur l\'App Store ou Google Play. Chaque avis aide d\'autres musulmans à découvrir l\'app. C\'est gratuit et c\'est une sadaqa !',
+    message: 'Tu aimes UpYourDeen ? Laisse un avis 5 étoiles sur l\'App Store ou Google Play. Chaque avis aide d\'autres musulmans à découvrir l\'app. C\'est gratuit et c\'est une sadaqa !',
   ),
   DeenlyNotif(
     type: NotifType.sadaqaJariya,
     emoji: '🌙',
     titre: 'Ramadan approche',
-    message: 'Les récompenses sont multipliées pendant le Ramadan. Si tu veux soutenir Deenly, c\'est le meilleur moment. Chaque centime donné pendant le Ramadan a une valeur décuplée.',
+    message: 'Les récompenses sont multipliées pendant le Ramadan. Si tu veux soutenir UpYourDeen, c\'est le meilleur moment. Chaque centime donné pendant le Ramadan a une valeur décuplée.',
     actionLabel: 'Soutenir',
   ),
 ];

@@ -1,5 +1,5 @@
 // sourates_data.dart
-// Données complètes du Coran – Application Deenly
+// Données complètes du Coran – Application UpYourDeen
 // Juz Amma complet (Sourates 78-114) + Al-Fatiha + sourates clés
 
 // ignore_for_file: non_constant_identifier_names

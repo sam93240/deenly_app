@@ -1,10 +1,10 @@
-// hadith_screen.dart — Deenly · Module Hadith (v3 – share image feature)
+// hadith_screen.dart — UpYourDeen · Module Hadith (v3 – share image feature)
 
-import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -1503,9 +1503,9 @@ class HadithShareCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Logo Deenly / ديني
+                // Logo UpYourDeen / ديني
                 Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  const Text('Deenly',
+                  const Text('UpYourDeen',
                       style: TextStyle(
                           color: Color(0xFFC8933A), fontSize: 18,
                           fontWeight: FontWeight.w900, letterSpacing: 2.5)),
@@ -1603,8 +1603,8 @@ class HadithShareCard extends StatelessWidget {
 
                 const SizedBox(height: 10),
 
-                // Signature Deenly
-                Text('Deenly · Lumière sur ta foi',
+                // Signature UpYourDeen
+                Text('UpYourDeen · Élève ta foi',
                     style: TextStyle(
                         color: const Color(0xFFC8933A).withOpacity(0.55),
                         fontSize: 10, letterSpacing: 1.3)),
@@ -1684,24 +1684,32 @@ class _ShareBottomSheetState extends State<_ShareBottomSheet> {
     setState(() => _isGenerating = true);
     try {
       final bytes = await _renderCard();
-      final dir   = await getTemporaryDirectory();
-      final file  = File('${dir.path}/deenly_hadith_${DateTime.now().millisecondsSinceEpoch}.png');
-      await file.writeAsBytes(bytes);
-      if (mounted) {
+      final name = 'deenly_hadith_${DateTime.now().millisecondsSinceEpoch}.png';
+      if (kIsWeb) {
+        // Sur le web : copier le texte du hadith au lieu de l'image
+        final text = '${widget.hadith.arabe}\n\n« ${widget.hadith.traduction} »\n— ${widget.hadith.narrateur}\n${widget.hadith.source}\n\nUpYourDeen · Élève ta foi';
+        await Share.share(text);
+      } else {
         await Share.shareXFiles(
-          [XFile(file.path, mimeType: 'image/png')],
-          subject: 'Deenly · Lumière sur ta foi',
+          [XFile.fromData(bytes, mimeType: 'image/png', name: name)],
+          subject: 'UpYourDeen · Élève ta foi',
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Erreur lors du partage : $e'),
-          backgroundColor: _kRed,
-          behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.all(16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ));
+        // Fallback : partage texte si l'image échoue
+        try {
+          final text = '${widget.hadith.arabe}\n\n« ${widget.hadith.traduction} »\n— ${widget.hadith.narrateur}\n${widget.hadith.source}\n\nUpYourDeen · Élève ta foi';
+          await Share.share(text);
+        } catch (_) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('Erreur lors du partage : $e'),
+            backgroundColor: _kRed,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(16),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ));
+        }
       }
     } finally {
       if (mounted) setState(() => _isGenerating = false);
@@ -1711,14 +1719,15 @@ class _ShareBottomSheetState extends State<_ShareBottomSheet> {
   Future<void> _save() async {
     setState(() => _isGenerating = true);
     try {
-      final bytes  = await _renderCard();
-      final dir    = await getDownloadsDirectory() ?? await getTemporaryDirectory();
-      final name   = 'deenly_hadith_${DateTime.now().millisecondsSinceEpoch}.png';
-      final file   = File('${dir.path}/$name');
-      await file.writeAsBytes(bytes);
+      final bytes = await _renderCard();
+      final name = 'deenly_hadith_${DateTime.now().millisecondsSinceEpoch}.png';
+      await Share.shareXFiles(
+        [XFile.fromData(bytes, mimeType: 'image/png', name: name)],
+        subject: 'UpYourDeen · Élève ta foi',
+      );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Image sauvegardée dans : ${dir.path}'),
+          content: const Text('Image partagée !'),
           backgroundColor: _kGreenPrimary,
           behavior: SnackBarBehavior.floating,
           margin: const EdgeInsets.all(16),

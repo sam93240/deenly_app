@@ -1,5 +1,5 @@
 // notification_service.dart
-// Moteur de sélection intelligente des notifications — Application Deenly
+// Moteur de sélection intelligente des notifications — Application UpYourDeen
 
 import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';

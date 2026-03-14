@@ -1,5 +1,5 @@
 // settings_screen.dart
-// Écran Paramètres — Application Deenly
+// Écran Paramètres — Application UpYourDeen
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -120,7 +120,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 icon: Icons.analytics_rounded,
                 iconColor: const Color(0xFF4CAF50),
                 title: 'Données d\'usage anonymes',
-                subtitle: 'Aide-nous à améliorer Deenly',
+                subtitle: 'Aide-nous à améliorer UpYourDeen',
                 titleColor: txtDk,
                 subtitleColor: txtLt,
                 trailing: Switch(
@@ -189,7 +189,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _SettingsTile(
                 icon: Icons.mosque_rounded,
                 iconColor: _kGreen,
-                title: 'À propos de Deenly',
+                title: 'À propos de UpYourDeen',
                 subtitle: 'Version, crédits et remerciements',
                 titleColor: txtDk,
                 subtitleColor: txtLt,
@@ -207,14 +207,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
           // ── Version ──
           Center(
             child: Text(
-              'Deenly v1.0.0',
+              'UpYourDeen v1.0.0',
               style: TextStyle(fontSize: 12, color: txtLt),
             ),
           ),
           const SizedBox(height: 4),
           Center(
             child: Text(
-              '© 2026 Deenly. Tous droits réservés.',
+              '© 2026 UpYourDeen. Tous droits réservés.',
               style: TextStyle(fontSize: 11, color: txtLt),
             ),
           ),
@@ -302,7 +302,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             const SizedBox(height: 16),
             _PolicySection(title: 'Données collectées', content:
-              'Deenly ne collecte aucune donnée personnelle identifiable. '
+              'UpYourDeen ne collecte aucune donnée personnelle identifiable. '
               'Si tu actives les données d\'usage anonymes, nous collectons uniquement : '
               'les écrans visités, le temps d\'utilisation, le pays et la langue de l\'appareil, '
               'et les événements d\'utilisation (verset lu, défi complété…). '

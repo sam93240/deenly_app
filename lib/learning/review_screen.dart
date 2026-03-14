@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'learning_models.dart';
 import 'learning_service.dart';
 
-// ─── Palette Deenly ─────────────────────────────────────────────────
+// ─── Palette UpYourDeen ─────────────────────────────────────────────────
 const _kGreenDeep    = Color(0xFF0A2018);
 const _kGreenPrimary = Color(0xFF1B4D38);
 const _kGreenMedium  = Color(0xFF2A7A52);
