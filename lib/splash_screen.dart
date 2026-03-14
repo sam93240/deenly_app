@@ -173,10 +173,10 @@ class _SplashScreenState extends State<SplashScreen>
                       ),
                       const SizedBox(height: 8),
 
-                      // D E E N L Y
+                      // U P Y O U R D E E N
                       Opacity(
                         opacity: _textOpacity.value,
-                        child: const Text('D E E N L Y',
+                        child: const Text('U P Y O U R D E E N',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 18,
@@ -189,7 +189,7 @@ class _SplashScreenState extends State<SplashScreen>
                       // Slogan
                       Opacity(
                         opacity: _subtitleOpacity.value,
-                        child: Text('Lumière sur ta foi',
+                        child: Text('Élève ta foi',
                             style: TextStyle(
                               color: Colors.white.withOpacity(0.4),
                               fontSize: 12,

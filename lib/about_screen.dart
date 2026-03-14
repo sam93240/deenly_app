@@ -154,7 +154,7 @@ class AboutScreen extends StatelessWidget {
             title: 'Contact',
             titleColor: txtDk,
             content: 'Une question, une suggestion, ou tu veux contribuer ?\n\n'
-                'contact@deenly.app\n\n'
+                'contact@upyourdeen.com\n\n'
                 'Qu\'Allah récompense tous ceux qui contribuent à ce projet.',
             contentColor: txtMd,
           ),

@@ -328,7 +328,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             _PolicySection(title: 'Contact', content:
               'Pour toute question sur la confidentialité, contacte-nous à :\n'
-              'contact@deenly.app',
+              'contact@upyourdeen.com',
               titleColor: txtColor, contentColor: txtLtColor,
             ),
             const SizedBox(height: 16),
