@@ -133,6 +133,8 @@ class LocalNotifService {
       scheduled,
       _notifDetails(channelId: 'streak', channelName: 'Streak'),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
     );
   }
 
@@ -162,6 +164,8 @@ class LocalNotifService {
       scheduled,
       _notifDetails(channelId: 'daily', channelName: 'Rappels quotidiens'),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.time, // répète chaque jour
     );
   }
