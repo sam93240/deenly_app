@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import '../translations.dart';
+import '../app_locale.dart';
 import 'learning_models.dart';
+
+String _s(String fr, String en) => AppLocale().isFrench ? fr : en;
 
 // ── Palette UpYourDeen ──────────────────────────────────────────────────
 const _kGreenDeep    = Color(0xFF0A2018);
@@ -11,13 +15,12 @@ const _kBeige        = Color(0xFFF6F0E3);
 const _kBeigeCard    = Color(0xFFFFFFFF);
 const _kBeigeBorder  = Color(0xFFD6C9AF);
 const _kTextDark     = Color(0xFF1A130A);
-const _kTextMid      = Color(0xFF5A4833);
 const _kTextLight    = Color(0xFF8A7863);
 
 // ─── Progress Screen ──────────────────────────────────────────────
 class ProgressLearningScreen extends StatelessWidget {
   final UserStats stats;
-  const ProgressLearningScreen({Key? key, required this.stats}) : super(key: key);
+  const ProgressLearningScreen({super.key, required this.stats});
 
   @override
   Widget build(BuildContext context) {
@@ -63,9 +66,9 @@ class ProgressLearningScreen extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.12),
+                  color: Colors.white.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white.withOpacity(0.18)),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
                 ),
                 child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 16),
               ),
@@ -73,11 +76,11 @@ class ProgressLearningScreen extends StatelessWidget {
             const SizedBox(width: 14),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text('Ma Progression',
-                    style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w900)),
-                Text('Suis tes progrès et reste motivé',
-                    style: TextStyle(color: Colors.white60, fontSize: 12)),
+              children: [
+                Text(context.t.progressMyProgress,
+                    style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w900)),
+                Text(context.t.progressStayMotivated,
+                    style: const TextStyle(color: Colors.white60, fontSize: 12)),
               ],
             ),
           ]),
@@ -112,7 +115,7 @@ class _LevelCard extends StatelessWidget {
                 begin: Alignment.topLeft, end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(22),
-              boxShadow: [BoxShadow(color: _kGreenPrimary.withOpacity(0.4), blurRadius: 16, offset: const Offset(0, 4))],
+              boxShadow: [BoxShadow(color: _kGreenPrimary.withValues(alpha: 0.4), blurRadius: 16, offset: const Offset(0, 4))],
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -127,7 +130,7 @@ class _LevelCard extends StatelessWidget {
           Expanded(child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Niveau ${stats.level} · ${stats.levelTitle}',
+              Text(_s('Niveau ${stats.level} · ${stats.levelTitle}', 'Level ${stats.level} · ${stats.levelTitle}'),
                   style: const TextStyle(color: _kTextDark, fontSize: 18, fontWeight: FontWeight.w900)),
               const SizedBox(height: 4),
               Text('${stats.xp} / ${stats.xpForNextLevel} XP',
@@ -143,7 +146,7 @@ class _LevelCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 6),
-              Text('Encore ${stats.xpForNextLevel - stats.xp} XP pour le niveau ${stats.level + 1}',
+              Text(_s('Encore ${stats.xpForNextLevel - stats.xp} XP pour le niveau ${stats.level + 1}', 'Only ${stats.xpForNextLevel - stats.xp} XP left for level ${stats.level + 1}'),
                   style: const TextStyle(color: _kGreenPrimary, fontSize: 11, fontWeight: FontWeight.w700)),
             ],
           )),
@@ -154,13 +157,13 @@ class _LevelCard extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _LevelMilestone('Débutant',    1, stats.level, _kTextLight),
+            _LevelMilestone(_s('Débutant', 'Beginner'),    1, stats.level, _kTextLight),
             const _LevelArrow(),
-            _LevelMilestone('Récitant',    3, stats.level, _kGreenMedium),
+            _LevelMilestone(_s('Récitant', 'Reciter'),    3, stats.level, _kGreenMedium),
             const _LevelArrow(),
-            _LevelMilestone('Mémorisateur',6, stats.level, _kGold),
+            _LevelMilestone(_s('Mémorisateur', 'Memorizer'),6, stats.level, _kGold),
             const _LevelArrow(),
-            _LevelMilestone('Hafidh',      10, stats.level, _kGreenPrimary),
+            _LevelMilestone(_s('Hafidh', 'Hafidh'),      10, stats.level, _kGreenPrimary),
           ],
         ),
       ]),
@@ -181,7 +184,7 @@ class _LevelMilestone extends StatelessWidget {
       Container(
         width: 40, height: 40,
         decoration: BoxDecoration(
-          color:  reached ? color.withOpacity(0.15) : _kBeigeBorder.withOpacity(0.3),
+          color:  reached ? color.withValues(alpha: 0.15) : _kBeigeBorder.withValues(alpha: 0.3),
           shape:  BoxShape.circle,
           border: Border.all(color: reached ? color : _kBeigeBorder, width: 2),
         ),
@@ -235,8 +238,8 @@ class _DailyGoalCard extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('🎯 Objectif du jour',
-                style: TextStyle(color: _kTextDark, fontSize: 16, fontWeight: FontWeight.w800)),
+            Text(_s('🎯 Objectif du jour', '🎯 Daily goal'),
+                style: const TextStyle(color: _kTextDark, fontSize: 16, fontWeight: FontWeight.w800)),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
@@ -244,7 +247,7 @@ class _DailyGoalCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
-                reached ? '✅ Atteint !' : '${stats.dailyXpToday} / ${stats.dailyXpGoal} XP',
+                reached ? _s('✅ Atteint !', '✅ Reached!') : '${stats.dailyXpToday} / ${stats.dailyXpGoal} XP',
                 style: TextStyle(
                   color: reached ? _kGreenDeep : kOrange,
                   fontSize: 12, fontWeight: FontWeight.w800,
@@ -266,8 +269,8 @@ class _DailyGoalCard extends StatelessWidget {
         const SizedBox(height: 10),
         Text(
           reached
-              ? '🎉 Bravo ! Tu as atteint ton objectif quotidien.'
-              : 'Plus que ${stats.dailyXpGoal - stats.dailyXpToday} XP pour atteindre ton objectif !',
+              ? _s('🎉 Bravo ! Tu as atteint ton objectif quotidien.', '🎉 Congratulations! You\'ve reached your daily goal.')
+              : _s('Plus que ${stats.dailyXpGoal - stats.dailyXpToday} XP pour atteindre ton objectif !', 'Only ${stats.dailyXpGoal - stats.dailyXpToday} XP left to reach your goal!'),
           style: TextStyle(
             color: reached ? _kGreenDeep : _kTextLight,
             fontSize: 12, fontWeight: FontWeight.w600,
@@ -304,15 +307,15 @@ class _WeekCard extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('📅 Cette semaine',
-                style: TextStyle(color: _kTextDark, fontSize: 16, fontWeight: FontWeight.w800)),
+            Text(_s('📅 Cette semaine', '📅 This week'),
+                style: const TextStyle(color: _kTextDark, fontSize: 16, fontWeight: FontWeight.w800)),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(colors: [Color(0xFFFF9600), Color(0xFFFF6B00)]),
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: Text('🔥 ${stats.streak} jours',
+              child: Text(_s('🔥 ${stats.streak} jours', '🔥 ${stats.streak} days'),
                   style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w900)),
             ),
           ],
@@ -329,10 +332,10 @@ class _WeekCard extends StatelessWidget {
                   colors: [Color(0xFFFF9600), Color(0xFFFF6B00)],
                   begin: Alignment.topLeft, end: Alignment.bottomRight,
                 ) : null,
-                color: active[i] ? null : _kBeigeBorder.withOpacity(0.4),
+                color: active[i] ? null : _kBeigeBorder.withValues(alpha: 0.4),
                 borderRadius: BorderRadius.circular(14),
                 boxShadow: active[i]
-                    ? [BoxShadow(color: kOrange.withOpacity(0.4), blurRadius: 8, offset: const Offset(0, 3))]
+                    ? [BoxShadow(color: kOrange.withValues(alpha: 0.4), blurRadius: 8, offset: const Offset(0, 3))]
                     : [],
               ),
               child: Center(child: Text(
@@ -357,12 +360,12 @@ class _StatsGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = [
-      _S('⚡', '${stats.xp}',                       'XP Total',   _kGold,                    _kGoldLight),
-      _S('🔥', '${stats.streak}j',                  'Streak',     const Color(0xFFFF9600),    const Color(0xFFFFF0D0)),
-      _S('📖', '${stats.masteredVersets}',           'Maîtrisés',  _kGreenPrimary,             const Color(0xFFE8F4EE)),
-      _S('✅', '${stats.totalExercises}',            'Exercices',  const Color(0xFF1CB0F6),    const Color(0xFFE7F7FF)),
-      _S('🏆', 'Nv.${stats.level}',                 'Niveau',     const Color(0xFF8549BA),    const Color(0xFFF0E8FF)),
-      _S('🎯', '${(stats.accuracy * 100).round()}%','Précision',  const Color(0xFFFF4B4B),    const Color(0xFFFFEBEB)),
+      _S('⚡', '${stats.xp}',                       _s('XP Total', 'Total XP'),   _kGold,                    _kGoldLight),
+      _S('🔥', '${stats.streak}j',                  _s('Streak', 'Streak'),     const Color(0xFFFF9600),    const Color(0xFFFFF0D0)),
+      _S('📖', '${stats.masteredVersets}',           _s('Maîtrisés', 'Mastered'),  _kGreenPrimary,             const Color(0xFFE8F4EE)),
+      _S('✅', '${stats.totalExercises}',            _s('Exercices', 'Exercises'),  const Color(0xFF1CB0F6),    const Color(0xFFE7F7FF)),
+      _S('🏆', 'Nv.${stats.level}',                 _s('Niveau', 'Level'),     const Color(0xFF8549BA),    const Color(0xFFF0E8FF)),
+      _S('🎯', '${(stats.accuracy * 100).round()}%',_s('Précision', 'Accuracy'),  const Color(0xFFFF4B4B),    const Color(0xFFFFEBEB)),
     ];
     return GridView.count(
       shrinkWrap: true,
@@ -406,12 +409,12 @@ class _BadgesCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final badges = [
-      _Badge('🌟', 'Premier pas',   'Terminer ta 1ère leçon',    stats.totalExercises > 0),
-      _Badge('🔥', 'Série de 7',    'Streak 7 jours',             stats.streak >= 7),
-      _Badge('💎', 'Expert',        '100 exercices réussis',       stats.correctExercises >= 100),
-      _Badge('📖', 'Lecteur',       '10 leçons terminées',        stats.xp >= 200),
-      _Badge('🏆', 'Mémorisateur',  '50 versets maîtrisés',       stats.masteredVersets >= 50),
-      _Badge('⭐', 'Étoile',        'Niveau 5 atteint',           stats.level >= 5),
+      _Badge('🌟', _s('Premier pas', 'First steps'),   _s('Terminer ta 1ère leçon', 'Complete your 1st lesson'),    stats.totalExercises > 0),
+      _Badge('🔥', _s('Série de 7', '7-day streak'),    _s('Streak 7 jours', '7 day streak'),             stats.streak >= 7),
+      _Badge('💎', _s('Expert', 'Expert'),        _s('100 exercices réussis', '100 successful exercises'),       stats.correctExercises >= 100),
+      _Badge('📖', _s('Lecteur', 'Reader'),       _s('10 leçons terminées', '10 lessons completed'),        stats.xp >= 200),
+      _Badge('🏆', _s('Mémorisateur', 'Memorizer'),  _s('50 versets maîtrisés', '50 verses mastered'),       stats.masteredVersets >= 50),
+      _Badge('⭐', _s('Étoile', 'Star'),        _s('Niveau 5 atteint', 'Reached level 5'),           stats.level >= 5),
     ];
 
     return Container(
@@ -428,8 +431,8 @@ class _BadgesCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('🎖️ Badges',
-                  style: TextStyle(color: _kTextDark, fontSize: 16, fontWeight: FontWeight.w800)),
+              Text(_s('🎖️ Badges', '🎖️ Badges'),
+                  style: const TextStyle(color: _kTextDark, fontSize: 16, fontWeight: FontWeight.w800)),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(color: _kGoldLight, borderRadius: BorderRadius.circular(20)),
@@ -448,10 +451,10 @@ class _BadgesCard extends StatelessWidget {
             children: badges.map((b) => Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: b.earned ? _kGoldLight : _kBeigeBorder.withOpacity(0.3),
+                color: b.earned ? _kGoldLight : _kBeigeBorder.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(18),
                 border: Border.all(
-                  color: b.earned ? _kGold.withOpacity(0.4) : _kBeigeBorder,
+                  color: b.earned ? _kGold.withValues(alpha: 0.4) : _kBeigeBorder,
                   width: 1.5,
                 ),
               ),

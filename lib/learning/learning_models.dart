@@ -1,4 +1,5 @@
 import 'dart:convert';
+import '../app_locale.dart';
 
 // ─── Enums ────────────────────────────────────────────────────────
 
@@ -23,6 +24,10 @@ class LearningVerset {
   final String arabe;
   final String phonetique;
   final String francais;
+  final String anglais;
+
+  /// Returns the correct translation based on current locale
+  String get traduction => AppLocale().isFrench ? francais : (anglais.isNotEmpty ? anglais : francais);
 
   MasteryLevel mastery;
   int          reviewCount;
@@ -34,6 +39,7 @@ class LearningVerset {
     required this.arabe,
     required this.phonetique,
     required this.francais,
+    this.anglais        = '',
     this.mastery        = MasteryLevel.notSeen,
     this.reviewCount    = 0,
     this.lastReviewed,
@@ -61,6 +67,7 @@ class LearningLesson {
   final String surahName;
   final String surahNameFr;
   final String signification;
+  final String significationEn;
   final String icon;
   final List<LearningVerset> versets;  // Toujours 1 élément
 
@@ -74,6 +81,7 @@ class LearningLesson {
     required this.surahName,
     required this.surahNameFr,
     required this.signification,
+    this.significationEn = '',
     required this.icon,
     required this.versets,
     this.isUnlocked  = false,
@@ -154,18 +162,28 @@ class UserStats {
   int get masteredVersets => surahMastery.values.where((m) => m == MasteryLevel.mastered).length;
 
   String get levelTitle {
-    if (level <= 2) return 'Débutant';
-    if (level <= 4) return 'Récitant';
-    if (level <= 6) return 'Mémorisateur';
-    if (level <= 9) return 'Hafidh Junior';
-    return 'Hafidh';
+    if (AppLocale().isFrench) {
+      if (level <= 2) return 'Débutant';
+      if (level <= 4) return 'Récitant';
+      if (level <= 6) return 'Mémorisateur';
+      if (level <= 9) return 'Hafidh Junior';
+      return 'Hafidh';
+    } else {
+      if (level <= 2) return 'Beginner';
+      if (level <= 4) return 'Reciter';
+      if (level <= 6) return 'Memorizer';
+      if (level <= 9) return 'Hafidh Junior';
+      return 'Hafidh';
+    }
   }
 
   // ── Mutations ─────────────────────────────────────────────────
   void addXP(int amount) {
     xp            += amount;
     dailyXpToday  += amount;
-    while (xp >= xpForNextLevel) level++;
+    while (xp >= xpForNextLevel) {
+      level++;
+    }
   }
 
   void updateStreak() {

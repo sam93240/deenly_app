@@ -4,13 +4,12 @@
 import 'package:flutter/material.dart';
 import 'user_profile.dart';
 import 'main_nav_screen.dart';
+import 'translations.dart';
 
 // ── Palette ──────────────────────────────────────────────────────────
 const _kGreen = Color(0xFF1B4D38);
-const _kGreenDk = Color(0xFF0A2018);
 const _kGreenMd = Color(0xFF2A7A52);
 const _kGold = Color(0xFFC8933A);
-const _kGoldLt = Color(0xFFE8BF6A);
 const _kBeige = Color(0xFFF6F0E3);
 const _kTxtDk = Color(0xFF1A130A);
 const _kTxtMd = Color(0xFF5A4833);
@@ -54,7 +53,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     if (_step == 0 && _prenom.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Entre ton prénom pour continuer'),
+          content: Text(context.t.onboardingNameRequired),
           backgroundColor: _kGreen,
           behavior: SnackBarBehavior.floating,
           shape:
@@ -155,7 +154,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               borderRadius: BorderRadius.circular(2),
                               color: i <= _step
                                   ? _kGreen
-                                  : _kGreen.withOpacity(0.12),
+                                  : _kGreen.withValues(alpha: 0.12),
                             ),
                           ),
                         );
@@ -215,7 +214,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     borderRadius: BorderRadius.circular(30),
                     boxShadow: [
                       BoxShadow(
-                        color: _kGreen.withOpacity(0.35),
+                        color: _kGreen.withValues(alpha: 0.35),
                         blurRadius: 16,
                         offset: const Offset(0, 6),
                       ),
@@ -226,8 +225,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     children: [
                       Text(
                         _step == 3
-                            ? (widget.editMode ? 'Enregistrer' : 'Bismillah, c\'est parti !')
-                            : 'Continuer',
+                            ? (widget.editMode ? context.t.onboardingSave : context.t.onboardingStart)
+                            : context.t.onboardingContinue,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 15,
@@ -273,22 +272,22 @@ class _StepPrenom extends StatelessWidget {
           const Text('بسم الله الرحمن الرحيم',
               style: TextStyle(fontSize: 22, color: _kGold)),
           const SizedBox(height: 24),
-          const Text('Bienvenue sur UpYourDeen',
-              style: TextStyle(
+          Text(context.t.onboardingWelcome,
+              style: const TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w800,
                   color: _kTxtDk)),
           const SizedBox(height: 8),
-          Text('Lumière sur ta foi',
+          Text(context.t.appSlogan,
               style: TextStyle(
                   fontSize: 14,
-                  color: _kTxtMd.withOpacity(0.6),
+                  color: _kTxtMd.withValues(alpha: 0.6),
                   fontStyle: FontStyle.italic)),
           const SizedBox(height: 48),
-          const Align(
+          Align(
             alignment: Alignment.centerLeft,
-            child: Text('Comment tu t\'appelles ?',
-                style: TextStyle(
+            child: Text(context.t.onboardingNameQuestion,
+                style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: _kTxtDk)),
@@ -304,26 +303,26 @@ class _StepPrenom extends StatelessWidget {
             ),
             style: const TextStyle(fontSize: 18, color: _kTxtDk),
             decoration: InputDecoration(
-              hintText: 'Ton prénom...',
-              hintStyle: TextStyle(color: _kTxtMd.withOpacity(0.35)),
+              hintText: context.t.onboardingNameHint,
+              hintStyle: TextStyle(color: _kTxtMd.withValues(alpha: 0.35)),
               filled: true,
               fillColor: Colors.white,
               contentPadding:
                   const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide(color: _kGreen.withOpacity(0.15)),
+                borderSide: BorderSide(color: _kGreen.withValues(alpha: 0.15)),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide(color: _kGreen.withOpacity(0.15)),
+                borderSide: BorderSide(color: _kGreen.withValues(alpha: 0.15)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
                 borderSide: const BorderSide(color: _kGreen, width: 2),
               ),
               prefixIcon:
-                  Icon(Icons.person_rounded, color: _kGreen.withOpacity(0.4)),
+                  Icon(Icons.person_rounded, color: _kGreen.withValues(alpha: 0.4)),
             ),
           ),
           const SizedBox(height: 48),
@@ -355,22 +354,22 @@ class _StepAge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
       child: Column(
         children: [
-          const Text('Parle-nous de toi',
-              style: TextStyle(
+          Text(context.t.onboardingAboutYou,
+              style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w800,
                   color: _kTxtDk)),
           const SizedBox(height: 8),
-          Text('Pour adapter le contenu à ton profil',
+          Text(context.t.onboardingAboutYouSub,
               style: TextStyle(
-                  fontSize: 13, color: _kTxtMd.withOpacity(0.6))),
+                  fontSize: 13, color: _kTxtMd.withValues(alpha: 0.6))),
           const SizedBox(height: 40),
 
           // Âge
-          const Align(
+          Align(
             alignment: Alignment.centerLeft,
-            child: Text('Ton âge',
-                style: TextStyle(
+            child: Text(context.t.onboardingAge,
+                style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                     color: _kTxtDk)),
@@ -381,7 +380,7 @@ class _StepAge extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: _kGreen.withOpacity(0.15)),
+              border: Border.all(color: _kGreen.withValues(alpha: 0.15)),
             ),
             child: Row(
               children: [
@@ -391,16 +390,16 @@ class _StepAge extends StatelessWidget {
                         fontWeight: FontWeight.w800,
                         color: _kGreen)),
                 const Spacer(),
-                _ageLabel(age),
+                _ageLabel(context, age),
               ],
             ),
           ),
           SliderTheme(
             data: SliderThemeData(
               activeTrackColor: _kGreen,
-              inactiveTrackColor: _kGreen.withOpacity(0.12),
+              inactiveTrackColor: _kGreen.withValues(alpha: 0.12),
               thumbColor: _kGold,
-              overlayColor: _kGold.withOpacity(0.15),
+              overlayColor: _kGold.withValues(alpha: 0.15),
             ),
             child: Slider(
               value: age.toDouble(),
@@ -413,10 +412,10 @@ class _StepAge extends StatelessWidget {
           const SizedBox(height: 28),
 
           // Niveau
-          const Align(
+          Align(
             alignment: Alignment.centerLeft,
-            child: Text('Ton niveau en sciences islamiques',
-                style: TextStyle(
+            child: Text(context.t.onboardingLevel,
+                style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                     color: _kTxtDk)),
@@ -432,13 +431,13 @@ class _StepAge extends StatelessWidget {
                         horizontal: 16, vertical: 14),
                     decoration: BoxDecoration(
                       color: niveau == n
-                          ? _kGreen.withOpacity(0.08)
+                          ? _kGreen.withValues(alpha: 0.08)
                           : Colors.white,
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(
                         color: niveau == n
                             ? _kGreen
-                            : _kGreen.withOpacity(0.12),
+                            : _kGreen.withValues(alpha: 0.12),
                         width: niveau == n ? 2 : 1,
                       ),
                     ),
@@ -450,17 +449,17 @@ class _StepAge extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(_niveauLabel(n),
+                              Text(_niveauLabel(context, n),
                                   style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w700,
                                       color: niveau == n
                                           ? _kGreen
                                           : _kTxtDk)),
-                              Text(_niveauDesc(n),
+                              Text(_niveauDesc(context, n),
                                   style: TextStyle(
                                       fontSize: 11,
-                                      color: _kTxtMd.withOpacity(0.6))),
+                                      color: _kTxtMd.withValues(alpha: 0.6))),
                             ],
                           ),
                         ),
@@ -477,20 +476,21 @@ class _StepAge extends StatelessWidget {
     );
   }
 
-  Widget _ageLabel(int a) {
+  Widget _ageLabel(BuildContext context, int a) {
+    final t = context.t;
     String label;
     String emoji;
     if (a < 13) {
-      label = 'Enfant';
+      label = t.ageChild;
       emoji = '🧒';
     } else if (a < 18) {
-      label = 'Adolescent';
+      label = t.ageTeen;
       emoji = '🌟';
     } else if (a < 60) {
-      label = 'Adulte';
+      label = t.ageAdult;
       emoji = '👤';
     } else {
-      label = 'Senior';
+      label = t.ageSenior;
       emoji = '🤍';
     }
     return Row(
@@ -502,7 +502,7 @@ class _StepAge extends StatelessWidget {
             style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: _kTxtMd.withOpacity(0.5))),
+                color: _kTxtMd.withValues(alpha: 0.5))),
       ],
     );
   }
@@ -518,25 +518,27 @@ class _StepAge extends StatelessWidget {
     }
   }
 
-  String _niveauLabel(DeenlyLevel n) {
+  String _niveauLabel(BuildContext context, DeenlyLevel n) {
+    final t = context.t;
     switch (n) {
       case DeenlyLevel.debutant:
-        return 'Débutant';
+        return t.levelBeginner;
       case DeenlyLevel.intermediaire:
-        return 'Intermédiaire';
+        return t.levelIntermediate;
       case DeenlyLevel.avance:
-        return 'Avancé';
+        return t.levelAdvanced;
     }
   }
 
-  String _niveauDesc(DeenlyLevel n) {
+  String _niveauDesc(BuildContext context, DeenlyLevel n) {
+    final t = context.t;
     switch (n) {
       case DeenlyLevel.debutant:
-        return 'Je découvre les bases de l\'Islam';
+        return t.levelBeginnerDesc;
       case DeenlyLevel.intermediaire:
-        return 'Je connais les fondements et je veux approfondir';
+        return t.levelIntermediateDesc;
       case DeenlyLevel.avance:
-        return 'Je maîtrise bien les sciences islamiques';
+        return t.levelAdvancedDesc;
     }
   }
 }
@@ -556,15 +558,15 @@ class _StepObjectifs extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
       child: Column(
         children: [
-          const Text('Tes objectifs',
-              style: TextStyle(
+          Text(context.t.onboardingObjectives,
+              style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w800,
                   color: _kTxtDk)),
           const SizedBox(height: 8),
-          Text('Choisis ce qui te motive (plusieurs possibles)',
+          Text(context.t.onboardingObjectivesSub,
               style: TextStyle(
-                  fontSize: 13, color: _kTxtMd.withOpacity(0.6))),
+                  fontSize: 13, color: _kTxtMd.withValues(alpha: 0.6))),
           const SizedBox(height: 32),
           ...DeenlyGoal.values.map((g) => Padding(
                 padding: const EdgeInsets.only(bottom: 10),
@@ -576,13 +578,13 @@ class _StepObjectifs extends StatelessWidget {
                         horizontal: 16, vertical: 14),
                     decoration: BoxDecoration(
                       color: selected.contains(g)
-                          ? _kGreen.withOpacity(0.08)
+                          ? _kGreen.withValues(alpha: 0.08)
                           : Colors.white,
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(
                         color: selected.contains(g)
                             ? _kGreen
-                            : _kGreen.withOpacity(0.12),
+                            : _kGreen.withValues(alpha: 0.12),
                         width: selected.contains(g) ? 2 : 1,
                       ),
                     ),
@@ -605,7 +607,7 @@ class _StepObjectifs extends StatelessWidget {
                               color: _kGreen, size: 20)
                         else
                           Icon(Icons.circle_outlined,
-                              color: _kGreen.withOpacity(0.2), size: 20),
+                              color: _kGreen.withValues(alpha: 0.2), size: 20),
                       ],
                     ),
                   ),
@@ -638,15 +640,15 @@ class _StepAvatar extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('Choisis ton avatar',
-              style: TextStyle(
+          Text(context.t.onboardingAvatar,
+              style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w800,
                   color: _kTxtDk)),
           const SizedBox(height: 8),
-          Text('L\'icône qui te représentera dans UpYourDeen',
+          Text(context.t.onboardingAvatarSub,
               style: TextStyle(
-                  fontSize: 13, color: _kTxtMd.withOpacity(0.6))),
+                  fontSize: 13, color: _kTxtMd.withValues(alpha: 0.6))),
           const SizedBox(height: 32),
 
           // Preview
@@ -658,7 +660,7 @@ class _StepAvatar extends StatelessWidget {
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: _kGreen.withOpacity(0.3),
+                  color: _kGreen.withValues(alpha: 0.3),
                   blurRadius: 16,
                   offset: const Offset(0, 6),
                 ),
@@ -691,13 +693,13 @@ class _StepAvatar extends StatelessWidget {
                   height: 52,
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? _kGreen.withOpacity(0.12)
+                        ? _kGreen.withValues(alpha: 0.12)
                         : Colors.white,
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
                       color: isSelected
                           ? _kGreen
-                          : _kGreen.withOpacity(0.10),
+                          : _kGreen.withValues(alpha: 0.10),
                       width: isSelected ? 2 : 1,
                     ),
                   ),

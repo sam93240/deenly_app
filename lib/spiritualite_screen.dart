@@ -5,6 +5,10 @@ import 'package:flutter/material.dart';
 import 'adhkar_data.dart';
 import 'invocations_data.dart';
 import 'noms_allah_data.dart';
+import 'translations.dart';
+import 'app_locale.dart';
+
+String _s(String fr, String en) => AppLocale().isFrench ? fr : en;
 
 // ── Palette ───────────────────────────────────────────────────────────────
 const _kGreenDeep    = Color(0xFF0A2018);
@@ -87,16 +91,13 @@ class _SpiritualiteScreenState extends State<SpiritualiteScreen>
     });
   }
 
-  int _adhkarDone(String categoryId) {
-    return _adhkarProgress[categoryId]?.length ?? 0;
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _kBeige,
       body: NestedScrollView(
-        headerSliverBuilder: (_, __) => [
+        headerSliverBuilder: (_, _) => [
           SliverAppBar(
             expandedHeight: 130,
             pinned: true,
@@ -124,9 +125,9 @@ class _SpiritualiteScreenState extends State<SpiritualiteScreen>
                             const SizedBox(width: 10),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
-                                Text('Spiritualité',
-                                    style: TextStyle(
+                              children: [
+                                Text(context.t.spiritualityTitle,
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 22,
                                       fontWeight: FontWeight.bold,
@@ -149,11 +150,11 @@ class _SpiritualiteScreenState extends State<SpiritualiteScreen>
               unselectedLabelColor: const Color(0xFF8AB8A0),
               labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
               isScrollable: true,
-              tabs: const [
-                Tab(text: '🤲 Adhkar'),
-                Tab(text: '📿 Invocations'),
-                Tab(text: '✨ 99 Noms'),
-                Tab(text: '📿 Tasbih'),
+              tabs: [
+                const Tab(text: '🤲 Adhkar'),
+                const Tab(text: '📿 Invocations'),
+                Tab(text: _s('✨ 99 Noms', '✨ 99 Names')),
+                const Tab(text: '📿 Tasbih'),
               ],
             ),
           ),
@@ -204,7 +205,7 @@ class _AdhkarTab extends StatelessWidget {
     return ListView.separated(
       padding: const EdgeInsets.all(14),
       itemCount: kAdhkar.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 10),
+      separatorBuilder: (_, _) => const SizedBox(height: 10),
       itemBuilder: (ctx, i) {
         final cat = kAdhkar[i];
         final done = progress[cat.id]?.length ?? 0;
@@ -287,14 +288,14 @@ class _AdhkarCategoryCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(category.title,
+                      Text(category.displayTitle,
                           style: const TextStyle(
                             color: _kTextDark,
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                           )),
                       const SizedBox(height: 3),
-                      Text(category.description,
+                      Text(category.displayDescription,
                           style: const TextStyle(color: _kTextLight, fontSize: 12.5),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis),
@@ -362,7 +363,7 @@ class _AdhkarDetailScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: _kGreenDeep,
         foregroundColor: Colors.white,
-        title: Text('${category.emoji} ${category.title}'),
+        title: Text('${category.emoji} ${category.displayTitle}'),
         elevation: 0,
         actions: [
           Padding(
@@ -371,7 +372,7 @@ class _AdhkarDetailScreen extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
+                  color: Colors.white.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -390,7 +391,7 @@ class _AdhkarDetailScreen extends StatelessWidget {
       body: ListView.separated(
         padding: const EdgeInsets.all(14),
         itemCount: category.adhkar.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 10),
+        separatorBuilder: (_, _) => const SizedBox(height: 10),
         itemBuilder: (ctx, i) {
           final checked = progress[category.id]?.contains(i) ?? false;
           return _DhikrCard(
@@ -415,9 +416,9 @@ class _DhikrCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: checked ? _kGoldLight.withOpacity(0.5) : _kBeigeCard,
+        color: checked ? _kGoldLight.withValues(alpha: 0.5) : _kBeigeCard,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: checked ? _kGold.withOpacity(0.5) : _kBeigeBorder),
+        border: Border.all(color: checked ? _kGold.withValues(alpha: 0.5) : _kBeigeBorder),
         boxShadow: const [
           BoxShadow(color: Color(0x10000000), blurRadius: 5, offset: Offset(0, 2)),
         ],
@@ -451,7 +452,7 @@ class _DhikrCard extends StatelessWidget {
           const SizedBox(height: 6),
           // Translation
           Text(
-            dhikr.translation,
+            dhikr.displayTranslation,
             style: const TextStyle(
               color: _kTextMid,
               fontSize: 12.5,
@@ -577,11 +578,11 @@ class _InvocationsTab extends StatelessWidget {
         // Favorites section
         if (favs.isNotEmpty) ...[
           Row(
-            children: const [
-              Icon(Icons.favorite, color: Color(0xFFE04050), size: 18),
-              SizedBox(width: 6),
-              Text('Mes favoris',
-                  style: TextStyle(
+            children: [
+              const Icon(Icons.favorite, color: Color(0xFFE04050), size: 18),
+              const SizedBox(width: 6),
+              Text(context.t.spiritualityMyFavorites,
+                  style: const TextStyle(
                     color: _kTextDark,
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -652,7 +653,7 @@ class _InvocationsTab extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: bg,
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: primary.withOpacity(0.2)),
+                        border: Border.all(color: primary.withValues(alpha: 0.2)),
                       ),
                       alignment: Alignment.center,
                       child: Text(cat.emoji, style: const TextStyle(fontSize: 22)),
@@ -663,7 +664,7 @@ class _InvocationsTab extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            cat.title,
+                            cat.displayTitle,
                             style: TextStyle(
                               color: primary,
                               fontSize: 15,
@@ -672,7 +673,7 @@ class _InvocationsTab extends StatelessWidget {
                           ),
                           const SizedBox(height: 3),
                           Text(
-                            cat.description,
+                            cat.displayDescription,
                             style: const TextStyle(color: _kTextLight, fontSize: 11),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -697,7 +698,7 @@ class _InvocationsTab extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 4),
-                    Icon(Icons.chevron_right_rounded, color: _kTextLight.withOpacity(0.6), size: 20),
+                    Icon(Icons.chevron_right_rounded, color: _kTextLight.withValues(alpha: 0.6), size: 20),
                   ],
                 ),
               ),
@@ -737,7 +738,7 @@ class _FavoriteRow extends StatelessWidget {
         decoration: BoxDecoration(
           color: _kBeigeCard,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFE04050).withOpacity(0.2)),
+          border: Border.all(color: const Color(0xFFE04050).withValues(alpha: 0.2)),
         ),
         child: Row(
           children: [
@@ -759,13 +760,13 @@ class _FavoriteRow extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    fav.category.title,
+                    fav.category.displayTitle,
                     style: const TextStyle(color: _kTextLight, fontSize: 10),
                   ),
                 ],
               ),
             ),
-            Icon(Icons.chevron_right_rounded, color: _kTextLight.withOpacity(0.5), size: 18),
+            Icon(Icons.chevron_right_rounded, color: _kTextLight.withValues(alpha: 0.5), size: 18),
           ],
         ),
       ),
@@ -793,13 +794,13 @@ class _InvocationDetailScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: _kGreenDeep,
         foregroundColor: Colors.white,
-        title: Text('${category.emoji} ${category.title}'),
+        title: Text('${category.emoji} ${category.displayTitle}'),
         elevation: 0,
       ),
       body: ListView.separated(
         padding: const EdgeInsets.all(14),
         itemCount: category.invocations.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 10),
+        separatorBuilder: (_, _) => const SizedBox(height: 10),
         itemBuilder: (ctx, i) => _InvocationCard(
           invocation: category.invocations[i],
           isFavorite: isFavorite(category.id, i),
@@ -846,7 +847,7 @@ class _InvocationCard extends StatelessWidget {
                   child: Icon(
                     isFavorite ? Icons.favorite : Icons.favorite_border,
                     key: ValueKey(isFavorite),
-                    color: isFavorite ? const Color(0xFFE04050) : _kTextLight.withOpacity(0.4),
+                    color: isFavorite ? const Color(0xFFE04050) : _kTextLight.withValues(alpha: 0.4),
                     size: 22,
                   ),
                 ),
@@ -879,7 +880,7 @@ class _InvocationCard extends StatelessWidget {
           const SizedBox(height: 6),
           // Translation
           Text(
-            invocation.translation,
+            invocation.displayTranslation,
             style: const TextStyle(
               color: _kTextMid,
               fontSize: 12.5,
@@ -958,7 +959,7 @@ class _NomDuJourCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: _kGreenDeep.withOpacity(0.3),
+            color: _kGreenDeep.withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -971,9 +972,9 @@ class _NomDuJourCard extends StatelessWidget {
             children: [
               const Icon(Icons.auto_awesome, color: _kGold, size: 18),
               const SizedBox(width: 8),
-              const Text(
-                'Nom du Jour',
-                style: TextStyle(
+              Text(
+                context.t.spiritualityNameOfDay,
+                style: const TextStyle(
                   color: _kGold,
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -1008,7 +1009,7 @@ class _NomDuJourCard extends StatelessWidget {
           Text(
             nom.meaning,
             style: TextStyle(
-              color: Colors.white.withOpacity(0.85),
+              color: Colors.white.withValues(alpha: 0.85),
               fontSize: 14,
               fontWeight: FontWeight.w600,
             ),
@@ -1017,13 +1018,13 @@ class _NomDuJourCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
+              color: Colors.white.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
               nom.explanation,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.9),
+                color: Colors.white.withValues(alpha: 0.9),
                 fontSize: 12.5,
                 height: 1.6,
               ),
@@ -1034,7 +1035,7 @@ class _NomDuJourCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
-              color: _kGold.withOpacity(0.2),
+              color: _kGold.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
@@ -1123,9 +1124,9 @@ class _NomCardState extends State<_NomCard> {
                                 color: _kGold,
                                 borderRadius: BorderRadius.circular(6),
                               ),
-                              child: const Text(
-                                'Aujourd\'hui',
-                                style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w600),
+                              child: Text(
+                                context.t.spiritualityToday,
+                                style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w600),
                               ),
                             ),
                           Text(
@@ -1172,9 +1173,9 @@ class _NomCardState extends State<_NomCard> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  const Text(
-                    'Explication',
-                    style: TextStyle(
+                  Text(
+                    context.t.spiritualityExplanation,
+                    style: const TextStyle(
                       color: _kGold,
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -1192,9 +1193,9 @@ class _NomCardState extends State<_NomCard> {
                     textAlign: TextAlign.right,
                   ),
                   const SizedBox(height: 12),
-                  const Text(
-                    'Bienfaits',
-                    style: TextStyle(
+                  Text(
+                    context.t.spiritualityBenefits,
+                    style: const TextStyle(
                       color: _kGold,
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -1247,7 +1248,7 @@ class _TasbihTabState extends State<_TasbihTab> {
     'subhanallah': 'SubhanAllah',
     'alhamdulillah': 'Alhamdulillah',
     'allahu_akbar': 'Allahu Akbar',
-    'libre': 'Libre',
+    'libre': _s('Libre', 'Free'),
   };
 
   int get _targetCount {
@@ -1278,7 +1279,7 @@ class _TasbihTabState extends State<_TasbihTab> {
 
   void _saveSession() {
     if (_count == 0) return;
-    final label = _presetLabels[_selectedPreset] ?? 'Libre';
+    final label = _presetLabels[_selectedPreset] ?? _s('Libre', 'Free');
     widget.onSessionComplete(_TasbihSession(
       label: label,
       count: _count,
@@ -1348,7 +1349,7 @@ class _TasbihTabState extends State<_TasbihTab> {
                 onTap: () => _selectPreset('allahu_akbar'),
               ),
               _PresetButton(
-                label: 'Libre',
+                label: _s('Libre', 'Free'),
                 emoji: '\uD83D\uDCFF',
                 isSelected: _selectedPreset == 'libre',
                 onTap: () => _selectPreset('libre'),
@@ -1362,7 +1363,7 @@ class _TasbihTabState extends State<_TasbihTab> {
           if (_selectedPreset != null) ...[
             Text(
               _selectedPreset == 'libre'
-                  ? 'Comptage libre'
+                  ? _s('Comptage libre', 'Free count')
                   : '$_count/${_targetCount}',
               style: const TextStyle(
                 color: _kGold,
@@ -1389,7 +1390,7 @@ class _TasbihTabState extends State<_TasbihTab> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: (_isComplete ? _kGold : _kGreenDeep).withOpacity(0.3),
+                      color: (_isComplete ? _kGold : _kGreenDeep).withValues(alpha: 0.3),
                       blurRadius: 15,
                       offset: const Offset(0, 8),
                     ),
@@ -1408,9 +1409,9 @@ class _TasbihTabState extends State<_TasbihTab> {
                         ),
                       ),
                       if (_isComplete)
-                        const Text(
-                          'Tap pour recommencer',
-                          style: TextStyle(
+                        Text(
+                          _s('Tap pour recommencer', 'Tap to restart'),
+                          style: const TextStyle(
                             color: Colors.white70,
                             fontSize: 10,
                           ),
@@ -1430,9 +1431,9 @@ class _TasbihTabState extends State<_TasbihTab> {
                   color: _kGoldLight,
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Text(
-                  '\u2713 Compl\u00e9t\u00e9 !',
-                  style: TextStyle(
+                child: Text(
+                  _s('\u2713 Compl\u00e9t\u00e9 !', '\u2713 Completed!'),
+                  style: const TextStyle(
                     color: _kGold,
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
@@ -1451,9 +1452,9 @@ class _TasbihTabState extends State<_TasbihTab> {
                   border: Border.all(color: _kBeigeBorder),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Text(
-                  'R\u00e9initialiser',
-                  style: TextStyle(
+                child: Text(
+                  _s('R\u00e9initialiser', 'Reset'),
+                  style: const TextStyle(
                     color: _kTextMid,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -1463,13 +1464,13 @@ class _TasbihTabState extends State<_TasbihTab> {
             ),
           ] else
             Column(
-              children: const [
-                Text('\uD83D\uDCFF', style: TextStyle(fontSize: 64)),
-                SizedBox(height: 20),
+              children: [
+                const Text('\uD83D\uDCFF', style: TextStyle(fontSize: 64)),
+                const SizedBox(height: 20),
                 Text(
-                  'Choisissez un mode ci-dessus\npour commencer',
+                  _s('Choisissez un mode ci-dessus\npour commencer', 'Choose a mode above\nto begin'),
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: _kTextMid, fontSize: 14),
+                  style: const TextStyle(color: _kTextMid, fontSize: 14),
                 ),
               ],
             ),
@@ -1480,12 +1481,12 @@ class _TasbihTabState extends State<_TasbihTab> {
             Container(height: 1, color: _kBeigeBorder),
             const SizedBox(height: 20),
             Row(
-              children: const [
-                Icon(Icons.history, color: _kGold, size: 18),
-                SizedBox(width: 8),
+              children: [
+                const Icon(Icons.history, color: _kGold, size: 18),
+                const SizedBox(width: 8),
                 Text(
-                  'Historique du jour',
-                  style: TextStyle(
+                  _s('Historique du jour', "Today's History"),
+                  style: const TextStyle(
                     color: _kTextDark,
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -1608,7 +1609,7 @@ class _TasbihSummary extends StatelessWidget {
             children: totals.entries.map((e) => Text(
               '${e.key} \u00d7${e.value}',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.85),
+                color: Colors.white.withValues(alpha: 0.85),
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
               ),

@@ -1,7 +1,12 @@
 import 'dart:async' show unawaited;
 import 'package:flutter/material.dart';
+import '../translations.dart';
+import '../app_locale.dart';
 import 'learning_models.dart';
 import 'learning_service.dart';
+import 'audio_verse_widget.dart';
+
+String _s(String fr, String en) => AppLocale().isFrench ? fr : en;
 
 // ── Palette UpYourDeen ──────────────────────────────────────────────────
 const _kGreenDeep    = Color(0xFF0A2018);
@@ -22,6 +27,7 @@ const _kGreenLight   = Color(0xFFE8F4EE);
 const _kRed          = Color(0xFFFF4B4B);
 const _kRedLight     = Color(0xFFFFEBEB);
 
+
 // ─── Lesson Phase (5 étapes pédagogiques) ─────────────────────────
 // discover   : Lire le verset (arabe + phonétique + traduction)
 // practice   : Exercices MCQ / arrangement
@@ -31,7 +37,7 @@ enum _Phase { discover, practice, result }
 // ─── Lesson Screen ────────────────────────────────────────────────
 class LessonScreen extends StatefulWidget {
   final LearningLesson lesson;
-  const LessonScreen({Key? key, required this.lesson}) : super(key: key);
+  const LessonScreen({super.key, required this.lesson});
 
   @override
   State<LessonScreen> createState() => _LessonScreenState();
@@ -125,7 +131,7 @@ class _LessonScreenState extends State<LessonScreen> with TickerProviderStateMix
         .toList();
 
     final quizzes = <Exercise>[];
-    final poolFr  = all.map((v) => v.francais).toList();
+    final poolTranslations = all.map((v) => v.traduction).toList();
 
     for (final v in all) {
       final phonWords = v.phonetique.split(' ');
@@ -152,7 +158,9 @@ class _LessonScreenState extends State<LessonScreen> with TickerProviderStateMix
       if (phonWords.length >= 3) {
         final shuffled = List<String>.from(phonWords)..shuffle();
         // S'assurer que l'ordre est réellement différent
-        while (shuffled.join(' ') == v.phonetique) shuffled.shuffle();
+        while (shuffled.join(' ') == v.phonetique) {
+          shuffled.shuffle();
+        }
         quizzes.add(Exercise(
           type:          ExerciseType.arrange,
           verset:        v,
@@ -165,8 +173,8 @@ class _LessonScreenState extends State<LessonScreen> with TickerProviderStateMix
       quizzes.add(Exercise(
         type:          ExerciseType.listenChoose,
         verset:        v,
-        correctAnswer: v.francais,
-        options:       _buildOptions(v.francais, poolFr),
+        correctAnswer: v.traduction,
+        options:       _buildOptions(v.traduction, poolTranslations),
       ));
     }
 
@@ -250,8 +258,11 @@ class _LessonScreenState extends State<LessonScreen> with TickerProviderStateMix
     setState(() {
       _selected = answer;
       _answered = true;
-      if (correct) _score++;
-      else _hearts = (_hearts - 1).clamp(0, 5);
+      if (correct) {
+        _score++;
+      } else {
+        _hearts = (_hearts - 1).clamp(0, 5);
+      }
     });
     _updateMastery(correct);
     _feedbackCtrl.forward(from: 0);
@@ -264,8 +275,11 @@ class _LessonScreenState extends State<LessonScreen> with TickerProviderStateMix
     setState(() {
       _selected = answer;
       _answered = true;
-      if (correct) _score++;
-      else _hearts = (_hearts - 1).clamp(0, 5);
+      if (correct) {
+        _score++;
+      } else {
+        _hearts = (_hearts - 1).clamp(0, 5);
+      }
     });
     _updateMastery(correct);
     _feedbackCtrl.forward(from: 0);
@@ -291,8 +305,11 @@ class _LessonScreenState extends State<LessonScreen> with TickerProviderStateMix
       }
     } else {
       // Régression
-      if (v.mastery == MasteryLevel.mastered) v.mastery = MasteryLevel.reviewing;
-      else v.mastery = MasteryLevel.learning;
+      if (v.mastery == MasteryLevel.mastered) {
+        v.mastery = MasteryLevel.reviewing;
+      } else {
+        v.mastery = MasteryLevel.learning;
+      }
     }
 
     // Persistance asynchrone (fire-and-forget)
@@ -341,7 +358,7 @@ class _LessonScreenState extends State<LessonScreen> with TickerProviderStateMix
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: _kBeigeBorder.withOpacity(0.5),
+                color: _kBeigeBorder.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: const Icon(Icons.close_rounded, color: _kTextLight, size: 20),
@@ -351,7 +368,7 @@ class _LessonScreenState extends State<LessonScreen> with TickerProviderStateMix
           Expanded(
             child: AnimatedBuilder(
               animation: _progressAnim,
-              builder: (_, __) => Stack(children: [
+              builder: (_, _) => Stack(children: [
                 Container(height: 14, decoration: BoxDecoration(color: _kBeigeBorder, borderRadius: BorderRadius.circular(99))),
                 FractionallySizedBox(
                   widthFactor: _progressAnim.value,
@@ -360,7 +377,7 @@ class _LessonScreenState extends State<LessonScreen> with TickerProviderStateMix
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(colors: [Color(0xFF58C900), Color(0xFF3DAA00)]),
                       borderRadius: BorderRadius.circular(99),
-                      boxShadow: [BoxShadow(color: _kGreenPrimary.withOpacity(0.4), blurRadius: 6)],
+                      boxShadow: [BoxShadow(color: _kGreenPrimary.withValues(alpha: 0.4), blurRadius: 6)],
                     ),
                   ),
                 ),
@@ -377,7 +394,7 @@ class _LessonScreenState extends State<LessonScreen> with TickerProviderStateMix
                 duration: const Duration(milliseconds: 300),
                 child: Text('❤️', style: TextStyle(
                   fontSize: 18,
-                  color: i < _hearts ? Colors.red : Colors.grey.withOpacity(0.3),
+                  color: i < _hearts ? Colors.red : Colors.grey.withValues(alpha: 0.3),
                 )),
               ),
             )),
@@ -425,7 +442,7 @@ class _LessonScreenState extends State<LessonScreen> with TickerProviderStateMix
 
   // ── Discover Phase ────────────────────────────────────────────
   Widget _buildPresentation() {
-    if (_versets.isEmpty) return const Center(child: Text('Aucun verset'));
+    if (_versets.isEmpty) return Center(child: Text(_s('Aucun verset', 'No verse')));
     final v = _versets[_versetIdx];
 
     return SlideTransition(
@@ -433,8 +450,8 @@ class _LessonScreenState extends State<LessonScreen> with TickerProviderStateMix
       child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
         child: Column(children: [
-          const Text('Lis attentivement ce verset',
-              style: TextStyle(color: _kTextLight, fontSize: 14, fontWeight: FontWeight.w600)),
+          Text(_s('Lis attentivement ce verset', 'Read this verse carefully'),
+              style: const TextStyle(color: _kTextLight, fontSize: 14, fontWeight: FontWeight.w600)),
           const SizedBox(height: 20),
 
           // Arabic card
@@ -448,17 +465,17 @@ class _LessonScreenState extends State<LessonScreen> with TickerProviderStateMix
               ),
               borderRadius: BorderRadius.circular(28),
               boxShadow: [
-                BoxShadow(color: const Color(0xFF1B5E20).withOpacity(0.35), blurRadius: 24, offset: const Offset(0, 8)),
+                BoxShadow(color: const Color(0xFF1B5E20).withValues(alpha: 0.35), blurRadius: 24, offset: const Offset(0, 8)),
               ],
             ),
             child: Column(children: [
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
+                  color: Colors.white.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: Text('Verset ${v.numero}',
+                child: Text(_s('Verset ${v.numero}', 'Verse ${v.numero}'),
                     style: const TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w700)),
               ),
               const SizedBox(height: 20),
@@ -481,13 +498,13 @@ class _LessonScreenState extends State<LessonScreen> with TickerProviderStateMix
             decoration: BoxDecoration(
               color: _kBlueLight,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: _kBlue.withOpacity(0.25)),
+              border: Border.all(color: _kBlue.withValues(alpha: 0.25)),
             ),
             child: Column(children: [
-              Row(mainAxisAlignment: MainAxisAlignment.center, children: const [
-                Icon(Icons.volume_up_rounded, color: _kBlue, size: 16),
-                SizedBox(width: 6),
-                Text('PHONÉTIQUE', style: TextStyle(color: _kBlue, fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 0.8)),
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                const Icon(Icons.volume_up_rounded, color: _kBlue, size: 16),
+                const SizedBox(width: 6),
+                Text(_s('PHONÉTIQUE', 'PHONETIC'), style: const TextStyle(color: _kBlue, fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 0.8)),
               ]),
               const SizedBox(height: 10),
               Text(v.phonetique,
@@ -505,22 +522,29 @@ class _LessonScreenState extends State<LessonScreen> with TickerProviderStateMix
             decoration: BoxDecoration(
               color: _kGoldLight,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: _kGold.withOpacity(0.3)),
+              border: Border.all(color: _kGold.withValues(alpha: 0.3)),
             ),
             child: Column(children: [
-              Row(mainAxisAlignment: MainAxisAlignment.center, children: const [
-                Text('🌍', style: TextStyle(fontSize: 14)),
-                SizedBox(width: 6),
-                Text('TRADUCTION', style: TextStyle(color: Color(0xFFB06000), fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 0.8)),
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                const Text('🌍', style: TextStyle(fontSize: 14)),
+                const SizedBox(width: 6),
+                Text(_s('TRADUCTION', 'TRANSLATION'), style: const TextStyle(color: Color(0xFFB06000), fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 0.8)),
               ]),
               const SizedBox(height: 10),
-              Text(v.francais,
+              Text(v.traduction,
                 textAlign: TextAlign.center,
                 style: const TextStyle(color: Color(0xFF7A4200), fontSize: 15, height: 1.6, fontWeight: FontWeight.w600),
               ),
             ]),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
+
+          // Audio verset par verset
+          AudioVerseWidget(
+            surahNumber: v.surahNumber,
+            ayahNumber:  v.numero,
+          ),
+          const SizedBox(height: 16),
 
           // CTA
           SizedBox(
@@ -531,7 +555,7 @@ class _LessonScreenState extends State<LessonScreen> with TickerProviderStateMix
                 backgroundColor: _kGreenPrimary,
                 foregroundColor: Colors.white,
                 elevation: 4,
-                shadowColor: _kGreenPrimary.withOpacity(0.4),
+                shadowColor: _kGreenPrimary.withValues(alpha: 0.4),
                 padding: const EdgeInsets.symmetric(vertical: 18),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
               ),
@@ -548,7 +572,7 @@ class _LessonScreenState extends State<LessonScreen> with TickerProviderStateMix
 
   // ── Quiz Phase ────────────────────────────────────────────────
   Widget _buildQuiz() {
-    if (_quizzes.isEmpty) return const Center(child: Text('Aucun exercice'));
+    if (_quizzes.isEmpty) return Center(child: Text(_s('Aucun exercice', 'No exercise')));
     final quiz = _quizzes[_quizIdx];
 
     return SingleChildScrollView(
@@ -587,13 +611,13 @@ class _LessonScreenState extends State<LessonScreen> with TickerProviderStateMix
           decoration: BoxDecoration(
             color: _kBlueLight,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: _kBlue.withOpacity(0.3)),
+            border: Border.all(color: _kBlue.withValues(alpha: 0.3)),
           ),
           child: Column(children: [
-            Row(mainAxisAlignment: MainAxisAlignment.center, children: const [
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               Icon(Icons.volume_up_rounded, color: _kBlue, size: 16),
               SizedBox(width: 6),
-              Text('PHONÉTIQUE', style: TextStyle(color: _kBlue, fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 0.8)),
+              Text(_s('PHONÉTIQUE', 'PHONETIC'), style: TextStyle(color: _kBlue, fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 0.8)),
             ]),
             const SizedBox(height: 12),
             _buildBlankedLine(quiz),
@@ -643,7 +667,7 @@ class _LessonScreenState extends State<LessonScreen> with TickerProviderStateMix
           duration: const Duration(milliseconds: 300),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
           decoration: BoxDecoration(
-            color:        blankColor.withOpacity(0.15),
+            color:        blankColor.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(8),
             border:       Border.all(color: blankColor, width: 2),
           ),
@@ -708,8 +732,8 @@ class _LessonScreenState extends State<LessonScreen> with TickerProviderStateMix
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           decoration: BoxDecoration(color: _kBlueLight, borderRadius: BorderRadius.circular(16)),
-          child: const Text('🔤 Remets les mots dans le bon ordre (phonétique)',
-              style: TextStyle(color: Color(0xFF1565C0), fontSize: 13, fontWeight: FontWeight.w700)),
+          child: Text(context.t.lessonReorderWords,
+              style: const TextStyle(color: Color(0xFF1565C0), fontSize: 13, fontWeight: FontWeight.w700)),
         ),
         const SizedBox(height: 16),
 
@@ -736,8 +760,8 @@ class _LessonScreenState extends State<LessonScreen> with TickerProviderStateMix
             spacing: 8, runSpacing: 8,
             children: [
               if (_arrangeSelected.isEmpty)
-                const Text('Touche les mots ci-dessous…',
-                    style: TextStyle(color: _kTextLight, fontSize: 13, fontStyle: FontStyle.italic)),
+                Text(_s('Touche les mots ci-dessous…', 'Tap the words below…'),
+                    style: const TextStyle(color: _kTextLight, fontSize: 13, fontStyle: FontStyle.italic)),
               ..._arrangeSelected.asMap().entries.map((e) => GestureDetector(
                 onTap: _answered ? null : () => _removeArrangeWord(e.key),
                 child: Container(
@@ -745,7 +769,7 @@ class _LessonScreenState extends State<LessonScreen> with TickerProviderStateMix
                   decoration: BoxDecoration(
                     color: _kBlueLight,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: _kBlue.withOpacity(0.4)),
+                    border: Border.all(color: _kBlue.withValues(alpha: 0.4)),
                   ),
                   child: Text(e.value,
                       style: const TextStyle(color: Color(0xFF1565C0), fontSize: 13, fontWeight: FontWeight.w700)),
@@ -787,7 +811,7 @@ class _LessonScreenState extends State<LessonScreen> with TickerProviderStateMix
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
-              child: const Text('Valider →', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
+              child: Text(_s('Valider →', 'Validate →'), style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
             ),
           ),
         ],
@@ -805,7 +829,7 @@ class _LessonScreenState extends State<LessonScreen> with TickerProviderStateMix
           begin: Alignment.topLeft, end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: const Color(0xFF1B5E20).withOpacity(0.3), blurRadius: 20, offset: const Offset(0, 6))],
+        boxShadow: [BoxShadow(color: const Color(0xFF1B5E20).withValues(alpha: 0.3), blurRadius: 20, offset: const Offset(0, 6))],
       ),
       child: Column(children: [
         Text(v.arabe,
@@ -918,7 +942,7 @@ class _LessonScreenState extends State<LessonScreen> with TickerProviderStateMix
         const SizedBox(height: 16),
         Text(msg, style: TextStyle(color: color, fontSize: 26, fontWeight: FontWeight.w900)),
         const SizedBox(height: 6),
-        Text('${widget.lesson.surahNameFr} terminée !',
+        Text(context.t.lessonSurahCompleted(widget.lesson.surahNameFr),
             style: const TextStyle(color: _kTextLight, fontSize: 14)),
         const SizedBox(height: 32),
 
@@ -945,12 +969,12 @@ class _LessonScreenState extends State<LessonScreen> with TickerProviderStateMix
               backgroundColor: _kGreenPrimary,
               foregroundColor: Colors.white,
               elevation: 4,
-              shadowColor: _kGreenPrimary.withOpacity(0.4),
+              shadowColor: _kGreenPrimary.withValues(alpha: 0.4),
               padding: const EdgeInsets.symmetric(vertical: 18),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
             ),
-            child: const Text('Retour au parcours 🎉',
-                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 17)),
+            child: Text(_s('Retour au parcours 🎉', 'Back to path 🎉'),
+                style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 17)),
           ),
         ),
         const SizedBox(height: 12),
@@ -969,8 +993,8 @@ class _LessonScreenState extends State<LessonScreen> with TickerProviderStateMix
             _updateProgress(0);
             _celebCtrl.reset();
           }),
-          child: const Text('Recommencer la leçon',
-              style: TextStyle(color: _kTextLight, fontWeight: FontWeight.w600)),
+          child: Text(_s('Recommencer la leçon', 'Restart lesson'),
+              style: const TextStyle(color: _kTextLight, fontWeight: FontWeight.w600)),
         ),
       ]),
     );
@@ -982,18 +1006,18 @@ class _LessonScreenState extends State<LessonScreen> with TickerProviderStateMix
       builder: (_) => AlertDialog(
         backgroundColor: _kBeigeCard,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Quitter la leçon ?',
-            style: TextStyle(color: _kTextDark, fontWeight: FontWeight.w900)),
-        content: const Text('Ta progression pour cette session sera perdue.',
-            style: TextStyle(color: _kTextLight)),
+        title: Text(_s('Quitter la leçon ?', 'Quit lesson?'),
+            style: const TextStyle(color: _kTextDark, fontWeight: FontWeight.w900)),
+        content: Text(_s('Ta progression pour cette session sera perdue.', 'Your progress for this session will be lost.'),
+            style: const TextStyle(color: _kTextLight)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Continuer', style: TextStyle(color: _kGreenPrimary, fontWeight: FontWeight.w800)),
+            child: Text(_s('Continuer', 'Continue'), style: const TextStyle(color: _kGreenPrimary, fontWeight: FontWeight.w800)),
           ),
           TextButton(
             onPressed: () { Navigator.pop(context); Navigator.pop(context); },
-            child: const Text('Quitter', style: TextStyle(color: _kRed, fontWeight: FontWeight.w800)),
+            child: Text(_s('Quitter', 'Quit'), style: const TextStyle(color: _kRed, fontWeight: FontWeight.w800)),
           ),
         ],
       ),
@@ -1039,7 +1063,7 @@ class _OptionButton extends StatelessWidget {
           boxShadow: isSelected && !answered
               ? [const BoxShadow(color: Color(0x202A7A52), blurRadius: 12)]
               : answered && isCorrect
-                  ? [BoxShadow(color: _kGreenPrimary.withOpacity(0.2), blurRadius: 12)]
+                  ? [BoxShadow(color: _kGreenPrimary.withValues(alpha: 0.2), blurRadius: 12)]
                   : [const BoxShadow(color: Color(0x0A000000), blurRadius: 4, offset: Offset(0, 2))],
         ),
         child: Row(children: [
@@ -1050,7 +1074,7 @@ class _OptionButton extends StatelessWidget {
             Container(
               width: 28, height: 28,
               decoration: BoxDecoration(
-                color: isSelected ? _kGreenMedium.withOpacity(0.15) : const Color(0xFFE5E5E5).withOpacity(0.4),
+                color: isSelected ? _kGreenMedium.withValues(alpha: 0.15) : const Color(0xFFE5E5E5).withValues(alpha: 0.4),
                 shape: BoxShape.circle,
               ),
               child: Center(
@@ -1083,7 +1107,7 @@ class _ResultTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.3), width: 1.5),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: 1.5),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

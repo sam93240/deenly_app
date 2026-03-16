@@ -7,6 +7,10 @@ import 'protection_versets_data.dart';
 import 'protection_roqya_data.dart';
 import 'protection_remedes_data.dart';
 import 'protection_duas_data.dart';
+import 'translations.dart';
+import 'app_locale.dart';
+
+String _s(String fr, String en) => AppLocale().isFrench ? fr : en;
 
 // ── Palette ───────────────────────────────────────────────────────────────
 const _kDeep     = Color(0xFF1A0A2E);
@@ -63,16 +67,16 @@ class ProtectionScreen extends StatelessWidget {
                             const SizedBox(width: 10),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
-                                Text('Protection',
-                                    style: TextStyle(
+                              children: [
+                                Text(context.t.protectionTitle,
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 22,
                                       fontWeight: FontWeight.bold,
                                     )),
-                                SizedBox(height: 2),
-                                Text('Roqya \u00b7 Versets \u00b7 Rem\u00e8des',
-                                    style: TextStyle(
+                                const SizedBox(height: 2),
+                                Text(context.t.protectionSubtitle,
+                                    style: const TextStyle(
                                       color: Color(0xFFB8A0D0),
                                       fontSize: 12,
                                     )),
@@ -108,7 +112,7 @@ class ProtectionScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: _kRed.withOpacity(0.3),
+                        color: _kRed.withValues(alpha: 0.3),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -119,7 +123,7 @@ class ProtectionScreen extends StatelessWidget {
                       Container(
                         width: 50, height: 50,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(14),
                         ),
                         child: const Center(
@@ -130,16 +134,16 @@ class ProtectionScreen extends StatelessWidget {
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            Text('SOS \u2014 Urgence Spirituelle',
-                                style: TextStyle(
+                          children: [
+                            Text(context.t.protectionSOS,
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                 )),
-                            SizedBox(height: 3),
-                            Text('Je me sens mal, que faire maintenant ?',
-                                style: TextStyle(
+                            const SizedBox(height: 3),
+                            Text(context.t.protectionSOSSub,
+                                style: const TextStyle(
                                   color: Color(0xFFFFCDD2),
                                   fontSize: 12,
                                 )),
@@ -162,9 +166,9 @@ class ProtectionScreen extends StatelessWidget {
                 children: [
                   // Section 1 — Comprendre
                   _SectionCard(
-                    title: 'Comprendre',
+                    title: context.t.protectionUnderstand,
                     emoji: '\uD83D\uDCDA',
-                    description: 'Jinn, sorcellerie, mauvais oeil, waswas...',
+                    description: context.t.protectionUnderstandSub,
                     color: const Color(0xFF4A2D7A),
                     colorLight: const Color(0xFFEDE7F6),
                     onTap: () => Navigator.push(
@@ -176,9 +180,9 @@ class ProtectionScreen extends StatelessWidget {
 
                   // Section 2 — Versets de Protection
                   _SectionCard(
-                    title: 'Versets de Protection',
+                    title: context.t.protectionVerses,
                     emoji: '\uD83D\uDCD6',
-                    description: 'Ayat al-Kursi, Mu\'awwidhat, versets anti-sihr...',
+                    description: context.t.protectionVersesSub,
                     color: const Color(0xFF1B4D38),
                     colorLight: const Color(0xFFE8F4EE),
                     onTap: () => Navigator.push(
@@ -190,9 +194,9 @@ class ProtectionScreen extends StatelessWidget {
 
                   // Section 3 — Programmes de Roqya
                   _SectionCard(
-                    title: 'Programmes de Roqya',
+                    title: context.t.protectionRoqya,
                     emoji: '\uD83D\uDCFF',
-                    description: 'G\u00e9n\u00e9rale, mauvais oeil, sorcellerie, waswas...',
+                    description: context.t.protectionRoqyaSub,
                     color: const Color(0xFF2D1B4E),
                     colorLight: const Color(0xFFF3ECFA),
                     onTap: () => Navigator.push(
@@ -204,9 +208,9 @@ class ProtectionScreen extends StatelessWidget {
 
                   // Section 4 — Remèdes Prophétiques
                   _SectionCard(
-                    title: 'Rem\u00e8des Proph\u00e9tiques',
+                    title: context.t.protectionRemedies,
                     emoji: '\uD83C\uDF3F',
-                    description: 'Miel, nigelle, hijama, sidr, eau coranis\u00e9e...',
+                    description: context.t.protectionRemediesSub,
                     color: const Color(0xFF5A3A1A),
                     colorLight: const Color(0xFFF5EDE0),
                     onTap: () => Navigator.push(
@@ -218,9 +222,9 @@ class ProtectionScreen extends StatelessWidget {
 
                   // Section 5 — Invocations de Protection
                   _SectionCard(
-                    title: 'Invocations de Protection',
+                    title: context.t.protectionDuas,
                     emoji: '\uD83E\uDD32',
-                    description: 'Matin, maison, couple, enfants, cauchemars...',
+                    description: context.t.protectionDuasSub,
                     color: const Color(0xFFC8933A),
                     colorLight: const Color(0xFFFFF4DC),
                     onTap: () => Navigator.push(
@@ -277,7 +281,7 @@ class _SectionCard extends StatelessWidget {
               decoration: BoxDecoration(
                 color: colorLight,
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: color.withOpacity(0.2)),
+                border: Border.all(color: color.withValues(alpha: 0.2)),
               ),
               alignment: Alignment.center,
               child: Text(emoji, style: const TextStyle(fontSize: 24)),
@@ -301,7 +305,7 @@ class _SectionCard extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(Icons.chevron_right_rounded, color: _kLight.withOpacity(0.6), size: 20),
+            Icon(Icons.chevron_right_rounded, color: _kLight.withValues(alpha: 0.6), size: 20),
           ],
         ),
       ),
@@ -322,7 +326,7 @@ class _SosScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: _kRed,
         foregroundColor: Colors.white,
-        title: const Text('\uD83C\uDD98 Urgence Spirituelle'),
+        title: Text('🆘 ${context.t.protectionSosTitle}'),
         elevation: 0,
       ),
       body: ListView.builder(
@@ -337,7 +341,7 @@ class _SosScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: _kCard,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: i == 0 ? _kRed.withOpacity(0.3) : _kBorder),
+                border: Border.all(color: i == 0 ? _kRed.withValues(alpha: 0.3) : _kBorder),
                 boxShadow: const [
                   BoxShadow(color: Color(0x10000000), blurRadius: 5, offset: Offset(0, 2)),
                 ],
@@ -376,7 +380,7 @@ class _SosScreen extends StatelessWidget {
                             ),
                             const SizedBox(width: 8),
                             Expanded(
-                              child: Text(step.title,
+                              child: Text(step.displayTitle,
                                   style: const TextStyle(
                                     color: _kDark,
                                     fontSize: 15,
@@ -389,7 +393,7 @@ class _SosScreen extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 10),
-                  Text(step.instruction,
+                  Text(step.displayInstruction,
                       style: const TextStyle(color: _kMid, fontSize: 13, height: 1.6)),
                   if (step.arabic != null) ...[
                     const SizedBox(height: 10),
@@ -448,13 +452,13 @@ class _ComprendreScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: _kDeep,
         foregroundColor: Colors.white,
-        title: const Text('\uD83D\uDCDA Comprendre'),
+        title: Text('📚 ${context.t.protectionUnderstandTitle}'),
         elevation: 0,
       ),
       body: ListView.separated(
         padding: const EdgeInsets.all(14),
         itemCount: kProtectionArticles.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 10),
+        separatorBuilder: (_, _) => const SizedBox(height: 10),
         itemBuilder: (ctx, i) {
           final article = kProtectionArticles[i];
           return GestureDetector(
@@ -488,14 +492,14 @@ class _ComprendreScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(article.title,
+                        Text(article.displayTitle,
                             style: const TextStyle(
                               color: _kDark,
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
                             )),
                         const SizedBox(height: 3),
-                        Text(article.subtitle,
+                        Text(article.displaySubtitle,
                             style: const TextStyle(color: _kLight, fontSize: 11)),
                       ],
                     ),
@@ -514,7 +518,7 @@ class _ComprendreScreen extends StatelessWidget {
                         )),
                   ),
                   const SizedBox(width: 4),
-                  Icon(Icons.chevron_right_rounded, color: _kLight.withOpacity(0.6), size: 20),
+                  Icon(Icons.chevron_right_rounded, color: _kLight.withValues(alpha: 0.6), size: 20),
                 ],
               ),
             ),
@@ -536,7 +540,7 @@ class _ArticleDetailScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: _kDeep,
         foregroundColor: Colors.white,
-        title: Text('${article.emoji} ${article.title}'),
+        title: Text('${article.emoji} ${article.displayTitle}'),
         elevation: 0,
       ),
       body: ListView.builder(
@@ -559,14 +563,14 @@ class _ArticleDetailScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(section.heading,
+                  Text(section.displayHeading,
                       style: const TextStyle(
                         color: _kMedium,
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
                       )),
                   const SizedBox(height: 10),
-                  Text(section.body,
+                  Text(section.displayBody,
                       style: const TextStyle(
                         color: _kMid,
                         fontSize: 13,
@@ -595,13 +599,13 @@ class _VersetsScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: _kDeep,
         foregroundColor: Colors.white,
-        title: const Text('\uD83D\uDCD6 Versets de Protection'),
+        title: Text('📖 ${context.t.protectionVersesTitle}'),
         elevation: 0,
       ),
       body: ListView.separated(
         padding: const EdgeInsets.all(14),
         itemCount: kVersetsProtection.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 10),
+        separatorBuilder: (_, _) => const SizedBox(height: 10),
         itemBuilder: (ctx, i) {
           final v = kVersetsProtection[i];
           return GestureDetector(
@@ -635,7 +639,7 @@ class _VersetsScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(v.title,
+                        Text(v.displayTitle,
                             style: const TextStyle(
                               color: Color(0xFF1B4D38),
                               fontSize: 14,
@@ -658,7 +662,7 @@ class _VersetsScreen extends StatelessWidget {
                           style: const TextStyle(color: _kAccent, fontSize: 10, fontWeight: FontWeight.w700)),
                     ),
                   const SizedBox(width: 4),
-                  Icon(Icons.chevron_right_rounded, color: _kLight.withOpacity(0.6), size: 20),
+                  Icon(Icons.chevron_right_rounded, color: _kLight.withValues(alpha: 0.6), size: 20),
                 ],
               ),
             ),
@@ -680,7 +684,7 @@ class _VersetDetailScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: _kDeep,
         foregroundColor: Colors.white,
-        title: Text('${verset.emoji} ${verset.title}'),
+        title: Text('${verset.emoji} ${verset.displayTitle}'),
         elevation: 0,
       ),
       body: SingleChildScrollView(
@@ -713,7 +717,7 @@ class _VersetDetailScreen extends StatelessWidget {
                   const SizedBox(height: 14),
                   Text(verset.reference,
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.6),
+                        color: Colors.white.withValues(alpha: 0.6),
                         fontSize: 12,
                       )),
                 ],
@@ -722,34 +726,34 @@ class _VersetDetailScreen extends StatelessWidget {
             const SizedBox(height: 14),
             // Phonetic
             _DetailCard(
-              label: 'Phon\u00e9tique',
+              label: _s('Phon\u00e9tique', 'Phonetics'),
               child: Text(verset.phonetic,
                   style: const TextStyle(color: _kAccent, fontSize: 13, fontStyle: FontStyle.italic, height: 1.6)),
             ),
             const SizedBox(height: 10),
             // Translation
             _DetailCard(
-              label: 'Traduction',
-              child: Text(verset.translation,
+              label: _s('Traduction', 'Translation'),
+              child: Text(verset.displayTranslation,
                   style: const TextStyle(color: _kMid, fontSize: 13, height: 1.6)),
             ),
             const SizedBox(height: 10),
             // Power
             _DetailCard(
-              label: 'Puissance de ce verset',
-              child: Text(verset.power,
+              label: _s('Puissance de ce verset', 'Power of this Verse'),
+              child: Text(verset.displayPower,
                   style: const TextStyle(color: _kMid, fontSize: 13, height: 1.6)),
             ),
             const SizedBox(height: 10),
             // When to recite
             _DetailCard(
-              label: 'Quand le r\u00e9citer',
+              label: _s('Quand le r\u00e9citer', 'When to Recite'),
               child: Row(
                 children: [
                   const Icon(Icons.access_time, color: _kAccent, size: 16),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: Text(verset.whenToRecite,
+                    child: Text(verset.displayWhenToRecite,
                         style: const TextStyle(color: _kMid, fontSize: 13, height: 1.4)),
                   ),
                 ],
@@ -768,7 +772,7 @@ class _VersetDetailScreen extends StatelessWidget {
                   children: [
                     const Icon(Icons.repeat, color: _kAccent, size: 18),
                     const SizedBox(width: 8),
-                    Text('R\u00e9p\u00e9ter \u00d7${verset.repeat}',
+                    Text('${context.t.protectionRepeatLabel} ×${verset.repeat}',
                         style: const TextStyle(color: _kAccent, fontSize: 14, fontWeight: FontWeight.w700)),
                   ],
                 ),
@@ -822,13 +826,13 @@ class _RoqyaScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: _kDeep,
         foregroundColor: Colors.white,
-        title: const Text('\uD83D\uDCFF Programmes de Roqya'),
+        title: Text("\uD83D\uDCFF ${_s('Programmes de Roqya', 'Ruqyah Programs')}"),
         elevation: 0,
       ),
       body: ListView.separated(
         padding: const EdgeInsets.all(14),
         itemCount: kRoqyaPrograms.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 10),
+        separatorBuilder: (_, _) => const SizedBox(height: 10),
         itemBuilder: (ctx, i) {
           final prog = kRoqyaPrograms[i];
           return GestureDetector(
@@ -862,14 +866,14 @@ class _RoqyaScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(prog.title,
+                        Text(prog.displayTitle,
                             style: const TextStyle(
                               color: _kDark,
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
                             )),
                         const SizedBox(height: 3),
-                        Text(prog.description,
+                        Text(prog.displayDescription,
                             style: const TextStyle(color: _kLight, fontSize: 11),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis),
@@ -888,12 +892,12 @@ class _RoqyaScreen extends StatelessWidget {
                             style: const TextStyle(color: _kMedium, fontSize: 9, fontWeight: FontWeight.w600)),
                       ),
                       const SizedBox(height: 4),
-                      Text('${prog.steps.length} \u00e9tapes',
+                      Text("${prog.steps.length} ${_s('\u00e9tapes', 'steps')}",
                           style: const TextStyle(color: _kLight, fontSize: 9)),
                     ],
                   ),
                   const SizedBox(width: 4),
-                  Icon(Icons.chevron_right_rounded, color: _kLight.withOpacity(0.6), size: 20),
+                  Icon(Icons.chevron_right_rounded, color: _kLight.withValues(alpha: 0.6), size: 20),
                 ],
               ),
             ),
@@ -915,7 +919,7 @@ class _RoqyaDetailScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: _kDeep,
         foregroundColor: Colors.white,
-        title: Text('${program.emoji} ${program.title}'),
+        title: Text('${program.emoji} ${program.displayTitle}'),
         elevation: 0,
       ),
       body: ListView(
@@ -927,9 +931,9 @@ class _RoqyaDetailScreen extends StatelessWidget {
             decoration: BoxDecoration(
               color: const Color(0xFFF3ECFA),
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: _kMedium.withOpacity(0.2)),
+              border: Border.all(color: _kMedium.withValues(alpha: 0.2)),
             ),
-            child: Text(program.intro,
+            child: Text(program.displayIntro,
                 style: const TextStyle(color: _kMid, fontSize: 13, height: 1.6)),
           ),
           const SizedBox(height: 16),
@@ -963,7 +967,7 @@ class _RoqyaDetailScreen extends StatelessWidget {
                         ),
                         const SizedBox(width: 10),
                         Expanded(
-                          child: Text(step.instruction,
+                          child: Text(step.displayInstruction,
                               style: const TextStyle(color: _kDark, fontSize: 13, height: 1.5)),
                         ),
                         if (step.repeat > 1)
@@ -1044,13 +1048,13 @@ class _RemedesScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: _kDeep,
         foregroundColor: Colors.white,
-        title: const Text('\uD83C\uDF3F Rem\u00e8des Proph\u00e9tiques'),
+        title: Text("\uD83C\uDF3F ${_s('Rem\u00e8des Proph\u00e9tiques', 'Prophetic Remedies')}"),
         elevation: 0,
       ),
       body: ListView.separated(
         padding: const EdgeInsets.all(14),
         itemCount: kRemedesProphetiques.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 10),
+        separatorBuilder: (_, _) => const SizedBox(height: 10),
         itemBuilder: (ctx, i) {
           final r = kRemedesProphetiques[i];
           return GestureDetector(
@@ -1084,7 +1088,7 @@ class _RemedesScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(r.name,
+                        Text(r.displayName,
                             style: const TextStyle(
                               color: Color(0xFF5A3A1A),
                               fontSize: 14,
@@ -1096,7 +1100,7 @@ class _RemedesScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Icon(Icons.chevron_right_rounded, color: _kLight.withOpacity(0.6), size: 20),
+                  Icon(Icons.chevron_right_rounded, color: _kLight.withValues(alpha: 0.6), size: 20),
                 ],
               ),
             ),
@@ -1118,7 +1122,7 @@ class _RemedeDetailScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: _kDeep,
         foregroundColor: Colors.white,
-        title: Text('${remede.emoji} ${remede.name}'),
+        title: Text('${remede.emoji} ${remede.displayName}'),
         elevation: 0,
       ),
       body: SingleChildScrollView(
@@ -1144,33 +1148,33 @@ class _RemedeDetailScreen extends StatelessWidget {
                   Text(remede.arabicName,
                       style: const TextStyle(color: _kAccent, fontSize: 20, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 4),
-                  Text(remede.name,
+                  Text(remede.displayName,
                       style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
                 ],
               ),
             ),
             const SizedBox(height: 14),
-            _DetailCard(label: 'Description', child: Text(remede.description, style: const TextStyle(color: _kMid, fontSize: 13, height: 1.6))),
+            _DetailCard(label: context.t.protectionDescriptionLabel, child: Text(remede.descriptionText, style: const TextStyle(color: _kMid, fontSize: 13, height: 1.6))),
             const SizedBox(height: 10),
             _DetailCard(
-              label: 'Hadith',
+              label: context.t.protectionHadithLabel,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(remede.hadith, style: const TextStyle(color: _kMid, fontSize: 13, height: 1.6, fontStyle: FontStyle.italic)),
+                  Text(remede.hadithText, style: const TextStyle(color: _kMid, fontSize: 13, height: 1.6, fontStyle: FontStyle.italic)),
                   const SizedBox(height: 6),
                   Text(remede.hadithSource, style: const TextStyle(color: _kLight, fontSize: 11)),
                 ],
               ),
             ),
             const SizedBox(height: 10),
-            _DetailCard(label: 'Utilisation', child: Text(remede.utilisation, style: const TextStyle(color: _kMid, fontSize: 13, height: 1.6))),
+            _DetailCard(label: context.t.protectionUsageLabel, child: Text(remede.utilisationText, style: const TextStyle(color: _kMid, fontSize: 13, height: 1.6))),
             const SizedBox(height: 10),
             _DetailCard(
-              label: 'Bienfaits',
+              label: context.t.protectionBenefitsLabel,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: remede.bienfaits.map((b) => Padding(
+                children: remede.bienfaitsText.map((b) => Padding(
                   padding: const EdgeInsets.only(bottom: 4),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1202,13 +1206,13 @@ class _DuasProtScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: _kDeep,
         foregroundColor: Colors.white,
-        title: const Text('\uD83E\uDD32 Invocations de Protection'),
+        title: Text("\uD83E\uDD32 ${_s('Invocations de Protection', 'Protection Supplications')}"),
         elevation: 0,
       ),
       body: ListView.separated(
         padding: const EdgeInsets.all(14),
         itemCount: kDuasProtection.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 10),
+        separatorBuilder: (_, _) => const SizedBox(height: 10),
         itemBuilder: (ctx, i) {
           final cat = kDuasProtection[i];
           return GestureDetector(
@@ -1242,10 +1246,10 @@ class _DuasProtScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(cat.title,
+                        Text(cat.displayTitle,
                             style: const TextStyle(color: _kAccent, fontSize: 14, fontWeight: FontWeight.w700)),
                         const SizedBox(height: 3),
-                        Text(cat.description,
+                        Text(cat.displayDescription,
                             style: const TextStyle(color: _kLight, fontSize: 11)),
                       ],
                     ),
@@ -1260,7 +1264,7 @@ class _DuasProtScreen extends StatelessWidget {
                         style: const TextStyle(color: _kAccent, fontSize: 10, fontWeight: FontWeight.w700)),
                   ),
                   const SizedBox(width: 4),
-                  Icon(Icons.chevron_right_rounded, color: _kLight.withOpacity(0.6), size: 20),
+                  Icon(Icons.chevron_right_rounded, color: _kLight.withValues(alpha: 0.6), size: 20),
                 ],
               ),
             ),
@@ -1282,13 +1286,13 @@ class _DuaCatDetailScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: _kDeep,
         foregroundColor: Colors.white,
-        title: Text('${category.emoji} ${category.title}'),
+        title: Text('${category.emoji} ${category.displayTitle}'),
         elevation: 0,
       ),
       body: ListView.separated(
         padding: const EdgeInsets.all(14),
         itemCount: category.duas.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 10),
+        separatorBuilder: (_, _) => const SizedBox(height: 10),
         itemBuilder: (ctx, i) {
           final dua = category.duas[i];
           return Container(
@@ -1318,7 +1322,7 @@ class _DuaCatDetailScreen extends StatelessWidget {
                     style: const TextStyle(color: _kAccent, fontSize: 13, fontStyle: FontStyle.italic),
                     textAlign: TextAlign.left),
                 const SizedBox(height: 6),
-                Text(dua.translation,
+                Text(dua.displayTranslation,
                     style: const TextStyle(color: _kMid, fontSize: 12.5, height: 1.6)),
                 const SizedBox(height: 8),
                 Row(

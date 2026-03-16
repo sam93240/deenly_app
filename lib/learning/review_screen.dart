@@ -1,7 +1,11 @@
 import 'dart:async' show unawaited;
 import 'package:flutter/material.dart';
+import '../translations.dart';
+import '../app_locale.dart';
 import 'learning_models.dart';
 import 'learning_service.dart';
+
+String _s(String fr, String en) => AppLocale().isFrench ? fr : en;
 
 // ─── Palette UpYourDeen ─────────────────────────────────────────────────
 const _kGreenDeep    = Color(0xFF0A2018);
@@ -23,11 +27,12 @@ const _kRedLight     = Color(0xFFFFEBEB);
 const _kOrange       = Color(0xFFFF9600);
 const _kOrangeLight  = Color(0xFFFFF0D0);
 
+
 // ─── Review Screen (Révision espacée SRS) ─────────────────────────
 class ReviewScreen extends StatefulWidget {
   final List<LearningVerset> versets;
   final UserStats            stats;
-  const ReviewScreen({Key? key, required this.versets, required this.stats}) : super(key: key);
+  const ReviewScreen({super.key, required this.versets, required this.stats});
 
   @override
   State<ReviewScreen> createState() => _ReviewScreenState();
@@ -158,7 +163,7 @@ class _ReviewScreenState extends State<ReviewScreen> with TickerProviderStateMix
                   onTap: _flip,
                   child: AnimatedBuilder(
                     animation: _flipAnim,
-                    builder: (_, __) {
+                    builder: (_, _) {
                       final angle    = _flipAnim.value * 3.14159;
                       final showBack = _flipAnim.value > 0.5;
                       return Transform(
@@ -185,11 +190,11 @@ class _ReviewScreenState extends State<ReviewScreen> with TickerProviderStateMix
                   color: _kBlueLight,
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: Row(mainAxisSize: MainAxisSize.min, children: const [
-                  Icon(Icons.touch_app_rounded, color: _kBlue, size: 16),
-                  SizedBox(width: 6),
-                  Text('Appuie pour voir la réponse',
-                      style: TextStyle(color: _kBlue, fontSize: 12, fontWeight: FontWeight.w700)),
+                child: Row(mainAxisSize: MainAxisSize.min, children: [
+                  const Icon(Icons.touch_app_rounded, color: _kBlue, size: 16),
+                  const SizedBox(width: 6),
+                  Text(context.t.reviewTapToSeeAnswer,
+                      style: const TextStyle(color: _kBlue, fontSize: 12, fontWeight: FontWeight.w700)),
                 ]),
               ),
             ),
@@ -228,7 +233,7 @@ class _ReviewScreenState extends State<ReviewScreen> with TickerProviderStateMix
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: _kBeigeBorder.withOpacity(0.5),
+                color: _kBeigeBorder.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: const Icon(Icons.close_rounded, color: _kTextLight, size: 20),
@@ -245,7 +250,7 @@ class _ReviewScreenState extends State<ReviewScreen> with TickerProviderStateMix
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(colors: [_kGreenPrimary, _kGreenMedium]),
                     borderRadius: BorderRadius.circular(99),
-                    boxShadow: [BoxShadow(color: _kGreenPrimary.withOpacity(0.4), blurRadius: 6)],
+                    boxShadow: [BoxShadow(color: _kGreenPrimary.withValues(alpha: 0.4), blurRadius: 6)],
                   ),
                 ),
               ),
@@ -259,9 +264,9 @@ class _ReviewScreenState extends State<ReviewScreen> with TickerProviderStateMix
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _pill('✅ $_mastered maîtrisés',   _kGreenLight,  _kGreenPrimary),
+            _pill(_s('✅ $_mastered maîtrisés', '✅ $_mastered mastered'),   _kGreenLight,  _kGreenPrimary),
             const SizedBox(width: 8),
-            _pill('🔄 $_toReview à revoir',    _kGoldLight,   _kGold),
+            _pill(_s('🔄 $_toReview à revoir', '🔄 $_toReview to review'),    _kGoldLight,   _kGold),
           ],
         ),
       ]),
@@ -285,7 +290,7 @@ class _ReviewScreenState extends State<ReviewScreen> with TickerProviderStateMix
           begin: Alignment.topLeft, end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(28),
-        boxShadow: [BoxShadow(color: _kGreenPrimary.withOpacity(0.40), blurRadius: 28, offset: const Offset(0, 8))],
+        boxShadow: [BoxShadow(color: _kGreenPrimary.withValues(alpha: 0.40), blurRadius: 28, offset: const Offset(0, 8))],
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -293,11 +298,11 @@ class _ReviewScreenState extends State<ReviewScreen> with TickerProviderStateMix
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
+              color: Colors.white.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: Text('Verset ${v.numero}',
-                style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 12, fontWeight: FontWeight.w700)),
+            child: Text(_s('Verset ${v.numero}', 'Verse ${v.numero}'),
+                style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 12, fontWeight: FontWeight.w700)),
           ),
           const SizedBox(height: 24),
           Padding(
@@ -315,11 +320,11 @@ class _ReviewScreenState extends State<ReviewScreen> with TickerProviderStateMix
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
+              color: Colors.white.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: Text('👆 Appuie pour voir',
-                style: TextStyle(color: Colors.white.withOpacity(0.55), fontSize: 12)),
+            child: Text(_s('👆 Appuie pour voir', '👆 Tap to see'),
+                style: TextStyle(color: Colors.white.withValues(alpha: 0.55), fontSize: 12)),
           ),
         ],
       ),
@@ -354,10 +359,10 @@ class _ReviewScreenState extends State<ReviewScreen> with TickerProviderStateMix
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(color: _kBlueLight, borderRadius: BorderRadius.circular(16)),
             child: Column(children: [
-              Row(mainAxisAlignment: MainAxisAlignment.center, children: const [
-                Icon(Icons.record_voice_over_rounded, color: _kBlue, size: 16),
-                SizedBox(width: 6),
-                Text('PHONÉTIQUE', style: TextStyle(color: _kBlue, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                const Icon(Icons.record_voice_over_rounded, color: _kBlue, size: 16),
+                const SizedBox(width: 6),
+                Text(_s('PHONÉTIQUE', 'PHONETIC'), style: const TextStyle(color: _kBlue, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
               ]),
               const SizedBox(height: 8),
               Text(v.phonetique, textAlign: TextAlign.center,
@@ -373,13 +378,13 @@ class _ReviewScreenState extends State<ReviewScreen> with TickerProviderStateMix
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(color: _kGoldLight, borderRadius: BorderRadius.circular(16)),
             child: Column(children: [
-              Row(mainAxisAlignment: MainAxisAlignment.center, children: const [
-                Text('🌍', style: TextStyle(fontSize: 14)),
-                SizedBox(width: 6),
-                Text('TRADUCTION', style: TextStyle(color: Color(0xFFA85C00), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                const Text('🌍', style: TextStyle(fontSize: 14)),
+                const SizedBox(width: 6),
+                Text(_s('TRADUCTION', 'TRANSLATION'), style: const TextStyle(color: Color(0xFFA85C00), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
               ]),
               const SizedBox(height: 8),
-              Text(v.francais, textAlign: TextAlign.center,
+              Text(v.traduction, textAlign: TextAlign.center,
                   style: const TextStyle(color: _kTextMid, fontSize: 14, height: 1.6, fontWeight: FontWeight.w600)),
             ]),
           ),
@@ -401,13 +406,13 @@ class _ReviewScreenState extends State<ReviewScreen> with TickerProviderStateMix
             decoration: BoxDecoration(
               color: _kBeigeCard,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: _kRed.withOpacity(0.6), width: 2.5),
-              boxShadow: [BoxShadow(color: _kRed.withOpacity(0.1), blurRadius: 12, offset: const Offset(0, 4))],
+              border: Border.all(color: _kRed.withValues(alpha: 0.6), width: 2.5),
+              boxShadow: [BoxShadow(color: _kRed.withValues(alpha: 0.1), blurRadius: 12, offset: const Offset(0, 4))],
             ),
-            child: Column(children: const [
+            child: Column(children: [
               Text('🔄', style: TextStyle(fontSize: 26)),
               SizedBox(height: 6),
-              Text('À revoir', style: TextStyle(color: _kRed, fontSize: 14, fontWeight: FontWeight.w900)),
+              Text(_s('À revoir', 'To review'), style: const TextStyle(color: _kRed, fontSize: 14, fontWeight: FontWeight.w900)),
             ]),
           ),
         ),
@@ -422,12 +427,12 @@ class _ReviewScreenState extends State<ReviewScreen> with TickerProviderStateMix
               color: _kGreenLight,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: _kGreenPrimary, width: 2.5),
-              boxShadow: [BoxShadow(color: _kGreenPrimary.withOpacity(0.25), blurRadius: 12, offset: const Offset(0, 4))],
+              boxShadow: [BoxShadow(color: _kGreenPrimary.withValues(alpha: 0.25), blurRadius: 12, offset: const Offset(0, 4))],
             ),
-            child: Column(children: const [
-              Text('✅', style: TextStyle(fontSize: 26)),
-              SizedBox(height: 6),
-              Text('Maîtrisé !', style: TextStyle(color: _kGreenDeep, fontSize: 14, fontWeight: FontWeight.w900)),
+            child: Column(children: [
+              const Text('✅', style: TextStyle(fontSize: 26)),
+              const SizedBox(height: 6),
+              Text(context.t.reviewMastered, style: const TextStyle(color: _kGreenDeep, fontSize: 14, fontWeight: FontWeight.w900)),
             ]),
           ),
         ),
@@ -451,8 +456,8 @@ class _ReviewScreenState extends State<ReviewScreen> with TickerProviderStateMix
         const SizedBox(height: 16),
         Text(msg, style: TextStyle(color: color, fontSize: 26, fontWeight: FontWeight.w900)),
         const SizedBox(height: 6),
-        const Text('Session de révision terminée !',
-            style: TextStyle(color: _kTextLight, fontSize: 14)),
+        Text(context.t.reviewSessionCompleted,
+            style: const TextStyle(color: _kTextLight, fontSize: 14)),
         const SizedBox(height: 32),
 
         GridView.count(
@@ -462,10 +467,10 @@ class _ReviewScreenState extends State<ReviewScreen> with TickerProviderStateMix
           crossAxisSpacing: 12, mainAxisSpacing: 12,
           childAspectRatio: 1.5,
           children: [
-            _summTile('✅', '$_mastered',  'Maîtrisés',  _kGreenPrimary, _kGreenLight),
-            _summTile('🔄', '$_toReview',  'À revoir',   _kRed,          _kRedLight),
-            _summTile('⚡', '+$xp',        'XP gagnés',  _kGold,         _kGoldLight),
-            _summTile('🎯', '$pct%',       'Précision',  _kBlue,         _kBlueLight),
+            _summTile('✅', '$_mastered',  _s('Maîtrisés', 'Mastered'),  _kGreenPrimary, _kGreenLight),
+            _summTile('🔄', '$_toReview',  _s('À revoir', 'To review'),   _kRed,          _kRedLight),
+            _summTile('⚡', '+$xp',        _s('XP gagnés', 'XP earned'),  _kGold,         _kGoldLight),
+            _summTile('🎯', '$pct%',       _s('Précision', 'Accuracy'),  _kBlue,         _kBlueLight),
           ],
         ),
         const SizedBox(height: 32),
@@ -478,12 +483,12 @@ class _ReviewScreenState extends State<ReviewScreen> with TickerProviderStateMix
               backgroundColor: _kGreenPrimary,
               foregroundColor: Colors.white,
               elevation: 4,
-              shadowColor: _kGreenPrimary.withOpacity(0.4),
+              shadowColor: _kGreenPrimary.withValues(alpha: 0.4),
               padding: const EdgeInsets.symmetric(vertical: 18),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
             ),
-            child: const Text('Retour 🎉',
-                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 17)),
+            child: Text(_s('Retour 🎉', 'Back 🎉'),
+                style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 17)),
           ),
         ),
       ]),
@@ -496,7 +501,7 @@ class _ReviewScreenState extends State<ReviewScreen> with TickerProviderStateMix
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: fg.withOpacity(0.3), width: 1.5),
+        border: Border.all(color: fg.withValues(alpha: 0.3), width: 1.5),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -519,10 +524,10 @@ class _MasteryBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final data = switch (level) {
-      MasteryLevel.notSeen   => ('🔘', 'Jamais vu',   _kBeigeBorder,  _kTextLight),
-      MasteryLevel.learning  => ('📚', 'En cours',     _kOrangeLight,  _kOrange),
-      MasteryLevel.reviewing => ('🔄', 'En révision',  _kBlueLight,    _kBlue),
-      MasteryLevel.mastered  => ('⭐', 'Maîtrisé',     _kGreenLight,   _kGreenDeep),
+      MasteryLevel.notSeen   => ('🔘', _s('Jamais vu', 'Never seen'),   _kBeigeBorder,  _kTextLight),
+      MasteryLevel.learning  => ('📚', _s('En cours', 'Learning'),     _kOrangeLight,  _kOrange),
+      MasteryLevel.reviewing => ('🔄', _s('En révision', 'Reviewing'),  _kBlueLight,    _kBlue),
+      MasteryLevel.mastered  => ('⭐', _s('Maîtrisé', 'Mastered'),     _kGreenLight,   _kGreenDeep),
     };
 
     return Container(

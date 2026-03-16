@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'user_profile.dart';
 import 'onboarding_screen.dart';
+import 'translations.dart';
 
 // ── Palette ──────────────────────────────────────────────────────────
 const _kGreen = Color(0xFF1B4D38);
@@ -17,6 +18,18 @@ const _kTxtDk = Color(0xFF1A130A);
 const _kTxtMd = Color(0xFF5A4833);
 const _kTxtLt = Color(0xFF8A7863);
 
+String _niveauLabelTranslated(BuildContext context, UserProfile profile) {
+  final t = context.t;
+  switch (profile.niveau) {
+    case DeenlyLevel.debutant:
+      return t.levelBeginner;
+    case DeenlyLevel.intermediaire:
+      return t.levelIntermediate;
+    case DeenlyLevel.avance:
+      return t.levelAdvanced;
+  }
+}
+
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
@@ -26,9 +39,9 @@ class ProfileScreen extends StatelessWidget {
     final profile = provider.profile;
 
     if (profile == null) {
-      return const Scaffold(
+      return Scaffold(
         backgroundColor: _kBeige,
-        body: Center(child: Text('Aucun profil')),
+        body: Center(child: Text(context.t.profileNoProfile)),
       );
     }
 
@@ -74,14 +87,14 @@ class ProfileScreen extends StatelessWidget {
                 children: [
                   _ActionButton(
                     icon: Icons.edit_rounded,
-                    label: 'Modifier mon profil',
+                    label: context.t.profileEdit,
                     color: _kGreen,
                     onTap: () => _showEditSheet(context, provider, profile),
                   ),
                   const SizedBox(height: 10),
                   _ActionButton(
                     icon: Icons.logout_rounded,
-                    label: 'Réinitialiser le profil',
+                    label: context.t.settingsResetConfirmTitle,
                     color: Colors.red.shade400,
                     onTap: () => _confirmReset(context, provider),
                   ),
@@ -121,14 +134,14 @@ class ProfileScreen extends StatelessWidget {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: _kTxtLt.withOpacity(0.3),
+                    color: _kTxtLt.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
               ),
               const SizedBox(height: 20),
-              const Text('Modifier mon profil',
-                  style: TextStyle(
+              Text(context.t.profileEdit,
+                  style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w800,
                       color: _kTxtDk)),
@@ -139,13 +152,13 @@ class ProfileScreen extends StatelessWidget {
                 controller: TextEditingController(text: prenom),
                 onChanged: (v) => prenom = v,
                 decoration: InputDecoration(
-                  labelText: 'Prénom',
+                  labelText: context.t.profileFirstName,
                   filled: true,
                   fillColor: Colors.white,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
                     borderSide:
-                        BorderSide(color: _kGreen.withOpacity(0.15)),
+                        BorderSide(color: _kGreen.withValues(alpha: 0.15)),
                   ),
                 ),
               ),
@@ -154,7 +167,7 @@ class ProfileScreen extends StatelessWidget {
               // Âge slider
               Row(
                 children: [
-                  Text('Âge : $age ans',
+                  Text('${context.t.profileAge} : $age ${context.t.profileYears}',
                       style: const TextStyle(
                           fontWeight: FontWeight.w600, color: _kTxtDk)),
                 ],
@@ -162,7 +175,7 @@ class ProfileScreen extends StatelessWidget {
               SliderTheme(
                 data: SliderThemeData(
                   activeTrackColor: _kGreen,
-                  inactiveTrackColor: _kGreen.withOpacity(0.12),
+                  inactiveTrackColor: _kGreen.withValues(alpha: 0.12),
                   thumbColor: _kGold,
                 ),
                 child: Slider(
@@ -192,11 +205,11 @@ class ProfileScreen extends StatelessWidget {
                       height: 44,
                       decoration: BoxDecoration(
                         color: sel
-                            ? _kGreen.withOpacity(0.12)
+                            ? _kGreen.withValues(alpha: 0.12)
                             : Colors.white,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: sel ? _kGreen : _kGreen.withOpacity(0.1),
+                          color: sel ? _kGreen : _kGreen.withValues(alpha: 0.1),
                           width: sel ? 2 : 1,
                         ),
                       ),
@@ -228,9 +241,9 @@ class ProfileScreen extends StatelessWidget {
                         colors: [_kGreen, _kGreenMd]),
                     borderRadius: BorderRadius.circular(24),
                   ),
-                  child: const Center(
-                    child: Text('Sauvegarder',
-                        style: TextStyle(
+                  child: Center(
+                    child: Text(context.t.profileSave,
+                        style: const TextStyle(
                             color: Colors.white,
                             fontSize: 15,
                             fontWeight: FontWeight.w700)),
@@ -250,14 +263,13 @@ class ProfileScreen extends StatelessWidget {
       builder: (ctx) => AlertDialog(
         backgroundColor: _kBeige,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Réinitialiser le profil ?',
-            style: TextStyle(fontWeight: FontWeight.w700)),
-        content: const Text(
-            'Toutes tes données (XP, badges, progression) seront perdues.'),
+        title: Text(context.t.settingsResetConfirmTitle,
+            style: const TextStyle(fontWeight: FontWeight.w700)),
+        content: Text(context.t.profileResetConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Annuler', style: TextStyle(color: _kTxtMd)),
+            child: Text(context.t.cancel, style: const TextStyle(color: _kTxtMd)),
           ),
           TextButton(
             onPressed: () async {
@@ -272,7 +284,7 @@ class ProfileScreen extends StatelessWidget {
                 );
               }
             },
-            child: Text('Réinitialiser',
+            child: Text(context.t.reset,
                 style: TextStyle(color: Colors.red.shade400)),
           ),
         ],
@@ -313,9 +325,9 @@ class _ProfileHeader extends StatelessWidget {
                         color: Colors.white70, size: 18),
                   ),
                   const Spacer(),
-                  Text('Mon Profil',
+                  Text(context.t.profileTitle,
                       style: TextStyle(
-                          color: Colors.white.withOpacity(0.5),
+                          color: Colors.white.withValues(alpha: 0.5),
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                           letterSpacing: 1)),
@@ -335,7 +347,7 @@ class _ProfileHeader extends StatelessWidget {
                   borderRadius: BorderRadius.circular(22),
                   boxShadow: [
                     BoxShadow(
-                      color: _kGold.withOpacity(0.35),
+                      color: _kGold.withValues(alpha: 0.35),
                       blurRadius: 20,
                       offset: const Offset(0, 6),
                     ),
@@ -359,19 +371,19 @@ class _ProfileHeader extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
-                  color: _kGold.withOpacity(0.15),
+                  color: _kGold.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: Text(profile.titreNiveau,
+                child: Text(context.t.levelTitle(profile.xpTotal),
                     style: const TextStyle(
                         color: _kGoldLt,
                         fontSize: 11,
                         fontWeight: FontWeight.w600)),
               ),
               const SizedBox(height: 6),
-              Text('${profile.niveauLabel} · ${profile.age} ans',
+              Text('${_niveauLabelTranslated(context, profile)} · ${profile.age} ${context.t.profileYears}',
                   style: TextStyle(
-                      color: Colors.white.withOpacity(0.4),
+                      color: Colors.white.withValues(alpha: 0.4),
                       fontSize: 12)),
             ],
           ),
@@ -393,8 +405,8 @@ class _StatsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Mes statistiques',
-            style: TextStyle(
+        Text(context.t.profileStats,
+            style: const TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w800,
                 color: _kTxtDk)),
@@ -403,14 +415,14 @@ class _StatsSection extends StatelessWidget {
           children: [
             _StatCard(
                 emoji: '🔥',
-                value: '${profile.streak}',
-                label: 'Jours de suite',
+                value: profile.streak.toString(),
+                label: context.t.profileStreak,
                 color: const Color(0xFFFF6B35)),
             const SizedBox(width: 10),
             _StatCard(
                 emoji: '⭐',
-                value: '${profile.xpTotal}',
-                label: 'XP Total',
+                value: profile.xpTotal.toString(),
+                label: context.t.profileTotalXP,
                 color: _kGold),
           ],
         ),
@@ -419,14 +431,14 @@ class _StatsSection extends StatelessWidget {
           children: [
             _StatCard(
                 emoji: '📖',
-                value: '${profile.versetsLus}',
-                label: 'Versets lus',
+                value: profile.versetsLus.toString(),
+                label: context.t.profileVersesRead,
                 color: _kGreen),
             const SizedBox(width: 10),
             _StatCard(
                 emoji: '🏆',
-                value: '${profile.badges.length}',
-                label: 'Badges',
+                value: profile.badges.length.toString(),
+                label: context.t.profileBadges,
                 color: const Color(0xFF6B4CE6)),
           ],
         ),
@@ -453,7 +465,7 @@ class _StatCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: _kCard,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withOpacity(0.12)),
+          border: Border.all(color: color.withValues(alpha: 0.12)),
         ),
         child: Row(
           children: [
@@ -461,7 +473,7 @@ class _StatCard extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.10),
+                color: color.withValues(alpha: 0.10),
                 borderRadius: BorderRadius.circular(12),
               ),
               child:
@@ -479,7 +491,7 @@ class _StatCard extends StatelessWidget {
                 Text(label,
                     style: TextStyle(
                         fontSize: 10,
-                        color: _kTxtMd.withOpacity(0.5))),
+                        color: _kTxtMd.withValues(alpha: 0.5))),
               ],
             ),
           ],
@@ -503,8 +515,8 @@ class _BadgesSection extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Text('Mes badges',
-                style: TextStyle(
+            Text(context.t.profileMyBadges,
+                style: const TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
                     color: _kTxtDk)),
@@ -527,12 +539,12 @@ class _BadgesSection extends StatelessWidget {
               width: 100,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: unlocked ? _kCard : _kCard.withOpacity(0.5),
+                color: unlocked ? _kCard : _kCard.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
                   color: unlocked
-                      ? _kGold.withOpacity(0.3)
-                      : _kTxtLt.withOpacity(0.1),
+                      ? _kGold.withValues(alpha: 0.3)
+                      : _kTxtLt.withValues(alpha: 0.1),
                 ),
               ),
               child: Column(
@@ -541,7 +553,7 @@ class _BadgesSection extends StatelessWidget {
                     unlocked ? data['emoji']! : '🔒',
                     style: TextStyle(
                       fontSize: 24,
-                      color: unlocked ? null : Colors.grey.withOpacity(0.4),
+                      color: unlocked ? null : Colors.grey.withValues(alpha: 0.4),
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -551,7 +563,7 @@ class _BadgesSection extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      color: unlocked ? _kTxtDk : _kTxtLt.withOpacity(0.4),
+                      color: unlocked ? _kTxtDk : _kTxtLt.withValues(alpha: 0.4),
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -561,8 +573,8 @@ class _BadgesSection extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 8,
                       color: unlocked
-                          ? _kTxtMd.withOpacity(0.5)
-                          : _kTxtLt.withOpacity(0.3),
+                          ? _kTxtMd.withValues(alpha: 0.5)
+                          : _kTxtLt.withValues(alpha: 0.3),
                     ),
                   ),
                 ],
@@ -588,8 +600,8 @@ class _ObjectifsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Mes objectifs',
-            style: TextStyle(
+        Text(context.t.profileMyObjectives,
+            style: const TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w800,
                 color: _kTxtDk)),
@@ -603,7 +615,7 @@ class _ObjectifsSection extends StatelessWidget {
                   color: _kCard,
                   borderRadius: BorderRadius.circular(14),
                   border:
-                      Border.all(color: _kGreen.withOpacity(0.10)),
+                      Border.all(color: _kGreen.withValues(alpha: 0.10)),
                 ),
                 child: Row(
                   children: [
@@ -618,7 +630,7 @@ class _ObjectifsSection extends StatelessWidget {
                               color: _kTxtDk)),
                     ),
                     Icon(Icons.check_circle_rounded,
-                        color: _kGreen.withOpacity(0.4), size: 18),
+                        color: _kGreen.withValues(alpha: 0.4), size: 18),
                   ],
                 ),
               ),
@@ -640,8 +652,8 @@ class _SettingsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Informations',
-            style: TextStyle(
+        Text(context.t.profileInfo,
+            style: const TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w800,
                 color: _kTxtDk)),
@@ -651,29 +663,29 @@ class _SettingsSection extends StatelessWidget {
           decoration: BoxDecoration(
             color: _kCard,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: _kGreen.withOpacity(0.08)),
+            border: Border.all(color: _kGreen.withValues(alpha: 0.08)),
           ),
           child: Column(
             children: [
               _InfoRow(
                   icon: Icons.calendar_today_rounded,
-                  label: 'Membre depuis',
+                  label: context.t.profileMemberSince,
                   value: _formatDate(profile.dateInscription)),
               const Divider(height: 20),
               _InfoRow(
                   icon: Icons.school_rounded,
-                  label: 'Niveau',
-                  value: profile.niveauLabel),
+                  label: context.t.profileLevel,
+                  value: _niveauLabelTranslated(context, profile)),
               const Divider(height: 20),
               _InfoRow(
                   icon: Icons.cake_rounded,
-                  label: 'Âge',
-                  value: '${profile.age} ans'),
+                  label: context.t.profileAge,
+                  value: '${profile.age} ${context.t.profileYears}'),
               const Divider(height: 20),
               _InfoRow(
                   icon: Icons.emoji_events_rounded,
-                  label: 'Titre',
-                  value: profile.titreNiveau),
+                  label: context.t.profileTitleLabel,
+                  value: context.t.levelTitle(profile.xpTotal)),
             ],
           ),
         ),
@@ -700,11 +712,11 @@ class _InfoRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: _kGreen.withOpacity(0.5)),
+        Icon(icon, size: 16, color: _kGreen.withValues(alpha: 0.5)),
         const SizedBox(width: 10),
         Text(label,
             style: TextStyle(
-                fontSize: 13, color: _kTxtMd.withOpacity(0.6))),
+                fontSize: 13, color: _kTxtMd.withValues(alpha: 0.6))),
         const Spacer(),
         Text(value,
             style: const TextStyle(
@@ -741,7 +753,7 @@ class _ActionButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: _kCard,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withOpacity(0.15)),
+          border: Border.all(color: color.withValues(alpha: 0.15)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,

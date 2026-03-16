@@ -2,11 +2,11 @@
 // Module Espace Enfants – Application UpYourDeen : Lumière sur ta foi
 
 import 'package:flutter/material.dart';
+import 'translations.dart';
 
 // ── Palette UpYourDeen ──────────────────────────────────────────────────
 const _kGreenDeep    = Color(0xFF0A2018);
 const _kGreenPrimary = Color(0xFF1B4D38);
-const _kGreenMedium  = Color(0xFF2A7A52);
 const _kGold         = Color(0xFFC8933A);
 const _kGoldLight    = Color(0xFFFFF4DC);
 const _kBeige        = Color(0xFFF6F0E3);
@@ -36,12 +36,13 @@ class QuizQuestion {
   });
 }
 
-// ── Données : Histoires ────────────────────────────────────────────
+// ── Données : Histoires (Bilingual) ────────────────────────────────────────────
+// Note: Story titles and prophets use bilingual format - display based on locale
 const List<Histoire> _histoires = [
   Histoire(
-    titre: 'Noé et l\'Arche',
+    titre: 'Noé et l\'Arche / Noah and the Ark',
     prophete: 'Nuh (Noé) عليه السلام',
-    resume: 'Comment Allah sauva les croyants grâce à une immense arche.',
+    resume: 'Comment Allah sauva les croyants grâce à une immense arche. / How Allah saved the believers with a great ark.',
     emoji: '🚢',
     contenu: '''Il y a très longtemps, vivait un homme bon nommé Nuh. Allah lui ordonna de construire une grande arche en bois, car une inondation allait venir.
 
@@ -55,9 +56,9 @@ Nuh remercia Allah de tout son cœur.''',
     morale: '👶 Leçon : Quand Allah nous demande quelque chose, même si c\'est difficile, il faut obéir avec foi et patience.',
   ),
   Histoire(
-    titre: 'Ibrahim et le Feu',
+    titre: 'Ibrahim et le Feu / Ibrahim and the Fire',
     prophete: 'Ibrahim (Abraham) عليه السلام',
-    resume: 'La foi d\'Ibrahim qui ne fut pas brûlé par les flammes.',
+    resume: 'La foi d\'Ibrahim qui ne fut pas brûlé par les flammes. / Ibrahim\'s faith was not burned by the flames.',
     emoji: '🔥',
     contenu: '''Ibrahim vivait dans un pays où les gens adoraient des statues en pierre. Il savait que c'était faux et il disait à son peuple : "N'adorez qu'Allah, le Créateur du ciel et de la terre !"
 
@@ -71,9 +72,9 @@ Tout le monde était stupéfait. Ibrahim en sortit sain et sauf, le sourire aux 
     morale: '👶 Leçon : Lorsque nous avons confiance en Allah de tout notre cœur, Il nous protège.',
   ),
   Histoire(
-    titre: 'Yusuf et ses frères',
+    titre: 'Yusuf et ses frères / Yusuf and his Brothers',
     prophete: 'Yusuf (Joseph) عليه السلام',
-    resume: 'L\'histoire du pardon et de la patience de Yusuf.',
+    resume: 'L\'histoire du pardon et de la patience de Yusuf. / The story of Yusuf\'s forgiveness and patience.',
     emoji: '⭐',
     contenu: '''Yusuf était un jeune garçon très bon et aimé de son père. Un jour, il rêva que onze étoiles, le soleil et la lune se prosternaient devant lui.
 
@@ -87,9 +88,9 @@ Au lieu de se venger, Yusuf dit : "Je vous pardonne. Allah est Miséricordieux."
     morale: '👶 Leçon : La patience et le pardon sont des qualités très précieuses. Allah récompense ceux qui restent bons même dans les épreuves.',
   ),
   Histoire(
-    titre: 'Musa et le Pharaon',
+    titre: 'Musa et le Pharaon / Musa and the Pharaoh',
     prophete: 'Musa (Moïse) عليه السلام',
-    resume: 'Comment Musa libéra les enfants d\'Israël avec l\'aide d\'Allah.',
+    resume: 'Comment Musa libéra les enfants d\'Israël avec l\'aide d\'Allah. / How Musa freed the Children of Israel with Allah\'s help.',
     emoji: '🌊',
     contenu: '''Musa grandit en Égypte au temps d'un roi très cruel appelé Pharaon, qui asservissait le peuple d'Israël.
 
@@ -223,9 +224,9 @@ class _ChildrenScreenState extends State<ChildrenScreen>
                     child: Container(
                       padding: const EdgeInsets.all(9),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.12),
+                        color: Colors.white.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1),
                       ),
                       child: const Icon(Icons.arrow_back_ios_new_rounded,
                           color: Colors.white, size: 15),
@@ -243,7 +244,7 @@ class _ChildrenScreenState extends State<ChildrenScreen>
                             )),
                         Text('Histoires & quiz islamiques',
                             style: TextStyle(
-                                color: Colors.white.withOpacity(0.55),
+                                color: Colors.white.withValues(alpha: 0.55),
                                 fontSize: 11)),
                       ],
                     ),
@@ -251,9 +252,9 @@ class _ChildrenScreenState extends State<ChildrenScreen>
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
-                      color: _kGold.withOpacity(0.2),
+                      color: _kGold.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: _kGold.withOpacity(0.4), width: 1),
+                      border: Border.all(color: _kGold.withValues(alpha: 0.4), width: 1),
                     ),
                     child: Text('${_histoires.length} histoires',
                         style: const TextStyle(
@@ -268,7 +269,7 @@ class _ChildrenScreenState extends State<ChildrenScreen>
               indicatorColor: _kGold,
               indicatorWeight: 3,
               labelColor: Colors.white,
-              unselectedLabelColor: Colors.white.withOpacity(0.5),
+              unselectedLabelColor: Colors.white.withValues(alpha: 0.5),
               labelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
               tabs: const [
                 Tab(text: 'Histoires', icon: Icon(Icons.auto_stories_rounded, size: 16)),
@@ -390,9 +391,9 @@ class HistoireDetailScreen extends StatelessWidget {
                         child: Container(
                           padding: const EdgeInsets.all(9),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.12),
+                            color: Colors.white.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+                            border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1),
                           ),
                           child: const Icon(Icons.arrow_back_ios_new_rounded,
                               color: Colors.white, size: 15),
@@ -444,7 +445,7 @@ class HistoireDetailScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: _kGoldLight,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: _kGold.withOpacity(0.4), width: 1.5),
+                    border: Border.all(color: _kGold.withValues(alpha: 0.4), width: 1.5),
                   ),
                   child: Text(histoire.morale,
                       style: const TextStyle(
@@ -543,7 +544,7 @@ class _QuizTabState extends State<_QuizTab> {
             ),
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
-              BoxShadow(color: _kGreenPrimary.withOpacity(0.3),
+              BoxShadow(color: _kGreenPrimary.withValues(alpha: 0.3),
                   blurRadius: 16, offset: const Offset(0, 6)),
             ],
           ),
@@ -629,7 +630,7 @@ class _QuizTabState extends State<_QuizTab> {
             decoration: BoxDecoration(
               color: const Color(0xFFE8F4EE),
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: _kGreenPrimary.withOpacity(0.3), width: 1),
+              border: Border.all(color: _kGreenPrimary.withValues(alpha: 0.3), width: 1),
             ),
             child: Text('💡 ${question.explication}',
                 style: const TextStyle(fontSize: 13, color: _kGreenPrimary, height: 1.5)),
@@ -686,8 +687,8 @@ class _ResultatQuiz extends StatelessWidget {
             Text('$score / $total',
                 style: const TextStyle(
                     fontSize: 48, fontWeight: FontWeight.w900, color: _kGreenPrimary)),
-            const Text('bonnes réponses',
-                style: TextStyle(color: _kTextLight, fontSize: 16)),
+            Text(context.t.childrenCorrectAnswers,
+                style: const TextStyle(color: _kTextLight, fontSize: 16)),
             const SizedBox(height: 16),
             Text(message,
                 textAlign: TextAlign.center,

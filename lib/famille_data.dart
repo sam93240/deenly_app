@@ -1,41 +1,83 @@
-// famille_data.dart — Données : Espace Familles · Application UpYourDeen
+// famille_data.dart — Data: Family Space · UpYourDeen Application
+
+import 'app_locale.dart';
 
 // ── Enums ─────────────────────────────────────────────────────────────────
 
-/// Difficulté des questions de quiz
-enum QuizDifficulty { facile, moyen, difficile }
+/// Quiz difficulty levels / Difficulté des questions de quiz
+enum QuizDifficulty { easy, medium, hard }
+// Fallback for old values: facile (easy), moyen (medium), difficile (hard)
 
-/// Niveaux de badges (progression)
-enum BadgeTier { bronze, argent, or }
+/// Badge tiers (progression) / Niveaux de badges (progression)
+enum BadgeTier { bronze, silver, gold }
 
-// ── Modèles ───────────────────────────────────────────────────────────────
+// ── Data Models ───────────────────────────────────────────────────────────────
 
+/// A chapter of a long story (for comfortable reading on mobile)
 /// Un chapitre d'une histoire longue (pour lecture confortable sur mobile)
 class StoryChapter {
   final String title;
   final String content;
-  const StoryChapter({required this.title, required this.content});
+  final String englishTitle;
+  final String englishContent;
+
+  const StoryChapter({
+    required this.title,
+    required this.content,
+    this.englishTitle = '',
+    this.englishContent = '',
+  });
+
+  // Get title in the appropriate language
+  String getTitle() => AppLocale().isFrench ? title : englishTitle;
+
+  // Get content in the appropriate language
+  String getContent() => AppLocale().isFrench ? content : (englishContent.isNotEmpty ? englishContent : content);
 }
 
+/// Family link between two prophets
 /// Lien familial entre deux prophètes
 class ProphetLink {
-  final int prophetNumber;    // numéro du prophète lié
-  final String relation;      // ex: 'père', 'fils', 'oncle', 'descendant'
-  const ProphetLink({required this.prophetNumber, required this.relation});
+  final int prophetNumber;    // number of the linked prophet / numéro du prophète lié
+  final String relation;      // e.g., 'father', 'son', 'uncle', 'descendant' / ex: 'père', 'fils', 'oncle', 'descendant'
+  final String englishRelation;
+
+  const ProphetLink({
+    required this.prophetNumber,
+    required this.relation,
+    this.englishRelation = '',
+  });
+
+  String getRelation() => AppLocale().isFrench ? relation : englishRelation;
 }
 
+/// Data for the timeline
 /// Données pour la frise chronologique
 class TimelineData {
-  final int order;            // ordre chronologique (1 = plus ancien)
-  final String era;           // ex: 'Aube de l\'humanité', 'Mésopotamie', 'Égypte'
-  final String approxDate;    // ex: '~2000 av. J.-C.', 'Temps immémoriaux'
-  final String region;        // ex: 'Arabie', 'Palestine', 'Égypte'
+  final int order;            // chronological order (1 = oldest) / ordre chronologique (1 = plus ancien)
+  final String era;           // e.g., 'Dawn of Humanity', 'Mesopotamia', 'Egypt' / ex: 'Aube de l\'humanité', 'Mésopotamie', 'Égypte'
+  final String approxDate;    // e.g., '~2000 BC', 'Immemorial times' / ex: '~2000 av. J.-C.', 'Temps immémoriaux'
+  final String region;        // e.g., 'Arabia', 'Palestine', 'Egypt' / ex: 'Arabie', 'Palestine', 'Égypte'
+  final String englishEra;
+  final String englishApproxDate;
+  final String englishRegion;
+
   const TimelineData({
-    required this.order, required this.era,
-    required this.approxDate, required this.region,
+    required this.order,
+    required this.era,
+    required this.approxDate,
+    required this.region,
+    this.englishEra = '',
+    this.englishApproxDate = '',
+    this.englishRegion = '',
   });
+
+  String getEra() => AppLocale().isFrench ? era : englishEra;
+  String getApproxDate() => AppLocale().isFrench ? approxDate : englishApproxDate;
+  String getRegion() => AppLocale().isFrench ? region : englishRegion;
 }
 
+/// Badge/reward for quizzes
 /// Badge/récompense pour les quiz
 class QuizBadge {
   final String id;
@@ -43,110 +85,227 @@ class QuizBadge {
   final String emoji;
   final String description;
   final BadgeTier tier;
-  final int requiredScore;    // score minimum pour obtenir (en %)
+  final int requiredScore;    // minimum score to obtain (%) / score minimum pour obtenir (en %)
+  final String englishName;
+  final String englishDescription;
+
   const QuizBadge({
-    required this.id, required this.name, required this.emoji,
-    required this.description, required this.tier,
+    required this.id,
+    required this.name,
+    required this.emoji,
+    required this.description,
+    required this.tier,
     required this.requiredScore,
+    this.englishName = '',
+    this.englishDescription = '',
   });
+
+  String getName() => AppLocale().isFrench ? name : englishName;
+  String getDescription() => AppLocale().isFrench ? description : englishDescription;
 }
 
 class Prophet {
   final int number;
   final String arabicName;
   final String frenchName;
+  final String englishName;
   final String emoji;
   final String period;
+  final String englishPeriod;
   final String shortDesc;
-  final String summary;           // résumé court (mode résumé)
-  final String fullStory;         // histoire complète (rétrocompat)
-  final List<StoryChapter> chapters; // chapitres pour lecture mobile
+  final String englishShortDesc;
+  final String summary;           // short summary / résumé court (mode résumé)
+  final String englishSummary;
+  final String fullStory;         // full story / histoire complète (rétrocompat)
+  final String englishFullStory;
+  final List<StoryChapter> chapters; // chapters for mobile reading / chapitres pour lecture mobile
   final List<String> keyFacts;
+  final List<String> englishKeyFacts;
   final String moral;
+  final String englishMoral;
   final List<QuizQ> quiz;
-  final List<ProphetLink> familyLinks;  // liens familiaux
-  final TimelineData timeline;          // données frise chronologique
+  final List<ProphetLink> familyLinks;  // family links / liens familiaux
+  final TimelineData timeline;          // timeline data / données frise chronologique
+
   const Prophet({
-    required this.number, required this.arabicName, required this.frenchName,
-    required this.emoji, required this.period, required this.shortDesc,
+    required this.number,
+    required this.arabicName,
+    required this.frenchName,
+    this.englishName = '',
+    required this.emoji,
+    required this.period,
+    this.englishPeriod = '',
+    required this.shortDesc,
+    this.englishShortDesc = '',
     required this.summary,
-    required this.fullStory, required this.chapters,
-    required this.keyFacts, required this.moral,
-    required this.quiz, required this.familyLinks, required this.timeline,
+    this.englishSummary = '',
+    required this.fullStory,
+    this.englishFullStory = '',
+    required this.chapters,
+    required this.keyFacts,
+    this.englishKeyFacts = const [],
+    required this.moral,
+    this.englishMoral = '',
+    required this.quiz,
+    required this.familyLinks,
+    required this.timeline,
   });
+
+  // Language-aware getters
+  String getName() => AppLocale().isFrench ? frenchName : englishName;
+  String getPeriod() => AppLocale().isFrench ? period : englishPeriod;
+  String getShortDesc() => AppLocale().isFrench ? shortDesc : englishShortDesc;
+  String getSummary() => AppLocale().isFrench ? summary : englishSummary;
+  String getFullStory() => AppLocale().isFrench ? fullStory : (englishFullStory.isNotEmpty ? englishFullStory : fullStory);
+  List<String> getKeyFacts() => AppLocale().isFrench ? keyFacts : englishKeyFacts;
+  String getMoral() => AppLocale().isFrench ? moral : englishMoral;
 }
 
 class QuizQ {
   final String question;
+  final String englishQuestion;
   final List<String> options;
+  final List<String> englishOptions;
   final int correctIndex;
   final String explanation;
+  final String englishExplanation;
   final QuizDifficulty difficulty;
+
   const QuizQ({
-    required this.question, required this.options,
-    required this.correctIndex, required this.explanation,
-    this.difficulty = QuizDifficulty.moyen,
+    required this.question,
+    this.englishQuestion = '',
+    required this.options,
+    this.englishOptions = const [],
+    required this.correctIndex,
+    required this.explanation,
+    this.englishExplanation = '',
+    this.difficulty = QuizDifficulty.medium,
   });
+
+  String getQuestion() => AppLocale().isFrench ? question : englishQuestion;
+  List<String> getOptions() => AppLocale().isFrench ? options : englishOptions;
+  String getExplanation() => AppLocale().isFrench ? explanation : englishExplanation;
 }
 
 class CoranicStory {
   final String title;
+  final String englishTitle;
   final String arabicTitle;
   final String emoji;
   final String surahRef;
   final String summary;
+  final String englishSummary;
   final String fullStory;
+  final String englishFullStory;
   final List<StoryChapter> chapters;
   final String moral;
+  final String englishMoral;
+
   const CoranicStory({
-    required this.title, required this.arabicTitle, required this.emoji,
-    required this.surahRef, required this.summary,
-    required this.fullStory, required this.chapters, required this.moral,
+    required this.title,
+    this.englishTitle = '',
+    required this.arabicTitle,
+    required this.emoji,
+    required this.surahRef,
+    required this.summary,
+    this.englishSummary = '',
+    required this.fullStory,
+    this.englishFullStory = '',
+    required this.chapters,
+    required this.moral,
+    this.englishMoral = '',
   });
+
+  String getTitle() => AppLocale().isFrench ? title : englishTitle;
+  String getSummary() => AppLocale().isFrench ? summary : englishSummary;
+  String getFullStory() => AppLocale().isFrench ? fullStory : (englishFullStory.isNotEmpty ? englishFullStory : fullStory);
+  String getMoral() => AppLocale().isFrench ? moral : englishMoral;
 }
 
 class BedtimeStory {
   final String title;
+  final String englishTitle;
   final String emoji;
   final String summary;
+  final String englishSummary;
   final String story;
+  final String englishStory;
   final String moral;
-  final int dayIndex; // 1=Lundi … 7=Dimanche (DateTime.weekday)
+  final String englishMoral;
+  final int dayIndex; // 1=Monday … 7=Sunday (DateTime.weekday) / 1=Lundi … 7=Dimanche
+
   const BedtimeStory({
-    required this.title, required this.emoji, required this.summary,
-    required this.story, required this.moral, required this.dayIndex,
+    required this.title,
+    this.englishTitle = '',
+    required this.emoji,
+    required this.summary,
+    this.englishSummary = '',
+    required this.story,
+    this.englishStory = '',
+    required this.moral,
+    this.englishMoral = '',
+    required this.dayIndex,
   });
+
+  String getTitle() => AppLocale().isFrench ? title : englishTitle;
+  String getSummary() => AppLocale().isFrench ? summary : englishSummary;
+  String getStory() => AppLocale().isFrench ? story : (englishStory.isNotEmpty ? englishStory : story);
+  String getMoral() => AppLocale().isFrench ? moral : englishMoral;
 }
 
-// ── Badges disponibles ───────────────────────────────────────────────────
+// ── Available Badges / Badges disponibles ───────────────────────────────────────────────────
 const List<QuizBadge> kQuizBadges = [
-  // Bronze — encouragement
-  QuizBadge(id: 'talib', name: 'Talib al-\'Ilm', emoji: '📖',
+  // Bronze — Encouragement
+  QuizBadge(
+    id: 'talib', name: 'Talib al-\'Ilm', emoji: '📖',
     description: 'Chercheur de savoir — tu as commencé ton premier quiz !',
+    englishName: 'Seeker of Knowledge',
+    englishDescription: 'Seeker of knowledge — you started your first quiz!',
     tier: BadgeTier.bronze, requiredScore: 0),
-  QuizBadge(id: 'mujtahid', name: 'Mujtahid', emoji: '💪',
+  QuizBadge(
+    id: 'mujtahid', name: 'Mujtahid', emoji: '💪',
     description: 'L\'assidu — tu as obtenu au moins 50% à un quiz.',
+    englishName: 'The Diligent One',
+    englishDescription: 'The diligent — you achieved 50% or more on a quiz.',
     tier: BadgeTier.bronze, requiredScore: 50),
-  // Argent — progression
-  QuizBadge(id: 'arif', name: '\'Arif', emoji: '🌙',
+  // Silver — Progression
+  QuizBadge(
+    id: 'arif', name: '\'Arif', emoji: '🌙',
     description: 'Le connaisseur — tu as obtenu 70% ou plus à un quiz.',
-    tier: BadgeTier.argent, requiredScore: 70),
-  QuizBadge(id: 'faqih', name: 'Faqih', emoji: '⭐',
+    englishName: 'The Knower',
+    englishDescription: 'The knower — you achieved 70% or more on a quiz.',
+    tier: BadgeTier.silver, requiredScore: 70),
+  QuizBadge(
+    id: 'faqih', name: 'Faqih', emoji: '⭐',
     description: 'Le juriste — tu as réussi 5 quiz avec 70% ou plus.',
-    tier: BadgeTier.argent, requiredScore: 70),
-  QuizBadge(id: 'hafiz_qisas', name: 'Hafiz al-Qisas', emoji: '📚',
+    englishName: 'The Jurist',
+    englishDescription: 'The jurist — you passed 5 quizzes with 70% or more.',
+    tier: BadgeTier.silver, requiredScore: 70),
+  QuizBadge(
+    id: 'hafiz_qisas', name: 'Hafiz al-Qisas', emoji: '📚',
     description: 'Gardien des récits — tu as terminé tous les quiz des prophètes.',
-    tier: BadgeTier.argent, requiredScore: 60),
-  // Or — excellence
-  QuizBadge(id: 'alim', name: '\'Alim', emoji: '🏆',
+    englishName: 'Guardian of Stories',
+    englishDescription: 'Guardian of stories — you completed all prophet quizzes.',
+    tier: BadgeTier.silver, requiredScore: 60),
+  // Gold — Excellence
+  QuizBadge(
+    id: 'alim', name: '\'Alim', emoji: '🏆',
     description: 'Le savant — tu as obtenu 100% à un quiz difficile.',
-    tier: BadgeTier.or, requiredScore: 100),
-  QuizBadge(id: 'imam_qisas', name: 'Imam al-Qisas', emoji: '👑',
+    englishName: 'The Scholar',
+    englishDescription: 'The scholar — you scored 100% on a difficult quiz.',
+    tier: BadgeTier.gold, requiredScore: 100),
+  QuizBadge(
+    id: 'imam_qisas', name: 'Imam al-Qisas', emoji: '👑',
     description: 'Maître des récits — tu as obtenu 90%+ à TOUS les quiz.',
-    tier: BadgeTier.or, requiredScore: 90),
-  QuizBadge(id: 'nour', name: 'UpYourDeen', emoji: '✨',
+    englishName: 'Master of Stories',
+    englishDescription: 'Master of stories — you scored 90%+ on ALL quizzes.',
+    tier: BadgeTier.gold, requiredScore: 90),
+  QuizBadge(
+    id: 'nour', name: 'UpYourDeen', emoji: '✨',
     description: 'Lumière — tu as exploré chaque histoire et réussi chaque épreuve.',
-    tier: BadgeTier.or, requiredScore: 95),
+    englishName: 'UpYourDeen Light',
+    englishDescription: 'Light — you explored every story and passed every challenge.',
+    tier: BadgeTier.gold, requiredScore: 95),
 ];
 
 // ── Prophètes 1–13 ────────────────────────────────────────────────────────
@@ -154,9 +313,13 @@ const List<Prophet> kProphets = [
   // ── 1. Adam ──────────────────────────────────────────────────────────────
   Prophet(
     number: 1, arabicName: 'آدَم', frenchName: 'Adam',
+    englishName: 'Adam',
     emoji: '🌿', period: 'L\'aube de l\'humanité',
+    englishPeriod: 'The Dawn of Humanity',
     shortDesc: 'Le premier homme et premier prophète',
+    englishShortDesc: 'The first man and first prophet',
     summary: 'Adam est le premier homme et premier prophète, créé par Allah à partir d\'argile et insufflé de l\'esprit divin. Malgré sa faute face à la tentation d\'Iblis, sa repentance sincère établit le modèle de miséricorde divine. Il devient le premier vicaire sur Terre, fondateur de la civilisation et père de toute l\'humanité.',
+    englishSummary: 'Adam is the first man and first prophet, created by Allah from clay and breathed into with the divine spirit. Despite his transgression in the face of Iblis\'s temptation, his sincere repentance established the model of divine mercy. He becomes the first vicegerent on Earth, founder of civilization and father of all humanity.',
     fullStory:
       '━━━ AVANT L\'HOMME — LA DÉCISION DIVINE ━━━\n\n'
       'Avant Adam, il y avait l\'éternité d\'Allah. Avant l\'argile, il y avait le Trône. Avant la vie, il y avait la décision. Le Coran dit que ce fut après la création des cieux et de la Terre, après la mise en mouvement du cosmos, qu\'Allah annonça à Ses anges Son intention : « Je vais établir un vicaire sur Terre. »\n\n'
@@ -241,14 +404,17 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'LA SCIENCE DES NOMS',
+        englishTitle: 'THE KNOWLEDGE OF NAMES',
         content: 'Alors commença la première leçon de l\'histoire. Allah rassembla devant Adam toutes les créatures — ou leurs représentants, ou leurs concepts — et lui enseigna leurs noms. Pas seulement les sons, mais ce que les noms signifient : la nature profonde des choses, leur essence, leur réalité.\n\nCette connaissance était unique. Les anges ne l\'avaient pas. Ils glorifiaient Allah avec une perfection absolue, mais ils ne savaient pas nommer les réalités du monde créé. Allah les mit à l\'épreuve : « Informez-Moi des noms de ceux-là, si vous êtes véridiques. »\n\nLes anges, dans leur honnêteté parfaite, reconnurent leur limite : « Gloire à Toi, nous n\'avons de savoir que ce que Tu nous as enseigné. C\'est Toi l\'Omniscient, le Sage. »\n\nPuis Allah dit à Adam : « Informe-les de leurs noms. » Et Adam les nomma tous, un par un.\n\nCe moment est capital dans la compréhension islamique de l\'humanité. Adam — et par extension tous ses descendants — est doté d\'une capacité cognitive que les anges n\'ont pas : la capacité de connaître, de nommer, de comprendre les réalités terrestres, de construire la science, le langage, la civilisation. Cette science n\'est pas une faiblesse — c\'est un don extraordinaire d\'Allah, une dignité unique accordée à l\'homme. « Nous avons honoré les fils d\'Adam » — ce verset du Coran (17:70) trouve son origine dans ce moment de la création.',
       ),
       StoryChapter(
         title: 'IBLIS — LE PREMIER REFUS',
+        englishTitle: 'IBLIS — THE FIRST REFUSAL',
         content: 'Allah ordonna aux anges de se prosterner devant Adam — non en adoration, car seul Allah mérite l\'adoration, mais en signe de respect pour cette créature choisie et mandatée. Tous les anges s\'inclinèrent.\n\nSauf Iblis.\n\nIblis était — les exégètes débattent de sa nature exacte — soit un djinn qui avait atteint un rang proche des anges par sa dévotion intense, soit un être particulier avec un libre-arbitre propre. Le Coran dit qu\'il était parmi les djinns (18:50) mais qu\'il reçut l\'ordre adressé aux anges. Quoi qu\'il en soit, il avait une volonté propre, et il choisit de l\'utiliser contre l\'ordre d\'Allah.\n\nIl refusa. Et quand Allah lui demanda la raison de ce refus, il répondit avec l\'orgueil nu : « Je suis meilleur que lui. Tu m\'as créé de feu et lui d\'argile. »\n\nCette réponse est le premier péché d\'orgueil de l\'histoire. Iblis ne niait pas Allah — il argumentait sur sa propre supériorité. Il utilisait une logique : feu > argile, donc moi > Adam. La logique était fausse à plusieurs titres. Premièrement, la supériorité ne se mesure pas à la matière originelle, mais à la mission accordée par Allah. Deuxièmement, le feu ne détruit pas nécessairement l\'argile — il la cuit, la solidifie, en fait de la poterie robuste. Troisièmement, et surtout : qui était Iblis pour remettre en question le choix d\'Allah ? L\'ordre avait été donné. L\'obéissance était due.\n\nAllah prononça la sentence : « Descends de là. Il ne t\'appartient pas de t\'enorgueillir ici. Sors — tu es du nombre des humiliés. »\n\nIblis ne se repentit pas. Il demanda un délai jusqu\'au Jour de la Résurrection. Allah l\'accorda. Et Iblis fit une promesse terrible : « Puisque Tu m\'as fourvoyé, je les guetterai sur Ta voie droite. Je les assaillirai de devant, de derrière, de droite et de gauche. Et Tu ne trouveras la plupart d\'entre eux pas reconnaissants. » La guerre était déclarée. Elle dure depuis le premier jour de l\'humanité.',
       ),
       StoryChapter(
         title: 'LE PARADIS — DEUX ÂMES',
+        englishTitle: 'PARADISE — TWO SOULS',
         content: 'Allah installa Adam au Paradis et lui créa une compagne : Hawa — Ève. Le Coran ne détaille pas sa création, mais la tradition prophétique la précise : elle fut formée pendant le sommeil d\'Adam, pour qu\'il ait une compagne de sa propre nature. Le Prophète ﷺ dit : « Comportez-vous bien avec les femmes — elle a été créée d\'une côte. La partie la plus courbée de la côte est sa partie supérieure. Si tu essaies de la redresser violemment, tu la casses. Si tu la laisses, elle reste courbée. Comportez-vous donc bien avec les femmes. » La côte n\'évoque pas l\'infériorité — elle appelle à la douceur, à la protection, à la tendresse.\n\nAdam et Hawa vivaient dans la plénitude du Paradis. Le Coran dit qu\'ils ne souffraient ni de la faim, ni de la soif, ni du chaud, ni de l\'insatisfaction. Ils pouvaient tout manger, tout toucher — sauf un arbre. Cet arbre est simplement appelé « cet arbre-là » dans le Coran sans être identifié, et cette non-identification est intentionnelle. Ce n\'est pas la nature de l\'arbre qui compte. C\'est l\'existence d\'une limite.\n\nCar sans limite, il n\'y a pas de liberté réelle. La liberté ne peut exister que si l\'on peut choisir entre obéir ou désobéir. L\'arbre était le symbole de leur liberté, de leur dignité d\'êtres conscients. Adam et Hawa respectaient cet ordre — pendant combien de temps, les textes ne le précisent pas. Peut-être des années. Mais Iblis ne dormait pas.',
       ),
       StoryChapter(
@@ -257,14 +423,17 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'LA DESCENTE SUR TERRE — LE DÉBUT DE LA MISSION',
+        englishTitle: 'THE DESCENT TO EARTH — THE BEGINNING OF THE MISSION',
         content: 'La descente sur Terre était inévitable — non pas comme punition, mais comme accomplissement du plan originel. Dès le début, avant même la création d\'Adam, Allah avait annoncé aux anges : « Je vais établir un vicaire sur Terre. » Le Paradis n\'était pas la destination finale d\'Adam. C\'était une école, une préparation, un premier regard sur ce que la plénitude signifie, avant d\'aller la chercher par l\'effort sur Terre.\n\nAllah dit : « Descendez — certains d\'entre vous seront ennemis des autres. Vous aurez sur la Terre une demeure et une jouissance pour un temps. » Puis, et c\'est la promesse fondamentale : « Si une guidance vous vient de Ma part, alors quiconque suit Ma guidance ne s\'égarera pas et ne sera pas malheureux. »\n\nAdam et Hawa descendirent séparément, selon les récits. Adam atterrit quelque part — les traditions mentionnent l\'Inde, le Ceylan, ou une montagne d\'Arabie. Hawa ailleurs. Ils se cherchèrent. Des années de solitude dans une Terre immense et vierge, sans route, sans ville, sans rien de connu. Et c\'est à Arafat — cette plaine entre La Mecque et Taïf, qui sera plus tard le cœur du Hajj — qu\'ils se retrouvèrent. Ta\'arafa — ils se reconnurent. Le nom du lieu vient de cette rencontre. Ce n\'est pas un hasard si des millions de pèlerins se rassemblent chaque année à cet endroit précis : ils répètent, sans le savoir, la réunion des premiers époux.',
       ),
       StoryChapter(
         title: 'ADAM PROPHÈTE — LA PREMIÈRE CIVILISATION',
+        englishTitle: 'ADAM THE PROPHET — THE FIRST CIVILIZATION',
         content: 'Adam devint le premier prophète. Il reçut la révélation d\'Allah : comment adorer, comment prier, comment vivre en conformité avec la guidance divine. La religion qu\'il apporta était simple et pure : adorer Allah seul, Le remercier pour Ses bienfaits, traiter les autres avec justice, ne pas répandre le sang injustement.\n\nLa Terre était vierge. Adam dut tout apprendre et tout créer : comment cultiver le sol, comment construire un abri, comment allumer le feu, comment préparer les aliments. Selon les récits, l\'ange Jibreel descendit pour lui enseigner l\'agriculture — l\'art de semer, d\'attendre, de récolter. Adam fut le premier agriculteur, le premier artisan, le premier constructeur de la Terre.\n\nLes récits prophétiques mentionnent qu\'Adam avait une stature imposante — soixante coudées de hauteur, selon un hadith du Prophète ﷺ. La taille des humains a diminué au fil des générations. Adam était littéralement un géant — physiquement et spirituellement. Le Prophète ﷺ dit : « Allah créa Adam à Son image, soixante coudées de hauteur. Tout homme qui entrera au Paradis sera à l\'image d\'Adam en cette taille. »\n\nAdam et Hawa eurent de nombreux enfants. Les récits mentionnent qu\'ils eurent des naissances gémellaires — un garçon et une fille à chaque fois — et que les mariages croisés entre différents groupes étaient la règle pour peupler la Terre. Cette nécessité des origines n\'est pas une règle permanente — c\'était une exception ordonnée par Allah pour une situation unique dans l\'histoire.\n\nAdam enseignait. C\'était sa mission première. Il rassemblait ses enfants autour de lui, leur transmettait la révélation d\'Allah, leur apprenait à prier, à se souvenir d\'Allah dans chaque acte. Il leur racontait le Paradis — non comme une nostalgie amère, mais comme une promesse : voilà où vous retournerez si vous vivez selon la guidance d\'Allah.',
       ),
       StoryChapter(
         title: 'HABIL ET QABIL — LA PREMIÈRE TRAGÉDIE',
+        englishTitle: 'ABEL AND CAIN — THE FIRST TRAGEDY',
         content: 'Parmi les enfants d\'Adam, deux fils occupent une place particulière dans l\'histoire : Habil et Qabil — Abel et Caïn. Le Coran raconte leur histoire dans la Sourate Al-Maïda (5:27-31), et c\'est l\'une des plus tragiques.\n\nChacun fit une offrande à Allah. Habil offrit la meilleure de ses bêtes — avec le cœur sincère d\'un berger qui donne ce qu\'il a de plus précieux. Qabil offrit de sa récolte, mais avec peu de générosité dans le cœur. Allah accepta l\'offrande d\'Habil. Le signe d\'acceptation — une flamme venue du ciel qui consumait le sacrifice — fut évident pour tous. Qabil fut consumé par la jalousie.\n\nIl dit à son frère : « Je te tuerai ! » Habil lui répondit avec la sagesse d\'un juste : « Allah n\'accepte que des personnes pieuses. Si tu étends la main vers moi pour me tuer, je n\'étendrai pas la main vers toi pour te tuer. Je crains Allah, Seigneur des mondes. Je veux que tu sois chargé de mon péché et du tien — et tu seras du nombre des gens du Feu. » Ces mots sont extraordinaires. Face à la menace de mort, Habil ne menace pas à son tour. Il explique, avec une lucidité sereine, les conséquences de l\'acte que son frère s\'apprête à commettre. Il se remet entièrement à Allah.\n\nQabil tua son frère. Le premier meurtre de l\'histoire humaine. Et puis — détail qui arrache le cœur — il ne savait pas quoi faire du corps. Il était là, avec le cadavre de son frère, incapable d\'enterrer ce qu\'il avait fait. Allah envoya deux corbeaux qui se battirent jusqu\'à ce que l\'un tue l\'autre, et que le survivant commence à creuser la terre pour cacher le corps de son congénère. Qabil regarda, stupéfait. Il dit : « Malheur à moi ! Suis-je incapable d\'être comme ce corbeau et d\'enterrer le cadavre de mon frère ? » Et il devint du nombre de ceux qui regrettent.\n\nLe corbeau comme maître funéraire du premier enfant d\'Adam — il y a dans cette scène quelque chose de profondément humain. La mort était nouvelle. Le deuil était nouveau. La culpabilité était nouvelle. L\'humanité apprenait, dans la douleur, les conséquences irréversibles de ses choix.\n\nAdam apprit la mort de Habil. La tradition dit qu\'il pleura de longues années. Ce premier deuil d\'un parent pleurant son enfant tué injustement préfigure tous les deuils de l\'histoire. Le Prophète ﷺ dit : « Chaque enfant d\'Adam tué injustement — une part de ce péché retombe sur Qabil, car c\'est lui qui introduisit le meurtre dans l\'histoire. »',
       ),
       StoryChapter(
@@ -290,45 +459,63 @@ const List<Prophet> kProphets = [
       'Son repentir sincère est un modèle pour toute l\'humanité',
       'Père de toute l\'humanité, enterré selon la tradition à Hébron',
     ],
+    englishKeyFacts: ['First human being and first prophet created by Allah', 'Taught the names of all things — a unique knowledge', 'His sincere repentance is a model for all humanity', 'Father of all humanity, traditionally buried in Hebron'],
     moral: 'Allah pardonne toujours à celui qui se repent sincèrement.',
+    englishMoral: 'Allah always forgives those who repent sincerely.',
     quiz: [
       QuizQ(
         question: 'De quoi Adam a-t-il été créé ?',
+        englishQuestion: 'What was Adam created from?',
         options: ['De feu', 'D\'argile', 'D\'eau', 'De lumière'],
+        englishOptions: ['From fire', 'From clay', 'From water', 'From light'],
         correctIndex: 1,
         explanation: 'Allah créa Adam à partir d\'argile (turab), puis lui insuffla la vie.',
-        difficulty: QuizDifficulty.facile,
+        englishExplanation: 'Allah created Adam from clay (turab), then breathed life into him.',
+        difficulty: QuizDifficulty.easy,
       ),
       QuizQ(
         question: 'Qui refusa de se prosterner devant Adam ?',
+        englishQuestion: 'Who refused to prostrate before Adam?',
         options: ['Jibreel', 'Mikail', 'Israfil', 'Iblis'],
+        englishOptions: ['Jibreel', 'Mikail', 'Israfil', 'Iblis'],
         correctIndex: 3,
         explanation: 'Iblis refusa par orgueil, disant qu\'il était supérieur car créé de feu.',
-        difficulty: QuizDifficulty.moyen,
+        englishExplanation: 'Iblis refused out of pride, saying he was superior because he was created from fire.',
+        difficulty: QuizDifficulty.medium,
       ),
       QuizQ(
         question: 'Qu\'est-ce qu\'Allah enseigna à Adam en premier ?',
+        englishQuestion: 'What did Allah first teach Adam?',
         options: ['La prière', 'Les noms de toutes les choses', 'Le Coran', 'La médecine'],
+        englishOptions: ['Prayer', 'The names of all things', 'The Quran', 'Medicine'],
         correctIndex: 1,
         explanation: 'Allah enseigna à Adam les noms de toutes choses, une connaissance que les anges n\'avaient pas.',
-        difficulty: QuizDifficulty.difficile,
+        englishExplanation: 'Allah taught Adam the names of all things, a knowledge the angels did not have.',
+        difficulty: QuizDifficulty.hard,
       ),
     ],
     familyLinks: [],
     timeline: TimelineData(
       order: 1,
       era: 'Aube de l\'humanité',
+      englishEra: 'Dawn of Humanity',
       approxDate: 'Temps immémoriaux',
+      englishApproxDate: 'Immemorial times',
       region: 'Paradis puis Terre',
+      englishRegion: 'Paradise then Earth',
     ),
   ),
 
   // ── 2. Idris ─────────────────────────────────────────────────────────────
   Prophet(
     number: 2, arabicName: 'إِدْرِيس', frenchName: 'Idris',
+    englishName: 'Idris',
     emoji: '✍️', period: 'L\'ère des origines',
+    englishPeriod: 'The Age of Origins',
     shortDesc: 'Le sage lettré, élevé à un rang sublime',
+    englishShortDesc: 'The wise scholar, elevated to a sublime rank',
     summary: 'Idris est le prophète du savoir et de la dévotion, premier homme à écrire et à transmettre la connaissance. Combinant l\'étude scientifique avec l\'adoration sincère, il atteint un rang si élevé qu\'Allah le soulève aux cieux sans le faire goûter la mort ordinaire.',
+    englishSummary: 'Idris is the prophet of knowledge and devotion, the first man to write and transmit knowledge. Combining scientific study with sincere worship, he reached such a high rank that Allah lifted him to the heavens without experiencing ordinary death.',
     fullStory:
       '━━━ L\'ÈRE ENTRE ADAM ET NOÉ ━━━\n\n'
       'Entre Adam et Nuh s\'écoula une longue période que les textes ne détaillent que partiellement. Plusieurs générations s\'étaient succédé. La foi transmise par Adam à ses enfants continuait, mais s\'érodait peu à peu sous le poids du temps, des habitudes, et de l\'oubli naturel que l\'être humain a de ce qui est essentiel. Les hommes travaillaient la terre, élevaient des troupeaux, construisaient des habitations. La vie matérielle progressait. La vie spirituelle, elle, avait besoin d\'un rappel.\n\n'
@@ -371,18 +558,22 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'LE PREMIER DES SAVANTS',
+        englishTitle: 'THE FIRST OF THE SCHOLARS',
         content: 'Les traditions islamiques attribuent à Idris des premières remarquables. On dit qu\'il fut parmi les premiers — peut-être même le premier après Adam — à écrire avec un calame (un roseau taillé en pointe trempé dans de l\'encre), donnant ainsi à la connaissance une permanence qu\'elle n\'avait pas dans la simple transmission orale. Avant l\'écriture, chaque mort emportait une part de la mémoire collective. Avec l\'écriture, la connaissance pouvait traverser les générations sans se déformer.\n\nIl fut aussi parmi les premiers à coudre des vêtements — transformant la simple couverture en vêtement ajusté, construit, protecteur. Avant lui, selon les récits, les hommes se couvraient de peaux brutes. Idris apporta l\'art de la couture. Ces deux inventions — l\'écriture et la couture — semblent simples en surface, mais elles représentent des fondements de la civilisation : l\'une permet de transmettre la pensée, l\'autre de protéger le corps.\n\nIl étudia aussi les astres. Dans une époque sans instruments, il observa les cieux nuit après nuit, nota les mouvements des étoiles, comprit les cycles de la lune et du soleil, établit des bases de calcul astronomique qui permettaient de se repérer dans le temps et dans l\'espace. Ce savoir était pratique — pour naviguer, pour planter au bon moment, pour calculer les saisons — mais c\'était aussi une contemplation de la grandeur d\'Allah dans l\'immensité des cieux.',
       ),
       StoryChapter(
         title: 'LA DÉVOTION — CHAQUE NUIT',
+        englishTitle: 'DEVOTION — EVERY NIGHT',
         content: 'Mais ce qui définissait vraiment Idris, au-delà de ses connaissances, était sa dévotion. Les récits mentionnent que ses adorations nocturnes étaient d\'une intensité et d\'une constance qui étonnaient même les anges.\n\nUn récit de la tradition dit qu\'un ange voisin d\'Idris — qui observait ses adorations nuit après nuit — alla trouver l\'ange de la mort et lui demanda : « Combien d\'années de vie reste-t-il à Idris ? » L\'ange de la mort vérifia et dit : « Un nombre minime. » L\'ange ami d\'Idris en fut attristé. Il retourna auprès d\'Idris et l\'informa, lui demandant si lui était possible d\'intercéder pour qu\'un voyage au ciel lui soit accordé avant sa mort. Une demande insolite — mais accordée.\n\nIdris monta avec l\'ange. Il visita les cieux. Et quand l\'heure de sa mort fixée arriva, alors qu\'il était dans les cieux, Allah le garda là. C\'est ainsi que le Coran dit : « Et Nous l\'avons élevé en un lieu haut. » (19:57) Non pas seulement une élévation de rang spirituel — mais une élévation physique, comme celle d\'Isa à la fin des temps.\n\nCette interprétation — Idris vivant dans les cieux sans passer par la mort ordinaire — est l\'un des mystères de l\'eschatologie islamique. Les érudits divergent sur les détails. Mais l\'essentiel est là : un homme si proche d\'Allah par sa dévotion et sa connaissance qu\'Allah l\'éleva au-dessus du monde ordinaire.',
       ),
       StoryChapter(
         title: 'LE RANG DU SAVOIR',
+        englishTitle: 'THE RANK OF KNOWLEDGE',
         content: 'Le Coran décrit Idris en deux phrases concises mais denses de sens : « Et souviens-toi dans le Livre d\'Idris. C\'était un homme très véridique et un prophète. Et Nous l\'avons élevé en un lieu haut. » (19:56-57)\n\nVéridique (siddîq) — avant d\'être prophète, avant d\'être savant, il était véridique. La vérité dans le cœur, dans la parole, dans les actes. C\'est le fondement sans lequel rien d\'autre ne tient. Ibrahim est siddîq. Yusuf est siddîq. Idris est siddîq. Ce titre, dans la hiérarchie spirituelle islamique, précède la prophétie elle-même.\n\nLors du Mi\'raj, quand Muhammad ﷺ traversa les cieux accompagné par Jibreel, il rencontra Idris au quatrième ciel. Jibreel dit : « C\'est Idris. » Le Prophète ﷺ lui dit : « La paix soit sur toi, ô juste prophète. » Et Idris répondit : « Et sur toi la paix, ô juste prophète et juste frère. »\n\nCe salut échangé entre les deux prophètes à des millénaires de distance est une image du lien prophétique — une fraternité qui transcende le temps et l\'espace, tissée par la foi commune et la mission partagée.',
       ),
       StoryChapter(
         title: 'LES SOIXANTE-DIX FEUILLES PROPHÉTIQUES',
+        englishTitle: 'THE SEVENTY PROPHETIC SCROLLS',
         content: 'Les érudits de la tradition islamique mentionnent qu\'Idris reçut trente feuillets (suhuf) de révélation divine. Ces feuillets constituaient un corpus de guidance spirituelle et pratique pour les hommes de son époque. Ils contenaient des principes d\'adoration, des règles de conduite, des invocations. Idris n\'était pas seulement un homme de science mondaine — il était porteur d\'une révélation divine qu\'il transmettait avec soin à ceux qui l\'entouraient.\n\nCette double nature — révélation céleste et connaissance terrestre — faisait d\'Idris un pont unique entre le ciel et la terre. Les hommes ordinaires pouvaient venir lui apprendre à écrire ou à observer les étoiles. Les croyants venaient recevoir la guidance spirituelle que seule la prophétie peut donner. Et ces deux dimensions ne se contredisaient pas — elles se renforçaient mutuellement.',
       ),
       StoryChapter(
@@ -395,6 +586,7 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'LA SCIENCE AU SERVICE DE LA FOI',
+        englishTitle: 'KNOWLEDGE IN SERVICE OF FAITH',
         content: 'Ce qui distingue particulièrement Idris dans la galerie des prophètes, c\'est la combinaison rare et précieuse de la science et de la foi. Souvent dans l\'histoire humaine, ces deux dimensions se sont opposées ou du moins ignorées. Idris les vivait comme une unité naturelle.\n\nQuand il étudiait les astres, c\'était pour glorifier Celui qui les avait créés et mis en mouvement avec une précision mathématique parfaite. Quand il écrivait, c\'était pour préserver la parole d\'Allah et la sagesse que les hommes oublient. Quand il cousait, c\'était pour honorer le corps qu\'Allah avait créé digne de couverture et de soin.\n\nLa connaissance, pour Idris, n\'était pas une fin en elle-même. Elle était un chemin vers Allah. C\'est ce qu\'exprime l\'Islam dans son rapport au savoir : « Cherche la science du berceau jusqu\'à la tombe. » Non pas pour le prestige, non pas pour la domination, mais pour mieux connaître la création d\'Allah et donc mieux Le connaître Lui-même.\n\nIdris est un prophète qui n\'a pas de longue histoire dramatique dans les textes — pas de déluge, pas d\'exode, pas de bûcher. Mais sa présence dans le Coran est un message en soi : Allah honore la connaissance, honore la dévotion constante, honore celui qui cumule le savoir et la foi avec une sincérité absolue. Son élévation au rang sublime est la promesse faite à tous ceux qui marchent sur cette voie.\n\nNous vivons dans un monde qui sépare la science et la spiritualité comme deux continents qui ne se touchent pas. Idris nous dit : ils ont toujours été un seul continent. La science qui glorifie son Créateur n\'est qu\'une forme d\'adoration. Et l\'adoration qui cherche à comprendre la création d\'Allah est la plus profonde des sciences.',
       ),
     ],
@@ -404,45 +596,63 @@ const List<Prophet> kProphets = [
       'Muhammad ﷺ le rencontra au 4ème ciel lors du Mi\'raj',
       'Parmi les premiers à pratiquer l\'astronomie et la couture selon la tradition',
     ],
+    englishKeyFacts: ['First man to write and use the pen', 'First to study the stars and mathematics', 'Elevated to the heavens without experiencing ordinary death', 'Praised by the Quran as truthful and a prophet (19:56-57)'],
     moral: 'La connaissance combinée à la foi élève l\'homme aux plus hauts degrés.',
+    englishMoral: 'Knowledge combined with faith elevates man to the highest degrees.',
     quiz: [
       QuizQ(
         question: 'À quel ciel Muhammad ﷺ rencontra-t-il Idris lors du Mi\'raj ?',
+        englishQuestion: 'At which heaven did Muhammad ﷺ meet Idris during the Mi\'raj?',
         options: ['2ème ciel', '3ème ciel', '4ème ciel', '7ème ciel'],
+        englishOptions: ['2nd heaven', '3rd heaven', '4th heaven', '7th heaven'],
         correctIndex: 2,
         explanation: 'Lors de l\'Isra wal Mi\'raj, le Prophète ﷺ rencontra Idris au 4ème ciel.',
-        difficulty: QuizDifficulty.facile,
+        englishExplanation: 'During the Isra wal Mi\'raj, the Prophet ﷺ met Idris at the 4th heaven.',
+        difficulty: QuizDifficulty.easy,
       ),
       QuizQ(
         question: 'Comment le Coran décrit-il Idris ?',
+        englishQuestion: 'How does the Quran describe Idris?',
         options: ['Prophète guerrier', 'Véridique et élevé en rang', 'Prophète mendiant', 'Sage en toutes langues'],
+        englishOptions: ['A warrior prophet', 'Truthful and elevated in rank', 'A beggar prophet', 'Wise in all languages'],
         correctIndex: 1,
         explanation: 'Le Coran (19:56-57) dit : « C\'était un homme très véridique et un prophète. Et Nous l\'avons élevé en un lieu haut. »',
-        difficulty: QuizDifficulty.moyen,
+        englishExplanation: 'The Quran (19:56-57) says: \'He was a man of truth and a prophet. And We raised him to a high station.\'',
+        difficulty: QuizDifficulty.medium,
       ),
       QuizQ(
         question: 'Quel don Idris est-il parmi les premiers à avoir utilisé ?',
+        englishQuestion: 'Which gift is Idris among the first to have used?',
         options: ['La médecine', 'La musique', 'L\'écriture avec un calame', 'La magie'],
+        englishOptions: ['Medicine', 'Music', 'Writing with a pen', 'Magic'],
         correctIndex: 2,
         explanation: 'Idris est considéré comme l\'un des premiers à écrire et à transmettre la connaissance par l\'écriture.',
-        difficulty: QuizDifficulty.difficile,
+        englishExplanation: 'Idris is considered one of the first to write and transmit knowledge through writing.',
+        difficulty: QuizDifficulty.hard,
       ),
     ],
     familyLinks: [],
     timeline: TimelineData(
       order: 2,
       era: 'Après Adam',
+      englishEra: 'After Adam',
       approxDate: 'Temps immémoriaux',
+      englishApproxDate: 'Immemorial times',
       region: 'Mésopotamie',
+      englishRegion: 'Mesopotamia',
     ),
   ),
 
   // ── 3. Nuh ───────────────────────────────────────────────────────────────
   Prophet(
     number: 3, arabicName: 'نُوح', frenchName: 'Noé',
+    englishName: 'Noah',
     emoji: '🚢', period: 'Des millénaires avant l\'ère commune',
+    englishPeriod: 'Millennia before the Common Era',
     shortDesc: 'Le prophète du déluge, 950 ans de patience',
+    englishShortDesc: 'The prophet of the flood, 950 years of patience',
     summary: 'Nuh est le prophète qui appela son peuple à la foi pendant 950 ans avec une patience sans limite. Face au refus obstiné de son peuple, il construisit l\'Arche sur ordre d\'Allah pour sauver les croyants, tandis que le déluge détruisit les incrédules.',
+    englishSummary: 'Noah called his people to Islam for 950 years with extraordinary patience. When only a handful believed, Allah commanded him to build the Ark. The great flood destroyed those who rejected the message. Noah is the second father of humanity.',
     fullStory:
       '━━━ LE MONDE AVANT LE DÉLUGE ━━━\n\n'
       'Entre Adam et Nuh, des siècles s\'étaient écoulés. La connaissance du Dieu unique, transmise de génération en génération, s\'était progressivement érodée. Les hommes avaient d\'abord honoré leurs sages et leurs prophètes en érigeant des statues à leur mémoire — Wadd, Suwa\', Yaghuth, Ya\'uq, Nasr — cinq grands hommes vertueux dont les images devinrent, avec le temps et l\'oubli, des objets de culte. Le Diable avait soufflé dans l\'oreille des générations : « Vos ancêtres n\'avaient-ils pas raison de les honorer ? » Et ainsi, imperceptiblement, l\'idolâtrie remplaça la foi.\n\n'
@@ -485,37 +695,50 @@ const List<Prophet> kProphets = [
       'Ancêtre commun de toute l\'humanité après le déluge',
       'Seuls 80 croyants environ montèrent dans l\'arche avec lui',
     ],
+    englishKeyFacts: ['Called his people for 950 years — the longest prophetic mission', 'Built the Ark under divine instruction', 'Saved the believers and pairs of all creatures from the great flood', 'Described in the Quran as grateful and patient'],
     moral: 'La patience dans l\'épreuve et la confiance en Allah sont toujours récompensées.',
+    englishMoral: 'Patience in trial and trust in Allah are always rewarded.',
     quiz: [
       QuizQ(
         question: 'Combien d\'années Nuh a-t-il prêché son peuple ?',
+        englishQuestion: 'How many years did Noah preach to his people?',
         options: ['100 ans', '500 ans', '950 ans', '40 ans'],
+        englishOptions: ['100 years', '500 years', '950 years', '40 years'],
         correctIndex: 2,
         explanation: 'Le Coran (29:14) précise que Nuh resta parmi son peuple 950 ans.',
-        difficulty: QuizDifficulty.facile,
+        englishExplanation: 'The Quran (29:14) states that Noah remained among his people for 950 years.',
+        difficulty: QuizDifficulty.easy,
       ),
       QuizQ(
         question: 'Que construisit Nuh sur ordre d\'Allah ?',
+        englishQuestion: 'What did Noah build on Allah\'s command?',
         options: ['Une mosquée', 'Une tour', 'Une arche', 'Un palais'],
+        englishOptions: ['A mosque', 'A tower', 'An ark', 'A palace'],
         correctIndex: 2,
         explanation: 'Allah ordonna à Nuh de construire une arche (سَفِينَة) pour survivre au déluge.',
-        difficulty: QuizDifficulty.moyen,
+        englishExplanation: 'Allah commanded Noah to build an ark (سَفِينَة) to survive the flood.',
+        difficulty: QuizDifficulty.medium,
       ),
       QuizQ(
         question: 'Qui refusa de monter dans l\'arche parmi la famille de Nuh ?',
+        englishQuestion: 'Who among Noah\'s family refused to board the ark?',
         options: ['Sa femme et son fils', 'Uniquement son fils', 'Son frère', 'Son père'],
+        englishOptions: ['His wife and son', 'His son only', 'His brother', 'His father'],
         correctIndex: 1,
         explanation: 'Le fils de Nuh refusa de monter et périt dans le déluge. Sa femme aussi avait trahi la foi.',
-        difficulty: QuizDifficulty.difficile,
+        englishExplanation: 'Noah\'s son refused to board and perished in the flood. His wife also betrayed the faith.',
+        difficulty: QuizDifficulty.hard,
       ),
     ],
     chapters: [
       StoryChapter(
         title: 'LE MONDE AVANT LE DÉLUGE',
+        englishTitle: 'THE WORLD BEFORE THE FLOOD',
         content: 'Entre Adam et Nuh, des siècles s\'étaient écoulés. La connaissance du Dieu unique, transmise de génération en génération, s\'était progressivement érodée. Les hommes avaient d\'abord honoré leurs sages et leurs prophètes en érigeant des statues à leur mémoire — Wadd, Suwa\', Yaghuth, Ya\'uq, Nasr — cinq grands hommes vertueux dont les images devinrent, avec le temps et l\'oubli, des objets de culte. Le Diable avait soufflé dans l\'oreille des générations : « Vos ancêtres n\'avaient-ils pas raison de les honorer ? » Et ainsi, imperceptiblement, l\'idolâtrie remplaça la foi.\n\nC\'est dans ce monde-là que Nuh reçut la révélation d\'Allah. La mission semblait ingrate : un peuple entier tourné vers ses idoles depuis des générations, convaincu que ses ancêtres avaient raison, sourd à toute remise en question.',
       ),
       StoryChapter(
         title: 'NEUF CENT CINQUANTE ANS DE PRÉDICATION',
+        englishTitle: 'NINE HUNDRED AND FIFTY YEARS OF PREACHING',
         content: 'Nuh prêcha pendant 950 ans (29:14). Ce chiffre dépasse l\'entendement humain ordinaire. Nous parlons d\'un homme qui appela à la foi pendant plus de neuf siècles — plus longtemps que toute la période historique enregistrée de nombreuses civilisations. Il essaya tout. Le Coran rapporte sa plainte touchante à Allah : « Seigneur, j\'ai appelé mon peuple nuit et jour — mais mon appel n\'a fait qu\'accroître leur fuite. (71:5-7) Chaque fois que je les appelais pour que Tu leur pardonnes, ils mettaient leurs doigts dans leurs oreilles, se couvraient de leurs vêtements, s\'entêtaient et s\'enorgueillissaient d\'un orgueil immense. Je les ai appelés publiquement. Je leur ai fait des discours publics et je me suis entretenu avec eux en secret. »\n\nIl diversifiait ses approches — discours publics sous le soleil, conversations privées à la lueur des lampes, arguments de raison, promesses de pardon. Il leur montrait les signes d\'Allah dans la nature : « Avez-vous vu comment Allah a créé sept cieux en couches, et a fait de la lune une lumière et du soleil une lampe ? » Mais les notables répondaient avec mépris : « Tu n\'es qu\'un humain comme nous. Ceux qui te suivent sont les plus bas parmi nous. Nous ne voyons en toi aucune supériorité sur nous. Nous te croyons menteur. »\n\nEt les croyants — ces « plus bas parmi eux », ces pauvres et humbles — Nuh les défendait avec fierté : « Je ne chasserai pas ceux qui ont cru. Ils vont rencontrer leur Seigneur. Mais je vous vois vous, un peuple dans l\'ignorance. »',
       ),
       StoryChapter(
@@ -528,10 +751,12 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'LE FILS QUI REFUSA',
+        englishTitle: 'THE SON WHO REFUSED',
         content: 'Dans ce chaos d\'eaux montantes, Nuh vit son fils — resté parmi les incrédules. Il l\'appela une dernière fois avec tout l\'amour d\'un père : « Ô mon fils, monte avec nous et ne sois pas avec les incrédules ! » Le fils répondit avec la confiance froide de celui qui n\'a pas encore compris : « Je vais me réfugier sur une montagne qui me protégera de l\'eau. » Nuh dit : « Aujourd\'hui il n\'y a pas de protecteur contre l\'ordre d\'Allah, sauf pour celui à qui Il fait miséricorde. » Et les vagues s\'interposèrent entre eux. Le fils se noya.\n\nCette scène — un père qui regarde son fils disparaître sous les flots après l\'avoir supplié une dernière fois — est l\'une des plus déchirantes du Coran. Nuh fit ce que tout père aurait fait : il supplia Allah. « Seigneur, mon fils fait partie de ma famille ! Ta promesse est vérité et Tu es le plus juste des juges. » Et Allah lui répondit avec une vérité difficile à entendre : « Ô Nuh, il ne fait pas partie de ta famille — c\'est une œuvre non vertueuse. »\n\nLa famille d\'Allah n\'est pas biologique. Elle est spirituelle. Ce n\'était pas une punition pour Nuh — c\'était une clarification fondamentale sur ce qui unit vraiment les êtres humains les uns aux autres. Nuh accepta. Il dit : « Seigneur, je me réfugie auprès de Toi de Te demander ce dont je n\'ai pas de connaissance. »',
       ),
       StoryChapter(
         title: 'LA FIN DU DÉLUGE ET LE NOUVEAU MONDE',
+        englishTitle: 'THE END OF THE FLOOD AND THE NEW WORLD',
         content: 'Les eaux montèrent jusqu\'à couvrir les plus hautes montagnes. Pendant des mois, l\'arche vogua sur un océan sans rivages, sans horizons terrestres. Puis Allah ordonna : « Ô Terre, absorbe ton eau ! Ô ciel, retiens ! (11:44) » Les eaux se retirèrent. L\'arche s\'immobilisa sur le mont Djudi.\n\nNuh et les croyants descendirent sur une Terre lavée, purifiée, vierge. Allah leur dit : « Descends avec la paix de Notre part et des bénédictions sur toi (11:48) et sur les communautés issues de ceux qui sont avec toi. » La Terre repartait de zéro. De Nuh et des quelques croyants qui sortirent de cette arche descendirent tous les peuples humains actuels — c\'est pourquoi il est parfois appelé « le second Adam ».\n\nNuh vécut encore longtemps après le déluge. Il avait traversé neuf siècles et demi de prédication et un déluge mondial. Il mourut en laissant une Terre repeuplée de croyants — une communauté qui, hélas, s\'éloignerait à nouveau avec le temps, appelant d\'autres prophètes, d\'autres avertisseurs, d\'autres chances.',
       ),
       StoryChapter(
@@ -544,6 +769,7 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'APRÈS LE DÉLUGE — RECONSTRUIRE',
+        englishTitle: 'AFTER THE FLOOD — REBUILDING',
         content: 'Quand l\'arche s\'arrêta sur le mont Djudi et que les eaux se retirèrent, Nuh fit ce que font les croyants après une épreuve : il rendit grâce. La première chose qu\'il dit en posant le pied sur la Terre lavée fut une invocation de gratitude et de demande de bénédiction pour la nouvelle humanité qui allait naître de cet événement.\n\nLa Terre était vierge et étrange. Les repères géographiques avaient changé. Les végétaux que Nuh connaissait avaient disparu. Il fallait tout recommencer — la culture, l\'élevage, la construction, l\'organisation sociale. Et au cœur de tout cela, maintenir vivante la foi — enseigner aux enfants et petits-enfants ce qu\'était le déluge et pourquoi il était advenu.\n\nAllah conclut son alliance avec Nuh et avec l\'humanité : l\'arc-en-ciel, selon les traditions abrahamiques, fut le signe de cette alliance — la promesse qu\'un déluge universel n\'anéantirait plus jamais la Terre. Allah prenait soin de Ses serviteurs qui avaient survécu. Il leur donnait une terre lavée, un horizon ouvert, et la promesse de Sa guidance pour les siècles à venir.\n\nSa leçon est peut-être la plus difficile de toutes : il est possible de passer une vie entière — une vie mesurée en siècles — à appeler au bien, et de voir peu de résultats. La récompense de Nuh n\'était pas dans le nombre de ses convertis. Elle était dans sa fidélité totale à sa mission, jusqu\'au dernier souffle.',
       ),
     ],
@@ -551,17 +777,24 @@ const List<Prophet> kProphets = [
     timeline: TimelineData(
       order: 3,
       era: 'Avant le Déluge',
+      englishEra: 'Before the Flood',
       approxDate: '~3000 av. J.-C.',
+      englishApproxDate: '~3000 BC',
       region: 'Mésopotamie',
+      englishRegion: 'Mesopotamia',
     ),
   ),
 
   // ── 4. Hud ───────────────────────────────────────────────────────────────
   Prophet(
     number: 4, arabicName: 'هُود', frenchName: 'Hûd',
+    englishName: 'Hud',
     emoji: '🌬️', period: 'Après le déluge',
+    englishPeriod: 'After the Flood',
     shortDesc: 'Envoyé au peuple de \'Âd, détruit par le vent',
+    englishShortDesc: 'Sent to the people of ʿAd, destroyed by the wind',
     summary: 'Hud est le prophète envoyé au peuple puissant de \'Âd, connu pour ses colonnes monumentales. Refusé par son peuple arrogant, il est sauvé avec les croyants tandis que les incrédules sont détruits par un vent foudroyant.',
+    englishSummary: 'Hud was sent to the ancient people of ʿAd — a powerful civilization in southern Arabia. Despite his warnings, they remained arrogant and rejected the divine message. Allah destroyed them with a howling wind that lasted seven nights and eight days.',
     fullStory:
       '━━━ LE MONDE APRÈS LE DÉLUGE ━━━\n\n'
       'Après le déluge de Nuh, l\'humanité repartit de zéro. Les descendants des survivants se dispersèrent à travers la Terre, fondèrent de nouvelles communautés, bâtirent de nouvelles villes. Avec le temps, les peuples se différencièrent par les langues, les coutumes, les architectures. Et avec le temps, comme cela arrivait toujours, la guidance divine s\'estompa, les idoles refirent leur apparition, les injustices se réinstallèrent.\n\n'
@@ -603,33 +836,45 @@ const List<Prophet> kProphets = [
       'Sourate Hûd (11) dans le Coran porte son nom — fait rare pour un prophète',
       'Allah lui accorda l\'immunité totale lors du vent dévastateur qui détruisit \'Âd',
     ],
+    englishKeyFacts: ['Prophet sent to the mighty people of ʿAd', 'ʿAd was destroyed by a violent wind lasting 7 nights and 8 days', 'Hud and the believers were saved by the mercy of Allah', 'Story mentioned in Surah Al-Aʿraf, Hud, and Al-Ahqaf'],
     moral: 'L\'orgueil est la chute des civilisations ; seule l\'humilité devant Allah sauve.',
+    englishMoral: 'Pride is the downfall of civilizations; only humility before Allah saves.',
     quiz: [
       QuizQ(
         question: 'À quel peuple Hud fut-il envoyé ?',
+        englishQuestion: 'To which people was Hud sent?',
         options: ['Thamoud', 'Madyan', 'Le peuple de \'Âd', 'Babylone'],
+        englishOptions: ['Thamud', 'Midian', 'The people of ʿAd', 'Babylon'],
         correctIndex: 2,
         explanation: 'Hud fut envoyé au peuple de \'Âd, une civilisation puissante du sud de l\'Arabie.',
-        difficulty: QuizDifficulty.facile,
+        englishExplanation: 'Hud was sent to the people of ʿAd, a powerful civilization in southern Arabia.',
+        difficulty: QuizDifficulty.easy,
       ),
       QuizQ(
         question: 'Par quoi le peuple de \'Âd fut-il puni ?',
+        englishQuestion: 'By what was the people of ʿAd punished?',
         options: ['Une inondation', 'Un vent violent', 'Un tremblement de terre', 'Du feu du ciel'],
+        englishOptions: ['A flood', 'A violent wind', 'An earthquake', 'Fire from the sky'],
         correctIndex: 1,
         explanation: 'Allah envoya un vent dévastateur qui souffla 7 nuits et 8 jours, détruisant tout sur son passage.',
-        difficulty: QuizDifficulty.moyen,
+        englishExplanation: 'Allah sent a devastating wind that blew for 7 nights and 8 days, destroying everything in its path.',
+        difficulty: QuizDifficulty.medium,
       ),
       QuizQ(
         question: 'Quelle était la principale faute du peuple de \'Âd ?',
+        englishQuestion: 'What was the main sin of the people of ʿAd?',
         options: ['Le vol', 'Le meurtre', 'L\'arrogance et l\'idolâtrie', 'La sorcellerie'],
+        englishOptions: ['Theft', 'Murder', 'Arrogance and idolatry', 'Sorcery'],
         correctIndex: 2,
         explanation: 'Le peuple de \'Âd était fier de sa force et adorait des idoles, refusant d\'adorer Allah seul.',
-        difficulty: QuizDifficulty.difficile,
+        englishExplanation: 'The people of ʿAd were proud of their strength and worshipped idols, refusing to worship Allah alone.',
+        difficulty: QuizDifficulty.hard,
       ),
     ],
     chapters: [
       StoryChapter(
         title: 'LE MONDE APRÈS LE DÉLUGE',
+        englishTitle: 'THE WORLD AFTER THE FLOOD',
         content: 'Après le déluge de Nuh, l\'humanité repartit de zéro. Les descendants des survivants se dispersèrent à travers la Terre, fondèrent de nouvelles communautés, bâtirent de nouvelles villes. Avec le temps, les peuples se différencièrent par les langues, les coutumes, les architectures. Et avec le temps, comme cela arrivait toujours, la guidance divine s\'estompa, les idoles refirent leur apparition, les injustices se réinstallèrent.\n\nDans le vaste désert du sud de la péninsule arabique — dans la région d\'Al-Ahqaf, actuelle frontière entre le Yémen et le sultanat d\'Oman — s\'éleva une civilisation extraordinaire : le peuple de \'Âd. Le Coran les évoque avec une formule qui laisse imaginer leur grandeur : « Iram aux colonnes » (89:7) — une ville ou un peuple de colonnes monumentales, de constructions imposantes qui défiaient le ciel.\n\nLes gens de \'Âd étaient grands physiquement — les traditions les décrivent comme des hommes d\'une stature bien supérieure à la moyenne. Ils étaient forts, robustes, capables de porter des blocs de pierre qu\'un homme ordinaire n\'aurait pu soulever. Et cette force physique, combinée à leur richesse et à la fertilité relative de leur région, les rendit dangereux : arrogants, oppresseurs, convaincus de leur invincibilité.\n\nIls adoraient des idoles. Leurs dieux s\'appelaient Sami\'a, Sâkhi, et Hafîdha. Des statues auxquelles ils demandaient la pluie, la victoire, la prospérité. Et ces statues muettes et aveugles — naturellement — ne répondaient jamais. Mais les hommes sont ainsi faits qu\'ils peuvent se convaincre de n\'importe quoi si c\'est ce que leurs ancêtres leur ont transmis.',
       ),
       StoryChapter(
@@ -638,14 +883,17 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'LE MÉPRIS DES NOTABLES',
+        englishTitle: 'THE CONTEMPT OF THE NOTABLES',
         content: 'Les notables de \'Âd réagirent de la façon habituelle des puissants face aux prophètes : avec du mépris mêlé d\'inquiétude. Leur réponse est rapportée dans le Coran avec une vivacité qui fait entendre leurs voix à travers les siècles.\n\nPremier argument : « Nous ne voyons en toi que folie. » (7:66) La folie — accusation classique contre quiconque remet en question les consensus établis. Hud n\'est pas fou, il est dangereux pour l\'ordre établi, mais on ne peut pas dire ça ouvertement.\n\nDeuxième argument : « Nous pensons que nos dieux t\'ont frappé d\'un mauvais sort. » (11:54) Si tu contestes les dieux, c\'est parce qu\'ils t\'ont puni par la folie. Le raisonnement circulaire est parfait — il protège les dieux contre toute critique.\n\nHud répondit avec une force tranquille : « Je prends Allah à témoin — témoignez vous-mêmes — que je suis innocent de ce que vous Lui associez en dehors de Lui. Complotez donc contre moi tous ensemble, et ne me donnez aucun délai. J\'ai mis ma confiance en Allah, mon Seigneur et votre Seigneur. Il n\'y a aucun être vivant qu\'Il ne tienne par la nuque. Mon Seigneur est sur le chemin droit. »\n\nCette réponse est remarquable par son absence de peur. Hud ne fuit pas, ne mendie pas la paix, ne négocie pas. Il met Allah à témoin, il défie, et il s\'en remet entièrement à la puissance divine. Un homme seul face à toute une civilisation — et qui ne tremble pas.',
       ),
       StoryChapter(
         title: 'LA SÉCHERESSE ANNONCÉE',
+        englishTitle: 'THE FORETOLD DROUGHT',
         content: 'Quand \'Âd refusa d\'écouter, Allah envoya une première épreuve : la sécheresse. Les pluies s\'arrêtèrent. Les récoltes faillirent. Les troupeaux souffrirent. Cette sécheresse était un avertissement — les dernières chances avant le châtiment définitif.\n\nHud continua à prêcher. Il leur dit : « Demandez pardon à votre Seigneur, puis repentez-vous vers Lui. Il vous enverra une pluie abondante du ciel et augmentera votre puissance. Ne vous détournez pas, en criminels. » (11:52) Ils auraient pu revenir. La sécheresse aurait pu prendre fin. La porte du repentir était ouverte.\n\nMais \'Âd était fier. Un peuple fier ne se repent pas sous la contrainte — il s\'entête. Ils dirent : « Est-ce que tu es venu pour que nous n\'adorions qu\'Allah seul, et que nous abandonnions ce qu\'adoraient nos ancêtres ? Alors fais-nous venir ce que tu nous menaces, si tu es du nombre des véridiques. »',
       ),
       StoryChapter(
         title: 'LE NUAGE — LA RUSE DU DESTIN',
+        englishTitle: 'THE CLOUD — DESTINY\'S TRICK',
         content: 'Alors Allah envoya Son châtiment. Et la façon dont il arriva est d\'une ironie tragique qui illustre la subtilité divine.\n\nUn nuage apparut à l\'horizon. Un grand nuage sombre, gris, chargé. Les hommes de \'Âd — qui souffraient de sécheresse — regardèrent ce nuage et se réjouirent. Enfin, la pluie ! Ils sortirent de leurs maisons, levèrent les yeux vers le ciel, sourirent peut-être. Certains dirent : « C\'est un nuage qui nous apportera la pluie ! »\n\nHud dit : « Non — c\'est ce que vous avez hâté. Un vent qui contient un châtiment douloureux. Il détruira tout par ordre de son Seigneur. » (46:24-25)\n\nLe vent arriva. Pas une brise — une tornade d\'une violence inouïe, froide et cinglante. Le Coran dit qu\'il souffla pendant sept nuits et huit jours consécutifs. Les hommes de \'Âd — ces géants fiers — étaient renversés comme des troncs de palmiers arrachés. Leurs constructions monumentales — ces colonnes qu\'ils croyaient éternelles — s\'effondrèrent. Leurs animaux, leurs champs, leurs cités — tout fut englouti par ce vent qui ne s\'arrêtait pas.\n\n« Il ne laissa rien de ce sur quoi il avait passé sans le réduire à néant. » (51:42)\n\nHud et les croyants — un petit groupe qui avait cru malgré les moqueries — furent protégés. Allah les préserva. Ils regardèrent la destruction de leur civilisation natale avec la douleur de ceux qui avaient tout fait pour l\'éviter.',
       ),
       StoryChapter(
@@ -654,6 +902,7 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'LA LEÇON DE HUD',
+        englishTitle: 'THE LESSON OF HUD',
         content: 'L\'histoire de Hud est l\'histoire de l\'orgueil collectif — plus difficile à combattre que l\'orgueil individuel car il est renforcé par le consensus, par la tradition, par la force du nombre. \'Âd n\'était pas un peuple de mauvaises personnes isolées. C\'était une civilisation entière qui avait choisi, collectivement, de mettre sa confiance dans sa propre force plutôt que dans la puissance d\'Allah.\n\nLe vent qui les détruisit ne vient pas de nulle part dans le récit coranique. Il vient après des années de prédication, après une sécheresse d\'avertissement, après des chances répétées de revenir. Le châtiment n\'est jamais la première réponse d\'Allah. Il est toujours précédé d\'une longue séquence d\'avertissements et d\'appels.\n\nHud, lui, reste une figure de courage tranquille. Prophète sans miracles spectaculaires, sans prodige visible — juste la parole claire, la foi inébranlable, et la capacité de dire la vérité face à une civilisation entière sans reculer.',
       ),
     ],
@@ -661,17 +910,24 @@ const List<Prophet> kProphets = [
     timeline: TimelineData(
       order: 4,
       era: 'Après le Déluge',
+      englishEra: 'After the Flood',
       approxDate: '~2500 av. J.-C.',
+      englishApproxDate: '~2500 BC',
       region: 'Arabie du Sud (\'Ad)',
+      englishRegion: 'Arabie du Sud (\\\'Ad)',
     ),
   ),
 
   // ── 5. Salih ─────────────────────────────────────────────────────────────
   Prophet(
     number: 5, arabicName: 'صَالِح', frenchName: 'Sâlih',
+    englishName: 'Salih',
     emoji: '🐪', period: 'L\'ère des peuples anciens',
+    englishPeriod: 'The Era of Ancient Peoples',
     shortDesc: 'La chamelle miraculeuse du peuple de Thamoud',
+    englishShortDesc: 'The miraculous she-camel of the people of Thamud',
     summary: 'Salih est le prophète envoyé au peuple de Thamoud, bâtisseurs de cités taillées dans la roche. Il produit une chamelle miraculeuse comme signe, mais le peuple refuse et tue la chamelle, attirant un châtiment dévastateur.',
+    englishSummary: 'Salih was sent to the people of Thamud who carved their homes into mountains. As a sign, Allah sent a miraculous she-camel. When the people killed it in defiance, the divine punishment struck after three days.',
     fullStory:
       '━━━ THAMOUD — LES ARCHITECTES DE LA ROCHE ━━━\n\n'
       'Après la destruction de \'Âd par le vent, l\'histoire continua. D\'autres peuples s\'élevèrent, d\'autres civilisations prirent racine. Parmi eux, Thamoud — les successeurs qui semblaient avoir tiré une leçon de la chute de \'Âd, mais qui répétèrent les mêmes erreurs par d\'autres chemins.\n\n'
@@ -710,33 +966,45 @@ const List<Prophet> kProphets = [
       'Les ruines de Thamoud (Madain Salih) existent encore en Arabie Saoudite',
       'Le Prophète ﷺ mit en garde contre la visite des ruines de Thamoud sans réflexion',
     ],
+    englishKeyFacts: ['Prophet sent to the people of Thamud in northwest Arabia', 'The miraculous she-camel was a divine sign for Thamud', 'The she-camel was killed in arrogant defiance', 'Thamud was destroyed three days after killing the she-camel'],
     moral: 'Défier les signes d\'Allah mène à la ruine ; respecter Ses commandements est sagesse.',
+    englishMoral: 'Defying the signs of Allah leads to ruin; respecting His commands is wisdom.',
     quiz: [
       QuizQ(
         question: 'À quel peuple Salih fut-il envoyé ?',
+        englishQuestion: 'To which people was Salih sent?',
         options: ['\'Âd', 'Madyan', 'Thamoud', 'Babylone'],
+        englishOptions: ['\'Ad', 'Midian', 'Thamud', 'Babylon'],
         correctIndex: 2,
         explanation: 'Salih fut envoyé au peuple de Thamoud, qui vivait en taillant des maisons dans la roche.',
-        difficulty: QuizDifficulty.facile,
+        englishExplanation: 'Salih was sent to the people of Thamud, who lived by carving homes into the rock.',
+        difficulty: QuizDifficulty.easy,
       ),
       QuizQ(
         question: 'Quel était le signe miraculeux donné à Salih ?',
+        englishQuestion: 'What was the miraculous sign given to Salih?',
         options: ['Un aigle blanc', 'Une chamelle sortant de la roche', 'Une source d\'eau', 'Un palmier géant'],
+        englishOptions: ['A white eagle', 'A she-camel emerging from the rock', 'A spring of water', 'A giant palm tree'],
         correctIndex: 1,
         explanation: 'Allah fit sortir miraculeusement une chamelle de la roche, comme signe de la prophétie de Salih.',
-        difficulty: QuizDifficulty.moyen,
+        englishExplanation: 'Allah miraculously produced a she-camel from the rock as a sign of Salih\'s prophethood.',
+        difficulty: QuizDifficulty.medium,
       ),
       QuizQ(
         question: 'Que fit le peuple de Thamoud avec la chamelle ?',
+        englishQuestion: 'What did the people of Thamud do with the she-camel?',
         options: ['Ils la vénérèrent', 'Ils la nourrirent', 'Ils la vendirent', 'Ils la tuèrent'],
+        englishOptions: ['They venerated it', 'They fed it', 'They sold it', 'They killed it'],
         correctIndex: 3,
         explanation: 'Les notables de Thamoud décidèrent d\'égorger la chamelle, ce qui déclencha le châtiment d\'Allah.',
-        difficulty: QuizDifficulty.difficile,
+        englishExplanation: 'The notables of Thamud decided to slaughter the she-camel, which triggered the punishment of Allah.',
+        difficulty: QuizDifficulty.hard,
       ),
     ],
     chapters: [
       StoryChapter(
         title: 'THAMOUD — LES ARCHITECTES DE LA ROCHE',
+        englishTitle: 'THAMUD — THE ARCHITECTS OF THE ROCK',
         content: 'Après la destruction de \'Âd par le vent, l\'histoire continua. D\'autres peuples s\'élevèrent, d\'autres civilisations prirent racine. Parmi eux, Thamoud — les successeurs qui semblaient avoir tiré une leçon de la chute de \'Âd, mais qui répétèrent les mêmes erreurs par d\'autres chemins.\n\nThamoud s\'établit dans le nord-ouest de l\'Arabie, dans la région d\'Al-Hijr — ce couloir naturel que les caravanes empruntaient entre l\'Arabie du Sud et la Syrie. Aujourd\'hui, ce site s\'appelle Madain Salih et il est classé au patrimoine mondial de l\'UNESCO. Les touristes qui le visitent y voient encore les façades taillées à même la roche — des tombes monumentales ornées de sculptures, d\'escaliers, de niches décoratives, le tout extrait du grès rose et rouge par des mains qui ne connaissaient que l\'outil de pierre et de métal.\n\nThamoud était un peuple d\'artisans et de bâtisseurs. Ils ne construisaient pas sur la Terre — ils sculpta ient dans la Terre. La roche devenait maison, palais, tombeau. Leurs habitations taillées dans la falaise les protégeaient du chaud, du froid, des ennemis. C\'était une civilisation de l\'intérieur des montagnes — un peuple qui avait apprivoisé la pierre comme d\'autres apprivoisaient le bois ou la brique.\n\nMais comme \'Âd, Thamoud était tombé dans l\'idolâtrie. Les dieux de pierre dans des cités de pierre — une métaphore involontaire de leur situation. Ils adoraient des statues qu\'ils avaient sculptées eux-mêmes, dans la même roche que leurs maisons. Et ils traitaient les faibles avec mépris, concentrant la richesse entre les mains d\'une élite qui refusait de la partager.',
       ),
       StoryChapter(
@@ -745,14 +1013,17 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'LA CHAMELLE — LE SIGNE DE LA ROCHE',
+        englishTitle: 'THE SHE-CAMEL — THE SIGN FROM THE ROCK',
         content: 'Thamoud demanda un signe. Cette demande de signe est récurrente dans l\'histoire prophétique — les hommes veulent des preuves concrètes, des démonstrations visibles de la réalité divine. En soi, demander une preuve n\'est pas condamnable. Mais quand on demande un signe avec l\'intention de continuer à refuser même si le signe est accordé, alors c\'est une autre histoire.\n\nLes notables de Thamoud spécifièrent leur demande : « Si tu es vraiment un prophète, fais sortir de cette montagne de roche une chamelle pleine et vivante. » Ils avaient choisi délibérément quelque chose d\'impossible — faire naître un animal vivant de la roche pure. Un signe qu\'aucune ruse humaine ne pouvait simuler.\n\nSalih pria Allah. Et devant leurs yeux, de la roche elle-même, sortit une chamelle — grande, robuste, bien formée. Une chamelle qui n\'avait pas de mère, pas d\'éleveur, pas d\'histoire — née de la pierre, debout devant eux, les regardant avec ses grands yeux calmes.\n\nLa stupeur fut totale. Beaucoup crurent à ce moment — le signe était trop évident pour être nié. Mais d\'autres, dans leur cœur durci, refusèrent encore. Et Salih leur dit les conditions : « C\'est la chamelle d\'Allah — un signe pour vous. Laissez-la paître librement sur la terre d\'Allah et ne lui faites aucun mal, sinon un châtiment douloureux vous frappera. » (7:73)',
       ),
       StoryChapter(
         title: 'LA CHAMELLE ET LA VIE DE THAMOUD',
+        englishTitle: 'THE SHE-CAMEL AND THE LIFE OF THAMUD',
         content: 'La chamelle vivait parmi eux. Elle paissait librement — aucun pré ne lui était interdit, aucun puits ne lui était fermé. Et selon le Coran, il y avait une règle concernant l\'eau : un jour c\'est son tour, un jour c\'est le vôtre. La chamelle avait besoin de beaucoup d\'eau — c\'est la nature de ces animaux — et les jours où elle buvait, elle vidait presque les puits.\n\nCette coexistence était une épreuve permanente. Un rappel constant de la présence d\'Allah dans leur vie quotidienne. Un animal qu\'ils ne pouvaient pas chasser, qu\'ils devaient nourrir et respecter, qui leur prenait l\'eau un jour sur deux. Pour certains, c\'était un miracle vivant à honorer. Pour d\'autres — notamment les propriétaires de troupeaux et les possesseurs de sources — c\'était une gêne, une piqûre permanente d\'orgueil.\n\nLes neuf chefs de clans de Thamoud — ceux qui propageaient la corruption dans le pays et refusaient de se réformer — complotèrent. Ils décidèrent que la chamelle devait mourir. Leur chef dans ce crime était un homme nommé Qaddar ibn Salif — décrit dans les traditions comme un homme rouge aux yeux bleus, de mauvaise réputation mais d\'un statut noble. Précisément le type d\'homme que les autres suivent dans le mal.',
       ),
       StoryChapter(
         title: 'LE MEURTRE ET LES TROIS JOURS',
+        englishTitle: 'THE KILLING AND THE THREE DAYS',
         content: 'Qaddar sortit avec son arc. Il visa la chamelle. Elle tomba. Ses petits — car elle avait un veau qui la suivait — s\'enfuirent vers la montagne en poussant des bêlements qui faisaient frémir. Salih était là, ou fut informé immédiatement. Il leur dit : « Profitez encore trois jours dans vos demeures. C\'est une promesse qui ne sera pas démentie. » (11:65)\n\nTrois jours. Exactement. Salih leur donnait trois jours de vie. Pas une menace vague dans un futur indéterminé — une date précise. Cela aurait pu être un délai pour la repentance. Les notables de Thamoud, au lieu de saisir cette dernière chance, décidèrent d\'utiliser ces trois jours pour tuer Salih avant que le châtiment ne les frappe. Ils pensaient peut-être que s\'ils tuaient le prophète, la malédiction serait annulée.\n\nIls complotèrent pour attaquer Salih et sa famille de nuit. Mais Allah les en empêcha — ils furent détruits avant de pouvoir agir. (27:48-51)\n\nLe troisième jour, le châtiment arriva. Une Saïha — un cri, un grondement cosmique — retentit. Les traditions décrivent différemment cette Saïha : un tonnerre, un tremblement de terre, un bruit surnaturel d\'une intensité qui pulvérise le corps humain. En un instant, toute la cité de Thamoud fut réduite à néant. « La Saïha les saisit, et au matin ils gisaient dans leurs demeures. » (11:67)\n\nSalih et les croyants furent épargnés. Ils quittèrent le pays — certains récits les situent se dirigeant vers la Palestine ou la Syrie — les yeux remplis de larmes pour un peuple qu\'ils avaient aimé et qui avait choisi sa propre destruction.',
       ),
       StoryChapter(
@@ -761,6 +1032,7 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'LA LEÇON DE SALIH',
+        englishTitle: 'THE LESSON OF SALIH',
         content: 'La chamelle de Salih est devenue, dans la tradition islamique, le symbole de toute chose sacrée qu\'on est tenté de détruire par arrogance ou par commodité. Elle représente la limite que Allah pose — pas pour punir, mais pour enseigner le respect, la gratitude, le partage.\n\nThamoud avait tout : des maisons dans la roche, de la nourriture, de l\'eau, des troupeaux, une civilisation développée. Ils avaient aussi un signe visible de la présence d\'Allah au milieu d\'eux. Et ils choisirent de tuer le signe plutôt que de changer leur façon de vivre. C\'est peut-être la forme d\'orgueil la plus commune et la plus dangereuse : préférer sa commodité à la limite d\'Allah.',
       ),
     ],
@@ -768,17 +1040,24 @@ const List<Prophet> kProphets = [
     timeline: TimelineData(
       order: 5,
       era: 'Après \'Ad',
+      englishEra: 'After \\u02BfAd',
       approxDate: '~2000 av. J.-C.',
+      englishApproxDate: '~2000 BC',
       region: 'Arabie du Nord (Thamud)',
+      englishRegion: 'Northern Arabia (Thamud)',
     ),
   ),
 
   // ── 6. Ibrahim ───────────────────────────────────────────────────────────
   Prophet(
     number: 6, arabicName: 'إِبْرَاهِيم', frenchName: 'Ibrahim',
+    englishName: 'Abraham',
     emoji: '🔥', period: 'Environ 2000 avant l\'ère commune',
+    englishPeriod: 'Around 2000 BC',
     shortDesc: 'Khalilullah — l\'Ami d\'Allah, père des prophètes',
+    englishShortDesc: 'Khalilullah — the Friend of Allah, father of the prophets',
     summary: 'Ibrahim est le père de tous les prophètes et l\'ami intime d\'Allah. Il brise les idoles, traverse le feu indemne, construit la Kaaba avec son fils Ismail, et incarne la foi absolue face aux épreuves les plus extrêmes.',
+    englishSummary: 'Abraham is the father of the prophets and the intimate friend of Allah. He broke the idols of his people, was thrown into the fire and emerged unharmed, performed the greatest sacrifice, and built the Kaaba with his son Ishmael. His complete submission to Allah remains the ultimate model of faith.',
     fullStory:
       '━━━ LA MÉSOPOTAMIE DES IDOLES ━━━\n\n'
       'Il y a environ quatre mille ans, dans la grande cité d\'Ur, au cœur de la Mésopotamie — ce croissant fertile entre le Tigre et l\'Euphrate, berceau de la civilisation —, un enfant ouvrit les yeux sur un monde entièrement peuplé d\'idoles. Partout des statues, partout des rituels, partout des offrandes à des dieux de pierre, de bois et de métal. Le roi Nemrod régnait sur ce pays avec une puissance absolue et se croyait lui-même divin. Et le père de ce petit garçon, Azar, était artisan des idoles — il les sculptait, les vendait, en vivait.\n\n'
@@ -840,41 +1119,55 @@ const List<Prophet> kProphets = [
       'Construisit la Kaaba avec son fils Ismail à La Mecque',
       'Père de deux branches prophétiques : Ismaïl (lignée arabe) et Ishaq (lignée israélite)',
     ],
+    englishKeyFacts: ['Khalilullah — the intimate friend of Allah', 'Emerged unharmed from the fire into which he was thrown', 'Rebuilt the Kaaba with his son Ishmael', 'Father of the prophets through his sons Ishmael and Isaac'],
     moral: 'La foi totale en Allah, même dans les épreuves extrêmes, est la voie de l\'ami de Dieu.',
+    englishMoral: 'Total faith in Allah, even in extreme trials, is the path of the friend of God.',
     quiz: [
       QuizQ(
         question: 'Quel est le titre donné à Ibrahim par Allah ?',
+        englishQuestion: 'What title did Allah give to Abraham?',
         options: ['Ruhullah', 'Khalilullah', 'Kalimullah', 'Nabiyullah'],
+        englishOptions: ['Ruhullah', 'Khalilullah', 'Kalimullah', 'Nabiyullah'],
         correctIndex: 1,
         explanation: 'Ibrahim est appelé Khalilullah (خليل الله), l\'Ami d\'Allah, titre unique dans le Coran (4:125).',
-        difficulty: QuizDifficulty.facile,
+        englishExplanation: 'Abraham is called Khalilullah (خليل الله), the Friend of Allah, a unique title in the Quran (4:125).',
+        difficulty: QuizDifficulty.easy,
       ),
       QuizQ(
         question: 'Que fit Ibrahim pour montrer l\'absurdité des idoles ?',
+        englishQuestion: 'What did Abraham do to show the absurdity of idols?',
         options: ['Il les vendit', 'Il les brisa toutes sauf la plus grande', 'Il les brûla', 'Il les jeta dans la mer'],
+        englishOptions: ['He sold them', 'He smashed all but the largest one', 'He burned them', 'He threw them in the sea'],
         correctIndex: 1,
         explanation: 'Ibrahim brisa toutes les idoles sauf la grande, pour montrer à son peuple leur impuissance.',
-        difficulty: QuizDifficulty.moyen,
+        englishExplanation: 'Abraham smashed all the idols except the largest, to show his people their powerlessness.',
+        difficulty: QuizDifficulty.medium,
       ),
       QuizQ(
         question: 'Qu\'ordonna Allah au feu quand Ibrahim y fut jeté ?',
+        englishQuestion: 'What did Allah command the fire when Abraham was thrown into it?',
         options: ['De l\'éteindre', 'D\'être plus grand', 'D\'être fraîcheur et paix pour Ibrahim', 'De brûler rapidement'],
+        englishOptions: ['To be extinguished', 'To be larger', 'To be coolness and peace for Abraham', 'To burn quickly'],
         correctIndex: 2,
         explanation: 'Allah dit au feu (21:69) : « Ô feu, sois fraîcheur et paix pour Ibrahim. » Il sortit indemne.',
-        difficulty: QuizDifficulty.difficile,
+        englishExplanation: 'Allah said to the fire (21:69): \'O fire, be coolness and peace for Abraham.\' He emerged unharmed.',
+        difficulty: QuizDifficulty.hard,
       ),
     ],
     chapters: [
       StoryChapter(
         title: 'LA MÉSOPOTAMIE DES IDOLES',
+        englishTitle: 'MESOPOTAMIA OF IDOLS',
         content: 'Il y a environ quatre mille ans, dans la grande cité d\'Ur, au cœur de la Mésopotamie — ce croissant fertile entre le Tigre et l\'Euphrate, berceau de la civilisation —, un enfant ouvrit les yeux sur un monde entièrement peuplé d\'idoles. Partout des statues, partout des rituels, partout des offrandes à des dieux de pierre, de bois et de métal. Le roi Nemrod régnait sur ce pays avec une puissance absolue et se croyait lui-même divin. Et le père de ce petit garçon, Azar, était artisan des idoles — il les sculptait, les vendait, en vivait.\n\nCet enfant s\'appelait Ibrahim. Et dès ses premières années de conscience, quelque chose en lui résistait. Pas avec violence, pas avec révolte. Avec des questions. Des questions qui ne lâchaient pas.',
       ),
       StoryChapter(
         title: 'LA QUÊTE DU VRAI SEIGNEUR',
+        englishTitle: 'THE QUEST FOR THE TRUE LORD',
         content: 'Le Coran nous dépeint Ibrahim adolescent dans une scène d\'une beauté philosophique rare. Un soir, il regarde le ciel et voit une étoile briller d\'un éclat particulier. Son cœur tressaille : « Serait-ce là mon Seigneur ? » Mais l\'étoile se couche à l\'horizon. Il dit : « Je n\'aime pas ceux qui se couchent. » Puis la lune se lève, majestueuse, d\'une lumière argentée. « Serait-ce là mon Seigneur ? » Mais la lune aussi décline et disparaît. Enfin, le soleil monte, embrase le ciel. « Serait-ce là mon Seigneur ? C\'est le plus grand ! » Mais le soleil aussi se couche, comme les autres. Et Ibrahim dit alors, avec une certitude tranquille et définitive : « Ô mon peuple, je suis innocent de ce que vous Lui associez. Je tourne mon visage en pur monothéiste vers Celui qui a créé les cieux et la Terre. Je ne suis pas de ceux qui Lui donnent des associés. »\n\nCe n\'était pas une révélation venue du dehors. C\'était la raison humaine, guidée par Allah, qui remontait à la source. Ibrahim venait de découvrir le tawhid — l\'unicité absolue de Dieu — par lui-même, dans la contemplation du cosmos. Cet épisode explique pourquoi il est appelé dans le Coran Hanif — le pur monothéiste par nature — et pourquoi toutes les traditions abrahamiques le reconnaissent comme leur ancêtre spirituel.',
       ),
       StoryChapter(
         title: 'LE FILS CONTRE SON PÈRE',
+        englishTitle: 'THE SON AGAINST HIS FATHER',
         content: 'Avoir découvert la vérité était une chose. La dire à son père en était une autre. Ibrahim aimait profondément Azar. Leurs échanges dans le Coran sont d\'une tendresse déchirante. Ibrahim ne l\'attaquait pas — il l\'invitait, avec douceur, avec patience, avec amour. « Ô mon père, pourquoi adores-tu ce qui n\'entend pas, ne voit pas et ne te sera d\'aucun secours ? Ô mon père, il m\'est venu une science qui ne t\'est pas venue. Suis-moi, je te guiderai vers un chemin droit. Ô mon père, n\'adore pas le Diable — le Diable est un rebelle au Tout Miséricordieux. Ô mon père, je crains qu\'un châtiment du Tout Miséricordieux ne te touche. »\n\nLa réponse d\'Azar fut cinglante : « Ibrahim, aurais-tu de l\'aversion pour mes dieux ? Si tu n\'arrêtes pas, je te lapiderai. Quitte-moi pour longtemps ! » Ibrahim, le cœur brisé mais la foi intacte, lui répondit avec une dignité sublime : « Paix sur toi. Je demanderai pardon pour toi à mon Seigneur — Il m\'a toujours été bienveillant. Je m\'éloigne de vous et de ce que vous invoquez en dehors d\'Allah. » Il continua à prier pour son père jusqu\'à ce qu\'il soit révélé clairement que celui-ci était un ennemi d\'Allah. Ce n\'est qu\'alors qu\'il s\'en désengagea — non par rancune, mais par obéissance à Allah.',
       ),
       StoryChapter(
@@ -883,6 +1176,7 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'LE FEU QUI NE BRÛLE PAS',
+        englishTitle: 'THE FIRE THAT DOES NOT BURN',
         content: 'Le roi Nemrod ordonna que le bûcher soit le plus grand jamais allumé. Pendant des jours, les hommes empilèrent du bois de tous les coins du royaume. Le feu était si immense qu\'on ne pouvait s\'en approcher. On construisit une catapulte pour y lancer Ibrahim sans risquer de brûler les exécuteurs. Toute la ville était réunie pour assister au spectacle de la mort de ce jeune insolent.\n\nIbrahim fut lié et placé dans la catapulte. Les récits rapportent que Jibreel apparut à ce moment : « Ô Ibrahim, as-tu besoin d\'aide ? » Ibrahim répondit avec une foi qui coupe le souffle : « De toi ? Non. D\'Allah ? Oui. » Et Jibreel s\'inclina devant cette foi parfaite. Ibrahim fut lancé dans les flammes.\n\nEt Allah dit au feu : « Ô feu, sois fraîcheur et paix pour Ibrahim ! (21:69) » Deux mots. Et le feu obéit. Non pas en s\'éteignant — il continuait à brûler, les cordes autour d\'Ibrahim brûlèrent. Mais Ibrahim lui-même était assis au milieu des flammes comme dans un jardin. Certains récits mentionnent que Jibreel s\'assit à côté de lui dans le feu. D\'autres disent qu\'Ibrahim récita des dhikrs pendant tout le temps où il était dans le feu. Nemrod regardait depuis son trône, les yeux écarquillés.\n\nIbrahim sortit du feu indemne. Pas un cheveu brûlé, pas un pli de vêtement roussi. Quelques personnes crurent en voyant ce miracle. Mais Nemrod, dans son arrogance, ne se rendit pas. Le pouvoir aveugle plus sûrement que les flammes.',
       ),
       StoryChapter(
@@ -891,14 +1185,17 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'LE DIALOGUE AVEC NEMROD',
+        englishTitle: 'THE DIALOGUE WITH NIMROD',
         content: 'Le Coran rapporte un débat saisissant entre Ibrahim et Nemrod — le premier grand débat théologique de l\'histoire. Nemrod demanda : « Qui est ton Seigneur dont tu parles ? » Ibrahim répondit : « Mon Seigneur est Celui qui donne la vie et qui donne la mort. » Nemrod, voulant s\'égaler à lui, dit : « Moi aussi, je donne la vie et je donne la mort. » Il fit amener deux condamnés à mort, en libéra un, tua l\'autre. « Voilà — j\'ai donné la vie et donné la mort. »\n\nIbrahim ne discuta pas. Il changea d\'argument avec une intelligence stratégique : « Allah fait lever le soleil de l\'est. Fais-le donc lever de l\'ouest. » Nemrod fut sidéré. Il n\'avait aucune réponse. Le Coran dit : « Et celui qui avait mécru fut confondu. » La raison, bien menée, confond l\'orgueil.',
       ),
       StoryChapter(
         title: 'HAJAR ET ISMAIL — LE DÉSERT DE LA FOI',
+        englishTitle: 'HAGAR AND ISHMAEL — THE DESERT OF FAITH',
         content: 'Sara, malgré des années de mariage, ne pouvait pas concevoir. Elle proposa elle-même à Ibrahim d\'avoir un enfant avec sa servante Hajar. Ibrahim accepta. Hajar donna naissance à Ismail — le premier fils d\'Ibrahim, qu\'il attendait depuis si longtemps, à un âge déjà avancé.\n\nPuis vint une épreuve que l\'esprit humain peine à concevoir. Allah ordonna à Ibrahim d\'emmener Hajar et le bébé Ismail dans un lieu précis — une vallée sèche et sans végétation, loin de tout, qui s\'appellerait un jour La Mecque. Ibrahim les y laissa avec une outre d\'eau et quelques dattes. Puis il tourna le dos pour partir. Hajar le suivit : « Ibrahim ! Où vas-tu ? Tu nous laisses dans cette vallée sans nourriture ni eau ? » Ibrahim ne répondait pas, le cœur transpercé. Elle répéta. Silence. Puis elle posa la question qui changea tout : « Est-ce Allah qui t\'a ordonné cela ? » Ibrahim fit signe que oui, sans pouvoir parler. Et Hajar dit, avec une foi qui arrête le temps : « Alors Il ne nous abandonnera pas. »\n\nIbrahim s\'éloigna. Quand il fut hors de vue, il se retourna vers cette vallée perdue dans le désert et pria : « Seigneur, j\'ai établi une partie de ma descendance dans une vallée sans culture, près de Ta Maison sacrée — Seigneur, afin qu\'ils accomplissent la prière. Fais donc que des cœurs parmi les hommes soient attirés vers eux, et pourvois-les de fruits afin qu\'ils soient reconnaissants. »\n\nCette prière d\'Ibrahim, prononcée il y a quatre mille ans dans un désert vide, est la prophétie de La Mecque — la ville la plus visitée de la Terre.',
       ),
       StoryChapter(
         title: 'ZAMZAM ET LES ANGES',
+        englishTitle: 'ZAMZAM AND THE ANGELS',
         content: 'L\'eau s\'épuisa. Hajar courut en désespoir entre la colline de Safa et la colline de Marwa, cherchant une caravane, un voyageur, n\'importe qui. Sept allers-retours, le cœur battant, les pieds dans le sable brûlant. Et c\'est alors qu\'aux pieds du bébé Ismail qui grattait le sol avec son talon ou battait de ses petits pieds, une source jaillit. L\'eau de Zamzam — qui signifie dans certaines interprétations « arrête-toi, arrête-toi » — car Hajar cherchait à la contenir de ses mains. La source bénie qui coule encore aujourd\'hui, à des millénaires de distance, et que boivent chaque année des millions de pèlerins.\n\nUne tribu yéménite — Jurhum — qui cherchait de l\'eau dans la région remarqua des oiseaux tournoyer. Signe d\'eau. Ils s\'approchèrent, trouvèrent Hajar et la source. Avec sa permission, ils s\'installèrent. Ismail grandit parmi eux, apprit l\'arabe pur des bédouins, devint un archer hors pair, et se maria dans la tribu.\n\nIbrahim revenait régulièrement visiter son fils. Ces retrouvailles sont parmi les moments les plus émouvants de l\'histoire prophétique. Un père qui n\'a pas élevé son fils mais qui l\'aime d\'un amour absolu. Un fils qui n\'a pas grandi avec son père mais qui le reconnaît et le respecte comme si une seule heure ne s\'était écoulée entre eux.',
       ),
       StoryChapter(
@@ -907,10 +1204,12 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'LES ANGES ET LA BONNE NOUVELLE',
+        englishTitle: 'THE ANGELS AND THE GOOD NEWS',
         content: 'Un jour, des voyageurs d\'une beauté exceptionnelle frappèrent à la tente d\'Ibrahim. Selon la tradition arabe d\'hospitalité absolue, Ibrahim courut abattre un veau gras pour les accueillir. Il le prépara rôti et le présenta à ses hôtes. Mais les hôtes ne touchaient pas à la nourriture. Ibrahim sentit quelque chose d\'étrange — la crainte traversa son visage. Les anges — car c\'était Jibreel et ses compagnons — le rassurèrent : « Ne crains pas. »\n\nPuis ils annoncèrent la nouvelle : Sara, sa femme bien-aimée de toujours, stérile depuis des décennies, allait avoir un fils. Sara, qui écoutait depuis le fond de la tente, éclata de rire — un rire de stupeur, d\'incrédulité, peut-être de joie mêlée de saisissement. Elle dit : « Malheur à moi ! Enfanterais-je alors que je suis vieille, et que mon mari que voilà est un vieillard ? » Les anges répondirent : « Te stupéfies-tu du décret d\'Allah ? Miséricorde d\'Allah et Ses bénédictions sur vous gens de la maison. » Ishaq naquit. La promesse fut tenue.',
       ),
       StoryChapter(
         title: 'LA CONSTRUCTION DE LA KAABA',
+        englishTitle: 'THE CONSTRUCTION OF THE KAABA',
         content: 'L\'une des dernières grandes missions d\'Ibrahim fut la plus durable. Allah lui ordonna, avec son fils Ismail, de relever les fondations de la Kaaba — la Maison Sacrée. Certains érudits mentionnent qu\'Ibrahim retrouva les fondations originelles posées avant lui, d\'autres qu\'il construisit sur un emplacement qu\'Allah lui désigna.\n\nPère et fils travaillèrent ensemble, pierre par pierre. On imagine cette scène : le vieux prophète et son fils, coude à coude dans le soleil de La Mecque, bâtissant la maison d\'Allah de leurs propres mains. Ismail apportait les pierres, Ibrahim les posait. Et tout en travaillant, ils priaient — leur prière est rapportée dans le Coran, et elle est si belle qu\'on la récite encore aujourd\'hui : « Seigneur, accepte cela de notre part. Tu es certes l\'Audient, l\'Omniscient. Seigneur, fais de nous deux des soumis à Toi, et de notre descendance une communauté soumise à Toi. Montre-nous nos rites et reviens sur nous avec miséricorde. Tu es le Repentant, le Miséricordieux. Seigneur, envoie parmi eux un messager de chez eux, qui leur récite Tes versets, leur enseigne le Livre et la Sagesse, et les purifie. »\n\nCette dernière phrase de leur prière — « envoie parmi eux un messager » — est exactement la description du Prophète Muhammad ﷺ, né quatre mille ans plus tard dans cette même ville, dans cette même descendance. Ibrahim priait pour Muhammad ﷺ avant même que l\'Islam comme nous le connaissons n\'existe. Le Prophète ﷺ dit lui-même : « Je suis la réponse à la prière de mon père Ibrahim. »\n\nLa Kaaba terminée, Allah ordonna à Ibrahim de proclamer le pèlerinage à l\'humanité entière. Ibrahim dit : « Seigneur, comment ma voix atteindra-t-elle les gens alors que je suis dans ce désert ? » Allah répondit : « Appelle — et Nous ferons entendre. » Ibrahim cria de toutes ses forces. Et la tradition dit que chaque homme et femme qui accomplira le Hajj jusqu\'à la fin des temps — des millions par an — répondent en réalité à cet appel d\'Ibrahim lancé dans le désert il y a quatre mille ans. « Labbayk Allahumma Labbayk — Me voici à Ton service, ô Allah, me voici ! »',
       ),
       StoryChapter(
@@ -922,17 +1221,24 @@ const List<Prophet> kProphets = [
     timeline: TimelineData(
       order: 6,
       era: 'Patriarches',
+      englishEra: 'Patriarchs',
       approxDate: '~1800 av. J.-C.',
+      englishApproxDate: '~1800 BC',
       region: 'Irak → Palestine → La Mecque',
+      englishRegion: 'Iraq → Palestine → Mecca',
     ),
   ),
 
   // ── 7. Lut ───────────────────────────────────────────────────────────────
   Prophet(
     number: 7, arabicName: 'لُوط', frenchName: 'Lût',
+    englishName: 'Lot',
     emoji: '🌋', period: 'Contemporain d\'Ibrahim',
+    englishPeriod: 'Contemporary of Abraham',
     shortDesc: 'Envoyé à Sodome, la ville détruite par sa perversité',
+    englishShortDesc: 'Sent to Sodom, the city destroyed for its corruption',
     summary: 'Lut est le prophète neveu d\'Ibrahim, envoyé à Sodome pour appeler son peuple au monothéisme et à l\'abandon des actes immoraux. Face au refus obstiné, le peuple est détruit par un châtiment terrifiant tandis que Lut et les croyants sont sauvés.',
+    englishSummary: 'Lot was sent to the inhabitants of Sodom who had fallen into grave immorality. He called them to return to Allah and to abandon their perverse practices. The city was destroyed by divine punishment and turned upside down. Lot and the believers were saved.',
     fullStory:
       '━━━ LE NEVEU D\'IBRAHIM ━━━\n\n'
       'Lut était le fils du frère d\'Ibrahim. Il grandit auprès de son oncle, témoin direct de la foi extraordinaire d\'Ibrahim — le briseur d\'idoles, le survivant du bûcher, l\'ami d\'Allah. Quand Ibrahim émigra de la Mésopotamie vers Canaan, Lut l\'accompagna. Il fut parmi les premiers à croire en Ibrahim, l\'un de ses plus proches compagnons de route.\n\n'
@@ -977,28 +1283,39 @@ const List<Prophet> kProphets = [
       'Sa femme ne fut pas sauvée car elle avait trahi sa mission',
       'Ibrahim intercéda pour le peuple de Lût avant que le châtiment ne tombe',
     ],
+    englishKeyFacts: ['Nephew of Abraham, sent to the people of Sodom', 'Sodom was destroyed by a divine punishment — overturned and rained with stones', 'Lot and his believing family were saved', 'His story is a warning against moral corruption'],
     moral: 'La transgression des lois divines mène à la destruction ; seule la foi préserve.',
+    englishMoral: 'Transgressing divine laws leads to destruction; only faith preserves.',
     quiz: [
       QuizQ(
         question: 'De qui Lut était-il le neveu ?',
+        englishQuestion: 'Whose nephew was Lot?',
         options: ['Nuh', 'Musa', 'Ibrahim', 'Yusuf'],
+        englishOptions: ['Noah', 'Moses', 'Abraham', 'Joseph'],
         correctIndex: 2,
         explanation: 'Lut était le neveu du prophète Ibrahim et l\'accompagna dans sa migration.',
-        difficulty: QuizDifficulty.facile,
+        englishExplanation: 'Lot was the nephew of the prophet Abraham and accompanied him in his migration.',
+        difficulty: QuizDifficulty.easy,
       ),
       QuizQ(
         question: 'Qui vinrent rendre visite à Lut avant la destruction ?',
+        englishQuestion: 'Who came to visit Lot before the destruction?',
         options: ['Des marchands', 'Des guerriers', 'Des anges', 'Des prophètes'],
+        englishOptions: ['Merchants', 'Warriors', 'Angels', 'Prophets'],
         correctIndex: 2,
         explanation: 'Des anges sous forme humaine vinrent avertir Lut et le sauver avant la destruction de Sodome.',
-        difficulty: QuizDifficulty.moyen,
+        englishExplanation: 'Angels in human form came to warn Lot and save him before the destruction of Sodom.',
+        difficulty: QuizDifficulty.medium,
       ),
       QuizQ(
         question: 'Qui parmi la famille de Lut ne fut pas sauvé ?',
+        englishQuestion: 'Who among Lot\'s family was not saved?',
         options: ['Son fils', 'Sa fille aînée', 'Sa femme', 'Son frère'],
+        englishOptions: ['His son', 'His eldest daughter', 'His wife', 'His brother'],
         correctIndex: 2,
         explanation: 'La femme de Lut avait trahi sa mission et fut comptée parmi ceux qui périrent.',
-        difficulty: QuizDifficulty.difficile,
+        englishExplanation: 'Lot\'s wife had betrayed his mission and was counted among those who perished.',
+        difficulty: QuizDifficulty.hard,
       ),
     ],
     chapters: [
@@ -1008,18 +1325,22 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'SODOME — LA CITÉ DU VICE',
+        englishTitle: 'SODOM — THE CITY OF VICE',
         content: 'Sodome était une ville riche, commercialement active, bénéficiant des routes caravanières qui traversaient la vallée du Jourdain. Mais sa richesse s\'était accompagnée d\'une corruption morale profonde.\n\nLe péché pour lequel Sodome est connue — la transgression sexuelle envers les hommes — est explicitement mentionné dans le Coran. Le peuple de Lut était le premier dans l\'histoire humaine à commettre cet acte ouvertement, publiquement, sans honte. Mais ce n\'était pas le seul vice. Les traditions mentionnent aussi le brigandage, l\'attaque des voyageurs, le vol organisé, l\'oppression des faibles, l\'absence totale d\'hospitalité — dans une culture où l\'hospitalité était une valeur sacrée.\n\nSodome était une ville où les voyageurs n\'étaient pas les bienvenus sauf pour être pillés. Où la loi du plus fort s\'appliquait sans honte. Où toute norme morale avait été inversée — ce qui était honteux était célébré, ce qui était bien était moqué.',
       ),
       StoryChapter(
         title: 'LUT PARMI EUX — DES ANNÉES DE SOLITUDE',
+        englishTitle: 'LOT AMONG THEM — YEARS OF SOLITUDE',
         content: 'Lut vécut parmi eux pendant de longues années, prêchant, appelant, avertissant. Le Coran dit : « Et Lut, quand il dit à son peuple : ‟Commettez-vous une turpitude qu\'aucun être au monde n\'a commise avant vous ?" » (7:80) Il était scandalisé — pas d\'une façon performative, mais d\'une façon sincère, car il aimait ces gens et voyait leur destruction s\'approcher.\n\nSon peuple lui répondit avec le mépris habituel des villes perdues envers ceux qui leur montrent un miroir : « Chasse la famille de Lut de votre cité — ce sont des gens qui se veulent purs ! » (27:56) La pureté morale était un reproche, une anormalité, quelque chose à chasser. Dans une société où la corruption est la norme, c\'est l\'intègre qui dérange.\n\nLut priait. Il attendait. Il espérait. Mais les années passaient et son peuple refusait de changer.',
       ),
       StoryChapter(
         title: 'LES ANGES EN VISITE',
+        englishTitle: 'THE ANGELS\' VISIT',
         content: 'Les mêmes anges qui vinrent annoncer à Ibrahim la naissance d\'Ishaq avaient une mission secondaire — se rendre à Sodome pour exécuter le jugement d\'Allah. Ils se présentèrent d\'abord chez Ibrahim sous forme humaine. Après avoir annoncé la bonne nouvelle de l\'enfant à naître, Ibrahim leur parla de Lut, inquiet. Les anges dirent : « Ne t\'inquiète pas — nous savons ce que font ceux de Sodome. Nous avons été envoyés pour les punir. Quant à la famille de Lut, nous la sauverons tous, sauf sa femme. »\n\nLes anges quittèrent Ibrahim et continuèrent vers Sodome. Quand ils arrivèrent sous forme de jeunes hommes d\'une beauté exceptionnelle, Lut les vit et son cœur se serra immédiatement. Il savait ce que son peuple faisait aux étrangers. Il dit : « Voici un jour difficile. » (11:77)\n\nIl essaya de les loger discrètement. Mais dans une ville aussi petite et aussi perverse, les nouvelles voyagent vite. La femme de Lut — celle qui avait trahi sa mission en signalant aux voisins l\'arrivée des visiteurs, selon les traditions — diffusa la nouvelle. Les hommes de Sodome se précipitèrent vers la maison de Lut.',
       ),
       StoryChapter(
         title: 'LA NUIT LA PLUS LONGUE',
+        englishTitle: 'THE LONGEST NIGHT',
         content: 'Ils tambourinèrent à sa porte. Ils réclamèrent les visiteurs. Lut sortit et se mit devant eux dans une tentative désespérée de les arrêter. Il leur dit : « Ces visiteurs sont mes hôtes — ne me déshonorez pas. Craignez Allah et ne me couvrez pas de honte. » (15:68-69) Il leur proposa ses filles en mariage — une offre dans le langage du temps, voulant dire : voici une voie licite, une alternative aux actes que vous cherchez à commettre.\n\nIls n\'en voulurent pas. Ils dirent : « Tu sais très bien que tes filles ne nous intéressent pas, et tu sais ce que nous voulons. » (11:79)\n\nLut était seul devant une foule en furie. Sans porte de sortie. Sans aide humaine. Il dit dans un moment de détresse absolue : « Si seulement j\'avais une force contre vous, ou si je pouvais me réfugier auprès d\'un appui puissant ! » (11:80)\n\nLe Prophète ﷺ entendit un jour cette phrase de Lut récitée et dit avec affection : « Qu\'Allah ait miséricorde de Lut — il a cherché un appui puissant. » Et il ajouta : « Tout prophète après lui a eu un appui puissant parmi son peuple — mais Lut était seul. »\n\nC\'est à ce moment précis que les anges intervinrent. Ils dirent à Lut : « Ô Lut, nous sommes les messagers de ton Seigneur. Ils ne pourront pas t\'atteindre. » Et ils aveuglèrent les hommes qui cherchaient à entrer — ils tâtonnèrent dans l\'obscurité, ne trouvant plus la porte, ne comprenant pas ce qui se passait.',
       ),
       StoryChapter(
@@ -1028,14 +1349,17 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'LUT APRÈS LA DESTRUCTION',
+        englishTitle: 'LOT AFTER THE DESTRUCTION',
         content: 'Lut et ses filles marchèrent dans la nuit, s\'éloignant du lieu où Sodome avait existé. Ils laissaient derrière eux des années de prédication, de rejet, de solitude. La ville qu\'il avait choisie pour sa fertilité — la vallée verdoyante du Jourdain qui l\'avait séduit par son apparence — n\'était plus. Il restait ses filles, sa foi, et la route.\n\nLes traditions mentionnent qu\'il s\'installa ensuite dans la région de Canaan, non loin de la région où vivait Ibrahim. Il avait traversé l\'une des épreuves les plus singulières de toute l\'histoire prophétique — vivre pendant des années parmi un peuple qui non seulement refusait la guidance, mais menaçait physiquement ses hôtes et sa famille. Et il avait tenu.',
       ),
       StoryChapter(
         title: 'LA FEMME DE LUT — UNE MISE EN GARDE',
+        englishTitle: 'THE WIFE OF LOT — A WARNING',
         content: 'Le Coran mentionne explicitement la femme de Lut comme exemple de trahison intérieure. Elle vivait dans la maison d\'un prophète, entourée de la guidance divine quotidiennement, et pourtant elle choisit son peuple contre lui. Allah cite sa situation dans le Coran (66:10) comme avertissement aux croyants : la proximité d\'un homme de bien ne suffit pas à sauver — seule la foi personnelle, choisie librement, compte.\n\nL\'appartenance familiale à un prophète ne garantit rien. La foi est un choix individuel, renouvelé chaque jour. Lut en a été le témoin douloureux.',
       ),
       StoryChapter(
         title: 'LA LEÇON DE LUT',
+        englishTitle: 'THE LESSON OF LOT',
         content: 'Lut est le prophète de l\'hospitalité violée — l\'hospitalité dans les deux sens. Sodome violait l\'hospitalité en attaquant les voyageurs. Et la destruction de Sodome vint précisément quand son peuple voulut agresser les hôtes de Lut.\n\nMais au-delà de ce péché spécifique, l\'histoire de Lut parle de la solitude du croyant dans une société corrompue. Lut n\'avait pas une communauté nombreuse. Il n\'avait même pas un soutien populaire. Il avait sa foi, ses filles, et la promesse divine. C\'est peu — et c\'est assez. Quand Allah s\'engage à protéger Son serviteur, aucune foule en furie ne peut y faire quelque chose.\n\nIl y a aussi dans l\'histoire de Lut une leçon sur le choix du voisinage et des fréquentations. Il choisit la vallée pour sa beauté matérielle. Ce choix le plaça au cœur d\'une société corrompue, où il dut combattre seul pendant des décennies. Le croyant doit être vigilant sur l\'environnement qu\'il choisit pour lui et sa famille — non par peur du monde, mais par conscience que l\'environnement façonne les hommes.',
       ),
     ],
@@ -1043,17 +1367,24 @@ const List<Prophet> kProphets = [
     timeline: TimelineData(
       order: 7,
       era: 'Patriarches',
+      englishEra: 'Patriarchs',
       approxDate: '~1800 av. J.-C.',
+      englishApproxDate: '~1800 BC',
       region: 'Sodome (Mer Morte)',
+      englishRegion: 'Sodom (Dead Sea)',
     ),
   ),
 
   // ── 8. Ismail ────────────────────────────────────────────────────────────
   Prophet(
     number: 8, arabicName: 'إِسْمَاعِيل', frenchName: 'Ismaïl',
+    englishName: 'Ishmael',
     emoji: '💧', period: 'Environ 2000 avant l\'ère commune',
+    englishPeriod: 'Around 2000 BC',
     shortDesc: 'Laissé dans le désert, source de Zamzam, ancêtre du Prophète ﷺ',
+    englishShortDesc: 'Left in the desert, source of Zamzam, ancestor of the Prophet ﷺ',
     summary: 'Ismail est le fils premier-né d\'Ibrahim, laissé avec sa mère Hajar dans le désert de La Mecque. Leur foi survit à l\'épreuve, Zamzam jaillit miraculeusement, et Ismail devient l\'ancêtre de Muhammad et des Arabes',
+    englishSummary: 'Ishmael, son of Abraham and Hagar, was left as an infant in the barren valley of Mecca by divine command. The miraculous spring of Zamzam gushed forth for him. Later, he and his father Abraham built the Kaaba. He is the noble ancestor of the Prophet Muhammad ﷺ.',
     fullStory:
       '━━━ LE FILS ATTENDU ━━━\n\n'
       'Ibrahim attendit un fils pendant des décennies. Sara, sa première femme qu\'il aimait profondément, était stérile. Ils vieillirent ensemble sans enfant, dans une douleur silencieuse que les prophètes aussi connaissent. Ibrahim priait. Le Coran rapporte une de ses invocations : « Seigneur, accorde-moi un des vertueux. » (37:100)\n\n'
@@ -1093,33 +1424,45 @@ const List<Prophet> kProphets = [
       'Ancêtre direct du Prophète Muhammad ﷺ par la lignée arabe',
       'Participa à la construction de la Ka\'ba avec Ibrahim — les deux prièrent ensemble en la bâtissant',
     ],
+    englishKeyFacts: ['Son of Abraham and Hagar', 'Left as an infant in the valley of Mecca — Zamzam sprang for him', 'Built the Kaaba with his father Abraham', 'Accepted the sacrifice willingly when Abraham was commanded by Allah', 'Direct ancestor of Prophet Muhammad ﷺ'],
     moral: 'La soumission totale à Allah et la confiance en Lui ouvrent les portes de Ses miracles.',
+    englishMoral: 'Complete submission to Allah and trust in Him open the doors of His miracles.',
     quiz: [
       QuizQ(
         question: 'Qui était la mère d\'Ismaïl ?',
+        englishQuestion: 'Who was the mother of Ishmael?',
         options: ['Sara', 'Hajar', 'Asiya', 'Khadija'],
+        englishOptions: ['Sarah', 'Hagar', 'Asiya', 'Khadija'],
         correctIndex: 1,
         explanation: 'Hajar, deuxième femme d\'Ibrahim, est la mère d\'Ismaïl.',
-        difficulty: QuizDifficulty.facile,
+        englishExplanation: 'Hagar, the second wife of Abraham, is the mother of Ishmael.',
+        difficulty: QuizDifficulty.easy,
       ),
       QuizQ(
         question: 'Quelle source miraculeuse jaillit aux pieds du bébé Ismaïl ?',
+        englishQuestion: 'Which miraculous spring gushed at the feet of baby Ishmael?',
         options: ['Le Nil', 'Le Jourdain', 'Zamzam', 'L\'Euphrate'],
+        englishOptions: ['The Nile', 'The Jordan', 'Zamzam', 'The Euphrates'],
         correctIndex: 2,
         explanation: 'La source Zamzam jaillit à La Mecque et coule encore de nos jours, des millénaires plus tard.',
-        difficulty: QuizDifficulty.moyen,
+        englishExplanation: 'The Zamzam spring gushed forth in Mecca and still flows to this day, millennia later.',
+        difficulty: QuizDifficulty.medium,
       ),
       QuizQ(
         question: 'Qu\'allait faire Ibrahim à Ismaïl sur ordre d\'Allah ?',
+        englishQuestion: 'What was Abraham commanded by Allah to do to Ishmael?',
         options: ['Le marier', 'Le baptiser', 'L\'envoyer en voyage', 'Le sacrifier'],
+        englishOptions: ['Marry him off', 'Baptize him', 'Send him on a journey', 'Sacrifice him'],
         correctIndex: 3,
         explanation: 'Allah mit Ibrahim à l\'épreuve suprême en lui ordonnant de sacrifier son fils Ismaïl, puis arrêta le geste au dernier moment.',
-        difficulty: QuizDifficulty.difficile,
+        englishExplanation: 'Allah tested Abraham with the supreme trial of commanding him to sacrifice his son Ishmael, then stopped him at the last moment.',
+        difficulty: QuizDifficulty.hard,
       ),
     ],
     chapters: [
       StoryChapter(
         title: 'LE FILS ATTENDU',
+        englishTitle: 'THE AWAITED SON',
         content: 'Ibrahim attendit un fils pendant des décennies. Sara, sa première femme qu\'il aimait profondément, était stérile. Ils vieillirent ensemble sans enfant, dans une douleur silencieuse que les prophètes aussi connaissent. Ibrahim priait. Le Coran rapporte une de ses invocations : « Seigneur, accorde-moi un des vertueux. » (37:100)\n\nSara, voyant ses années avancer, prit une décision généreuse et difficile : elle offrit sa servante Hajar à Ibrahim pour qu\'il puisse avoir un enfant. Dans le contexte culturel et juridique de l\'Antiquité, c\'était un acte noble — la femme renonçant à sa primauté pour le bien de son mari et pour la continuation de la lignée prophétique. Ibrahim accepta.\n\nHajar était égyptienne, selon les traditions. Elle avait été offerte à Ibrahim lors de son passage en Égypte. Elle était pieuse, loyale, forte. Et elle porta l\'enfant qu\'Ibrahim attendait depuis si longtemps. Ismaïl naquit. Son nom signifie littéralement en hébreu « Allah a entendu » — Allah avait entendu la prière d\'Ibrahim.',
       ),
       StoryChapter(
@@ -1128,10 +1471,12 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'LES SEPT COURSES — LE HAJJ RACONTÉ',
+        englishTitle: 'THE SEVEN RUNS — THE HAJJ TOLD',
         content: 'L\'eau s\'épuisa rapidement. Hajar chercha. Le bébé pleurait. Elle monta sur la colline de Safa pour voir si elle apercevait quelqu\'un, une caravane, une source. Elle n\'en vit pas. Elle descendit, traversa la vallée en courant, monta sur la colline de Marwa. Elle regarda. Rien. Elle redescendit. Courut. Remonta à Safa. Redescendit. Sept allers-retours. Sept fois, cette femme seule courut dans un désert brûlant en cherchant du secours pour son enfant.\n\nCe geste — répété des millions de fois chaque année par les pèlerins du Hajj lors de la Sa\'y — n\'est pas un rite arbitraire. C\'est la commémoration d\'une mère qui se bat pour son enfant. Chaque fois qu\'un pèlerin court entre Safa et Marwa, il dit à travers les âges : Hajar a couru ici. Et Allah l\'a exaucée.\n\nCar pendant qu\'elle courait, aux pieds du bébé Ismaïl, une source jaillit. Certains récits disent que c\'est le talon du bébé qui grattait le sable, d\'autres qu\'un ange frappa le sol. Hajar revint et vit l\'eau. Elle dit — et les exégètes interprètent son exclamation comme « Zamzam » dans l\'araméen de son époque — un mot signifiant « arrête-toi » ou « reste ici ». Elle essayait de contenir l\'eau de ses mains. Et elle resta.\n\nCette source coule encore aujourd\'hui. Deux millions de pèlerins en boivent chaque année lors du Hajj. Des millions d\'autres dans le monde en reçoivent des bouteilles. Zamzam est l\'eau la plus connue du monde, issue du geste d\'une mère qui cherchait à nourrir son enfant dans le désert, il y a quatre mille ans.',
       ),
       StoryChapter(
         title: 'ISMAÏL GRANDIT — LES RETROUVAILLES',
+        englishTitle: 'ISHMAEL GROWS — THE REUNION',
         content: 'La tribu Jurhum — des Arabes du Yémen qui cherchaient de l\'eau dans la région — aperçut des oiseaux tournoyer au-dessus de la vallée. Signe d\'eau. Ils s\'approchèrent et trouvèrent Hajar et son fils. Avec sa permission, ils s\'installèrent près de la source. La vallée qui était vide se peupla.\n\nIsmaïl grandit parmi les Jurhum. Il apprit l\'arabe pur des bédouins — cet arabe fluide et riche que les déserts produisent. Il devint un archer hors pair. Il se maria dans la tribu. Et son père Ibrahim revenait le visiter — ces retrouvailles de père et de fils, séparés par des centaines de kilomètres de désert, sont parmi les plus tendres de toute l\'histoire prophétique.\n\nIbrahim vint plusieurs fois. À chaque visite, il trouva son fils grandi, homme, père. Deux fois, selon les traditions, Ibrahim arriva et trouva Ismaïl absent. Il parla à la femme d\'Ismaïl et lui posa des questions indirectes sur leur vie. La première fois, elle se plaignit de la pauvreté. Ibrahim dit un message cryptique pour son fils : « Change le seuil de ta porte. » Ismaïl comprit — ce n\'était pas de la maçonnerie, c\'était un conseil de quitter cette femme. La seconde fois, la femme d\'Ismaïl parla avec gratitude et bonheur. Ibrahim dit : « Garde ce seuil. » Ismaïl resta avec elle.',
       ),
       StoryChapter(
@@ -1151,17 +1496,24 @@ const List<Prophet> kProphets = [
     timeline: TimelineData(
       order: 8,
       era: 'Patriarches',
+      englishEra: 'Patriarchs',
       approxDate: '~1750 av. J.-C.',
+      englishApproxDate: '~1750 BC',
       region: 'La Mecque',
+      englishRegion: 'Mecca',
     ),
   ),
 
   // ── 9. Ishaq ─────────────────────────────────────────────────────────────
   Prophet(
     number: 9, arabicName: 'إِسْحَاق', frenchName: 'Ishaq',
+    englishName: 'Isaac',
     emoji: '🌟', period: 'Environ 2000 avant l\'ère commune',
+    englishPeriod: 'Around 2000 BC',
     shortDesc: 'Fils miraculeux d\'Ibrahim et Sara, père de Yaqub',
+    englishShortDesc: 'Miraculous son of Abraham and Sarah, father of Jacob',
     summary: 'Ishaq est le fils miraculeux d\'Ibrahim et Sara, conçu à un âge extrêmement avancé. Prophète lui-même, il continue la mission monothéiste de son père en Canaan et devient l\'ancêtre de tous les prophètes d\'Israël.',
+    englishSummary: 'Isaac was the miraculous son promised to Abraham and his elderly wife Sarah. Born when both were of very advanced age, he is the second son of Abraham and the father of Jacob. Through him, the line of prophethood continued among the Children of Israel.',
     fullStory:
       '━━━ LA BONNE NOUVELLE DES ANGES ━━━\n\n'
       'Ibrahim et Sara vieillissaient ensemble en Canaan. Des décennies avaient passé depuis leur mariage. Ibrahim avait plus de cent ans, Sara dépassait les quatre-vingt-dix. Ils avaient été éprouvés par des voyages, des exils, des dangers. Ibrahim avait traversé le feu d\'Ur, l\'Égypte, Harran, Canaan. Sara l\'avait accompagné dans tout cela avec une loyauté et une foi absolues. Mais le chagrin silencieux de ne pas avoir d\'enfant ensemble ne les quittait pas.\n\n'
@@ -1202,37 +1554,50 @@ const List<Prophet> kProphets = [
       'Père de Yaqub, ancêtre de nombreux prophètes de la lignée israélite',
       'Marié à Rébecca (Rifqa), père des jumeaux Yaqub et Ésaü — de qui descendent les douze tribus',
     ],
+    englishKeyFacts: ['Miraculous son of Abraham and Sarah in their old age', 'Father of Jacob (Israel), grandfather of the twelve tribes', 'Part of the prophetic chain in the Children of Israel', 'Mentioned alongside his father Abraham as a prophet'],
     moral: 'Aucune situation n\'est impossible pour Allah ; la bonne nouvelle vient toujours au bon moment.',
+    englishMoral: 'No situation is impossible for Allah; good news always comes at the right time.',
     quiz: [
       QuizQ(
         question: 'Qui était la mère d\'Ishaq ?',
+        englishQuestion: 'Who was the mother of Isaac?',
         options: ['Hajar', 'Maryam', 'Sara', 'Asiya'],
+        englishOptions: ['Hagar', 'Mary', 'Sarah', 'Asiya'],
         correctIndex: 2,
         explanation: 'Sara, première femme d\'Ibrahim, est la mère d\'Ishaq, malgré son âge avancé.',
-        difficulty: QuizDifficulty.facile,
+        englishExplanation: 'Sarah, the first wife of Abraham, is the mother of Isaac, despite her advanced age.',
+        difficulty: QuizDifficulty.easy,
       ),
       QuizQ(
         question: 'Qui annonça la naissance d\'Ishaq à Ibrahim et Sara ?',
+        englishQuestion: 'Who announced the birth of Isaac to Abraham and Sarah?',
         options: ['Un prophète', 'Des anges', 'Un sage du village', 'Une vision nocturne'],
+        englishOptions: ['A prophet', 'Angels', 'A village elder', 'A night vision'],
         correctIndex: 1,
         explanation: 'Des anges sous forme humaine vinrent chez Ibrahim et annoncèrent la naissance d\'Ishaq.',
-        difficulty: QuizDifficulty.moyen,
+        englishExplanation: 'Angels in human form came to Abraham\'s home and announced the birth of Isaac.',
+        difficulty: QuizDifficulty.medium,
       ),
       QuizQ(
         question: 'Qui est le fils d\'Ishaq qui devint prophète ?',
+        englishQuestion: 'Who is the son of Isaac who became a prophet?',
         options: ['Ismail', 'Yusuf', 'Yaqub', 'Musa'],
+        englishOptions: ['Ishmael', 'Joseph', 'Jacob', 'Moses'],
         correctIndex: 2,
         explanation: 'Yaqub (Israël) est le fils d\'Ishaq et père des douze tribus d\'Israël.',
-        difficulty: QuizDifficulty.difficile,
+        englishExplanation: 'Jacob (Israel) is the son of Isaac and father of the twelve tribes of Israel.',
+        difficulty: QuizDifficulty.hard,
       ),
     ],
     chapters: [
       StoryChapter(
         title: 'LA BONNE NOUVELLE DES ANGES',
+        englishTitle: 'THE GOOD NEWS OF THE ANGELS',
         content: 'Ibrahim et Sara vieillissaient ensemble en Canaan. Des décennies avaient passé depuis leur mariage. Ibrahim avait plus de cent ans, Sara dépassait les quatre-vingt-dix. Ils avaient été éprouvés par des voyages, des exils, des dangers. Ibrahim avait traversé le feu d\'Ur, l\'Égypte, Harran, Canaan. Sara l\'avait accompagné dans tout cela avec une loyauté et une foi absolues. Mais le chagrin silencieux de ne pas avoir d\'enfant ensemble ne les quittait pas.\n\nUn jour, des visiteurs arrivèrent. Ibrahim, qui ne reconnut pas d\'abord leur nature angélique, les accueillit selon la grande tradition d\'hospitalité qu\'il avait établie — il courut abattre un veau gras, le prépara rôti, et le présenta à ses hôtes. Mais ils ne touchèrent pas à la nourriture. Ibrahim sentit quelque chose d\'étrange — la crainte traversa son visage. Les anges le rassurèrent.\n\nPuis ils annoncèrent la nouvelle : « Nous t\'annonçons un fils instruit, Ishaq. » (15:53) Sara, qui écoutait de derrière le voile de la tente, éclata de rire — un rire de stupéfaction, d\'incrédulité peut-être mêlée de joie. Elle dit : « Malheur à moi ! Enfanterais-je alors que je suis vieille, et que mon mari que voilà est un vieillard ? C\'est là vraiment une chose étrange. »\n\nLes anges répondirent : « Te stupéfies-tu du décret d\'Allah ? Miséricorde d\'Allah et Ses bénédictions sur vous gens de la maison. » (11:73)\n\nIshaq naquit. Le prophète conçu dans un âge qui défie la biologie, annoncé par des anges, attendu pendant des décennies. Son nom en hébreu signifie « il rit » — un écho au rire de Sara.',
       ),
       StoryChapter(
         title: 'ISHAQ — LE FILS DE LA PROMESSE',
+        englishTitle: 'ISAAC — THE SON OF THE PROMISE',
         content: 'Ishaq grandit dans la maison d\'Ibrahim. Contrairement à son demi-frère Ismaïl qui fut élevé dans le désert de La Mecque parmi les Arabes bédouins, Ishaq grandit en Canaan, dans l\'environnement de son père. Il apprit directement d\'Ibrahim — sa foi, sa rigueur, son amour du Coran originel, sa façon de vivre en harmonie avec la révélation divine.\n\nLa relation entre Ibrahim et ses deux fils — Ismaïl et Ishaq — est l\'une des plus poignantes et des plus symboliquement riches de l\'histoire prophétique. Deux fils de deux femmes, deux lignes prophétiques, deux peuples qui naîtront d\'eux et qui se reconnaîtront dans leur ancêtre commun Ibrahim. L\'un au désert, l\'autre en Canaan. L\'un ancêtre des Arabes et du Prophète Muhammad ﷺ, l\'autre ancêtre des Hébreux et de tous les prophètes d\'Israïl.\n\nIbrahim aima ses deux fils d\'un amour égal et profond. Le Coran dit qu\'en vieillesse, il rendit grâce à Allah : « Louange à Allah qui m\'a accordé, malgré ma vieillesse, Ismaïl et Ishaq. Mon Seigneur est l\'Exauceur des prières. » (14:39)',
       ),
       StoryChapter(
@@ -1241,14 +1606,17 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'LA TRANSMISSION — YAQUB',
+        englishTitle: 'THE TRANSMISSION — JACOB',
         content: 'La question de la transmission de la bénédiction prophétique à la génération suivante est au cœur des dernières années d\'Ishaq. Vieux, les yeux affaiblis, il devait transmettre sa bénédiction. Ésaü l\'aîné avait le droit premier — la tradition et la coutume penchaient en sa faveur.\n\nMais les chemins d\'Allah ne sont pas toujours ceux que les hommes tracent. Yaqub — assisté par sa mère Rébecca qui voyait en lui la lumière prophétique — reçut la bénédiction formelle d\'Ishaq par une série d\'événements complexes. Ishaq, dans un premier temps, fut attristé quand il comprit ce qui s\'était passé. Mais quand il bénit Yaqub une seconde fois, consciemment, il reconnut la sagesse divine qui se déployait. La bénédiction prophétique passait à Yaqub — et avec elle, à toute la lignée d\'Israïl.',
       ),
       StoryChapter(
         title: 'LA VIE EN CANAAN — LE PROPHÈTE DES PÂTURAGES',
+        englishTitle: 'LIFE IN CANAAN — THE PROPHET OF THE PASTURES',
         content: 'Ishaq vécut toute sa vie en Canaan, contrairement à son père Ibrahim qui voyagea de la Mésopotamie à l\'Égypte et jusqu\'au désert de La Mecque. Cette sédentarité relative n\'était pas une faiblesse — c\'était une mission différente. Ibrahim avait planté des graines prophétiques dans plusieurs terres. Ishaq fut celui qui cultiva ce qui était planté en Canaan.\n\nLe Coran dit : « Et Nous lui avons accordé Notre bénédiction ainsi qu\'à Ishaq. » (37:113) Cette bénédiction se manifestait dans sa vie quotidienne — des troupeaux prospères, des sources qui ne tarissaient pas, une famille qui grandissait dans la foi. Les habitants de Canaan le reconnaissaient comme un homme de Dieu. Quand il parlait, ils écoutaient — pas parce qu\'il était puissant politiquement, mais parce qu\'il portait une lumière intérieure que les cœurs sincères reconnaissent toujours.\n\nSa prophétie consistait à maintenir vivant le message d\'Ibrahim parmi les peuples cananéens : l\'adoration d\'Allah seul, la justice dans les transactions, le soin des pauvres et des voyageurs — l\'hospitalité d\'Ibrahim comme marque de la famille prophétique. Il n\'eut pas à traverser le feu ni à construire un bateau. Sa mission se jouait dans le quotidien de la foi vécue.',
       ),
       StoryChapter(
         title: 'LES DEUX FILS — UN CHOIX DE DESTIN',
+        englishTitle: 'THE TWO SONS — A CHOICE OF DESTINY',
         content: 'Ishaq et Rébecca eurent longtemps du mal à concevoir. Selon les récits, Ishaq pria longtemps pour un enfant — et sa prière fut exaucée avec des jumeaux. Cette naissance double — Ésaü et Yaqub sortant du même ventre à quelques minutes d\'intervalle — porta en elle le germe d\'une rivalité qui marqua la prophétie pour des siècles.\n\nÉsaü, l\'aîné, était l\'homme de la forêt et de la chasse. Yaqub, le cadet, était l\'homme du camp et de la réflexion. Ishaq aimait Ésaü avec la tendresse d\'un père pour un fils qui lui ressemblait dans les activités extérieures. Rébecca voyait en Yaqub quelque chose de plus profond — un destin prophétique.\n\nIl y eut la vente du droit d\'aînesse pour un plat de lentilles — Ésaü affamé après une journée de chasse, ne pensant qu\'à son ventre immédiat. Et il y eut la scène de la bénédiction : Ishaq, les yeux devenus faibles avec l\'âge, prêt à bénir son fils aîné. Rébecca intervint pour que Yaqub reçoive la bénédiction à la place d\'Ésaü.\n\nCes épisodes troublent parfois le lecteur moderne. Mais la tradition islamique les interprète comme le déploiement du plan divin — Allah savait que la bénédiction prophétique devait passer à Yaqub, et les événements humains, même complexes moralement, ont servi ce destin. Ibrahim avait déjà transmis la lumière à Ishaq. Et Ishaq la transmit à Yaqub — consciemment dans une deuxième bénédiction formelle, reconnaissant le choix divin.',
       ),
       StoryChapter(
@@ -1264,17 +1632,24 @@ const List<Prophet> kProphets = [
     timeline: TimelineData(
       order: 9,
       era: 'Patriarches',
+      englishEra: 'Patriarchs',
       approxDate: '~1750 av. J.-C.',
+      englishApproxDate: '~1750 BC',
       region: 'Palestine',
+      englishRegion: 'Palestine',
     ),
   ),
 
   // ── 10. Yaqub ────────────────────────────────────────────────────────────
   Prophet(
     number: 10, arabicName: 'يَعْقُوب', frenchName: 'Yaqub',
+    englishName: 'Jacob',
     emoji: '🏺', period: 'Environ 1800 avant l\'ère commune',
+    englishPeriod: 'Around 1800 BC',
     shortDesc: 'Israïl — père des douze tribus, amour paternel éprouvé',
+    englishShortDesc: 'Israel — father of the twelve tribes, paternal love put to the test',
     summary: 'Yaqub, surnommé Israël (celui qui lutte pour Allah), est fils d\'Ishaq et père des douze tribus. Sa vie est marquée par l\'amour et la perte — surtout la séparation avec son fils prophète Yusuf, le tout en gardant une patience exemplaire et une foi inébranlable.',
+    englishSummary: 'Jacob, also known as Israel, was the son of Isaac and father of the twelve sons who became the twelve tribes of Israel. His greatest trial was the long separation from his beloved son Joseph. His patience and steadfast faith were ultimately rewarded with a tearful reunion.',
     fullStory:
       '━━━ LE FILS D\'ISHAQ — UNE NAISSANCE DISPUTÉE ━━━\n\n'
       'Yaqub naquit dans la maison de son père Ishaq et de sa mère Rébecca (Rifqa), en Canaan. Il était jumeau — son frère Ésaü (Aysû) naquit juste avant lui, et selon les traditions, Yaqub vint au monde en tenant le talon d\'Ésaü, comme s\'il cherchait déjà à le rattraper. Ce détail n\'est pas anodin : toute leur vie, ils courraient l\'un devant l\'autre, l\'un derrière l\'autre, dans une relation faite de rivalité et d\'amour fraternel compliqué.\n\n'
@@ -1330,28 +1705,39 @@ const List<Prophet> kProphets = [
       'Père de 12 fils à l\'origine des 12 tribus d\'Israël',
       'Sa famille entière se prosterna devant Yusuf en Égypte, accomplissant le rêve prophétique de l\'enfance',
     ],
+    englishKeyFacts: ['Son of Isaac, grandson of Abraham', 'Also known as Israel — father of the twelve tribes', 'Remained patient for years during the separation from his son Joseph', 'Lost his sight from weeping, then had his sight restored upon meeting Joseph again'],
     moral: 'La patience dans la séparation et la confiance en Allah sont toujours récompensées par des retrouvailles.',
+    englishMoral: 'Patience in separation and trust in Allah are always rewarded with reunion.',
     quiz: [
       QuizQ(
         question: 'Quel est l\'autre nom de Yaqub ?',
+        englishQuestion: 'What is the other name of Jacob?',
         options: ['Ismail', 'Israïl', 'Ibrahim', 'Ilyas'],
+        englishOptions: ['Ishmael', 'Israel', 'Abraham', 'Elias'],
         correctIndex: 1,
         explanation: 'Allah donna à Yaqub le surnom Israïl (إسرائيل), qui signifie « celui qui lutte pour Allah ».',
-        difficulty: QuizDifficulty.facile,
+        englishExplanation: 'Allah gave Jacob the name Israel (إسرائيل), meaning \'he who strives for Allah\'.',
+        difficulty: QuizDifficulty.easy,
       ),
       QuizQ(
         question: 'Combien de fils avait Yaqub ?',
+        englishQuestion: 'How many sons did Jacob have?',
         options: ['6', '8', '10', '12'],
+        englishOptions: ['6', '8', '10', '12'],
         correctIndex: 3,
         explanation: 'Yaqub avait 12 fils, dont chacun donna naissance à l\'une des tribus d\'Israël.',
-        difficulty: QuizDifficulty.moyen,
+        englishExplanation: 'Jacob had 12 sons, each of whom gave rise to one of the tribes of Israel.',
+        difficulty: QuizDifficulty.medium,
       ),
       QuizQ(
         question: 'Pourquoi Yaqub perdit-il la vue ?',
+        englishQuestion: 'Why did Jacob lose his sight?',
         options: ['À cause d\'une maladie', 'En vieillissant', 'De chagrin pour Yusuf', 'À cause du soleil'],
+        englishOptions: ['Due to illness', 'With old age', 'From grief over Joseph', 'Due to the sun'],
         correctIndex: 2,
         explanation: 'Yaqub pleura tellement après la séparation de son fils Yusuf qu\'il perdit la vue.',
-        difficulty: QuizDifficulty.difficile,
+        englishExplanation: 'Jacob wept so much after the separation from his son Joseph that he lost his sight.',
+        difficulty: QuizDifficulty.hard,
       ),
     ],
     chapters: [
@@ -1361,30 +1747,37 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'ISRAïL — CELUI QUI LUTTE POUR ALLAH',
+        englishTitle: 'ISRAEL — HE WHO STRIVES FOR ALLAH',
         content: 'Le surnom d\'Israïl que Allah lui donna est d\'une profondeur remarquable. « Israïl » — les exégètes et les linguistes s\'accordent généralement sur un sens proche de « celui qui lutte pour Allah » ou « serviteur d\'Allah ». Et toute la vie de Yaqub est une illustration vivante de ce nom.\n\nIl lutta pour la bénédiction prophétique. Il lutta pour ses femmes — il travailla quatorze ans pour le difficile Laban, son oncle, pour obtenir la main de Rachel (Rahil) qu\'il aimait, après avoir été trompé la première fois avec Léa (Lia). Il lutta dans ses relations familiales complexes — plusieurs femmes, des jalousies, des enfants de statuts différents. Il lutta pour garder sa foi dans les moments de douleur les plus intenses. Il lutta pour retrouver son fils. Il lutta jusqu\'à la fin.\n\nCe nom — Israïl — qui deviendra le nom de tout son peuple est une définition de l\'identité des croyants : des gens qui luttent, qui s\'accrochent, qui n\'abandonnent pas malgré les obstacles.',
       ),
       StoryChapter(
         title: 'LES QUATRE FEMMES ET LES DOUZE FILS',
+        englishTitle: 'THE FOUR WIVES AND THE TWELVE SONS',
         content: 'La vie familiale de Yaqub était d\'une complexité que les épopées n\'osent pas inventer. Il avait quatre femmes — Léa et Rachel (les deux filles de Laban), plus leurs deux servantes Bilha et Zilpa. Ensemble, elles lui donnèrent douze fils et une fille.\n\nChaque fils avait un caractère distinct, une mère différente, des ambitions et des fragilités différentes. Yaqub les aimait tous — mais son amour avait des nuances. Il voyait en Yusuf, fils de Rachel sa femme bien-aimée, une lumière prophétique particulière. Cette préférence, que Yaqub ne cachait peut-être pas assez, planta la graine de la jalousie dans les cœurs des frères aînés.\n\nMais avant que cette tragédie n\'éclate, Yaqub vécut des décennies de construction. Avec son oncle Laban — homme difficile, calculateur — il géra les troupeaux, développa les biens, tint sa parole même quand Laban changeait les conditions à plusieurs reprises. Sa patience et son honnêteté finirent par triompher. Quand il quitta Harran avec ses femmes, ses enfants et ses biens pour retourner en Canaan, il était devenu un homme riche et respecté.',
       ),
       StoryChapter(
         title: 'LA RENCONTRE AVEC ÉSAÜ',
+        englishTitle: 'THE MEETING WITH ESAU',
         content: 'Sur le chemin du retour en Canaan, une nouvelle l\'attendait : son frère Ésaü venait à sa rencontre avec quatre cents hommes. Après vingt ans, la peur refit surface. Que voulait Ésaü ? La vengeance ? Yaqub pria avec tout son cœur et se prépara avec toute sa sagesse. Il divisa ses gens en plusieurs groupes, envoya des cadeaux en avant pour adoucir le cœur de son frère, mit à l\'abri en dernier ses femmes et ses enfants les plus précieux.\n\nPuis la nuit, une expérience mystérieuse et intense — mentionnée dans les traditions — où Yaqub lutta toute la nuit avec un être angélique jusqu\'à l\'aube. Cette lutte mystique — physique et spirituelle à la fois — fut un creuset. Il en sortit avec une blessure à la hanche et une bénédiction. Et le nom d\'Israïl lui fut confirmé : « Tu as lutté avec Dieu et avec les hommes et tu as triomphé. »\n\nLa rencontre avec Ésaü fut, contre toute attente, une réconciliation. Ésaü courut à sa rencontre, l\'embrassa, pleura. Les frères qui s\'étaient séparés dans la haine se retrouvèrent dans les larmes. Yaqub pleura aussi. Ces larmes de deux frères vieillis, retrouvant dans l\'autre le visage de leur jeunesse partagée, sont parmi les moments les plus humains de toute l\'histoire prophétique.',
       ),
       StoryChapter(
         title: 'LE RÊVE DE YUSUF — LE PRESSENTIMENT',
+        englishTitle: 'JOSEPH\'S DREAM — THE PREMONITION',
         content: 'De retour en Canaan, installé à Hébron où son père Ishaq vieillissait, Yaqub vit sa famille grandir, ses fils travailler, sa vie se stabiliser. Parmi ses fils, Yusuf avait une place particulière dans son cœur — non pas parce qu\'il était meilleur que les autres, mais parce qu\'il ressemblait à sa mère Rachel, décédée en couches lors de la naissance de Benjamin, et parce qu\'une lumière prophétique transparaissait dans ses yeux.\n\nUn matin, Yusuf vint trouver son père avec un récit de rêve : il avait vu onze étoiles, le soleil et la lune se prosterner devant lui. Yaqub comprit immédiatement — c\'était un rêve prophétique (12:4-5), un signe du destin de son fils. Il lui dit doucement : « Mon fils, ne raconte pas ton rêve à tes frères, de peur qu\'ils ne te tendent un piège. Le Diable est pour l\'homme un ennemi déclaré. »\n\nCette sagesse de père — pas de doute sur le rêve, pas de minimisation, mais une prudence immédiate pour protéger l\'enfant des réactions humaines prévisibles — c\'est le Yaqub prophète. Il vit le danger avant qu\'il ne se manifeste. Mais certaines choses, même quand on les voit venir, ne peuvent pas être complètement évitées.',
       ),
       StoryChapter(
         title: 'LA TUNIQUE TACHÉE DE SANG',
+        englishTitle: 'THE BLOOD-STAINED ROBE',
         content: 'Les frères demandèrent la permission d\'emmener Yusuf en excursion. Yaqub hésita — son instinct de père le mettait en garde. Mais il finit par céder à leurs insistances, sous la promesse de le protéger. Ils partirent avec Yusuf.\n\nIls revinrent le soir sans lui. Pleurant — de faux pleurs. Avec la tunique de Yusuf, tachée du sang d\'un mouton. Leur histoire : un loup l\'avait dévoré.\n\nYaqub les regarda longuement. Son regard de père qui sait. Son cœur de prophète qui lit dans les signes. Le sang sur la tunique ne correspondait pas — elle n\'était pas déchirée. Il dit, d\'une voix qu\'il contrôla autant qu\'il put : « Vos âmes vous ont présenté une affaire en beau. Mais la belle patience ! C\'est Allah seul dont j\'implore l\'aide contre ce que vous décrivez. »\n\nIl ne les accusa pas directement. Il ne sombra pas dans la haine. Il dit la belle patience — As-sabr al-jamîl. Cette formule est devenue l\'une des phrases les plus connues du Coran (12:18), récitée par des millions de gens confrontés à la perte et à l\'injustice.',
       ),
       StoryChapter(
         title: 'LES LARMES DE YAQUB',
+        englishTitle: 'THE TEARS OF JACOB',
         content: 'Ce qui suivit fut la période la plus douloureuse de la vie de Yaqub. Il pleurait Yusuf sans s\'arrêter. Ses larmes ne tarissaient pas. Son chagrin était silencieux mais constant — il coulait de lui comme une rivière souterraine qui ne tarit jamais.\n\nLe Coran dit qu\'il « se détourna d\'eux et dit : ‟Quelle douleur pour Yusuf !" Et ses yeux devinrent blancs à force de chagrin. Il retenait son chagrin. » (12:84) Il perdit la vue. Pas d\'un seul coup — progressivement, ses yeux blanchis par les larmes incessantes ne distinguèrent plus les formes.\n\nSes fils, gênés et peut-être touchés par cette douleur qu\'ils avaient causée, lui dirent : « Par Allah, tu ne cesseras de te souvenir de Yusuf jusqu\'à ce que tu sois à l\'agonie, ou que tu mouilles. » Ils ne comprenaient pas. Ou ils comprenaient trop bien mais ne voulaient pas l\'admettre.\n\nYaqub leur répondit : « Je ne me plains qu\'à Allah de ma détresse et de mon chagrin. Et je sais d\'Allah ce que vous ne savez pas. » (12:86) Il savait. Dans sa foi prophétique, il savait que Yusuf était vivant. Il ne savait pas où, ne savait pas comment — mais son cœur de prophète refusait de lâcher cet espoir.',
       ),
       StoryChapter(
         title: 'LE DEUXIÈME ARRACHEMENT — BENJAMIN',
+        englishTitle: 'THE SECOND SEPARATION — BENJAMIN',
         content: 'La famine frappa Canaan. Les fils de Yaqub durent descendre en Égypte chercher du grain. Ils y allèrent — sans Yusuf qui ne pouvait pas aller nulle part, et sans Benjamin que Yaqub gardait jalousement près de lui.\n\nLe vizir d\'Égypte — qu\'ils ne reconnurent pas — leur dit : « La prochaine fois, amenez votre frère du côté de votre père. » Il refusait de leur donner leur pleine mesure sans Benjamin.\n\nYaqub résista longtemps. Benjamin était son dernier lien avec Rachel. Laisser partir Benjamin après avoir perdu Yusuf — c\'était briser ce qui restait de ce fil. Mais la famine pressait. Il finit par accepter, après avoir pris leurs engagements solennels.\n\nEt les fils partirent avec Benjamin. Cette fois, c\'est Benjamin qui ne revint pas — le ministre égyptien avait gardé Benjamin pour une affaire de coupe royale retrouvée dans son sac.\n\nQuand ses fils revinrent avec cette nouvelle, Yaqub n\'éclata pas. Il n\'accusa pas, ne maudit pas. Il dit : « Vos âmes vous ont suggéré quelque chose. Mais la belle patience ! » — la même formule qu\'à la disparition de Yusuf. « Peut-être Allah me les ramènera tous. Il est l\'Omniscient, le Sage. » (12:83) Et il se détourna d\'eux, les yeux inondés.',
       ),
       StoryChapter(
@@ -1393,6 +1786,7 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'LA LEÇON DE YAQUB',
+        englishTitle: 'THE LESSON OF JACOB',
         content: 'La vie de Yaqub est la plus longue et peut-être la plus riche en détails de toute l\'histoire prophétique coranique. Elle enseigne plusieurs choses d\'une profondeur incomparable.\n\nLa patience belle — As-sabr al-jamîl — n\'est pas passive. C\'est une patience active qui maintient l\'espoir contre toute logique, qui refuse de désespérer de la miséricorde d\'Allah même après vingt ans de séparation et de douleur. Yaqub n\'accepta jamais dans son cœur que Yusuf fût mort. Ce refus n\'était pas du déni — c\'était de la foi prophétique.\n\nLa plainte à Allah — pas aux hommes. « Je me plains à Allah de ma détresse. » Pas à ses fils. Pas à ses proches. À Allah. Ce déversement du cœur directement vers Allah, sans intermédiaire, sans pudeur, est la marque d\'une relation intime avec son Créateur.\n\nEt la vision longue. Yaqub ne vivait pas dans l\'immédiateté de la douleur. Il voyait au-delà. « Allah me les ramènera tous. » Il ne savait pas comment. Il ne savait pas quand. Mais il savait Qui était aux commandes. Et ce savoir-là — la confiance en Allah qui dépasse la compréhension humaine — c\'est la foi dans sa forme la plus haute.',
       ),
     ],
@@ -1400,17 +1794,24 @@ const List<Prophet> kProphets = [
     timeline: TimelineData(
       order: 10,
       era: 'Patriarches',
+      englishEra: 'Patriarchs',
       approxDate: '~1700 av. J.-C.',
+      englishApproxDate: '~1700 BC',
       region: 'Palestine → Égypte',
+      englishRegion: 'Palestine → Egypt',
     ),
   ),
 
   // ── 11. Yusuf ────────────────────────────────────────────────────────────
   Prophet(
     number: 11, arabicName: 'يُوسُف', frenchName: 'Yusuf',
+    englishName: 'Joseph',
     emoji: '👑', period: 'Environ 1800 avant l\'ère commune',
+    englishPeriod: 'Around 1800 BC',
     shortDesc: 'Le plus beau des récits — de l\'esclavage au trône d\'Égypte',
+    englishShortDesc: 'The most beautiful of narratives — from slavery to the throne of Egypt',
     summary: 'Yusuf est le prophète dont l\'histoire complète est racontée dans une seule sourate du Coran — le plus beau des récits. Vendu par ses frères par jalousie, esclave en Égypte, séducteur tenté mais chaste, emprisonné puis ministre, il pardonne généreusement à ceux qui l\'ont trahi.',
+    englishSummary: 'Joseph is the subject of \'the most beautiful of narratives\' as the Quran describes it. Thrown into a well by his brothers, sold as a slave, imprisoned unjustly — yet through his patience, chastity and trust in Allah, he rose to become the great minister of Egypt, finally reuniting with his family.',
     fullStory:
       '━━━ LE FILS QUE SON PÈRE AIMAIT TROP ━━━\n\n'
       'Yaqub avait douze fils. Mais parmi eux, deux occupaient une place particulière dans son cœur — Yusuf, et plus tard son frère Benjamin, les deux enfants de sa femme bien-aimée décédée. Yusuf était d\'une beauté et d\'une lumière intérieure qui transparaissait dans tout son être. Son père le regardait et voyait quelque chose d\'exceptionnel — un destin, une lumière prophétique. Il le gardait souvent près de lui, lui parlait, l\'éduquait.\n\n'
@@ -1463,37 +1864,50 @@ const List<Prophet> kProphets = [
       'Pardonna à ses frères qui l\'avaient vendu — modèle de pardon islamique',
       'Résista à la séduction de la femme de l\'aziz — symbole de la chasteté et de l\'intégrité morale en Islam',
     ],
+    englishKeyFacts: ['Thrown into a well by his jealous brothers', 'Sold as a slave in Egypt, then imprisoned unjustly', 'Interpreted dreams by the gift of Allah', 'Became minister of Egypt and saved the region from famine', 'Subject of the most beautiful Quranic narrative (Surah Yusuf)'],
     moral: 'La patience, la chasteté et le pardon élèvent l\'homme aux plus hauts sommets.',
+    englishMoral: 'Patience, chastity and forgiveness elevate man to the highest summits.',
     quiz: [
       QuizQ(
         question: 'Que firent les frères de Yusuf par jalousie ?',
+        englishQuestion: 'What did Joseph\'s brothers do out of jealousy?',
         options: ['Ils l\'empoisonnèrent', 'Ils le jetèrent dans un puits', 'Ils l\'exilèrent', 'Ils le vendirent à des pirates'],
+        englishOptions: ['They poisoned him', 'They threw him in a well', 'They exiled him', 'They sold him to pirates'],
         correctIndex: 1,
         explanation: 'Les frères de Yusuf le jetèrent dans un puits, puis le vendirent à une caravane marchande.',
-        difficulty: QuizDifficulty.facile,
+        englishExplanation: 'Joseph\'s brothers threw him into a well, then sold him to a merchant caravan.',
+        difficulty: QuizDifficulty.easy,
       ),
       QuizQ(
         question: 'Quel talent particulier Allah avait donné à Yusuf ?',
+        englishQuestion: 'What special talent did Allah give to Joseph?',
         options: ['La force physique', 'La beauté et l\'interprétation des rêves', 'La médecine', 'La construction'],
+        englishOptions: ['Physical strength', 'Beauty and the interpretation of dreams', 'Medicine', 'Construction'],
         correctIndex: 1,
         explanation: 'Yusuf était doté d\'une beauté exceptionnelle et du don d\'interpréter les rêves.',
-        difficulty: QuizDifficulty.moyen,
+        englishExplanation: 'Joseph was endowed with exceptional beauty and the gift of interpreting dreams.',
+        difficulty: QuizDifficulty.medium,
       ),
       QuizQ(
         question: 'Comment Yusuf réagit-il envers ses frères qui l\'avaient trahi ?',
+        englishQuestion: 'How did Joseph react toward his brothers who had betrayed him?',
         options: ['Il les mit en prison', 'Il les chassa d\'Égypte', 'Il les pardonna', 'Il les punit sévèrement'],
+        englishOptions: ['He imprisoned them', 'He banished them from Egypt', 'He forgave them', 'He punished them severely'],
         correctIndex: 2,
         explanation: 'Yusuf pardonna à ses frères avec une générosité exemplaire, disant : « Pas de reproche aujourd\'hui. »',
-        difficulty: QuizDifficulty.difficile,
+        englishExplanation: 'Joseph forgave his brothers with exemplary generosity, saying: \'No reproach this day.\'',
+        difficulty: QuizDifficulty.hard,
       ),
     ],
     chapters: [
       StoryChapter(
         title: 'LE FILS QUE SON PÈRE AIMAIT TROP',
+        englishTitle: 'THE SON HIS FATHER LOVED TOO MUCH',
         content: 'Yaqub avait douze fils. Mais parmi eux, deux occupaient une place particulière dans son cœur — Yusuf, et plus tard son frère Benjamin, les deux enfants de sa femme bien-aimée décédée. Yusuf était d\'une beauté et d\'une lumière intérieure qui transparaissait dans tout son être. Son père le regardait et voyait quelque chose d\'exceptionnel — un destin, une lumière prophétique. Il le gardait souvent près de lui, lui parlait, l\'éduquait.\n\nLes dix frères aînés voyaient tout cela. La jalousie grandit lentement, silencieusement, comme une plante mauvaise qu\'on n\'arrache pas à temps. Un matin, Yusuf vint trouver son père avec un récit de rêve : il avait vu onze étoiles, le soleil et la lune se prosterner devant lui. Yaqub comprit immédiatement — c\'était un rêve prophétique, un signe du destin de son fils. Il lui dit doucement : « Mon fils, ne raconte pas ton rêve à tes frères, de peur qu\'ils ne te tendent un piège. Le Diable est pour l\'homme un ennemi déclaré. Ton Seigneur te choisira, t\'enseignera l\'interprétation des rêves et parachèvera Sa grâce sur toi et sur la famille de Yaqub. »',
       ),
       StoryChapter(
         title: 'LE COMPLOT DES FRÈRES',
+        englishTitle: 'THE BROTHERS\' PLOT',
         content: 'Les frères se réunissaient, murmuraient. « Notre père aime Yusuf et son frère plus que nous, alors que nous sommes un groupe fort. Notre père est dans un égarement évident. Tuons Yusuf ou jetons-le en quelque endroit éloigné, et le visage de notre père sera libre pour nous. » L\'un d\'eux — le plus raisonnable, que certains identifient comme Ruben ou Juda — intervint : « Ne tuez pas Yusuf. Si vous devez agir, jetez-le dans le fond d\'un puits — une caravane le recueillera. »\n\nIls allèrent trouver leur père avec un visage de circonstance : « Ô notre père, pourquoi ne nous fais-tu pas confiance au sujet de Yusuf ? Nous lui voulons du bien ! Envoie-le avec nous demain — il jouera et s\'amusera, et nous veillerons sur lui. » Yaqub hésita — il avait une angoisse, un pressentiment. « Je crains que le loup ne le mange pendant que vous n\'y prêtez pas attention. » Ils protestèrent. Il finit par céder.\n\nLe lendemain, ils partirent avec Yusuf. La tradition dit qu\'ils le battirent, le blessèrent, puis le jetèrent dans le fond d\'un puits profond. Yusuf tomba dans l\'obscurité et l\'humidité froide. Seul. Dans le noir. Et le Coran dit qu\'Allah lui révéla à ce moment précis : « Tu les informeras sûrement de ce qu\'ils ont fait, alors qu\'ils n\'en auront pas conscience. » Même dans le fond du puits, la lumière prophétique ne s\'éteignait pas.\n\nLes frères revinrent le soir avec la tunique de Yusuf, qu\'ils avaient trempée dans le sang d\'un mouton. Ils pleurèrent — de faux pleurs — et dirent : « Le loup a mangé Yusuf. » Yaqub les regarda longuement. Il dit avec une douleur qui ne cherchait pas à être validée : « Vos âmes vous ont présenté une affaire en beau. Patience magnifique. C\'est Allah Seul dont j\'implore l\'aide contre ce que vous décrivez. »',
       ),
       StoryChapter(
@@ -1502,34 +1916,42 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'LA TENTATION — LA VICTOIRE DU CŒUR',
+        englishTitle: 'THE TEMPTATION — THE HEART\'S VICTORY',
         content: 'La femme d\'Al-Aziz — que la tradition appelle Zulaykha — regarda un jour Yusuf devenu homme et fut frappée par sa beauté. Une beauté qui n\'était pas ordinaire — le Prophète ﷺ dira plus tard que Yusuf reçut la moitié de la beauté accordée à toute l\'humanité. Zulaykha tomba amoureuse. Ou plutôt, elle fut envahie par une passion qui devint obsession.\n\nUn jour, elle ferma toutes les portes de la maison et dit : « Viens à moi. » Yusuf se retrouva seul avec elle, les portes verrouillées, sans témoin humain. Il était jeune, loin de chez lui, sans famille, sans soutien. La tentation était réelle — le Coran ne minimise pas : « Elle le désira, et il l\'aurait désirée lui aussi, s\'il n\'avait pas vu le signe de son Seigneur. » Il vit quelque chose — les exégètes débattent : le visage de son père Yaqub ? Un signe divin direct ? La certitude de la présence d\'Allah ? Et cette vision fut plus forte que tout le reste.\n\nIl courut vers la porte. Elle le saisit par sa tunique par derrière — la tunique se déchira. Et c\'est à ce moment qu\'Al-Aziz rentra dans la maison. Zulaykha, instantanément, accusa Yusuf : « Quel est le châtiment de celui qui voulait du mal à ta femme ? La prison ou un châtiment douloureux ! » Yusuf dit simplement la vérité. Un membre de la famille de la femme proposa un test logique : si la tunique est déchirée par devant, c\'est elle qui a dit la vérité. Si elle est déchirée par derrière, c\'est lui. La tunique était déchirée par derrière. Al-Aziz dit à sa femme : « C\'est de votre ruse à vous les femmes — votre ruse est grande. » Et à Yusuf : « Passe là-dessus. Et toi, demande pardon pour ta faute. »\n\nMais l\'histoire se répandit dans la ville. Les femmes de la haute société murmuraient en se moquant : « La femme d\'Al-Aziz essaie de séduire son esclave ! Elle en est follement éprise ! » Zulaykha, piquée, les invita à un banquet. Elle leur donna à chacune un couteau pour peler des fruits. Et au moment précis où elles tenaient leurs couteaux, elle fit entrer Yusuf. Toutes les femmes se coupèrent les mains sans s\'en rendre compte, tellement elles étaient saisies. Elles dirent : « Dieu nous préserve ! Ce n\'est pas un humain — c\'est un ange noble ! »',
       ),
       StoryChapter(
         title: 'LA PRISON — LE TEMPS DU CREUSET',
+        englishTitle: 'THE PRISON — THE TIME OF THE CRUCIBLE',
         content: 'Zulaykha, dont l\'obsession était devenue publique et incontrôlable, convainquit son mari d\'emprisonner Yusuf — au moins pour les apparences. Yusuf fut jeté en prison. Il aurait pu se laisser aller à l\'amertume : vendu par ses frères, accusé faussement, emprisonné pour sa vertu. Mais le Coran montre un Yusuf serein, actif, utile. Il prêchait la foi à ses codétenus, interprétait leurs rêves, était une lumière dans l\'obscurité.\n\nDeux jeunes serviteurs du roi furent emprisonnés avec lui. Chacun fit un rêve troublant et chercha quelqu\'un pour l\'interpréter. Avant de répondre, Yusuf leur parla de sa foi, d\'Allah, de la révélation — il saisit l\'opportunité de l\'épreuve pour appeler à la vérité. Puis il interpréta leurs rêves : l\'un serait libéré et redeviendrait échanson du roi, l\'autre serait crucifié. Il dit à celui qui serait libéré : « Mentionne-moi à ton maître. » Mais l\'homme oublia. Yusuf resta en prison deux ans de plus.',
       ),
       StoryChapter(
         title: 'LE RÊVE DU ROI',
+        englishTitle: 'THE KING\'S DREAM',
         content: 'Puis le roi d\'Égypte fit un rêve : sept vaches grasses dévorées par sept vaches maigres, sept épis verts et sept autres secs. Il convoqua tous ses sages et devins. Personne ne pouvait l\'interpréter. C\'est alors que l\'ancien codétenu se souvint — enfin — du prisonnier qui interprétait les rêves. Il fut envoyé à Yusuf, qui reçut le messager avec calme et donna immédiatement l\'interprétation : sept années d\'abondance, puis sept années de famine sévère. Il fallait stocker le grain pendant les années fastes. Puis une année de pluie et de récolte terminerait le cycle.\n\nLe roi fut tellement impressionné qu\'il ordonna de faire venir Yusuf. Mais Yusuf — et ce détail révèle la grandeur de son caractère — refusa de sortir sans d\'abord que son innocence soit établie publiquement. Il dit : « Retourne chez ton maître et demande-lui ce qu\'il en est des femmes qui se sont coupé les mains. » Il ne voulait pas sortir de prison par faveur royale avec une accusation non résolue sur lui. Il voulait la vérité établie.\n\nLe roi interrogea les femmes. Elles dirent : « Dieu nous en préserve ! Nous ne lui connaissons aucun mal. » Et Zulaykha, incapable de mentir devant la gravité du moment, dit enfin : « Maintenant la vérité est établie. C\'est moi qui lui ai fait des avances. Il est du nombre des véridiques. » La vérité attendait depuis des années dans cette prison. Elle sortit enfin.',
       ),
       StoryChapter(
         title: 'DU CACHOT AU TRÔNE',
+        englishTitle: 'FROM DUNGEON TO THRONE',
         content: 'Yusuf fut amené devant le roi. Leur conversation fut brève et décisive. Le roi lui dit : « Tu es aujourd\'hui auprès de nous en haute position et bien établi dans notre confiance. » Yusuf fit alors quelque chose d\'inhabituel pour un homme qui venait de sortir de prison : il demanda lui-même le pouvoir. « Confie-moi les greniers du pays — je suis un gardien compétent et habile. » Il savait qu\'il était l\'homme de la situation. Ce n\'était pas de l\'orgueil — c\'était la conscience juste de sa mission.\n\nIl fut nommé ministre des finances et de l\'agriculture d\'Égypte. Pendant sept ans, il géra avec une précision remarquable le stockage du grain, construisant des réserves dans chaque ville. Quand la famine arriva — et elle fut aussi sévère que prévu, frappant toute la région — les peuples venaient d\'Égypte et des pays voisins chercher des vivres. Yusuf distribuait avec méthode et équité.',
       ),
       StoryChapter(
         title: 'LES FRÈRES — LA RENCONTRE',
+        englishTitle: 'THE BROTHERS — THE ENCOUNTER',
         content: 'La famine frappa aussi Canaan. Yaqub envoya ses dix fils aînés en Égypte chercher du grain — Benjamin, le plus jeune, resta avec lui. Ils se présentèrent devant le ministre égyptien sans le reconnaître. Vingt ans avaient passé. Yusuf était devenu un grand seigneur égyptien. Mais lui les reconnut immédiatement. Il les servit, leur donna leur mesure de grain, et demanda discrètement : « Ramenez-moi votre frère du côté de votre père. » Il les logea bien et, en secret, glissa leur argent dans leurs sacs.\n\nQuand ils rentrèrent et racontèrent tout à Yaqub, il refusa d\'envoyer Benjamin — trop de peur, trop de souvenir. Mais la famine s\'aggrava. Ils durent repartir. Yaqub accepta à contrecœur de laisser Benjamin, après avoir pris leurs engagements solennels de le ramener. Ils repartirent.\n\nCette fois, en privé, Yusuf prit son frère Benjamin à part. Il lui dit : « Je suis ton frère. » Larmes silencieuses. Retrouvailles secrètes. Il concocta un plan — glisser la coupe du roi dans le sac de Benjamin pour avoir une raison de le garder en Égypte sans révéler sa vraie identité.\n\nQuand la caravane s\'apprêtait à repartir, des hommes crièrent : « La coupe royale est manquante ! » On fouilla les sacs. Elle était dans le sac de Benjamin. Les frères protestèrent — ils n\'avaient pas volé. Ils proposèrent qu\'on prenne l\'un d\'eux à la place. Mais la loi égyptienne était claire : celui dans le sac de qui la coupe a été trouvée sera gardé comme esclave.\n\nLes frères revinrent en Égypte, désespérés. L\'un d\'eux — le plus âgé — dit : « Je ne bougerai pas d\'Égypte jusqu\'à ce que mon père me le permette. » Les autres rentrèrent vers Yaqub avec cette nouvelle catastrophe.',
       ),
       StoryChapter(
         title: 'LES LARMES DE YAQUB',
+        englishTitle: 'THE TEARS OF JACOB',
         content: 'Quand ils rapportèrent la nouvelle à leur père, Yaqub se détourna d\'eux et pleura. Ses larmes pour Yusuf, reprises en larmes pour Benjamin. Il dit : « Je ne me plains qu\'à Allah de ma détresse et de mon chagrin. » Et il dit encore : « Retournez et cherchez des nouvelles de Yusuf et de son frère. Ne désespérez pas de la miséricorde d\'Allah. »\n\nCette phrase — « ne désespérez pas de la miséricorde d\'Allah » — après vingt ans de séparation, après la perte de son second fils bien-aimé, après des décennies de douleur — c\'est peut-être le sommet spirituel de toute l\'histoire.',
       ),
       StoryChapter(
         title: 'LA RÉVÉLATION',
+        englishTitle: 'THE REVELATION',
         content: 'Les frères repartirent en Égypte. Ils se présentèrent au ministre et dirent avec une humilité nouvelle : « Ô ministre, la détresse nous a touchés, nous et notre famille. Nous apportons une marchandise de peu de valeur. Donne-nous notre mesure et sois généreux avec nous. » Yusuf les regarda longuement. Vingt ans de vie. Le puits. L\'esclavage. La prison. Et maintenant eux, debout devant lui, sans savoir.\n\nIl dit : « Savez-vous ce que vous avez fait à Yusuf et à son frère, quand vous étiez dans l\'ignorance ? » Ils se regardèrent, saisis. Puis l\'un d\'eux dit : « Est-ce que tu serais... Yusuf ? » Et Yusuf dit : « Je suis Yusuf. Et voici mon frère. Allah nous a favorisés. » Stupeur totale. Silence. Puis Yusuf dit ces mots qui définissent le pardon islamique : « Pas de reproche aujourd\'hui contre vous (12:92). Qu\'Allah vous pardonne. Il est le plus Miséricordieux des miséricordieux. Allez avec ma tunique et posez-la sur le visage de mon père — sa vue reviendra. Et amenez-moi toute votre famille. »',
       ),
       StoryChapter(
         title: 'LA TUNIQUE ET LES RETROUVAILLES',
+        englishTitle: 'THE ROBE AND THE REUNION',
         content: 'La caravane n\'avait pas encore quitté l\'Égypte que Yaqub, en Canaan, dit à son entourage : « Je sens l\'odeur de Yusuf. » On le regarda avec inquiétude — son chagrin le faisait-il délirer ? Mais quand le porteur de la tunique arriva et la posa sur son visage, Yaqub retrouva la vue. Ses yeux s\'ouvrirent. Et ses fils tombèrent à ses pieds en disant : « Notre père, demande pardon pour nos péchés — nous étions coupables. »\n\nYaqub descendit en Égypte avec toute sa famille — soixante-dix personnes selon certaines narrations. Quand il arriva et que Yusuf l\'accueillit, il l\'installa sur un trône d\'honneur. Toute la famille se prosterna devant Yusuf en signe de respect. Le rêve d\'enfance — les onze étoiles, le soleil et la lune — s\'accomplissait à la lettre, là, en Égypte, des décennies plus tard.\n\nYusuf leva les yeux vers le ciel et dit : « Seigneur, Tu m\'as donné une part de la royauté et Tu m\'as enseigné l\'interprétation des rêves. Créateur des cieux et de la Terre, Tu es mon protecteur ici-bas et dans l\'au-delà. Fais-moi mourir en soumis et fais-moi rejoindre les vertueux. »',
       ),
       StoryChapter(
@@ -1541,17 +1963,24 @@ const List<Prophet> kProphets = [
     timeline: TimelineData(
       order: 11,
       era: 'Égypte ancienne',
+      englishEra: 'Ancient Egypt',
       approxDate: '~1600 av. J.-C.',
+      englishApproxDate: '~1600 BC',
       region: 'Égypte',
+      englishRegion: 'Egypt',
     ),
   ),
 
   // ── 12. Ayyub ────────────────────────────────────────────────────────────
   Prophet(
     number: 12, arabicName: 'أَيُّوب', frenchName: 'Ayyûb',
+    englishName: 'Ayyub',
     emoji: '🌱', period: 'L\'ère des patriarches',
+    englishPeriod: 'The Age of the Patriarchs',
     shortDesc: 'Le symbole de la patience face à l\'épreuve',
+    englishShortDesc: 'The symbol of patience in the face of trial',
     summary: 'Ayyub est le modèle de la patience absolue face à l\'adversité — dépouillé de ses biens, de ses enfants et de sa santé, il garda sa foi intacte et fut récompensé par une guérison miraculeuse et une restauration complète. Son invocation simple mais profonde montre que la vraie patience n\'est pas le silence vide, mais la constante tournée vers Allah.',
+    englishSummary: 'Job was a prophet blessed by Allah with wealth, family and health — then tried with the loss of all. For years he endured illness, poverty and isolation with extraordinary patience. His sincere supplication: \'Harm has afflicted me and You are the Most Merciful\' was answered by Allah who restored everything and more.',
     fullStory:
       '━━━ L\'HOMME BÉNI ━━━\n\n'
       'Avant les épreuves, il y eut le bonheur. Ayyub — Job dans la tradition biblique — était un homme que ses contemporains regardaient avec admiration et peut-être une pointe de jalousie bienveillante. Il avait tout ce que les hommes désirent : une famille nombreuse et aimante, des enfants en bonne santé, des troupeaux immenses, des terres fertiles, une belle maison. Et avec tout ça — ce qui est plus rare — il avait la foi.\n\n'
@@ -1596,25 +2025,36 @@ const List<Prophet> kProphets = [
       'Fut complètement guéri par une source miraculeuse après son invocation',
       'Sa femme Rahma resta fidèle à ses côtés durant toute son épreuve',
     ],
+    englishKeyFacts: ['Model of extraordinary patience in the face of severe trial', 'Lost his health, wealth and family — yet kept faith', 'His supplication is a model for times of hardship', 'Allah restored his blessings and doubled them after the trial'],
     moral: 'La patience dans l\'épreuve est récompensée par une délivrance et une élévation du rang.',
+    englishMoral: 'Patience in trial is rewarded with deliverance and elevation in rank.',
     quiz: [
       QuizQ(
         question: 'Pour quelle vertu Ayyub est-il surtout connu ?',
+        englishQuestion: 'For which virtue is Ayyub most known?',
         options: ['Le courage guerrier', 'La sagesse politique', 'La patience absolue', 'La richesse'],
+        englishOptions: ['Warrior courage', 'Political wisdom', 'Absolute patience', 'Wealth'],
         correctIndex: 2,
         explanation: 'Ayyub est le symbole de la patience (sabr) en Islam, ayant supporté de terribles épreuves sans se plaindre.',
+        englishExplanation: 'Ayyub is the symbol of patience (sabr) in Islam, having endured terrible trials without complaining.',
       ),
       QuizQ(
         question: 'Comment Allah guérit-il Ayyub ?',
+        englishQuestion: 'How did Allah heal Ayyub?',
         options: ['En lui envoyant un ange médecin', 'En frappant le sol pour une source guérisseuse', 'Par une plante miraculeuse', 'Par une prière des anges'],
+        englishOptions: ['By sending an angel doctor', 'By striking the ground for a healing spring', 'Through a miraculous plant', 'Through the prayer of angels'],
         correctIndex: 1,
         explanation: 'Allah ordonna à Ayyub de frapper le sol de son pied, et une source guérisseuse jaillit (38:42).',
+        englishExplanation: 'Allah commanded Ayyub to strike the ground with his foot, and a healing spring gushed forth (38:42).',
       ),
       QuizQ(
         question: 'Qu\'Allah dit-il d\'Ayyub après l\'épreuve ?',
+        englishQuestion: 'What did Allah say about Ayyub after the trial?',
         options: ['« Il était le plus riche »', '« Excellent serviteur, car il revenait constamment à Nous »', '« Il était le plus beau »', '« Il était le plus savant »'],
+        englishOptions: ['"He was the wealthiest"', '"Excellent servant, for he constantly returned to Us"', '"He was the most handsome"', '"He was the most learned"'],
         correctIndex: 1,
         explanation: 'Allah décrit Ayyub dans le Coran (38:44) comme « un excellent serviteur, car il revenait constamment à Nous ».',
+        englishExplanation: 'Allah describes Ayyub in the Quran (38:44) as \'an excellent servant, for he constantly returned to Us\'.',
       ),
     ],
     chapters: [
@@ -1628,14 +2068,17 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'LA CHUTE — TOUT PERD',
+        englishTitle: 'THE FALL — LOSING EVERYTHING',
         content: 'Les biens partirent d\'abord. Des messagers arrivèrent l\'un après l\'autre : un troupeau attaqué et volé, puis une autre catastrophe, puis une autre. Les richesses accumulées sur des décennies disparurent en quelques jours. La maison — vide. Les greniers — vides. Les champs — détruits.\n\nPuis les enfants. Une tragédie frappa la maison où ils étaient tous réunis. Ils moururent. Les enfants d\'Ayyub — cette joie la plus profonde d\'un père — disparurent.\n\nPuis la santé. Une maladie s\'empara d\'Ayyub. Certains récits mentionnent des plaies, des ulcères couvrant tout son corps, une douleur constante qui ne le laissait jamais en paix. D\'autres mentionnent une affection interne douloureuse. Quelle qu\'elle fût, elle était terrible et durable. Sa chair souffrait. Ses os gémissaient. Le simple fait de se lever était une torture.\n\nLa maladie d\'Ayyub dura longtemps. Les avis divergent sur la durée exacte — certains disent trois ans, d\'autres sept, d\'autres dix-huit. Quelle que soit la durée réelle, ce fut assez long pour que ses anciens amis, ses anciens associés, ses voisins et même certains de ses proches s\'éloignent. Qui voulait fréquenter un homme touché par une telle malédiction ? Car dans la mentalité de son époque, la maladie et le malheur étaient souvent interprétés comme des punitions divines. Ses anciens amis vinrent même lui dire, avec la cruauté de ceux qui croient avoir raison : « Fais l\'examen de ta conscience. Dieu ne frappe pas les innocents de cette façon. »',
       ),
       StoryChapter(
         title: 'LA FEMME FIDÈLE',
+        englishTitle: 'THE FAITHFUL WIFE',
         content: 'Parmi tous ceux qui l\'abandonnèrent, une seule resta : sa femme. Son nom varie selon les traditions — Rahma dans certains récits, Liya dans d\'autres. Peu importe son nom. Son acte compte.\n\nElle vendit ses bijoux pour acheter de la nourriture. Puis ses cheveux — selon un récit touchant de la tradition, elle se coupa ses nattes et les vendit à une femme riche en échange d\'un repas pour son mari malade. Elle allait chercher du bois, portait de l\'eau, travaillait comme servante chez des étrangers pour subvenir à leurs besoins minimaux. Elle soignait Ayyub avec une tendresse sans bornes — lavait ses plaies, changeait ses bandages, le réconfortait dans les nuits les plus dures.\n\nIl y eut un moment — un seul — où Iblis réussit à l\'atteindre par l\'intermédiaire de sa femme. Iblis s\'approcha d\'elle, selon les récits, déguisé en un homme qui lui proposa une aide en échange d\'une chose anodine. Cette interaction — dont les détails varient — troubla Ayyub. Il dit à sa femme, dans un moment de faiblesse et de soupçon, qu\'il lui donnait cent coups de bâton si jamais il guérissait. Ce serment — fait dans un moment difficile — serait respecté d\'une façon unique par Allah à la fin de l\'histoire.',
       ),
       StoryChapter(
         title: 'LA PATIENCE — LE SILENCE QUI CRIE',
+        englishTitle: 'PATIENCE — THE SILENCE THAT CRIES',
         content: 'Ce qui est remarquable dans la patience d\'Ayyub, c\'est qu\'elle n\'est pas un silence vide. Ce n\'est pas la résignation de quelqu\'un qui n\'a pas le choix. C\'est la patience active d\'un homme qui continue à adorer, à prier, à remercier Allah — même pendant les pires moments.\n\nLe Coran décrit Ayyub comme un serviteur exceptionnel. Allah dit de lui : « Excellent serviteur, car il revenait constamment à Nous. » (38:44) Il revenait toujours. Chaque douleur était une occasion de revenir vers Allah. Chaque nuit d\'insomnie était remplie de dhikr. Ses lèvres bougeaient en permanence — non pas pour se plaindre, mais pour louer.\n\nIl y a une scène décrite dans certains récits de la tradition : Iblis vint voir Ayyub, sous une forme ou une autre, et lui dit : « Regarde dans quel état tu es. Regarde ce qu\'Allah t\'a fait. Maudis-Le ! » Ayyub répondit avec une sérénité tranquille : « J\'ai vécu soixante-dix ans dans le bonheur. Je peux bien endurer soixante-dix ans dans l\'épreuve. »\n\nCe calcul intérieur — mettre les bonnes années dans la balance contre les mauvaises, et trouver qu\'on est encore en dette de gratitude — c\'est la sagesse de la patience. Pas nier la douleur. Pas faire semblant que tout va bien. Mais garder la perspective : les bienfaits d\'Allah sont si nombreux que même les épreuves les plus longues ne les effacent pas.',
       ),
       StoryChapter(
@@ -1644,6 +2087,7 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'LA SOURCE ET LA GUÉRISON',
+        englishTitle: 'THE SPRING AND THE HEALING',
         content: 'Allah ordonna à Ayyub : « Frappe le sol avec ton pied ! » Ayyub frappa. Une source d\'eau fraîche et guérisseuse jaillit. Allah lui dit : « Voici une eau fraîche pour te laver et pour boire. »\n\nAyyub se lava dans cette eau. Il but de cette eau. Et sa maladie disparut. Complètement, immédiatement, sans laisser de trace. Celui qui avait souffert pendant des années retrouva sa santé en un instant. Le Coran dit qu\'il retrouva même sa beauté et sa vigueur d\'avant — multipliées. Allah « lui rendit sa famille et le double de plus avec eux, par une miséricorde de Notre part et un rappel pour ceux qui sont doués d\'intelligence. » (21:84)\n\nSes biens furent rendus. Ses enfants revinrent — et selon certains commentaires, les enfants qu\'il avait perdus lui furent rendus eux-mêmes, ressuscités pour lui en cadeau divin.\n\nQuant au serment des cent coups de bâton envers sa femme — cette parole prononcée dans un moment de faiblesse — Allah, dans Sa miséricorde, trouva une sortie sans blesser la femme fidèle qui avait tout sacrifié pour lui. Il dit à Ayyub : « Prends dans ta main une touffe d\'herbe et frappe avec, et ne romps pas ton serment. » (38:44) Il toucha légèrement sa femme avec une herbe fine portant cent brins — et son serment fut honoré sans qu\'elle souffre. La femme qui l\'avait soigné pendant les années de détresse était protégée même dans ce détail.',
       ),
       StoryChapter(
@@ -1655,17 +2099,24 @@ const List<Prophet> kProphets = [
     timeline: TimelineData(
       order: 10,
       era: 'Ère des patriarches',
+      englishEra: 'Age of the Patriarchs',
       approxDate: '~1600 av. J.-C.',
+      englishApproxDate: '~1600 BC',
       region: 'Hauran (Syrie-Jordanie)',
+      englishRegion: 'Hauran (Syria-Jordan)',
     ),
   ),
 
   // ── 13. Shuayb ───────────────────────────────────────────────────────────
   Prophet(
     number: 13, arabicName: 'شُعَيب', frenchName: 'Shu\'ayb',
+    englishName: 'Shu\'ayb',
     emoji: '⚖️', period: 'L\'ère des patriarches',
+    englishPeriod: 'The Age of the Patriarchs',
     shortDesc: 'Prophète de l\'honnêteté commerciale, envoyé à Madyan',
+    englishShortDesc: 'Prophet of commercial honesty, sent to Midian',
     summary: 'Shu\'ayb fut envoyé au peuple riche et corrupteur de Madyan pour les appeler à l\'honnêteté commerciale, au tawhid et à la justice économique. Rejeté par les élites qui confondaient ruse et intelligence, il fut soutenu par quelques croyants jusqu\'à ce qu\'Allah punisse les autres par un châtiment cataclysmique — mettant fin à leur civilisation prospère.',
+    englishSummary: 'Shu\'ayb was sent to the people of Midian who cheated in their commercial dealings and gave short measure. He called them to honesty, integrity and justice. Rejected and mocked, the divine punishment struck them. Shu\'ayb is known as the \'preacher of the prophets\' for his eloquent speech.',
     fullStory:
       '━━━ MADYAN — LA VILLE DE L\'OR ET DE LA RUSE ━━━\n\n'
       'À l\'ouest de la péninsule arabique, là où les routes caravanières se croisaient comme des fils d\'une toile tendue entre l\'Arabie, l\'Égypte et le Levant, s\'étendait la cité de Madyan. Elle n\'était pas une ville ordinaire. C\'était un carrefour du monde, une plaque tournante de richesses (7:85) où l\'or circulait comme l\'eau, où les étals débordaient d\'épices, de soieries, de métaux précieux et de céréales rares. Des caravanes venues des quatre horizons s\'y arrêtaient pour commercer, se reposer, négocier.\n\n'
@@ -1714,25 +2165,36 @@ const List<Prophet> kProphets = [
       'Appelé le « prédicateur des prophètes » pour son éloquence',
       'Son peuple fut détruit par la Rajifa (7:91) (nuée tonitruante (7:91)) — châtiment décrit dans le Coran (7:91)',
     ],
+    englishKeyFacts: ['Sent to the people of Midian (present-day northwestern Arabia)', 'Called his people to commercial honesty and fair scales', 'Known as \'the preacher of the prophets\' for his eloquence', 'The people of Midian were destroyed for their persistent dishonesty'],
     moral: 'L\'honnêteté dans les affaires est une obligation divine ; la tromperie attire le châtiment d\'Allah.',
+    englishMoral: 'Honesty in business is a divine obligation; deception attracts the punishment of Allah.',
     quiz: [
       QuizQ(
         question: 'À quel peuple Shu\'ayb fut-il envoyé ?',
+        englishQuestion: 'To which people was Shu\'ayb sent?',
         options: ['\'Âd', 'Thamoud', 'Babylone', 'Madyan'],
+        englishOptions: ['\'Ad', 'Thamud', 'Babylon', 'Midian'],
         correctIndex: 3,
         explanation: 'Shu\'ayb fut envoyé au peuple de Madyan (7:85) pour les appeler à l\'honnêteté commerciale.',
+        englishExplanation: 'Shu\'ayb was sent to the people of Midian (7:85) to call them to commercial honesty.',
       ),
       QuizQ(
         question: 'Quel était le péché principal du peuple de Madyan ?',
+        englishQuestion: 'What was the main sin of the people of Midian?',
         options: ['Le meurtre', 'L\'idolâtrie seulement', 'La tromperie dans le commerce', 'La sorcellerie'],
+        englishOptions: ['Murder', 'Idolatry only', 'Deception in commerce', 'Sorcery'],
         correctIndex: 2,
         explanation: 'Le peuple de Madyan trichait sur les poids et mesures, et exploitait les commerçants.',
+        englishExplanation: 'The people of Midian cheated on weights and measures, and exploited merchants.',
       ),
       QuizQ(
         question: 'Quel prophète célèbre se maria avec la fille de Shu\'ayb ?',
+        englishQuestion: 'Which famous prophet married the daughter of Shu\'ayb?',
         options: ['Ibrahim', 'Yusuf', 'Musa', 'Isa'],
+        englishOptions: ['Abraham', 'Joseph', 'Moses', 'Jesus'],
         correctIndex: 2,
         explanation: 'Musa aida les filles de Shu\'ayb à abreuver leur troupeau, et Shu\'ayb lui proposa de marier l\'une d\'elles.',
+        englishExplanation: 'Moses helped Shu\'ayb\'s daughters water their flock, and Shu\'ayb offered him one of them in marriage.',
       ),
     ],
     chapters: [
@@ -1746,10 +2208,12 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'LA PAROLE QUI DÉRANGE',
+        englishTitle: 'THE WORD THAT DISTURBS',
         content: 'Il alla vers eux avec la même douceur qui avait toujours été la sienne. Le Coran le cite avec une précision chirurgicale : « Ô mon peuple, adorez Allah — vous n\'avez pas d\'autre divinité que Lui. Et ne diminuez pas la mesure et le poids. Je vous vois dans le bien-être, et je crains pour vous le châtiment d\'un Jour qui vous enveloppera. Ô mon peuple, donnez la pleine mesure et le juste poids avec équité, et ne lésez pas les gens sur leurs biens, et ne semez pas la corruption sur la terre après qu\'elle a été mise en ordre. »\n\nSon message avait trois piliers indissociables : le tawhid — l\'unicité d\'Allah, parce que toute réforme morale commence par reconnaître un Seigneur ; la justice économique — mesures et poids corrects, refus de la tromperie ; et la préservation de l\'ordre social — ne pas corrompre ce qu\'Allah a mis en ordre. Pour Shu\'ayb, la foi et l\'honnêteté commerciale n\'étaient pas deux choses séparées. Frauder sur les poids était une forme d\'apostasie. Tricher sur les mesures était une trahison envers Allah autant qu\'envers les hommes.\n\nIl leur rappela aussi leur histoire : ils n\'étaient pas nés corrupteurs. Ils avaient connu une époque de droiture. Ils avaient des ancêtres qui adoraient Allah. Il était possible de revenir à cela — pas comme une révolution, mais comme un retour à soi-même.',
       ),
       StoryChapter(
         title: 'LE MÉPRIS DES NOTABLES',
+        englishTitle: 'THE CONTEMPT OF THE NOTABLES',
         content: 'Les grands de Madyan l\'écoutèrent. Et ils refusèrent — mais pas en silence. Ils répondirent avec une arrogance calculée, construisant leurs arguments comme on bâtit une muraille pour se protéger d\'une vérité qu\'on pressent vraie.\n\nPremier argument : la religion n\'a rien à voir avec les affaires. « Ta prière t\'ordonne-t-elle que nous abandonnions ce que nos ancêtres adoraient, ou que nous ne fassions pas de nos biens ce que nous voulons ? » — En d\'autres termes : tu confonds la sphère du sacré et la sphère du profane. Garde tes prières pour le temple, et laisse-nous gérer notre commerce à notre façon. L\'argument du cloisonnement : la foi d\'un côté, l\'économie de l\'autre.\n\nDeuxième argument : la moquerie personnelle. « Tu es bien le doux et le sensé ! » — Ils utilisèrent ses qualités comme des insultes. Dans leur bouche, « doux » voulait dire naïf, trop bon pour comprendre les réalités du monde. « Sensé » était ironique — comment peut-on être sensé et penser que l\'honnêteté est rentable ? Pour eux, la ruse était l\'intelligence, et la droiture était la bêtise déguisée en vertu.\n\nTroisième argument : la menace sociale. Les notables qui croyaient en Shu\'ayb furent avertis par les autres : « Si vous suivez Shu\'ayb, vous serez certainement des perdants. » Et leur menace alla plus loin : « Nous t\'expulserons certainement de notre cité, toi et ceux qui ont cru avec toi, à moins que vous ne retourniez à notre religion. »\n\nShu\'ayb écouta tout cela sans fléchir. Sa réponse est parmi les plus belles du Coran dans sa calme dignité : « Même si nous y répugnons ? Nous aurions inventé un mensonge contre Allah si nous retournions à votre religion après qu\'Allah nous en a délivrés. »',
       ),
       StoryChapter(
@@ -1762,6 +2226,7 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'LE CHÂTIMENT',
+        englishTitle: 'THE PUNISHMENT',
         content: 'Mais revenons à Madyan et à son refus. Allah avait accordé du temps à son peuple. Shu\'ayb avait plaidé, supplié, argumenté, mis en garde. Les notables s\'étaient durcis. Ils avaient menacé Shu\'ayb d\'expulsion et ses croyants de persécution. Et puis vint ce que le Coran appelle simplement : le séisme. Ou, selon une autre version, un nuage de feu. Ou les deux ensemble — une chaleur terrible d\'abord, qui les fit chercher refuge sous un nuage qui semblait apporter la fraîcheur, et qui se transforma en brasier céleste.\n\nUne seule phrase suffit au Coran pour décrire la fin de Madyan : « Ils furent terrassés dans leurs demeures. » Ceux qui avaient construit leur richesse sur la tromperie périrent dans leurs propres maisons. Leurs balances truquées, leurs mesures frauduleuses, leurs coffres pleins d\'or malhonnête — tout cela était là, inutile, au milieu des ruines.\n\nShu\'ayb se retourna vers eux une dernière fois — dans ses paroles après leur destruction, comme le font les prophètes qui n\'ont jamais voulu la mort de ceux qu\'ils aimaient : « Ô mon peuple, j\'ai bien transmis les messages de mon Seigneur et vous ai conseillés. Comment me désolerais-je sur un peuple mécréant ? »\n\nLa question est rhétorique, mais elle cache une vraie douleur. Il ne se réjouit pas. Il ne dit pas « vous l\'avez cherché ». Il dit : comment puis-je pleurer quelqu\'un qui a lui-même choisi de ne pas s\'en sortir ?',
       ),
       StoryChapter(
@@ -1773,17 +2238,24 @@ const List<Prophet> kProphets = [
     timeline: TimelineData(
       order: 11,
       era: 'Ère des patriarches',
+      englishEra: 'Age of the Patriarchs',
       approxDate: '~1500 av. J.-C.',
+      englishApproxDate: '~1500 BC',
       region: 'Madyan (Arabie du Nord)',
+      englishRegion: 'Midian (Northern Arabia)',
     ),
   ),
 
   // ── 14. Musa ─────────────────────────────────────────────────────────────
   Prophet(
     number: 14, arabicName: 'مُوسَى', frenchName: 'Mûsa',
+    englishName: 'Moses',
     emoji: '🌊', period: 'Environ 1300 avant l\'ère commune',
+    englishPeriod: 'Around 1300 BC',
     shortDesc: 'Kalimullah — celui qui parla directement à Allah, libérateur des Banu Israïl',
+    englishShortDesc: 'Kalimullah — the one who spoke directly with Allah, liberator of the Banu Israel',
     summary: 'Musa est le prophète qui parla directement avec Allah et reçut la Torah. Il libéra les Banu Israïl de l\'esclavage égyptien en affrontant le Pharaon, reçut les Dix Commandements au Sinaï, et guida son peuple quarante ans dans le désert.',
+    englishSummary: 'Moses is the most frequently mentioned prophet in the Quran. Born during Pharaoh\'s persecution, saved in a basket on the Nile, raised in the royal palace, then called by Allah at the burning bush. He confronted Pharaoh with nine signs and miracles, led the Exodus of the Children of Israel and received the Torah on Mount Sinai.',
     fullStory:
       '━━━ L\'ÉGYPTE DES PHARAONS ━━━\n\n'
       'Il y a plus de trois mille ans, l\'Égypte était la superpuissance du monde connu. Le Nil la nourrissait, les pyramides la glorifiaient, et le Pharaon — considéré comme un dieu vivant — en était le maître absolu. Dans ce pays de splendeurs et d\'injustices colossales vivait un peuple en servitude : les Banu Israïl, les Hébreux, descendants de Yaqub et Yusuf. Depuis que Yusuf était mort et que le souvenir de ses bienfaits s\'était effacé, les Hébreux étaient devenus esclaves — construisant des monuments à la gloire d\'un roi qui ne les regardait même pas comme des êtres humains.\n\n'
@@ -1847,28 +2319,39 @@ const List<Prophet> kProphets = [
       'Reçut la Thora sur le mont Sinaï — la révélation de son époque',
       'Le prophète le plus souvent mentionné dans le Coran (136 fois)',
     ],
+    englishKeyFacts: ['Most frequently mentioned prophet in the Quran', 'Born during Pharaoh\'s persecution, raised in the royal palace', 'Spoke directly with Allah at the burning bush — Kalimullah', 'Led the Exodus and split the sea with his staff', 'Received the Torah on Mount Sinai'],
     moral: 'Allah utilise souvent les plus humbles et les plus inattendus pour accomplir les plus grandes missions.',
+    englishMoral: 'Allah often uses the most humble and unexpected to accomplish the greatest missions.',
     quiz: [
       QuizQ(
         question: 'Quel surnom désigne Musa dans l\'Islam ?',
+        englishQuestion: 'What title designates Moses in Islam?',
         options: ['Khalilullah', 'Kalimullah', 'Ruhullah', 'Habibullah'],
+        englishOptions: ['Khalilullah', 'Kalimullah', 'Ruhullah', 'Habibullah'],
         correctIndex: 1,
         explanation: 'Musa est Kalimullah (كليم الله), celui à qui Allah parla directement sur le mont Sinaï.',
-        difficulty: QuizDifficulty.facile,
+        englishExplanation: 'Moses is Kalimullah (كليم الله), the one to whom Allah spoke directly on Mount Sinai.',
+        difficulty: QuizDifficulty.easy,
       ),
       QuizQ(
         question: 'Comment Musa traversa-t-il la mer avec les Banu Israïl ?',
+        englishQuestion: 'How did Moses cross the sea with the Banu Israel?',
         options: ['Sur des bateaux', 'En nageant', 'En frappant la mer avec son bâton', 'En volant'],
+        englishOptions: ['On boats', 'By swimming', 'By striking the sea with his staff', 'By flying'],
         correctIndex: 2,
         explanation: 'Musa frappa la mer avec son bâton sur ordre d\'Allah et les eaux s\'ouvrirent en chemin sec.',
-        difficulty: QuizDifficulty.moyen,
+        englishExplanation: 'Moses struck the sea with his staff on Allah\'s command and the waters parted into a dry path.',
+        difficulty: QuizDifficulty.medium,
       ),
       QuizQ(
         question: 'Quel livre sacré fut révélé à Musa ?',
+        englishQuestion: 'Which sacred book was revealed to Moses?',
         options: ['L\'Injil', 'Le Zabour', 'Le Coran', 'La Thora'],
+        englishOptions: ['The Injil', 'The Zabur', 'The Quran', 'The Torah'],
         correctIndex: 3,
         explanation: 'Allah révéla la Thora (التوراة) à Musa sur le mont Sinaï.',
-        difficulty: QuizDifficulty.difficile,
+        englishExplanation: 'Allah revealed the Torah (التوراة) to Moses on Mount Sinai.',
+        difficulty: QuizDifficulty.hard,
       ),
     ],
     chapters: [
@@ -1878,6 +2361,7 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'LE COFFRET SUR LE NIL',
+        englishTitle: 'THE BASKET ON THE NILE',
         content: 'Dans ce climat de terreur, une femme hébraïque nommée Yukabid mit au monde un garçon d\'une beauté exceptionnelle. Le Coran dit qu\'elle l\'allaita et l\'aima avec un amour qui lui faisait peur — car plus elle l\'aimait, plus elle craignait de le perdre. Pendant un temps, elle le cacha. Mais cacher un nourrisson qui pleure est une mission impossible. Allah lui inspira — une inspiration directe, quasi-prophétique — une idée à la fois insensée et lumineuse : « Allaite-le. Et quand tu craindras pour lui, jette-le dans le fleuve. Ne crains pas et ne t\'attriste pas — Nous te le rendrons et ferons de lui un messager. »\n\nElle fabriqua un coffret imperméable, y coucha le bébé enveloppé avec soin, et le confia au Nil. Le fleuve sacré des Égyptiens allait devenir la voie de salut d\'un ennemi de Pharaon. La grande sœur du bébé — Maryam, selon certains récits — le suivit discrètement sur les berges, les yeux fixés sur le coffret qui dansait sur les eaux.\n\nLe coffret deriva et s\'immobilisa exactement là où les femmes du palais se baignaient ou se promenaient. La fille de Pharaon — certains l\'appellent Asiya dans la tradition islamique, d\'autres en font une femme différente — le découvrit. Elle ouvrit le couvercle et vit un nourrisson qui la regarda. Quelque chose se passa dans son cœur que le Coran décrit avec une seule phrase : « Allah lui inspira de l\'amour. » Elle dit : « C\'est un rafraîchissement pour les yeux, pour moi et pour toi. Ne le tuez pas — peut-être nous sera-t-il utile, ou nous le prendrons comme fils. »\n\nPharaon, qu\'on informa, hésita. Sa femme intercéda. Le bébé fut gardé. Mais il refusait le sein de toutes les nourrices qu\'on lui proposait. La sœur qui observait de loin s\'avança : « Voulez-vous que je vous indique une famille qui le nourrira pour vous et s\'en occupera bien ? » On accepta. Elle alla chercher leur propre mère. Yukabid retrouva son fils dans ses bras, nourrice officielle du palais, payée par Pharaon lui-même pour élever le futur libérateur de son peuple. Le plan d\'Allah était d\'une ironie divine absolue.',
       ),
       StoryChapter(
@@ -1886,6 +2370,7 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'LE MEURTRE ET LA FUITE',
+        englishTitle: 'THE KILLING AND THE FLIGHT',
         content: 'Devenu adulte, Musa portait en lui une tension permanente entre son rang de prince et la souffrance de son peuple qu\'il voyait traité en bétail. Un jour, il traversa la ville à une heure creuse et vit deux hommes se battre — un Hébreu et un Égyptien. L\'Hébreu l\'appela à l\'aide. Musa intervint et frappa l\'Égyptien — un seul coup de poing. L\'homme tomba mort. Musa n\'avait pas voulu le tuer. Il dit, horrifié : « C\'est une œuvre du Diable. Il est bien un ennemi égarant évident. » Il se repentit aussitôt : « Seigneur, j\'ai été injuste envers moi-même, pardonne-moi. » Allah le pardonna.\n\nLe lendemain, le même Hébreu était en train de se battre avec un autre Égyptien et appela à nouveau Musa à l\'aide. Musa s\'avança, énervé : « Tu es décidément un semeur de troubles ! » Mais au même moment, un homme de la ville accourut en secret l\'avertir : les chefs discutent de te tuer pour le mort d\'hier. Fuis ! Musa quitta l\'Égypte en courant, seul, sans provisions, avec juste la prière : « Seigneur, sauve-moi du peuple injuste. »',
       ),
       StoryChapter(
@@ -1894,18 +2379,22 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'LE BUISSON QUI BRÛLE SANS SE CONSUMER',
+        englishTitle: 'THE BUSH THAT BURNS WITHOUT BEING CONSUMED',
         content: 'Au terme de ces dix ans, Musa décida de rentrer en Égypte. Il prit sa famille et prit la route. Une nuit, dans le désert froid du Sinaï, il vit au loin une lumière (20:10). Il dit à sa famille : « Restez ici. J\'aperçois un feu — peut-être vous en apporterai-je une braise, ou trouverai-je au feu une direction. »\n\nIl s\'approcha du feu. C\'était un buisson qui brûlait d\'une flamme vive sans se consumer (28:30). Et du buisson — du côté droit de la vallée, dans un endroit béni — vint une Voix. Une Voix directe, sans intermédiaire, sans ange. La Voix d\'Allah lui-même : « Ô Musa ! C\'est Moi Allah, Seigneur des mondes. Jette ton bâton (20:19-20) ! »\n\nMusa jeta son bâton. Il se transforma en serpent, rapide et vivant. Musa recula en courant, sans se retourner. Allah lui dit : « Reviens et ne crains pas — tu es en sécurité. Glisse ta main dans ta poche. Elle en sortira blanche, sans maladie. » Musa obéit. Sa main sortit lumineuse, blanche d\'une lumière pure — le second signe. Allah lui annonça sa mission : retourner en Égypte, affronter Pharaon, libérer les Banu Israïl.\n\nMusa, face à la grandeur de la tâche, exprima ses craintes avec une honnêteté touchante : « Seigneur, j\'ai tué un homme parmi eux, et je crains qu\'ils me tuent. Mon frère Harun est plus éloquent que moi. Envoie-le avec moi comme aide. » Allah accepta tout. Harun fut accordé (20:29-36). Les craintes furent apaisées. La mission fut confiée avec ces mots qui traversent les âges : « Allez tous deux vers Pharaon car il a transgressé. Et parlez-lui doucement — peut-être se laissera-t-il rappeler ou craindra-t-il. »',
       ),
       StoryChapter(
         title: 'FACE À PHARAON',
+        englishTitle: 'BEFORE PHARAOH',
         content: 'Deux hommes. Un vieux roi et toute la puissance de l\'Égypte. Le déséquilibre était absurde. Pourtant Musa et Harun entrèrent dans le palais. La tradition dit que le passage ne fut pas facile — des gardes, des portes, des attentes humiliantes. Pharaon les reçut avec condescendance. Musa parla — ils venaient de la part du Seigneur des mondes, pour qu\'il laisse partir les Banu Israïl.\n\nPharaon ricana : « Qui est ce Seigneur des mondes ? — Le Seigneur des cieux et de la Terre et de ce qui est entre eux. — Tu entends ce qu\'il dit ? » Il se retourna vers ses courtisans, moqueur. Puis il s\'adressa à Musa directement : « Je t\'ai élevé enfant dans ma maison, tu as vécu parmi nous des années, et tu as fait ce que tu as fait — tu es un ingrat ! »\n\nMusa ne nia pas l\'enfance dans le palais. Il reconnut le bienfait mais recadra : « Ce bienfait dont tu me rappelles vient du fait que tu avais réduit les Banu Israïl en esclavage. » Puis il présenta les signes. Son bâton devint un serpent imposant. Sa main sortit lumineuse. Pharaon, au lieu de réfléchir, accusa : « C\'est de la sorcellerie ! » Il convoqua les meilleurs magiciens d\'Égypte pour un duel public.',
       ),
       StoryChapter(
         title: 'LE DUEL DES MAGICIENS',
+        englishTitle: 'THE DUEL OF THE MAGICIANS',
         content: 'La confrontation eut lieu lors d\'un grand rassemblement public — Pharaon voulait que tout l\'Égypte voie l\'humiliation de Musa. Les magiciens arrivèrent, confiants, ayant demandé une récompense considérable et une place de choix auprès de Pharaon s\'ils gagnaient. Ils jetèrent leurs cordes et bâtons qui se mirent à ramper et à bouger par illusion. La foule était éblouie. Musa sentit une peur dans sa poitrine. Allah lui dit : « Ne crains pas — c\'est toi qui l\'emporteras. Jette ce qui est dans ta main droite. »\n\nMusa jeta son bâton. Il devint un serpent réel, immense, et avala tous les bâtons et cordes des magiciens en un instant. Le silence tomba. Puis les magiciens — les meilleurs experts de leur art, qui reconnaissaient la vraie magie quand ils la voyaient — tombèrent tous en prosternation. Ils dirent : « Nous croyons au Seigneur des mondes, le Seigneur de Musa et Harun ! »\n\nCe retournement inattendu, ces hommes qui étaient venus pour battre Musa et qui finissaient prosternés, fut le choc de la journée. Pharaon rugit de rage : « Vous avez cru avant que je vous en donne la permission ! C\'est votre chef qui vous a enseigné la sorcellerie ! Je vais vous couper les mains et les pieds en alternance et vous crucifier ! » Les magiciens, qui venaient de toucher la vérité dans leur cœur, répondirent avec une sérénité soudaine : « Peu importe ! Nous retournerons vers notre Seigneur. Nous espérons qu\'Allah nous pardonnera nos péchés — nous avons été les premiers à croire. »',
       ),
       StoryChapter(
         title: 'LES DIX PLAIES',
+        englishTitle: 'THE TEN PLAGUES',
         content: 'Pharaon refusait de libérer le peuple. Alors les signes d\'Allah s\'abattirent sur l\'Égypte, un par un. Le Coran et les récits prophétiques en mentionnent plusieurs : le Nil se transforma en sang — l\'eau potable devint impossible à trouver pour les Égyptiens tandis que les Hébreux en avaient. Des grenouilles envahirent chaque coin du pays, jusque dans les lits et les plats. Des poux, des sauterelles, des insectes dévastèrent les récoltes. Une obscurité épaisse couvrit l\'Égypte pendant des jours. Et enfin, la mort des premiers-nés égyptiens en une seule nuit — du premier-né de Pharaon au premier-né du dernier serviteur.\n\nÀ chaque plaie, Pharaon appelait Musa : « Prie ton Seigneur pour qu\'il enlève ça — et je vous laisserai partir ! » À chaque fois que la plaie cessait, il se rétractait. Le Coran dit : « Chaque fois qu\'un signe leur arrivait, ils disaient : ‟C\'est de la sorcellerie." Et quand le châtiment tombait, ils disaient : ‟Ô Musa, prie ton Seigneur !" Mais quand Il soulevait le châtiment, ils rompaient leur promesse. »',
       ),
       StoryChapter(
@@ -1922,10 +2411,12 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'QUARANTE ANS DANS LE DÉSERT',
+        englishTitle: 'FORTY YEARS IN THE DESERT',
         content: 'La punition des Banu Israïl pour leur désobéissance fut de ne pas entrer en Terre Promise de leur vivant. Quarante ans à errer dans le désert du Sinaï — une génération entière qui mourrait, et ce serait leurs enfants qui hériteraient de la promesse d\'Allah.\n\nCes quarante ans furent pour Musa une épreuve de patience colossale. Il guidait un peuple qui se plaignait constamment, qui doutait, qui parfois regrettait l\'Égypte — « les oignons et les aulx » de la servitude plutôt que la liberté du désert. À chaque épreuve, Musa retournait vers Allah. Ses invocations dans le Coran sont d\'une beauté déchirante — un homme épuisé qui s\'accroche à son Seigneur.\n\nDes épisodes remarquables émaillèrent ces années. Son voyage avec Al-Khidr — cet homme mystérieux de la connaissance divine — est l\'une des histoires les plus profondes du Coran. Musa, qui pensait être le plus savant, apprit l\'humilité de la science : il y a des dimensions de la réalité que même les prophètes ne voient pas. Chaque acte d\'Al-Khidr — percer un bateau, tuer un enfant, redresser un mur — semblait injuste de l\'extérieur et était parfaitement juste de l\'intérieur, dans la connaissance divine.',
       ),
       StoryChapter(
         title: 'LA MORT DE MUSA',
+        englishTitle: 'THE DEATH OF MOSES',
         content: 'Musa mourut avant d\'entrer en Terre Promise. Sur le mont Nebo, en vue de Canaan qu\'il ne franchirait pas. La tradition islamique rapporte un récit saisissant : l\'ange de la mort vint à lui sous forme humaine pour prendre son âme. Musa le gifla et lui creva un œil. L\'ange retourna auprès d\'Allah : « Tu m\'as envoyé à un serviteur qui ne veut pas mourir. » Allah lui dit de retourner et de dire à Musa de poser sa main sur le dos d\'un taureau — autant de poils que sa main couvrirait, autant d\'années supplémentaires il lui serait accordé. Musa demanda : « Et après ? — Après, la mort. » Musa dit alors : « Seigneur, rapproche-moi de la Terre Sainte d\'un jet de pierre. »\n\nLe Prophète Muhammad ﷺ dit : « Si j\'avais été là, je vous aurais montré sa tombe au bord de la route, sous le monticule de sable rouge. »\n\nLors du Mi\'raj, Muhammad ﷺ rencontra Musa au sixième ciel. Musa pleurait. On lui demanda pourquoi. Il dit : « Je pleure car un jeune homme envoyé après moi aura plus de gens de sa communauté qui entreront au Paradis que de la mienne. » C\'est aussi Musa qui, lors de la prescription de la prière, conseilla le Prophète ﷺ de demander une réduction — encore et encore — jusqu\'à cinq. « Retourne, demande encore une réduction. — J\'ai trop demandé, je suis gêné. Je m\'en contente. »\n\nL\'histoire de Musa est l\'histoire de tout être humain qui lutte — contre l\'injustice du dehors, contre ses propres limites du dedans, et qui s\'accroche, malgré tout, à la corde d\'Allah.',
       ),
     ],
@@ -1933,17 +2424,24 @@ const List<Prophet> kProphets = [
     timeline: TimelineData(
       order: 12,
       era: 'Égypte des Pharaons',
+      englishEra: 'Egypt of the Pharaohs',
       approxDate: '~1250 av. J.-C.',
+      englishApproxDate: '~1250 BC',
       region: 'Égypte → Sinaï',
+      englishRegion: 'Egypt → Sinai',
     ),
   ),
 
   // ── 15. Harun ────────────────────────────────────────────────────────────
   Prophet(
     number: 15, arabicName: 'هَارُون', frenchName: 'Hârûn',
+    englishName: 'Aaron',
     emoji: '🗣️', period: 'Environ 1300 avant l\'ère commune',
+    englishPeriod: 'Around 1300 BC',
     shortDesc: 'Frère et aide éloquent de Musa, prophète d\'éloquence',
+    englishShortDesc: 'Eloquent brother and helper of Moses, prophet of eloquence',
     summary: 'Harun, le frère aîné de Musa, fut désigné prophète en réponse à la prière fraternelle de Musa qui craignait son incapacité à parler face à Pharaon. Avec son éloquence naturelle et sa présence constante aux côtés de Musa, Harun incarna le rôle du soutien fidèle — montrant que le second en importance n\'est jamais le moins essentiel.',
+    englishSummary: 'Aaron was the elder brother of Moses and his devoted helper in the divine mission. Allah answered Moses\'s prayer by making Aaron a prophet and his helper. He was gifted with eloquence and the ability to communicate. He watched over the Children of Israel during Moses\'s absence on Mount Sinai.',
     fullStory:
       '━━━ L\'HOMME DANS L\'OMBRE ━━━\n\n'
       'Il existe dans l\'histoire des hommes qui auraient pu être les héros principaux d\'une époque, mais qui ont choisi — ou qui ont été désignés — pour porter une mission différente : celle de soutenir. Harun ibn \'Imran était de ceux-là. Dans la plus grande saga prophétique de l\'Ancien Testament et du Coran, celle de Musa contre Pharaon, Harun occupe la position du second. Mais le second, dans l\'Islam, n\'est pas le moins important. Il est l\'indispensable.\n\n'
@@ -1985,25 +2483,36 @@ const List<Prophet> kProphets = [
       'Laissé responsable du peuple lors de l\'absence de Musa au Sinaï',
       'Le Prophète ﷺ le rencontra lors du Mi\'raj au cinquième ciel, lumineux et entouré d\'une foule qui l\'aimait',
     ],
+    englishKeyFacts: ['Elder brother of Moses, prophet and helper in the mission', 'Gifted with eloquence by Allah', 'Watched over the Children of Israel during Moses\'s 40 nights on Sinai', 'Buried on Mount Hor according to traditions'],
     moral: 'La fraternité dans la foi et dans la mission est une immense force.',
+    englishMoral: 'Brotherhood in faith and in mission is an immense strength.',
     quiz: [
       QuizQ(
         question: 'Quel est le lien entre Harun et Musa ?',
+        englishQuestion: 'What is the relationship between Aaron and Moses?',
         options: ['Ils étaient cousins', 'Harun était le père de Musa', 'Harun était le frère de Musa', 'Ils étaient amis'],
+        englishOptions: ['They were cousins', 'Aaron was the father of Moses', 'Aaron was the brother of Moses', 'They were friends'],
         correctIndex: 2,
         explanation: 'Harun était le frère aîné de Musa (20:29-36), accordé comme aide par Allah à la demande de Musa.',
+        englishExplanation: 'Aaron was the elder brother of Moses (20:29-36), granted as helper by Allah at Moses\'s request.',
       ),
       QuizQ(
         question: 'Pour quelle qualité Harun était-il particulièrement doué ?',
+        englishQuestion: 'For which quality was Aaron particularly gifted?',
         options: ['La force physique', 'L\'éloquence', 'L\'interprétation des rêves', 'La guérison'],
+        englishOptions: ['Physical strength', 'Eloquence', 'Interpretation of dreams', 'Healing'],
         correctIndex: 1,
         explanation: 'Harun avait le don de l\'éloquence, ce qui compensait le bégaiement de Musa.',
+        englishExplanation: 'Aaron had the gift of eloquence, which complemented Moses\'s stutter.',
       ),
       QuizQ(
         question: 'Que se passa-t-il pendant l\'absence de Musa au Sinaï ?',
+        englishQuestion: 'What happened during Moses\'s absence on Sinai?',
         options: ['Harun construisit un palais', 'Harun se maria', 'Le peuple fabriqua un veau d\'or (20:83-88)', 'Harun retourna en Égypte'],
+        englishOptions: ['Aaron built a palace', 'Aaron got married', 'The people made a golden calf (20:83-88)', 'Aaron returned to Egypt'],
         correctIndex: 2,
         explanation: 'Les Banu Israïl, influencés par Samiri, fabriquèrent un veau d\'or et se mirent à l\'adorer.',
+        englishExplanation: 'The Banu Israel, influenced by Samiri, made a golden calf and began to worship it.',
       ),
     ],
     chapters: [
@@ -2013,10 +2522,12 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'LA PRIÈRE DE MUSA POUR SON FRÈRE',
+        englishTitle: 'MOSES\'S PRAYER FOR HIS BROTHER',
         content: '« Seigneur, ma poitrine se resserre et ma langue ne répond pas facilement — envoie donc Harun. » Cette demande, consignée dans plusieurs versets coraniques, est l\'une des plus touchantes de toute la révélation. Musa ne plaidait pas pour lui-même. Il plaidait pour la mission — et il savait que la mission avait besoin d\'une voix que lui seul ne pouvait pas fournir.\n\nAllah dit oui. Il nomma Harun prophète. Il lui accorda la parole claire, l\'éloquence naturelle, cette capacité à trouver les mots justes au moment crucial. Et Il dit à Musa : « Nous allons fortifier ton bras par ton frère, et Nous vous donnerons une autorité, si bien qu\'ils ne pourront vous toucher grâce à Nos signes. Vous deux et ceux qui vous suivront, vous serez les vainqueurs. »\n\nC\'est ainsi que la prophétie de Harun fut accordée non pas au bout d\'une longue solitude dans le désert, non pas après des années de formation, mais en réponse directe à la prière fraternelle d\'un autre prophète. Harun fut aimé en prophète avant même d\'être envoyé. Et cela dit quelque chose d\'essentiel sur sa mission : elle était, dès le début, une mission de relation — avec son frère, avec son peuple, avec Allah à travers les deux.',
       ),
       StoryChapter(
         title: 'DEVANT PHARAON',
+        englishTitle: 'BEFORE PHARAOH',
         content: 'Les deux frères se présentèrent ensemble devant Pharaon. Imaginez la scène : deux hommes à peine vêtus, sans armée, sans lettre de créance, sans richesse visible, entrent dans le palais le plus puissant du monde connu. D\'un côté, Musa — qui revient dans la ville où il est recherché pour meurtre. De l\'autre, Harun — dont le seul titre est d\'être le frère d\'un fugitif.\n\nEt ils disent à Pharaon : nous sommes les envoyés du Seigneur de l\'Univers. Libère les Banu Israïl.\n\nLa réaction de Pharaon fut le mépris. « Ne t\'avons-nous pas élevé parmi nous, enfant ? Et tu as passé plusieurs années de ta vie parmi nous. Et tu as commis ce meurtre. » Il tenta de réduire Musa à son passé, à sa dette envers lui, à sa faiblesse. Mais Musa, épaulé par Harun, tint bon.\n\nHarun ne prend pas beaucoup de place dans les récits coraniques de cette confrontation — c\'est Musa qui parle, qui lance son bâton, qui reçoit les signes. Mais Harun est là. Présent à chaque instant. Sa présence n\'est pas passive : elle est la colonne vertébrale invisible qui permet à Musa de rester debout. Deux frères qui se regardent dans les moments de doute — et qui y puisent la force de continuer.',
       ),
       StoryChapter(
@@ -2025,18 +2536,22 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'LA COLÈRE DE MUSA ET LA RÉPONSE DE HARUN',
+        englishTitle: 'MOSES\'S ANGER AND AARON\'S RESPONSE',
         content: 'Musa revint du Sinaï, les Tables de la Loi dans les mains, et vit la scène. Sa colère fut immédiate et totale. Il jeta les Tables. Et il saisit Harun par la barbe et la tête, l\'attirant vers lui. « Fils de ma mère — dit-il dans sa rage — le peuple m\'a rendu faible et a failli me tuer. Ne laisse pas mes ennemis se réjouir de mon malheur, et ne me range pas avec le peuple injuste. »\n\nCette scène est saisissante. Les deux frères face à face — l\'un en larmes d\'avoir été impuissant, l\'autre en larmes de rage et de douleur. Et puis Musa lâcha. Il comprit. Et il fit ce que les grands font dans ces moments : il revint à Allah. « Seigneur, pardonne-moi et pardonne à mon frère. »\n\nHarun n\'avait pas failli. Il avait résisté autant qu\'il était humainement possible de le faire face à une foule. Il n\'avait pas eu le pouvoir de les forcer — et il n\'avait pas trahi. Il avait refusé de participer à l\'idolâtrie et avait payé de sa sécurité physique sa droiture. Quand Musa s\'en rendit compte, la colère se dissipa.',
       ),
       StoryChapter(
         title: 'LA VIE ENTRE LES DEUX MONDES',
+        englishTitle: 'LIFE BETWEEN TWO WORLDS',
         content: 'Les années du désert suivirent. Quarante ans d\'errance, de punition collective pour le refus des Banu Israïl d\'entrer en Terre Promise. Harun fut aux côtés de Musa pendant tout ce temps — médiateur, porte-parole, pontife, gardien du rite. C\'est lui qui officiait comme grand prêtre au sens de la tradition hébraïque. Le livre de Lévitique dans la Bible lui est dédié. La prêtrise d\'Israïl passa par lui — et dans la tradition islamique, cette ligne sacerdotale est honorée comme une transmission de la lumière divine.\n\nHarun mourut avant Musa, avant d\'atteindre la Terre Promise. Il mourut sur le mont Hor — une montagne dans la péninsule du Sinaï selon certains récits, en Jordanie selon d\'autres. Sa tombe est encore vénérée aujourd\'hui. Il mourut non pas dans le triomphe d\'une mission accomplie, mais dans l\'attente — comme Ibrahim qui n\'entra pas en Canaan, comme Musa qui ne franchit pas le Jourdain.\n\nMourir avant d\'atteindre la destination n\'est pas un échec dans le langage des prophètes. C\'est une façon de dire que la mission continue, que d\'autres prendront le relais, et que celui qui a semé n\'a pas besoin de voir la récolte pour avoir rempli sa vocation.',
       ),
       StoryChapter(
         title: 'LE NOM DE HARUN DANS LE CORAN',
+        englishTitle: 'THE NAME OF AARON IN THE QURAN',
         content: 'Le Coran mentionne Harun vingt fois. Vingt fois, ce nom revient — jamais seul, toujours lié à Musa, toujours dans le contexte de la mission commune. Et pourtant, dans cette co-mention perpétuelle, Harun n\'est jamais diminué. Il est nommé prophète à part entière. Allah dit à son sujet dans le Coran : « Nous lui avons fait don, par Notre miséricorde, de son frère Harun comme prophète. »\n\nUn don (20:29-36). Harun fut un don accordé à Musa. Et Musa fut un don accordé à Harun. Aucun des deux n\'aurait accompli sa mission sans l\'autre. C\'est la leçon la plus profonde de leur histoire : les prophètes aussi ont besoin de soutien. Les plus grands aussi peuvent être seuls. Et parfois, la plus grande grâce d\'Allah est de nous donner un frère.',
       ),
       StoryChapter(
         title: 'LA LEÇON DE HARUN',
+        englishTitle: 'THE LESSON OF AARON',
         content: 'Dans une tradition rapportée par les commentateurs, le Prophète Muhammad ﷺ déclara lors du voyage nocturne du Mi\'raj qu\'il rencontra Harun au quatrième ciel — lumineux, entouré d\'une foule qui l\'aimait, honoré parmi les anges. Ce n\'est pas un détail anecdotique. C\'est la récompense de celui qui a fait son possible dans l\'ombre — qui n\'a pas cherché la gloire du premier rôle mais qui a porté sa mission avec une intégrité silencieuse.\n\nIl y a dans nos vies des moments où nous sommes Musa — portant une mission trop grande pour nos seules forces, suppliant Allah pour un aide. Et il y a des moments où nous sommes appelés à être Harun — à entrer dans la vie de quelqu\'un pour le fortifier, pas pour prendre sa place mais pour rendre son chemin possible.\n\nLa prophétie de Harun nous dit ceci : Allah ne demande pas à tout le monde de fendre des mers. Parfois, Il demande d\'être la voix d\'un frère qui n\'arrive pas à parler. Et cette mission-là, aussi discrète qu\'elle paraisse, vaut exactement autant.',
       ),
     ],
@@ -2044,17 +2559,24 @@ const List<Prophet> kProphets = [
     timeline: TimelineData(
       order: 13,
       era: 'Égypte des Pharaons',
+      englishEra: 'Egypt of the Pharaohs',
       approxDate: '~1250 av. J.-C.',
+      englishApproxDate: '~1250 BC',
       region: 'Égypte → Sinaï',
+      englishRegion: 'Egypt → Sinai',
     ),
   ),
 
   // ── 16. Dhul-Kifl ────────────────────────────────────────────────────────
   Prophet(
     number: 16, arabicName: 'ذُو الكِفْل', frenchName: 'Dhul-Kifl',
+    englishName: 'Dhul-Kifl',
     emoji: '🤝', period: 'L\'ère des prophètes d\'Israïl',
+    englishPeriod: 'The Era of the Prophets of Israel',
     shortDesc: 'Le prophète qui tint ses engagements toute sa vie',
+    englishShortDesc: 'The prophet who kept his commitments his entire life',
     summary: 'Dhul-Kifl accepta l\'engagement impossible de prier cent fois par jour, de jamais juger dans la colère et de jeûner perpétuellement — et il le tint intégralement. Son nom lui-même signifie « celui de l\'engagement », et sa vie incarne la promesse honorée, montrant que l\'engagement sincère envers Allah est une identité qui définit l\'existence entière.',
+    englishSummary: 'Dhul-Kifl is mentioned twice in the Quran among the righteous and patient. He received his name — meaning "the one with the double portion" — because he committed to doubling his worship and to judging with justice, and he kept this commitment his entire life without fail.',
     fullStory:
       '━━━ UN NOM QUI EST UN PROGRAMME ━━━\n\n'
       'Parmi les vingt-cinq prophètes cités dans le Coran (21:85), Dhul-Kifl est celui qui intrigue le plus par sa discrétion. Son nom lui-même est son histoire. « Dhul-Kifl » — « celui qui a pris une part », « celui de l\'engagement », ou selon d\'autres lectures, « celui qui se porte garant ». Dans une civilisation où la parole donnée était une monnaie plus précieuse que l\'or, ce nom était une identité entière.\n\n'
@@ -2096,34 +2618,47 @@ const List<Prophet> kProphets = [
       'Son nom signifie « celui qui prend en charge » ou « l\'homme de l\'engagement »',
       'Certains érudits l\'identifient au prophète Ézéchiel (Hizqil) de la tradition hébraïque',
     ],
+    englishKeyFacts: ['Name means "the one with the double portion" or "the one with a covenant"', 'Committed to doubling his worship and judging justly', 'Kept his promise without ever failing', 'Mentioned twice in the Quran alongside the patient and righteous'],
     moral: 'Tenir ses engagements et rester juste en toutes circonstances est une marque de foi solide.',
+    englishMoral: 'Keeping commitments and remaining just in all circumstances is a mark of solid faith.',
     quiz: [
       QuizQ(
         question: 'Avec quels prophètes Dhul-Kifl est-il mentionné dans le Coran ?',
+        englishQuestion: 'With which prophets is Dhul-Kifl mentioned in the Quran?',
         options: ['Ibrahim et Musa', 'Nuh et Hud', 'Ismaïl et Idris', 'Yusuf et Yaqub'],
+        englishOptions: ['Abraham and Moses', 'Noah and Hud', 'Ishmael and Idris', 'Joseph and Jacob'],
         correctIndex: 2,
         explanation: 'Sourate Al-Anbiya (21:85-86) mentionne Ismaïl, Idris et Dhul-Kifl parmi les patients (aussi 38:48) — et aussi en 38:48 — il est aussi cité en 38:48.',
+        englishExplanation: 'Surah Al-Anbiya (21:85-86) mentions Ishmael, Idris and Dhul-Kifl among the patient (also 38:48).',
       ),
       QuizQ(
         question: 'Pour quelle vertu Dhul-Kifl est-il principalement connu ?',
+        englishQuestion: 'For which virtue is Dhul-Kifl mainly known?',
         options: ['La richesse', 'La beauté', 'La patience et le respect des engagements', 'La force physique'],
+        englishOptions: ['Wealth', 'Beauty', 'Patience and keeping commitments', 'Physical strength'],
         correctIndex: 2,
         explanation: 'Dhul-Kifl (21:85-86) est célèbre pour avoir tenu tous ses engagements avec une fidélité absolue toute sa vie.',
+        englishExplanation: 'Dhul-Kifl (21:85-86) is famous for having kept all his commitments with absolute faithfulness his entire life.',
       ),
       QuizQ(
         question: 'Que signifie le nom « Dhul-Kifl » ?',
+        englishQuestion: 'What does the name "Dhul-Kifl" mean?',
         options: ['Le prophète du feu', 'Celui qui a un engagement / une part', 'Le prophète de l\'eau', 'Celui qui voyage'],
+        englishOptions: ['The prophet of fire', 'The one with a commitment / a portion', 'The prophet of water', 'The one who travels'],
         correctIndex: 1,
         explanation: 'Dhul-Kifl signifie « celui qui a pris un engagement » ou « celui qui a une part », référence à sa fidélité.',
+        englishExplanation: 'Dhul-Kifl means "the one who took a commitment" or "the one with a portion", referring to his faithfulness.',
       ),
     ],
     chapters: [
       StoryChapter(
         title: 'UN NOM QUI EST UN PROGRAMME',
+        englishTitle: 'A NAME THAT IS A PROGRAM',
         content: 'Parmi les vingt-cinq prophètes cités dans le Coran (21:85), Dhul-Kifl est celui qui intrigue le plus par sa discrétion. Son nom lui-même est son histoire. « Dhul-Kifl » — « celui qui a pris une part », « celui de l\'engagement », ou selon d\'autres lectures, « celui qui se porte garant ». Dans une civilisation où la parole donnée était une monnaie plus précieuse que l\'or, ce nom était une identité entière.\n\nLes savants ont débattu de son identité historique. Certains l\'identifient à Ezéchiel, le prophète hébreu de Babylone — Hizqîl en arabe — qui vécut parmi les exilés de Banu Israïl à Babylone et qui reçut des visions mystérieuses. D\'autres le rapprochent d\'Élisée ou d\'une figure encore différente. Le Coran ne tranche pas et ne donne aucun détail biographique précis. Il dit seulement qu\'il était parmi les patients — et que cette patience était un acte de vertu.\n\nCette discrétion est peut-être une leçon en elle-même : le Livre d\'Allah n\'a pas besoin de nous raconter chaque détail d\'une vie pour nous transmettre son essence. Ce qui compte de Dhul-Kifl, c\'est ce que son nom résume : l\'engagement tenu.',
       ),
       StoryChapter(
         title: 'LA GRANDE PROMESSE',
+        englishTitle: 'THE GREAT PROMISE',
         content: 'Les récits des commentateurs coraniques, puisant dans les traditions des premiers siècles de l\'Islam, racontent son histoire de la façon suivante. Un prophète vieillissant — certains disent Ayyub, d\'autres Ilyasa — cherchait un successeur parmi son peuple. La mission était lourde : diriger une communauté croyante, rendre la justice, maintenir la prière collective, garder la flamme vivante au milieu d\'un monde hostile.\n\nIl se leva devant l\'assemblée et lança une proposition : « Qui parmi vous se charge de cette mission, à condition de remplir trois engagements ? Prier cent fois par jour, ne jamais rendre un jugement dans la colère, et jeûner chaque jour sans exception. Celui-là sera mon successeur. »\n\nLe silence s\'installa. Cent prières quotidiennes — une prière toutes les quatorze minutes si l\'on répartit sur la journée entière. Ne jamais juger dans la colère — le plus difficile de tous les engagements pour un chef. Et jeûner chaque jour — une ascèse totale, permanente, sans répit.\n\nUn jeune homme se leva. Il dit : « Je le ferai. » On dit qu\'il sourit. On dit qu\'il était calme. Et on dit que le prophète le regarda longuement, comme pour peser la sincérité de ces mots, puis acquiesça.\n\nCe jeune homme était Dhul-Kifl.',
       ),
       StoryChapter(
@@ -2132,18 +2667,22 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'IBLIS ET LE VIEUX MENDIANT',
+        englishTitle: 'IBLIS AND THE OLD BEGGAR',
         content: 'Les récits de la tradition rapportent qu\'Iblis observait Dhul-Kifl avec une frustration croissante. Ce prophète ne cédait pas aux tentations ordinaires. Il ne convoitait pas la richesse, ne cherchait pas la gloire, ne tombait pas dans l\'orgueil du pouvoir. Son seul talon d\'Achille possible était la colère — et même là, il semblait blindé.\n\nIblis décida d\'agir directement. Il prit la forme d\'un vieux mendiant misérable, tremblant, l\'air accablé par les années et les injustices.\n\nIl se présenta au palais de Dhul-Kifl à la tombée de la nuit — l\'heure où le prophète se retirait pour dormir, après ses longues journées de prière, de justice et de jeûne. « Je dois te parler, j\'ai subi une grande injustice, je n\'ai personne d\'autre vers qui me tourner. » Dhul-Kifl, épuisé mais fidèle à sa mission, l\'écouta. Il rendit sa décision. Il demanda à ce que le plaignant revienne le lendemain pour régler l\'affaire formellement.\n\nLe lendemain, Iblis revint. Même heure, même plainte, légèrement différente — comme si la première conversation n\'avait pas eu lieu. Dhul-Kifl, légèrement étonné mais toujours patient, répéta sa réponse. Troisième jour, même chose. Quatrième, cinquième...\n\nÀ chaque visite, l\'heure était plus tardive, l\'heure plus inappropriée, la demande plus absurde. Un matin, il se présenta pendant que Dhul-Kifl dormait — l\'une de ces rares heures de sommeil qu\'il s\'accordait. Le serviteur refusa de laisser entrer. Le vieux mendiant insista. Fit du bruit. Réveilla Dhul-Kifl.\n\nEt Dhul-Kifl — épuisé, les yeux lourds de sommeil interrompu, ayant déjà répondu à la même demande cinq fois — se leva. Reçut le vieux mendiant. L\'écouta encore une fois. Et rendit son jugement sans colère, avec la même équanimité que le premier jour.\n\nC\'est à cet instant qu\'Iblis se révéla. Non par humilité — mais parce que la défaite était totale. Il n\'avait pas réussi à provoquer même une trace d\'irritation. Le visage de Dhul-Kifl était aussi serein au réveil forcé de la nuit qu\'il l\'était au milieu de l\'assemblée en plein jour.',
       ),
       StoryChapter(
         title: 'LE MYSTÈRE DE SON IDENTITÉ',
+        englishTitle: 'THE MYSTERY OF HIS IDENTITY',
         content: 'Les savants musulmans médiévaux, notamment Ibn Kathir dans son « Histoires des prophètes », ont proposé plusieurs identifications pour Dhul-Kifl. L\'une des plus intéressantes est celle qui le rapproche du prophète Ezéchiel — Hizqîl — qui vécut à Babylone au VIe siècle avant l\'ère commune, parmi les exilés hébreux déportés de Jérusalem par Nabuchodonosor.\n\nDans cette lecture, Dhul-Kifl serait « celui qui était dans Kifl » — Kifl étant peut-être une transposition de Nippur ou d\'une autre ville babylonienne. Hizqîl/Ezéchiel est connu dans la tradition juive et chrétienne pour ses visions extraordinaires — la vallée des ossements desséchés qui reprennent vie, les chérubins aux quatre visages, le trône d\'Allah porté sur des roues de feu. Il serait le prophète de la résurrection — ayant demandé à Allah de montrer comment Il ressuscite les morts, et ayant reçu la vision de milliers d\'ossements se rassemblant, se couvrant de chair et se réveillant vivants.\n\nCette identification n\'est pas certaine — les savants restent prudents. Mais elle donne une profondeur supplémentaire à une figure que le Coran a choisi de mentionner avec une économie de mots qui invite à la réflexion.',
       ),
       StoryChapter(
         title: '« ILS ÉTAIENT TOUS PARMI LES PATIENTS »',
+        englishTitle: '\'THEY WERE ALL AMONG THE PATIENT\'',
         content: 'Le verset coranique qui mentionne Dhul-Kifl (Sourate Al-Anbiya, 21:85-86) le place aux côtés d\'Ismaïl et d\'Idris dans une liste de prophètes dont la vertu commune est la patience — « sabirine ». Et après cette liste, Allah ajoute : « Nous les avons fait entrer dans Notre miséricorde. Ils étaient parmi les vertueux. »\n\nLa patience (sabr) dans le Coran n\'est pas une résignation passive. C\'est une vertu active, dynamique, qui consiste à maintenir sa direction face à la résistance. Sabr, c\'est tenir bon quand tout pousse à lâcher. C\'est continuer à prier quand la fatigue est immense. C\'est rendre un jugement juste quand la colère serait plus facile. C\'est respecter un engagement le millième jour comme on l\'a respecté le premier.\n\nDhul-Kifl est le prophète du sabr quotidien. Pas le sabr spectaculaire de Ayyub face à la maladie totale, ni le sabr de Yusuf face à la trahison des frères et l\'emprisonnement. Mais le sabr du chaque jour — cette forme d\'héroïsme invisible que personne ne célèbre parce qu\'elle ressemble à de la normalité.',
       ),
       StoryChapter(
         title: 'LA LEÇON DE DHUL-KIFL',
+        englishTitle: 'THE LESSON OF DHUL-KIFL',
         content: 'Dans un monde obsédé par le spectaculaire, Dhul-Kifl est le prophète de la constance silencieuse. Il n\'a pas fendu de mer, ni renversé de tyran, ni construit de bateau, ni survécu dans le ventre d\'une baleine. Il a fait quelque chose que beaucoup considèrent plus difficile : il a tenu une promesse, tous les jours, pendant toute sa vie.\n\nIl y a dans les traditions islamiques cette notion de « istiqama » — la droiture continue, le maintien du cap. Le Prophète Muhammad ﷺ dit un jour à un compagnon qui lui demandait un conseil bref mais complet : « Dis \'J\'ai cru en Allah\', puis reste droit. » Rester droit — pas s\'élever jusqu\'aux nuages lors d\'une retraite spirituelle pour retomber ensuite, mais marcher droit, régulièrement, sur la même ligne, sans déviation.\n\nDhul-Kifl est l\'incarnation prophétique de l\'istiqama. Son héritage n\'est pas dans un miracle spectaculaire gravé dans la mémoire des peuples. Son héritage est dans chaque être humain qui, un jour ordinaire, face à une situation ordinaire, tient la promesse qu\'il a faite à Allah — même quand personne ne regarde, même quand c\'est difficile, même quand le sommeil est plus tentant que la prière de l\'aube.',
       ),
     ],
@@ -2151,17 +2690,24 @@ const List<Prophet> kProphets = [
     timeline: TimelineData(
       order: 14,
       era: 'Ère des prophètes d\'Israïl',
+      englishEra: 'Era of the Prophets of Israel',
       approxDate: '~1000 av. J.-C.',
+      englishApproxDate: '~1000 BC',
       region: 'Canaan',
+      englishRegion: 'Canaan',
     ),
   ),
 
   // ── 17. Dawud ────────────────────────────────────────────────────────────
   Prophet(
     number: 17, arabicName: 'دَاوُود', frenchName: 'Dâwûd',
+    englishName: 'David',
     emoji: '🎵', period: 'Environ 1000 avant l\'ère commune',
+    englishPeriod: 'Around 1000 BC',
     shortDesc: 'Roi, prophète et psalmiste — vainqueur de Goliath',
+    englishShortDesc: 'King, prophet and psalmist — conqueror of Goliath',
     summary: 'Dawud fut élevé du statut humble de berger à celui de roi et prophète, vainqueur du géant Goliath avec une simple pierre. Doté d\'une voix mélodieuse et d\'une sagesse proverbiale, il fut aussi un guerrier juste qui établit un royaume fondé sur la justice et l\'adoration d\'Allah — ses psaumes, les Zabur, résonnent encore dans le cœur des croyants.',
+    englishSummary: 'David was a young shepherd who defeated the giant Goliath with a single stone from his sling. Allah then made him king and prophet of the Children of Israel, granted him the Psalms, gave him a beautiful voice that made all creation glorify Allah, and gave him the ability to work iron with his bare hands.',
     fullStory:
       '━━━ LE PEUPLE D\'ISRAÏL ET SON ROI ━━━\n\n'
       'Pour comprendre Dawud, il faut comprendre le moment historique où il apparut. Les Banu Israïl avaient traversé des siècles d\'épreuves depuis Musa : le désert, l\'entrée en Terre Promise, les juges, les guerres tribales. Ils n\'avaient pas de roi centralisé — chaque tribu se gouvernait elle-même avec ses propres chefs et juges. Mais les peuples voisins, organisés en royaumes, les attaquaient sans cesse.\n\n'
@@ -2216,25 +2762,36 @@ const List<Prophet> kProphets = [
       'Pouvait mouler le fer avec ses mains nues — don miraculeux d\'Allah',
       'Allah lui enseigna la fabrication des cottes de mailles (21:80)',
     ],
+    englishKeyFacts: ['Killed the giant Goliath as a young shepherd', 'King and prophet of the Children of Israel', 'Received the Psalms (Zabur) — divine scripture', 'All creation glorified Allah with him when he recited', 'Given the ability to soften iron with his bare hands'],
     moral: 'Avec Allah, un simple berger peut vaincre un géant ; la foi est la vraie force.',
+    englishMoral: 'With Allah, a simple shepherd can defeat a giant; faith is the true strength.',
     quiz: [
       QuizQ(
         question: 'Qui Dawud tua-t-il étant jeune avec une fronde ?',
+        englishQuestion: 'Who did David kill as a young man with a sling?',
         options: ['Un lion', 'Un ours', 'Jalut (Goliath)', 'Pharaon'],
+        englishOptions: ['A lion', 'A bear', 'Goliath (Jalut)', 'Pharaoh'],
         correctIndex: 2,
         explanation: 'Le jeune Dawud tua le géant guerrier Jalut (Goliath) d\'une pierre lancée avec sa fronde.',
+        englishExplanation: 'The young David killed the giant warrior Goliath with a stone launched from his sling.',
       ),
       QuizQ(
         question: 'Quel livre sacré Allah révéla-t-il à Dawud ?',
+        englishQuestion: 'Which sacred book did Allah reveal to David?',
         options: ['La Thora', 'L\'Injil', 'Le Coran', 'Le Zabour'],
+        englishOptions: ['The Torah', 'The Injil', 'The Quran', 'The Zabur'],
         correctIndex: 3,
         explanation: 'Allah révéla le Zabour (الزبور), les Psaumes, à Dawud — un livre de prières et de sagesse.',
+        englishExplanation: 'Allah revealed the Zabur (الزبور), the Psalms, to David — a book of prayers and wisdom.',
       ),
       QuizQ(
         question: 'Quel don physique Allah accorda-t-il à Dawud ?',
+        englishQuestion: 'What physical gift did Allah grant to David?',
         options: ['Voler dans le ciel', 'Mouler le fer avec ses mains', 'Parler aux animaux', 'Voir à travers les murs'],
+        englishOptions: ['Flying in the sky', 'Molding iron with his hands', 'Speaking with animals', 'Seeing through walls'],
         correctIndex: 1,
         explanation: 'Dawud pouvait mouler le fer avec ses mains nues et fabriquait des cottes de maille.',
+        englishExplanation: 'David could mold iron with his bare hands and made chain mail armor.',
       ),
     ],
     chapters: [
@@ -2244,30 +2801,37 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'LE BERGER ET LE GÉANT',
+        englishTitle: 'THE SHEPHERD AND THE GIANT',
         content: 'Dawud ibn Ishaï (David fils de Jessé) était le plus jeune de huit frères. Son père était un homme ordinaire de Bethléem. Dawud était berger — il gardait les troupeaux de son père dans les collines de Judée. Un travail solitaire, qui développe la patience, l\'observation, le courage face aux prédateurs. Les loups et les ours attaquaient parfois le troupeau — et Dawud les combattait seul, à mains nues ou avec sa fronde, pour protéger ses bêtes.\n\nQuand Talut rassembla son armée pour affronter les Philistins et leur champion redoutable Jalut (Goliath), plusieurs des frères de Dawud partirent combattre. Dawud était trop jeune pour l\'armée. Son père l\'envoya au camp porter de la nourriture à ses frères et avoir de leurs nouvelles.\n\nCe que Dawud trouva au camp le stupéfia : une armée entière paralysée par la peur. De l\'autre côté de la vallée se dressait Jalut — un géant d\'une stature fabuleuse, couvert d\'une armure de bronze, brandissant une javeline comme un mât de bateau. Chaque matin, il s\'avançait et lançait le défi : « Envoyez-moi quelqu\'un qui se batte contre moi ! » Et personne ne sortait des rangs.\n\nTalut avait promis : quiconque tuerait Jalut recevrait une grande récompense, la main de sa fille en mariage, et son père serait exonéré d\'impôts à vie. Dawud entendit cela. Son sang ne fit qu\'un tour. Non par appât du gain — mais par une foi et un courage naturels qui n\'avaient pas encore été émoussés par la peur ambiante. Il demanda à ceux qui l\'entouraient : « Qui est cet incirconcis des Philistins pour défier les armées du Dieu vivant ? »\n\nSes frères aînés se moquèrent de lui. « Rentre chez toi t\'occuper de tes moutons. Tu n\'es qu\'un gamin. » Mais la nouvelle parvint à Talut. Il fit venir Dawud. Et en voyant cet adolescent — grand mais clairement pas encore un guerrier accompli — Talut dit avec une sincère inquiétude : « Tu ne peux pas combattre ce Philistin. Tu es trop jeune, et lui c\'est un guerrier depuis sa jeunesse. »\n\nDawud répondit avec la confiance calme de celui qui compte sur Allah plutôt que sur sa force : « Ton serviteur gardait le troupeau de son père. Quand un lion ou un ours venait enlever une bête, je courais après lui, je le frappais et je lui arrachais la bête de la gueule. S\'il se retournait contre moi, je le saisissais par la mâchoire et je le tuais. Ton serviteur a tué le lion et l\'ours — et ce Philistin incirconcis sera comme l\'un d\'eux, car il a défié les armées du Dieu vivant. Allah qui m\'a délivré de la griffe du lion et de l\'ours me délivrera de ce Philistin. »\n\nTalut, impressionné, accepta. Il lui fit revêtir son armure royale — mais Dawud ne pouvait pas marcher avec. Il n\'en avait pas l\'habitude. Il l\'ôta. Il prit sa fronde et ramassa cinq pierres lisses dans le lit d\'un ruisseau.\n\nJalut avança avec ses porteurs d\'armes, regardant vers les rangs ennemis, cherchant le guerrier qui oserait. Et il vit... un adolescent. Un gamin avec un bâton et une fronde. Il rit. Il dit : « Suis-je un chien pour que tu viennes à moi avec des bâtons ? »\n\nDawud lui répondit : « Tu viens à moi avec une épée, une lance et un bouclier — et moi je viens à toi au nom du Seigneur des armées, le Dieu des armées d\'Israïl que tu as défié. Aujourd\'hui Allah te livrera dans ma main. » Il mit une pierre dans sa fronde. Il tourna. Il lâcha.\n\nLa pierre toucha Jalut au front. Il s\'effondra. L\'armée des Philistins, voyant leur champion tombé, prit la fuite. Les Banu Israïl se lancèrent à leur poursuite. Et ce jour-là, Dawud — le berger qui gardait des moutons quelques jours auparavant — devint l\'homme qui avait tué le plus grand guerrier de son temps avec une fronde et une pierre.\n\nLe Coran conclut ce récit avec ces mots profonds : « Ils mirent les Philistins en déroute avec la permission d\'Allah. Et Dawud tua Jalut. Allah lui donna la royauté et la sagesse, et lui enseigna ce qu\'Il voulut. Et si Allah ne repoussait pas les uns par les autres, la Terre serait corrompue. Mais Allah est Détenteur de grâce envers les mondes. » (2:251)',
       ),
       StoryChapter(
         title: 'LA PROPHÉTIE ET LE ZABOUR',
+        englishTitle: 'THE PROPHECY AND THE PSALMS',
         content: 'Allah accorda à Dawud la prophétie. Il reçut le Zabour — les Psaumes — un livre de louanges, de prières, de sagesse et de méditation. Le Zabour est différent de la Thora ou de l\'Injil — ce n\'est pas principalement un code de loi ou une nouvelle doctrine. C\'est un livre de prière, un recueil de l\'âme en conversation avec Allah.\n\nLes Psaumes de Dawud exprimaient la gamme complète de l\'expérience spirituelle humaine : la louange extasiée, la détresse dans l\'épreuve, la confiance profonde malgré la souffrance, la demande de guidance, la reconnaissance de sa propre faiblesse et petitesse devant la grandeur d\'Allah. Ils sont peut-être les textes les plus humanement universels de toute révélation prophétique.\n\nMais le don le plus remarquable de Dawud était sa voix. Le Coran dit : « Nous assoupîmes pour lui le fer, et : ‟Travaille les cottes de maille, mesure bien les mailles." » (34:10-11). Et ailleurs : « Nous avions donné à Dawud une grâce de Notre part. Ô montagnes, répercutez Ses louanges avec lui ! Et les oiseaux aussi. » (34:10)\n\nQuand Dawud chantait ses prières — sa voix montant dans l\'air chaud du désert, pure et puissante — les oiseaux interrompaient leur vol pour écouter. Les montagnes semblaient vibrer en résonance. Les arbres se courbaient légèrement. Ce don était unique : aucun autre prophète avant lui n\'avait reçu cette grâce particulière d\'une voix qui touchait la création entière et la mettait en prière.\n\nLe Prophète ﷺ dit : « Allah n\'a rien écouté aussi attentivement que Sa façon d\'écouter un Prophète doué d\'une belle voix réciter le Coran à voix haute. » Et plus spécifiquement : « Dawud reçut le Zabour, et sa voix était la plus belle que la création ait jamais entendue. »',
       ),
       StoryChapter(
         title: 'ROI ET ARTISAN — LE DON DU FER',
+        englishTitle: 'KING AND CRAFTSMAN — THE GIFT OF IRON',
         content: 'Allah accorda à Dawud un autre don extraordinaire : la maîtrise du fer. Il pouvait mouler le métal avec ses mains nues, sans feu, sans forge, sans outil. Le Coran dit : « Nous avons amolli pour lui le fer. »\n\nDawud utilisa ce don avec une finalité pratique et une sagesse remarquables. Il fabriqua des cottes de maille — des armures souples, légères, résistantes, que ses soldats pouvaient porter sans être handicapés dans leurs mouvements. Avant lui, les armures étaient soit inexistantes, soit si lourdes qu\'elles épuisaient le guerrier. Les cottes de maille de Dawud révolutionnèrent la guerre défensive.\n\nMais le détail le plus frappant : Dawud roi, prophète, guerrier et poète — travaillait de ses propres mains. Il fabriquait les cottes lui-même. Il ne déléguait pas. Il suait sur l\'enclume. Cette humilité devant le travail manuel, dans un monde où les rois ne travaillaient jamais de leurs mains, était en elle-même un message.\n\nLe Prophète ﷺ dit : « La meilleure nourriture que mange un homme est ce qu\'il gagne par le travail de ses propres mains. Et le prophète Dawud mangeait de ce qu\'il gagnait par le travail de ses propres mains. » Le roi-prophète qui fabriquait ses armures et les vendait pour subvenir à ses besoins sans dépendre du trésor public — c\'était Dawud.',
       ),
       StoryChapter(
         title: 'LA ROYAUTÉ ET LA JUSTICE',
+        englishTitle: 'KINGSHIP AND JUSTICE',
         content: 'Dawud devint roi sur Israïl. Pas un roi ordinaire — un roi-prophète, ce que les Arabes appellent Nabî Malîk. Il régnait avec justice, avec sagesse, avec une connaissance directe de la révélation d\'Allah. Sa cour était réputée pour l\'équité de ses jugements.\n\nLe Coran mentionne un épisode judiciaire fascinant : deux hommes escaladèrent le mur du palais de Dawud et entrèrent dans sa chambre privée — une scène inhabituelle et inquiétante. Dawud eut peur. Ils dirent qu\'ils venaient pour un arbitrage. L\'un dit : « Ce frère a quatre-vingt-dix-neuf brebis et moi j\'en ai une seule. Il m\'a dit de la lui confier et il l\'a emporté dans la discussion. »\n\nDawud rendit son verdict immédiatement : « Il a été injuste envers toi en demandant ta brebis en plus des siennes. Beaucoup d\'associés sont injustes les uns envers les autres, sauf ceux qui croient et font le bien. »\n\nPuis Allah l\'inspira à comprendre que cette scène était en réalité une mise à l\'épreuve divine — une leçon sur la façon de ne pas juger trop vite, de ne pas rendre un verdict avant d\'avoir entendu les deux parties. Dawud se prosterna en repentance. Allah dit : « Nous lui avons pardonné. Il a auprès de Nous une position élevée et un beau refuge. » (38:25)',
       ),
       StoryChapter(
         title: 'LA PRIÈRE DE DAWUD',
+        englishTitle: 'THE PRAYER OF DAVID',
         content: 'La vie spirituelle de Dawud était d\'une intensité remarquable. Le Prophète ﷺ dit : « La meilleure prière aux yeux d\'Allah est la prière de Dawud. Il dormait la moitié de la nuit, priait un tiers, dormait un sixième. La meilleure jeûne aux yeux d\'Allah est le jeûne de Dawud : il jeûnait un jour sur deux. »\n\nAlterner sommeil, veille, prière, repos — et jeûner un jour sur deux — c\'est un rythme de dévotion qui reconnaît la nature humaine (le corps a besoin de repos et de nourriture) tout en la transcendant vers l\'adoration. Ni l\'épuisement total ni la facilité totale — la voie du milieu, la voie prophétique.\n\nQuand Dawud priait, sa voix montait dans la nuit de Jérusalem, et les veilleurs rapportaient que la ville entière semblait tenir son souffle pour écouter.',
       ),
       StoryChapter(
         title: 'SULAYMAN — LE FILS HÉRITIER',
+        englishTitle: 'SOLOMON — THE HEIR',
         content: 'Dawud avait de nombreux fils. L\'un d\'eux allait hériter non seulement de son trône mais de sa prophétie : Sulayman (Salomon). Le Coran mentionne un épisode où Dawud et Sulayman jugèrent ensemble une affaire — des moutons qui avaient brouté et détruit un champ de nuit. Dawud rendit un verdict initial ; Sulayman, encore adolescent, proposa une solution plus juste et plus équilibrée. Dawud, sans ego ni ressentiment, adopta le jugement de son fils. Le Coran dit : « Nous l\'avons fait comprendre à Sulayman. »\n\nCette capacité d\'un père et roi à reconnaître la sagesse de son fils et à la suivre — sans humiliation, sans défense de son autorité — dit quelque chose de profond sur le caractère de Dawud.',
       ),
       StoryChapter(
         title: 'LA MORT DE DAWUD',
+        englishTitle: 'THE DEATH OF DAVID',
         content: 'Dawud mourut à un âge avancé, après avoir établi Jérusalem comme capitale de son royaume et avoir commencé les préparatifs du Temple qu\'il voulait construire pour Allah. Mais Allah lui fit savoir qu\'il avait trop de sang sur les mains — non par injustice, mais parce qu\'il avait mené de nombreuses guerres. La construction du Temple serait l\'œuvre de Sulayman.\n\nSelon les récits de la tradition, Dawud mourut un vendredi. Sa mort fut entourée d\'honneur et de deuil. On dit que les oiseaux firent de l\'ombre sur son corps jusqu\'à l\'enterrement — comme hommage final de la création à celui qui les avait invités à louer Allah pendant toute sa vie.',
       ),
       StoryChapter(
@@ -2279,17 +2843,24 @@ const List<Prophet> kProphets = [
     timeline: TimelineData(
       order: 15,
       era: 'Royaume d\'Israël',
+      englishEra: 'Kingdom of Israel',
       approxDate: '~1000 av. J.-C.',
+      englishApproxDate: '~1000 BC',
       region: 'Palestine',
+      englishRegion: 'Palestine',
     ),
   ),
 
   // ── 18. Sulayman ─────────────────────────────────────────────────────────
   Prophet(
     number: 18, arabicName: 'سُلَيمَان', frenchName: 'Sulaymân',
+    englishName: 'Solomon',
     emoji: '🦅', period: 'Environ 970-930 avant l\'ère commune',
+    englishPeriod: 'Around 970–930 BC',
     shortDesc: 'Roi-prophète, parle aux animaux, gouverne les djinns',
+    englishShortDesc: 'King-prophet, spoke with animals, ruled over the djinn',
     summary: 'Sulayman hérita du trône et de la prophétie de son père Dawud, puis demanda à Allah un pouvoir sans pareil. Allah lui accorda alors des miracles extraordinaires : il parlait le langage des animaux, gouvernait les djinns et les esprits, commandait au vent, et possédait des richesses inimaginables. Pourtant, sa vraie grandeur résidait dans sa sagesse juste et sa gratitude constante envers Allah.',
+    englishSummary: 'Solomon inherited David\'s kingdom and received gifts no one before or after him received: speaking with animals, ruling over djinn and the wind, and an extraordinary kingdom. He built the first Temple of Jerusalem and converted the Queen of Sheba to monotheism through his wisdom and power.',
     fullStory:
       '━━━ LE FILS DU ROI-PROPHÈTE ━━━\n\n'
       'Sulayman grandit dans le palais de son père Dawud à Jérusalem — une ville que son père avait conquise et embelli, qu\'il avait fait la capitale d\'un royaume puissant. Dès son enfance, Sulayman montrait des signes d\'une intelligence et d\'une sagesse hors du commun. Le Coran mentionne l\'épisode où, encore adolescent, il proposa un jugement plus équitable que celui de son propre père dans une affaire judiciaire. Dawud adopta le verdict de son fils sans ego, reconnaissant : « Nous l\'avons fait comprendre à Sulayman. »\n\n'
@@ -2335,30 +2906,42 @@ const List<Prophet> kProphets = [
       'La Reine de Saba (Bilqis) se convertit à l\'Islam grâce à lui',
       'Son trône et son palais de cristal sont des symboles de la grandeur divine',
     ],
+    englishKeyFacts: ['Spoke the language of birds and animals', 'Ruled over djinn and wind by the gift of Allah', 'Built the first Temple of Jerusalem', 'His army included men, djinn, birds and animals', 'Convinced the Queen of Sheba (Bilqis) to submit to Allah'],
     moral: 'Le vrai pouvoir ne rend pas orgueilleux ; il inspire gratitude et responsabilité envers Allah.',
+    englishMoral: 'True power does not make one arrogant; it inspires gratitude and responsibility toward Allah.',
     quiz: [
       QuizQ(
         question: 'Qui était le père de Sulayman ?',
+        englishQuestion: 'Who was the father of Solomon?',
         options: ['Ibrahim', 'Musa', 'Yaqub', 'Dawud'],
+        englishOptions: ['Abraham', 'Moses', 'Jacob', 'David'],
         correctIndex: 3,
         explanation: 'Sulayman est le fils du prophète-roi Dawud et hérita de sa royauté et prophétie.',
+        englishExplanation: 'Solomon is the son of the prophet-king David and inherited his kingdom and prophethood.',
       ),
       QuizQ(
         question: 'Quel don unique Allah accorda-t-il à Sulayman ?',
+        englishQuestion: 'What unique gift did Allah grant to Solomon?',
         options: ['Guérir les malades', 'Parler aux animaux et commander les djinns', 'Prédire l\'avenir', 'Être invisible'],
+        englishOptions: ['Healing the sick', 'Speaking with animals and commanding djinn', 'Predicting the future', 'Being invisible'],
         correctIndex: 1,
         explanation: 'Sulayman comprenait le langage de tous les animaux et les djinns lui obéissaient par permission d\'Allah.',
+        englishExplanation: 'Solomon understood the language of all animals and the djinn obeyed him by Allah\'s permission.',
       ),
       QuizQ(
         question: 'Quelle reine se convertit à l\'Islam grâce à Sulayman ?',
+        englishQuestion: 'Which queen converted to Islam thanks to Solomon?',
         options: ['Reine d\'Égypte', 'Reine de Saba (Bilqis)', 'Reine de Perse', 'Reine de Rome'],
+        englishOptions: ['Queen of Egypt', 'Queen of Sheba (Bilqis)', 'Queen of Persia', 'Queen of Rome'],
         correctIndex: 1,
         explanation: 'La Reine de Saba, Bilqis, se convertit à l\'Islam après avoir été éblouie par la sagesse de Sulayman.',
+        englishExplanation: 'The Queen of Sheba, Bilqis, converted to Islam after being dazzled by the wisdom of Solomon.',
       ),
     ],
     chapters: [
       StoryChapter(
         title: 'LE FILS DU ROI-PROPHÈTE',
+        englishTitle: 'THE SON OF THE KING-PROPHET',
         content: 'Sulayman grandit dans le palais de son père Dawud à Jérusalem — une ville que son père avait conquise et embelli, qu\'il avait fait la capitale d\'un royaume puissant. Dès son enfance, Sulayman montrait des signes d\'une intelligence et d\'une sagesse hors du commun. Le Coran mentionne l\'épisode où, encore adolescent, il proposa un jugement plus équitable que celui de son propre père dans une affaire judiciaire. Dawud adopta le verdict de son fils sans ego, reconnaissant : « Nous l\'avons fait comprendre à Sulayman. »\n\nQuand Dawud mourut, Sulayman hérita de la royauté et de la prophétie. Mais avant de prendre ses fonctions, il fit une chose remarquable : il pria. Non pas pour la richesse, ni pour la gloire, ni pour la longue vie. Il pria : « Seigneur, pardonne-moi et accorde-moi un royaume qu\'il ne conviendra à personne après moi. Tu es le Grand Donateur. »\n\nCette prière est parfois mal comprise. Certains voient de l\'arrogance dans la demande d\'un royaume unique. Mais les exégètes expliquent que Sulayman demandait un signe — une preuve que sa prophetie était authentique, un règne dont la magnificence confirmerait aux peuples qu\'il venait d\'Allah. Et Allah accorda. Le Coran dit : « Nous soumîmes pour lui le vent — sa rafale matinale couvrait un mois de marche, et sa rafale vespérale un autre mois. Et Nous fîmes couler pour lui une source de cuivre en fusion. Et parmi les djinns, certains travaillaient pour lui par permission de son Seigneur. » (34:12)',
       ),
       StoryChapter(
@@ -2367,10 +2950,12 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'LE DON DES LANGUES — FOURMIS ET OISEAUX',
+        englishTitle: 'THE GIFT OF LANGUAGE — ANTS AND BIRDS',
         content: 'Un autre don unique d\'Allah à Sulayman : la compréhension du langage de tous les animaux. Pas seulement les animaux domestiques — tous. Chaque créature vivante parlait une langue que Sulayman pouvait entendre et comprendre.\n\nLe Coran raconte l\'épisode de la fourmi avec une tendresse remarquable. L\'armée de Sulayman — hommes, djinns et animaux — marchait en formation imposante à travers une vallée. Et dans cette vallée vivait une colonie de fourmis. Leur reine vit l\'armée approcher et cria à ses compagnes : « Ô fourmis ! Rentrez dans vos demeures pour que Sulayman et ses armées ne vous écrasent pas sans s\'en rendre compte ! »\n\nSulayman entendit. Et ce qui est remarquable, c\'est sa réaction. Il n\'était pas irrité que la fourmi l\'ait interpelé. Il n\'était pas indifférent. Il sourit — le Coran dit « il sourit en entendant ses paroles » — et il dit : « Seigneur, inspire-moi à être reconnaissant pour Tes bienfaits que Tu m\'as accordés ainsi qu\'à mes parents, et à accomplir le bien qui T\'agrée. Admets-moi, par Ta miséricorde, parmi Tes serviteurs vertueux. »\n\nUn roi qui gouverne des djinns et des armées d\'hommes s\'arrête pour remercier Allah parce qu\'une fourmi a pensé à le mentionner avec respect. La grandeur de Sulayman était dans cette capacité à s\'émerveiller, à s\'humilier, à voir la grandeur d\'Allah dans la plus minuscule des créatures.\n\nUn autre épisode : Sulayman inspecta ses armées et remarqua l\'absence de la Huppe (le Hudhud). Il dit avec une légère irritation : « Pourquoi je ne vois pas la Huppe ? Est-elle absente ? Je lui infligerai un châtiment sévère, ou je l\'égorgerai, à moins qu\'elle ne m\'apporte une justification valable. » Puis la Huppe arriva et dit : « J\'ai appris ce que tu ne savais pas, et je te viens de Saba avec une nouvelle certaine. »',
       ),
       StoryChapter(
         title: 'LA REINE DE SABA — BILQIS',
+        englishTitle: 'THE QUEEN OF SHEBA — BILQIS',
         content: 'La Huppe rapporta une information extraordinaire : il existait un royaume puissant au sud — le Saba, actuel Yémen — gouverné par une femme, une reine nommée Bilqis. Ce royaume était prospère, bien organisé, et la reine était respectée de tous. Mais son peuple adorait le soleil plutôt qu\'Allah.\n\nSulayman ne prit pas les armes immédiatement. Il envoya une lettre. Une seule lettre. Elle commençait par « Bismi Allahi Ar-Rahmani Ar-Rahîm » — Au nom d\'Allah, le Tout Miséricordieux, le Très Miséricordieux. Puis : « N\'ayez pas d\'arrogance envers moi et venez à moi en soumission. »\n\nBilqis convoqua ses conseillers. Ils lui offrirent leurs épées et leur soutien inconditionnel — « nous sommes des hommes de grande force et de grande vaillance ». Mais Bilqis, avec la sagesse d\'une souveraine expérimentée, dit : « Quand des rois entrent dans une cité, ils la dévastent et font des plus nobles de ses habitants des humiliés. Mais je vais leur envoyer un présent et attendre ce que rapporteront les envoyés. »\n\nElle envoya une délégation avec des cadeaux précieux. Sulayman reçut les émissaires et dit avec une franchise déconcertante : « Voulez-vous me gratifier de biens ? Ce qu\'Allah m\'a donné est meilleur que ce qu\'Il vous a donné. C\'est vous-mêmes qui vous réjouissez de votre cadeau ! Retournez vers eux — nous viendrons à eux avec des armées qu\'ils ne pourront pas affronter, et nous les chasserons de là dans l\'humiliation et ils seront abaissés. »\n\nBilqis décida de venir elle-même. Elle se dirigea vers Jérusalem avec sa cour.',
       ),
       StoryChapter(
@@ -2379,14 +2964,17 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'LE VENT ET LA CONSTRUCTION',
+        englishTitle: 'THE WIND AND THE CONSTRUCTION',
         content: 'Allah avait soumis les vents à Sulayman. Sa flotte — de bateaux construits par les djinns — voguait sur des vents qui obéissaient à ses ordres. Un voyage qui aurait pris des semaines se faisait en quelques jours. Cette maîtrise du vent faisait de son empire maritime l\'un des plus étendus de son temps.\n\nLa grande réalisation de Sulayman fut la construction du Temple de Jérusalem — Bayt Al-Maqdis. Son père Dawud avait rassemblé les matériaux et préparé les plans, mais Allah lui avait dit que c\'était à Sulayman de le construire. Sulayman mobilisa djinns, hommes et ressources de tout son empire pour édifier cet édifice sacré.\n\nLes djinns travaillaient comme architectes, sculpteurs, charpentiers. Ils taillaient le marbre, moulaient le cuivre, sculptaient des niches et des bassins. Ils fabriquaient des couverts d\'or et d\'argent, des statues décoratives, des fontaines. Le Temple — décrit dans les traditions comme d\'une beauté incomparable — fut achevé. Sulayman le consacra à Allah.',
       ),
       StoryChapter(
         title: 'LA MORT DE SULAYMAN — LE SECRET DU BÂTON',
+        englishTitle: 'THE DEATH OF SOLOMON — THE SECRET OF THE STAFF',
         content: 'La mort de Sulayman est l\'une des histoires les plus remarquables du Coran. Il mourut pendant que les djinns travaillaient encore — debout, appuyé sur son bâton, regardant le chantier. Les djinns ne savaient pas qu\'il était mort. Ils continuèrent à travailler pendant un long moment, par crainte de désobéir.\n\nCe n\'est que quand les vers rongèrent son bâton de l\'intérieur et qu\'il s\'effondra que les djinns comprirent. Le Coran en tire une leçon profonde : « S\'ils avaient eu connaissance de l\'Invisible, ils ne seraient pas restés dans le châtiment humiliant. » (34:14) Les djinns, malgré leurs capacités extraordinaires, ne connaissent pas l\'invisible. Seul Allah connaît Al-Ghayb.',
       ),
       StoryChapter(
         title: 'LA LEÇON DE SULAYMAN',
+        englishTitle: 'THE LESSON OF SOLOMON',
         content: 'Sulayman reçut ce que personne d\'autre n\'a reçu : la royauté absolue, le commandement des djinns et des hommes, la maîtrise des vents et des eaux, la compréhension de toutes les langues animales, une richesse sans précédent. Et il en fut reconnaissant — jamais arrogant.\n\nChaque fois qu\'un miracle se produisait, il disait : « C\'est de la grâce de mon Seigneur. » Chaque don le rapprochait d\'Allah au lieu de l\'en éloigner. Il comprenait que le vrai pouvoir n\'appartient qu\'à Allah — lui n\'en était que le gérant temporaire.\n\nSa prière pour un royaume unique était une sagesse prophétique : il savait que ce royaume serait un signe pour toutes les générations futures, une démonstration que la foi peut coexister avec la grandeur terrestre, que le croyant peut gouverner le monde sans se perdre. Son héritage, c\'est la preuve vivante qu\'on peut avoir tout ce que le monde offre et n\'en vouloir qu\'Allah.',
       ),
     ],
@@ -2394,17 +2982,24 @@ const List<Prophet> kProphets = [
     timeline: TimelineData(
       order: 16,
       era: 'Royaume d\'Israël',
+      englishEra: 'Kingdom of Israel',
       approxDate: '~970-930 av. J.-C.',
+      englishApproxDate: '~970-930 BC',
       region: 'Palestine',
+      englishRegion: 'Palestine',
     ),
   ),
 
   // ── 19. Ilyas ────────────────────────────────────────────────────────────
   Prophet(
     number: 19, arabicName: 'إِلْيَاس', frenchName: 'Ilyâs',
+    englishName: 'Elias',
     emoji: '⚡', period: 'Environ 870 avant l\'ère commune',
+    englishPeriod: 'Around 870 BC',
     shortDesc: 'Combat le culte de Baal parmi les Banu Israïl (37:123-132)',
+    englishShortDesc: 'Fought the worship of Baal among the Banu Israel (37:123-132)',
     summary: 'Ilyas s\'opposa au culte idolâtre de Baal qu\'avait introduit la reine Jézabel dans le royaume d\'Israïl du nord. Seul face à une nation apostasie, il affronta les faux prêtres et montra la vraie puissance d\'Allah contre leurs dieux mensongers. Lorsque le peuple refusa de croire, Allah le protégea en le soulevant au ciel, devenant un prophète éternel connu pour son zèle absolu.',
+    englishSummary: 'Elias was sent to the people of Israel who had abandoned monotheism for the worship of Baal, an idol. He called them back tirelessly to the worship of Allah alone. Faced with rejection and threats, he was elevated by Allah. The Quran preserves the salutation: \'Peace be upon Elias.\'',
     fullStory:
       '━━━ ISRAÏL DU NORD — LE ROYAUME QUI OUBLIA ━━━\n\n'
       'Après la gloire de Dawud et Sulayman, le royaume d\'Israïl se fractura. À la mort de Sulayman, son fils Roboam perdit dix tribus sur douze à cause de son arrogance. Le royaume se divisa : Juda au sud, avec Jérusalem — et Israïl au nord, avec Samarie comme capitale nouvelle. C\'est dans ce royaume du nord que se situe l\'histoire d\'Ilyas.\n\n'
@@ -2444,46 +3039,62 @@ const List<Prophet> kProphets = [
       'Le Coran lui adresse une paix spéciale : « Salâm sur Ilyas ! »',
       'Mentionné dans le Coran comme faisant partie des vertueux (37:130)',
     ],
+    englishKeyFacts: ['Sent to the people of Israel who worshipped Baal', 'Called his people back to the worship of Allah alone', 'Threatened and pursued for his message', 'Honored by Allah with elevation — \'Peace upon Elias\' (37:130)', 'Mentioned in the Quran alongside the righteous'],
     moral: 'Défendre la vérité seul contre tous est une forme de grandeur que seuls les croyants sincères atteignent.',
+    englishMoral: 'Defending the truth alone against all others is a form of greatness that only sincere believers achieve.',
     quiz: [
       QuizQ(
         question: 'Contre quel culte Ilyas combattit-il ?',
+        englishQuestion: 'Against which cult did Elias fight?',
         options: ['Ra', 'Zeus', 'Baal', 'Osiris'],
+        englishOptions: ['Ra', 'Zeus', 'Baal', 'Osiris'],
         correctIndex: 2,
         explanation: 'Ilyas combattit le culte de l\'idole Baal que les rois d\'Israïl avaient imposée au peuple.',
+        englishExplanation: 'Elias fought against the worship of the idol Baal that the kings of Israel had imposed on the people.',
       ),
       QuizQ(
         question: 'À quel peuple Ilyas fut-il envoyé ?',
+        englishQuestion: 'To which people was Elias sent?',
         options: ['Thamoud', 'Madyan', 'Babylone', 'Banu Israïl'],
+        englishOptions: ['Thamud', 'Midian', 'Babylon', 'Banu Israel'],
         correctIndex: 3,
         explanation: 'Ilyas fut envoyé aux Banu Israïl, notamment au royaume d\'Israïl du Nord.',
+        englishExplanation: 'Elias was sent to the Banu Israel, specifically to the northern Kingdom of Israel.',
       ),
       QuizQ(
         question: 'Comment Allah honore-t-il Ilyas dans le Coran ?',
+        englishQuestion: 'How does Allah honor Elias in the Quran?',
         options: ['En l\'appelant Khalil', 'En lui envoyant une paix spéciale', 'En le nommant roi', 'En le décrivant comme le plus savant'],
+        englishOptions: ['By calling him Khalil', 'By sending him a special peace', 'By naming him king', 'By describing him as the most learned'],
         correctIndex: 1,
         explanation: 'Le Coran (37:130) dit : « Salâm (paix) sur Ilyas ! » — un honneur particulier accordé par Allah.',
+        englishExplanation: 'The Quran (37:130) says: \'Salam (peace) upon Elias!\' — a special honor granted by Allah.',
       ),
     ],
     chapters: [
       StoryChapter(
         title: 'ISRAÏL DU NORD — LE ROYAUME QUI OUBLIA',
+        englishTitle: 'NORTHERN ISRAEL — THE KINGDOM THAT FORGOT',
         content: 'Après la gloire de Dawud et Sulayman, le royaume d\'Israïl se fractura. À la mort de Sulayman, son fils Roboam perdit dix tribus sur douze à cause de son arrogance. Le royaume se divisa : Juda au sud, avec Jérusalem — et Israïl au nord, avec Samarie comme capitale nouvelle. C\'est dans ce royaume du nord que se situe l\'histoire d\'Ilyas.\n\nLe roi Achab monta sur le trône d\'Israïl du Nord environ deux siècles après Sulayman. Il aurait pu régner dans la tradition de ses ancêtres prophètes. Mais il épousa Jézabel — une princesse phénicienne de Sidon, fervente adoratrice de Baal, le dieu de l\'orage et de la fertilité du panthéon cananéen. Et sous l\'influence de Jézabel, Baal envahit Israïl.\n\nCe n\'était pas une simple question de préférence religieuse. Jézabel fit construire un temple à Baal dans la capitale. Elle finança des centaines de prêtres de Baal avec les deniers publics. Elle persécuta les prophètes d\'Allah, en tua un grand nombre, força les survivants à se cacher dans des grottes. Elle tenta méthodiquement d\'effacer la mémoire du Dieu d\'Ibrahim et de Musa de ce peuple qui en était issu.\n\nEt le peuple — épuisé, intimidé, envoûté par la prospérité superficielle que les dieux du commerce et de la pluie semblaient promettre — suivit. Les temples d\'Allah furent renversés. Les autels furent brisés. Et Baal régna sur les collines de Samarie.',
       ),
       StoryChapter(
         title: 'ILYAS — LE SOLITAIRE DE LA MONTAGNE',
+        englishTitle: 'ELIAS — THE SOLITARY OF THE MOUNTAIN',
         content: 'C\'est dans ce contexte qu\'Allah envoya Ilyas. Son nom — Élie en hébreu, Ilyas en arabe — signifie « Mon Dieu est Allah ». Son nom était déjà un défi à l\'époque où Baal était partout.\n\nIlyas était un homme du désert et des montagnes. Il portait une tunique de poil de chameau serrée par une ceinture de cuir. Son visage était dur, ses yeux vifs, sa parole directe. Il n\'avait pas la douceur de Shu\'ayb ni l\'éloquence de Harun. Il avait la foudre dans la voix — ce qui était peut-être nécessaire face à un dieu de la foudre.\n\nIl se présenta devant Achab sans introduction, sans diplomatie. La tradition rapporte qu\'il lui annonça qu\'il n\'y aurait plus de pluie en Israïl « sinon selon ma parole » — un défi direct à Baal, le dieu censé contrôler les pluies. Et effectivement, la sécheresse s\'installa. Trois ans et demi de disette, selon les récits. Le sol craquelé. Les récoltes brûlées. Les ruisseaux asséchés. Et Baal, à qui les prêtres sacrifiaient en masse, restait muet.\n\nAllah prit soin d\'Ilyas pendant cette période. Il le guida vers le torrent de Kérit, à l\'est du Jourdain, où il s\'abreuva. Des corbeaux lui apportaient du pain et de la viande, matin et soir — un détail extraordinaire qui montre qu\'Allah nourrit Ses prophètes par des voies qui défient toute logique humaine. Quand le torrent se dessécha, il lui ordonna d\'aller chez une veuve phénicienne de Sarepta, une femme pauvre qui avait à peine de quoi survivre. Et dans cette maison, la farine dans le pot ne s\'épuisa pas, l\'huile dans la cruche ne se tarit pas — aussi longtemps qu\'Ilyas fut son hôte.',
       ),
       StoryChapter(
         title: 'LE DÉFI DU CARMEL',
+        englishTitle: 'THE CHALLENGE OF CARMEL',
         content: 'Trois ans passèrent. Allah ordonna à Ilyas de retourner voir Achab. Il le retrouva — et la première réaction du roi fut : « C\'est toi, le fléau d\'Israïl ! » Achab blâmait Ilyas pour la sécheresse, comme si le messager était responsable du message. Ilyas répondit : « Ce n\'est pas moi le fléau, c\'est toi et la maison de ton père, en abandonnant les ordres d\'Allah et en suivant Baal. »\n\nPuis il lança le défi : rassemble tout Israïl sur le mont Carmel. Amène les quatre cent cinquante prêtres de Baal. Nous allons décider devant tout le peuple qui est le vrai Dieu.\n\nLe mont Carmel, une crête qui domine la mer Méditerranée au nord d\'Israïl, fut le théâtre de l\'une des scènes les plus dramatiques de l\'histoire prophétique. Deux taureaux furent préparés. Les prêtres de Baal eurent le premier choix — ils placèrent leur offrande sur l\'autel. Et ils appelèrent Baal du matin jusqu\'au midi. « Ô Baal, réponds-nous ! » Rien. Ils dansèrent, ils se lacérèrent avec des couteaux et des lances selon leur rite, ils crièrent jusqu\'au soir. Baal ne répondit pas. Le feu ne descendit pas.\n\nIlyas observait. À un moment, il lança sarcastiquement : « Criez plus fort ! Car il est dieu — peut-être qu\'il réfléchit, peut-être qu\'il s\'est éloigné, peut-être qu\'il dort et doit être réveillé ! » Le sarcasme d\'un prophète face à la fausseté d\'une idole — sans pitié, sans politesse, parce que la vérité n\'a pas à être polie envers le mensonge.\n\nQuand vint le soir, Ilyas répara l\'autel d\'Allah qui avait été renversé — douze pierres pour les douze tribus d\'Israïl. Il creusa un fossé autour. Il disposa le bois et le taureau. Et — geste théâtral de confiance absolue — il fit verser de l\'eau sur le tout : trois fois, jusqu\'à ce que l\'autel soit trempé et le fossé rempli d\'eau.\n\nPuis il pria : « Ô Allah, Dieu d\'Ibrahim, d\'Ishaq et d\'Israïl, fais savoir aujourd\'hui que Tu es Dieu en Israïl, que je suis Ton serviteur, et que c\'est selon Ta parole que j\'ai accompli toutes ces choses. Réponds-moi, ô Allah — réponds-moi, pour que ce peuple reconnaisse que c\'est Toi qui es Dieu. »\n\nLe feu d\'Allah descendit. Il consuma l\'holocauste, le bois, les pierres, la terre, et lécha l\'eau dans le fossé. Le peuple tomba face contre terre et dit : « C\'est Allah qui est Dieu. C\'est Allah qui est Dieu. »',
       ),
       StoryChapter(
         title: 'LA NUIT NOIRE DU PROPHÈTE',
+        englishTitle: 'THE DARK NIGHT OF THE PROPHET',
         content: 'Mais la victoire sur le mont Carmel ne fut pas la fin. Jézabel, furieuse, envoya un message à Ilyas : « Que les dieux me traitent ainsi et encore plus si demain à cette heure je n\'ai pas fait de ta vie ce que tu as fait de la vie de mes prêtres. » Une menace de mort directe. Ilyas — cet homme qui avait affronté quatre cent cinquante prêtres sans trembler — eut peur. Il s\'enfuit dans le désert.\n\nIl marcha une journée entière dans le désert. Puis il s\'assit sous un genêt et dit à Allah : « C\'est assez. Prends mon âme, ô Allah, car je ne vaux pas mieux que mes pères. »\n\nCette prière est saisissante par son humanité. Un prophète au bout du rouleau. Un homme qui a tout donné — et qui s\'effondre. Il n\'y a aucune faiblesse de foi dans ces mots. Il y a simplement un être humain épuisé qui dit : je n\'en peux plus.\n\nEt Allah répondit non pas avec une réprimande, mais avec une douceur : un ange vint le toucher et lui dit : « Lève-toi et mange. » Il y avait près de lui une galette cuite sur des braises et une cruche d\'eau. Il mangea, but, et se recoucha. L\'ange revint une deuxième fois : « Lève-toi et mange, car le chemin est trop long pour toi. »\n\nCe moment — l\'ange qui réveille doucement le prophète épuisé et lui dit de manger avant de continuer — est l\'un des plus tendres de toute l\'histoire prophétique. Allah prend soin du corps de Ses prophètes. Il ne leur demande pas de souffrir sans raison. Il les nourrit. Il les fait dormir. Et puis Il les renvoie en mission.',
       ),
       StoryChapter(
         title: '« PAIX SUR ILYAS ! »',
+        englishTitle: '\'PEACE UPON ELIAS!\'',
         content: 'Le Coran mentionne Ilyas dans la sourate As-Saffat (37:123-130) en quelques versets précis et lumineux. « Ilyas était bien parmi les envoyés. Quand il dit à son peuple : \'Ne craignez-vous pas Allah ? Adorez-vous Baal et délaissez-vous le meilleur des créateurs — Allah, votre Seigneur et le Seigneur de vos ancêtres ? » Et puis, après la description de leur refus et de leur punition : « Paix sur Ilyas ! »\n\nCe « Salam \'ala Ilyas » — cette paix spéciale adressée directement à un prophète par son nom — est un honneur particulier dans le Coran. Ce n\'est pas formulé pour tous les prophètes avec cette directness. Allah lui adresse Sa paix comme on adresse un salut à quelqu\'un qu\'on aime et qu\'on respecte.\n\nDans certaines traditions, Ilyas est parmi les prophètes dont la mort reste mystérieuse — comme Idris et Isa, il aurait été élevé par Allah dans un état particulier. D\'autres traditions islamiques mentionnent qu\'Ilyas et Al-Khadir (le compagnon mystérieux de Musa dans une autre histoire coranique) se retrouvent chaque année à La Mecque pendant la saison du hajj. Ces récits, bien que non corroborés par des textes authentiques, témoignent de la dimension mystique qui entoure cette figure prophétique dans l\'imaginaire islamique.',
       ),
       StoryChapter(
@@ -2495,17 +3106,24 @@ const List<Prophet> kProphets = [
     timeline: TimelineData(
       order: 17,
       era: 'Royaume d\'Israël du Nord',
+      englishEra: 'Northern Kingdom of Israel',
       approxDate: '~870 av. J.-C.',
+      englishApproxDate: '~870 BC',
       region: 'Samarie',
+      englishRegion: 'Samaria',
     ),
   ),
 
   // ── 20. Al-Yasa ──────────────────────────────────────────────────────────
   Prophet(
     number: 20, arabicName: 'الْيَسَع', frenchName: 'Al-Yasa\'',
+    englishName: 'Elisha',
     emoji: '🌊', period: 'Environ 850 avant l\'ère commune',
+    englishPeriod: 'Around 850 BC',
     shortDesc: 'Successeur d\'Ilyas, accomplit des miracles en Canaan',
+    englishShortDesc: 'Successor of Elias, performed miracles in Canaan',
     summary: 'Al-Yasa\' fut le successeur choisi par Ilyas pour poursuivre la prophétie et la lutte contre l\'idolâtrie en Israïl. Passant par une initiation spirituelle intense, il hérita du manteau d\'Ilyas et reçut des miracles extraordinaires — guérison des lépreux, résurrection des morts, purification des eaux — montrant la continuation de la puissance divine à travers ses prophètes successifs.',
+    englishSummary: 'Elisha was the faithful successor of Elias. He continued the prophetic mission in Canaan with miracles: multiplying food for the hungry, healing the sick and even bringing the dead back to life with the permission of Allah. He is mentioned briefly but honorably in the Quran.',
     fullStory:
       '━━━ ÉLISHA — LE FILS QUI N\'ÉTAIT PAS SON FILS ━━━\n\n'
       'L\'histoire d\'Al-Yasa\' — Élisha dans la tradition hébraïque — commence dans un champ. Un matin ordinaire en Israïl, quand un prophète fatigué et seul traversait la vallée de Shaphat. C\'était Ilyas, revenant d\'une longue période d\'errance, portant dans son cœur le poids d\'une mission qui lui semblait interminable. Et Allah lui dit : va trouver Élisha fils de Shaphat, qui laboure avec les bœufs. Il sera ton successeur.\n\n'
@@ -2543,25 +3161,36 @@ const List<Prophet> kProphets = [
       'Mentionné parmi les prophètes honorés dans la Sourate Al-An\'am',
       'Cité dans le Coran parmi les meilleurs des mondes (6:86 et 38:48)',
     ],
+    englishKeyFacts: ['Disciple and successor of the prophet Elias', 'Performed miracles: multiplied food, healed the sick, raised the dead', 'Continued the prophetic mission in Canaan', 'Mentioned twice in the Quran as one of the elect'],
     moral: 'Être un bon successeur et continuer l\'œuvre de ses maîtres est aussi une forme de prophétie.',
+    englishMoral: 'Being a good successor and continuing the work of one\'s teachers is also a form of prophecy.',
     quiz: [
       QuizQ(
         question: 'Qui fut le maître d\'Al-Yasa\' ?',
+        englishQuestion: 'Who was the teacher of Elisha?',
         options: ['Dawud', 'Musa', 'Ilyas', 'Ibrahim'],
+        englishOptions: ['David', 'Moses', 'Elias', 'Abraham'],
         correctIndex: 2,
         explanation: 'Al-Yasa\' était le disciple direct du prophète Ilyas et lui succéda dans la mission prophétique.',
+        englishExplanation: 'Elisha was the direct disciple of the prophet Elias and succeeded him in the prophetic mission.',
       ),
       QuizQ(
         question: 'Dans quelle région Al-Yasa\' exerça-t-il sa mission ?',
+        englishQuestion: 'In which region did Elisha carry out his mission?',
         options: ['Égypte', 'Perse', 'Madyan', 'Canaan'],
+        englishOptions: ['Egypt', 'Persia', 'Midian', 'Canaan'],
         correctIndex: 3,
         explanation: 'Al-Yasa\' continua la mission d\'Ilyas parmi les Banu Israïl en Canaan (Palestine historique).',
+        englishExplanation: 'Elisha continued the mission of Elias among the Banu Israel in Canaan (historical Palestine).',
       ),
       QuizQ(
         question: 'Quel miracle Al-Yasa\' accomplit-il ?',
+        englishQuestion: 'What miracle did Elisha perform?',
         options: ['Il partagea la mer', 'Il fit pleuvoir du pain', 'Il ressuscita des morts', 'Il transforma l\'eau en lait'],
+        englishOptions: ['He parted the sea', 'He rained down bread', 'He raised the dead', 'He turned water into milk'],
         correctIndex: 2,
         explanation: 'Al-Yasa\' ressuscita des morts avec la permission d\'Allah, parmi d\'autres miracles.',
+        englishExplanation: 'Elisha raised the dead with the permission of Allah, among other miracles.',
       ),
     ],
     chapters: [
@@ -2579,10 +3208,12 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'NAAMÂN — LE GÉNÉRAL GUÉRI',
+        englishTitle: 'NAAMAN — THE HEALED GENERAL',
         content: 'L\'une des histoires les plus riches et les plus humainement complexes liées à Al-Yasa\' concerne Naamân, le général en chef de l\'armée syrienne (de l\'Aram). Naamân était un homme puissant, respecté, doté d\'une position enviable — mais il souffrait de la lèpre.\n\nUne jeune servante hébraïque dans sa maison lui parla d\'un prophète en Israïl qui pouvait guérir. Naamân fit la démarche — une démarche d\'humilité remarquable pour un général : il envoya un message au roi d\'Israïl, chargea des cadeaux, et entreprit le voyage. Le roi d\'Israïl, paniqué, y vit un prétexte à la guerre. C\'est Al-Yasa\' qui intervint : « Laisse-le venir à moi. »\n\nNaamân arriva avec ses chevaux et ses chars devant la porte d\'Al-Yasa\'. Et Al-Yasa\' ne sortit même pas pour le recevoir. Il envoya simplement un messager lui dire : va te laver sept fois dans le Jourdain, et tu seras guéri.\n\nNaamân fut furieux. C\'était insultant. Un général de sa trempe, venu de si loin, avec des cadeaux coûteux — et le prophète ne daigne pas le recevoir en personne et lui prescrit de se baigner dans un fleuve minable ? Ses serviteurs durent le convaincre d\'essayer quand même. Il se plongea dans le Jourdain. Une fois, deux fois, trois fois — rien. Quatre, cinq, six — rien. Septième fois. Sa peau était guérie, fraîche comme celle d\'un enfant.\n\nIl revint à Al-Yasa\' et voulut lui offrir tous les cadeaux qu\'il avait apportés. Al-Yasa\' refusa : « Aussi vrai qu\'Allah vit, devant qui je me tiens, je ne prendrai rien. »\n\nCe refus de recevoir une récompense pour un miracle accordé par Allah est l\'un des enseignements les plus profonds de l\'histoire d\'Al-Yasa\'. Le prophète n\'est pas un thaumaturge qui s\'enrichit de ses miracles. Il est un serviteur qui transmet un don qui ne lui appartient pas.',
       ),
       StoryChapter(
         title: '« PRÉFÉRÉ SUR LES MONDES »',
+        englishTitle: '\'PREFERRED ABOVE THE WORLDS\'',
         content: 'Le Coran mentionne Al-Yasa\' à deux reprises — dans la sourate Al-An\'am (6:86) et dans la sourate Sad (38:48). Ces mentions sont brèves, mais leur contexte est royal : il est cité aux côtés d\'Ismaïl, de Yunus, de Dawud, dans la liste des prophètes qu\'Allah a choisis et « préférés sur les mondes ».\n\n« Préféré sur les mondes » — cette formulation n\'est pas une politesse. C\'est une déclaration théologique. Ces hommes ont été triés par Allah parmi toute l\'humanité pour porter Sa parole. Chacun d\'eux a payé le prix de cette élection — par la solitude, la persécution, la perte, l\'errance. Et Allah les honore dans Son livre avec ces mots qui traversent les siècles.\n\nAl-Yasa\' est le prophète discret. Il n\'a pas la puissance de feu d\'Ilyas, ni la royauté de Dawud, ni les miracles spectaculaires de Musa. Mais il fut fidèle à sa formation, fidèle à son maître, fidèle à sa mission. Et cette fidélité-là est suffisante pour être nommé dans le Livre d\'Allah.',
       ),
       StoryChapter(
@@ -2594,17 +3225,24 @@ const List<Prophet> kProphets = [
     timeline: TimelineData(
       order: 18,
       era: 'Royaume d\'Israël du Nord',
+      englishEra: 'Northern Kingdom of Israel',
       approxDate: '~850 av. J.-C.',
+      englishApproxDate: '~850 BC',
       region: 'Canaan',
+      englishRegion: 'Canaan',
     ),
   ),
 
   // ── 21. Yunus ────────────────────────────────────────────────────────────
   Prophet(
     number: 21, arabicName: 'يُونُس', frenchName: 'Yûnus',
+    englishName: 'Jonah',
     emoji: '🐋', period: 'Environ 800 avant l\'ère commune',
+    englishPeriod: 'Around 800 BC',
     shortDesc: 'Avalé par une baleine, sauvé par sa dhikr dans les ténèbres',
+    englishShortDesc: 'Swallowed by a whale, saved by his dhikr in the darkness',
     summary: 'Yunus fut envoyé à Ninive, l\'empire le plus puissant du monde, pour appeler au tawhid. Découragé par le rejet, il quitta son peuple en colère, mais fut avalé par une baleine et précipité dans les ténèbres. Là, dans l\'obscurité absolue, il invoqua Allah en dhikr sincère, et Allah l\'écouta et le sauva — sa sourate enseigne la tawba, le retour sincère à Allah.',
+    englishSummary: 'Jonah was sent to the people of Nineveh but left his post before receiving divine permission. Swallowed by a great whale, he glorified Allah in the three darknesses: the sea, the night and the belly of the whale. His prayer — \'There is no god but You, glory be to You, I was of the wrongdoers\' — was answered. His people were saved.',
     fullStory:
       '━━━ NINIVE — LA VILLE DE L\'ORGUEIL ━━━\n\n'
       'Il y a environ deux mille huit cents ans, sur les rives du Tigre, dans l\'actuel nord de l\'Irak, s\'élevait Ninive — l\'une des plus grandes villes du monde antique. Capitale de l\'Empire assyrien à son apogée, Ninive était une métropole de conquérants. Ses habitants avaient bâti un empire en écrasant des peuples, en déportant des nations entières, en semant la terreur jusqu\'aux frontières du monde connu. C\'était un peuple fort, fier, habitué à la victoire — et totalement étranger à l\'idée de se soumettre à quoi que ce soit.\n\nLa caravane transportait bien plus que des marchandises. Il y avait Oum Hana, une veuve qui emmenait ses deux enfants chez son frère à Tayma après la mort de son mari. Il y avait le jeune Bilal, un étudiant qui allait rejoindre un cheikh pour étudier le Coran. Il y avait la petite Hind et ses parents, qui rêvaient d\'une vie meilleure. Chaque personne portait une histoire, un espoir, une prière. Et c\'est peut-être pour cela qu\'Allah envoya l\'étoile — non pas pour quarante voyageurs anonymes, mais pour quarante histoires, quarante espoirs, quarante prières qui montaient du désert et qui méritaient une réponse.\n\n'
@@ -2656,30 +3294,41 @@ const List<Prophet> kProphets = [
       'Tout le peuple de Ninive (100 000 personnes) crut après son retour',
       'Surnommé Dhul-Nun (ذو النون) dans le Coran — « l\'homme de la baleine » (21:87)',
     ],
+    englishKeyFacts: ['Prophet sent to the people of Nineveh (present-day Iraq)', 'Swallowed by a great whale after leaving his mission prematurely', 'His dhikr in the three darknesses is the prayer of every Muslim in distress', 'His entire people believed — the only case of this in all prophethood', 'The Quran calls him "Companion of the Whale" (Dhul-Nun)'],
     moral: 'Même dans les pires ténèbres, invoquer Allah sincèrement est la clé de la délivrance.',
+    englishMoral: 'Even in the worst darkness, sincerely calling upon Allah is the key to deliverance.',
     quiz: [
       QuizQ(
         question: 'Pourquoi Yunus fut-il avalé par une baleine ?',
+        englishQuestion: 'Why was Jonah swallowed by a whale?',
         options: ['Il nagea trop loin', 'Il quitta son peuple sans permission d\'Allah', 'Il cherchait une île', 'Il fuyait des ennemis'],
+        englishOptions: ['He swam too far', 'He left his people without Allah\'s permission', 'He was looking for an island', 'He was fleeing enemies'],
         correctIndex: 1,
         explanation: 'Yunus quitta son peuple avant la permission d\'Allah, ce qui fut son épreuve.',
+        englishExplanation: 'Jonah left his people before receiving Allah\'s permission, which was his trial.',
       ),
       QuizQ(
         question: 'Quelle invocation Yunus fit-il dans le ventre de la baleine ?',
+        englishQuestion: 'What supplication did Jonah make in the belly of the whale?',
         options: [
           'سبحان الله وبحمده',
           'لا إله إلا أنت سبحانك إني كنت من الظالمين',
           'اللهم إني أعوذ بك من الهم والحزن',
           'ربنا آتنا في الدنيا حسنة',
         ],
+        englishOptions: ['سبحان الله وبحمده', 'لا إله إلا أنت سبحانك إني كنت من الظالمين', 'اللهم إني أعوذ بك من الهم والحزن', 'ربنا آتنا في الدنيا حسنة'],
         correctIndex: 1,
         explanation: 'La Douâ de Yunus (21:87) : « Lâ ilâha illâ anta subhânaka innî kuntu minaz-zâlimîn ».',
+        englishExplanation: 'The Du\'a of Jonah (21:87): \'La ilaha illa anta subhanaka inni kuntu minaz-zalimin\'.',
       ),
       QuizQ(
         question: 'Combien de personnes du peuple de Ninive crurent après le retour de Yunus ?',
+        englishQuestion: 'How many people of Nineveh believed after the return of Jonah?',
         options: ['100 personnes', '1000 personnes', '10 000 personnes', '100 000 personnes'],
+        englishOptions: ['100 people', '1,000 people', '10,000 people', '100,000 people'],
         correctIndex: 3,
         explanation: 'Le Coran (37:147-148) dit que Yunus fut envoyé à cent mille personnes et qu\'elles crurent toutes.',
+        englishExplanation: 'The Quran (37:147-148) says that Jonah was sent to a hundred thousand people and they all believed.',
       ),
     ],
     chapters: [
@@ -2689,18 +3338,22 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'LA DÉCISION — PARTIR SANS PERMISSION',
+        englishTitle: 'THE DECISION — LEAVING WITHOUT PERMISSION',
         content: 'Yunus était humain. Et l\'être humain, même le prophète, a ses limites de résistance. Il y a un seuil au-delà duquel l\'épuisement moral devient une blessure. Yunus atteignit ce seuil.\n\nIl prit une décision — la décision qui allait changer toute son histoire : il décida de partir. De quitter Ninive. De s\'en aller loin, de prendre la mer, de s\'éloigner de cette mission qui semblait un mur.\n\nLe Coran dit : « Et souviens-toi de Dhul-Nûn — celui à la baleine — quand il s\'en alla en colère, pensant que Nous n\'aurions pas de pouvoir sur lui. » (21:87) Et ailleurs : « Quand il s\'enfuit vers le bateau chargé. » (37:140)\n\nDeux détails importants. Premièrement : il s\'en alla sans la permission d\'Allah. Il n\'attendit pas l\'ordre. Il n\'attendit pas le signe. Il prit seul la décision de lever le camp. Pour un prophète dont la mission est d\'obéir à Allah et de transmettre Son message, c\'est une faute grave — non pas un péché de désobéissance délibérée, mais un manque de consultation divine, une impatience spirituelle.\n\nDeuxièmement : « pensant que Nous n\'aurions pas de pouvoir sur lui » — cette phrase est parfois traduite avec nuance. Certains exégètes disent qu\'il ne pensait pas qu\'Allah était impuissant sur lui, mais plutôt qu\'il pensait qu\'Allah ne le contraindrait pas, qu\'Il le laisserait partir sans conséquence. Il partait comme un employé qui claque la porte — blessé, épuisé, convaincu peut-être d\'être dans son droit.\n\nIl arriva au port et monta à bord d\'un bateau chargé de marchandises qui partait en mer.',
       ),
       StoryChapter(
         title: 'LA TEMPÊTE ET LE SORT',
+        englishTitle: 'THE STORM AND THE LOTS',
         content: 'En pleine mer, une tempête éclata. Une tempête terrible — le genre de tempête que les marins expérimentés redoutent par-dessus tout. Les vagues montèrent. Le bateau gémissait, surchargé. Le capitaine et les marins prirent la décision commune d\'alléger le navire en tirant au sort pour jeter quelqu\'un à la mer — une pratique barbare mais réelle dans l\'Antiquité en cas d\'urgence absolue en mer.\n\nLe sort tomba sur Yunus. Les marins hésitèrent — ils le voyaient comme un homme pieux, pas le genre à mériter ce sort. Ils recommencèrent. Yunus encore. Une troisième fois. Yunus encore. Trois fois de suite — comme si le destin lui-même insistait. Yunus avait compris. Cette tempête n\'était pas un hasard météorologique. C\'était la réponse d\'Allah à son départ sans permission.\n\nIl se leva. Il ne protesta pas. Il ne se défendit pas. Il se jeta lui-même à la mer — ou ils le jetèrent, les versions varient légèrement. Et dans l\'eau noire et froide, une immense baleine surgit et l\'avala d\'un seul mouvement.',
       ),
       StoryChapter(
         title: 'DANS LES TÉNÈBRES — LES TROIS OBSCURITÉS',
+        englishTitle: 'IN THE DARKNESS — THE THREE OBSCURITIES',
         content: 'Ce qui suivit est l\'une des scènes les plus intenses du Coran. Yunus était vivant, dans le ventre d\'une créature marine, au fond de l\'océan, la nuit.\n\nLes exégètes parlent de trois ténèbres superposées : la ténèbre de la nuit, la ténèbre des profondeurs de la mer, la ténèbre du ventre de la baleine. Trois couches d\'obscurité absolue, chacune plus profonde que la précédente. Pas une lueur. Pas un son familier. Rien que le battement de son cœur et le silence de l\'inconnu.\n\nDans d\'autres traditions prophétiques, l\'ange ou la vision serait venue réconforter le prophète dans l\'épreuve. Ici, rien. Juste Yunus et Allah — dans l\'obscurité la plus absolue que l\'être humain puisse concevoir.\n\nEt Yunus, dans ces ténèbres, fit ce que seul un prophète peut faire : il se souvint d\'Allah. Pas avec la confiance triomphante de quelqu\'un qui sait qu\'il sera sauvé. Avec la sincérité brisée de quelqu\'un qui reconnaît sa faute.\n\nIl invoqua : « لَا إِلَهَ إِلَّا أَنتَ سُبْحَانَكَ إِنِّي كُنتُ مِنَ الظَّالِمِينَ »\n\n« Il n\'y a de divinité que Toi, Gloire à Toi — j\'étais vraiment parmi les injustes. »\n\nCette phrase courte est d\'une perfection spirituelle absolue. Elle contient trois éléments : la déclaration du tawhid (Il n\'y a de divinité que Toi), la glorification d\'Allah (Gloire à Toi), et l\'aveu total de sa propre faute sans atténuation, sans excuse, sans comparaison avec les autres (j\'étais parmi les injustes). Pas de négociation. Pas de promesse. Juste la vérité nue.\n\nC\'est pourquoi cette invocation est appelée Douâ de Yunus et est l\'une des plus recommandées dans la tradition islamique. Le Prophète ﷺ dit : « L\'invocation de mon frère Yunus — jamais un musulman ne l\'invoque pour une détresse sans qu\'Allah l\'exauce. »',
       ),
       StoryChapter(
         title: 'LE SALUT — LA BALEINE ORDONNE',
+        englishTitle: 'SALVATION — THE WHALE OBEYS',
         content: 'Allah entendit. Le Coran dit : « Nous lui répondîmes et le délivrâmes de la détresse. C\'est ainsi que Nous sauvons les croyants. » (21:88)\n\nAllah ordonna à la baleine de se diriger vers le rivage et de rejeter Yunus. La créature obéit — car toute la création obéit à Allah, même quand elle n\'en a pas conscience. La baleine se dirigea vers des eaux moins profondes, puis vers la surface, puis vers le bord et cracha Yunus sur le rivage.\n\nYunus sortit épuisé, affaibli, dans un état que le Coran décrit avec une image forte : « Nous le jetâmes sur la plage nue — et il était malade. » (37:145) Son corps portait les marques de cette expérience hors du commun. Exposé au froid, aux sucs digestifs, au choc physique et psychologique. Il était vivant — mais à peine.',
       ),
       StoryChapter(
@@ -2709,10 +3362,12 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'NINIVE SE REPENT',
+        englishTitle: 'NINEVEH REPENTS',
         content: 'Ce qui se passa à Ninive pendant l\'absence de Yunus est un miracle en soi. Le Coran dit qu\'Allah envoya Yunus « à cent mille personnes ou davantage » (37:147) — une indication de l\'ampleur extraordinaire de ce qui allait se passer.\n\nSelon les commentaires coraniques et les traditions, après que Yunus fut parti, des signes apparurent à Ninive — des signes avant-coureurs du châtiment. Le ciel changea de couleur. Un vent chaud et menaçant souffla. Les gens sentirent que quelque chose de terrible approchait. Et quelqu\'un, peut-être un ancien disciple de Yunus, leur rappela les avertissements du prophète qu\'ils avaient chassé.\n\nEt le peuple de Ninive — ce peuple de conquérants fiers et endurcis — fit quelque chose d\'unique dans l\'histoire prophétique : il se repentit collectivement, avant le châtiment. Pas après avoir été frappé. Pas sous la contrainte. Par choix, par peur d\'Allah sincère. Ils sortirent dans les rues, séparèrent les enfants de leurs mères et les animaux de leurs petits pour montrer leur détresse sincère à Allah. Ils pleurèrent, supplièrent, firent le vœu de changer.\n\nEt Allah, dans Sa miséricorde infinie, accepta leur repentance et écarta le châtiment.\n\nQuand Yunus arriva à Ninive, il trouva cent mille personnes qui l\'attendaient, qui croyaient, qui avaient changé. Lui qui était parti en désespoir devant leur indifférence revint pour trouver une conversion collective sans précédent dans l\'histoire des prophètes. Yunus est le seul prophète dont le peuple entier, en un seul élan, embrassa la foi.',
       ),
       StoryChapter(
         title: 'LA LEÇON DANS LES TÉNÈBRES',
+        englishTitle: 'THE LESSON IN THE DARKNESS',
         content: 'L\'histoire de Yunus enseigne plusieurs vérités profondes, et certaines d\'entre elles sont contre-intuitives.\n\nPremièrement : même les prophètes peuvent s\'épuiser, perdre patience, prendre de mauvaises décisions. La sainteté n\'est pas l\'infaillibilité — c\'est la capacité à reconnaître sa faute et à se retourner vers Allah. Yunus commis une faute. Il la reconnut avec une honnêteté totale dans les ténèbres les plus absolues. Et Allah le pardonna.\n\nDeuxièmement : aucun endroit au monde — pas même le fond de l\'océan dans le ventre d\'une baleine — n\'est hors de portée de la miséricorde d\'Allah et de Sa capacité à sauver. « Où que vous soyez, Allah est avec vous. » (57:4) Cette phrase abstraite devient concrète dans l\'image de Yunus dans les ténèbres triples.\n\nTroisièmement : la Douâ de Yunus est une formule spirituelle d\'une efficacité unique parce qu\'elle contient la vérité totale : Allah est parfait, moi je suis faillible. C\'est dans cette reconnaissance — pure, sans ornement, sans condition — que réside la force de cette invocation.\n\nEt quatrièmement : l\'impuissance humaine à prédire les résultats. Yunus était parti persuadé que Ninive ne croirait jamais. Il avait abandonné. Et Ninive se repentit — sans lui. Puis il revint pour en être le témoin. Allah avait un plan que Yunus n\'avait pas vu. C\'est toujours ainsi : le découragement humain ne voit pas ce qu\'Allah prépare.',
       ),
     ],
@@ -2720,17 +3375,24 @@ const List<Prophet> kProphets = [
     timeline: TimelineData(
       order: 19,
       era: 'Empire assyrien',
+      englishEra: 'Assyrian Empire',
       approxDate: '~800 av. J.-C.',
+      englishApproxDate: '~800 BC',
       region: 'Ninive (Irak)',
+      englishRegion: 'Nineveh (Iraq)',
     ),
   ),
 
   // ── 22. Zakariya ─────────────────────────────────────────────────────────
   Prophet(
     number: 22, arabicName: 'زَكَرِيَّا', frenchName: 'Zakariyya',
+    englishName: 'Zechariah',
     emoji: '🕯️', period: 'Environ 100 avant l\'ère commune',
+    englishPeriod: 'Around 100 BC',
     shortDesc: 'Gardien de Maryam, père miraculeux de Yahya',
+    englishShortDesc: 'Guardian of Mary, miraculous father of John',
     summary: 'Zakariyyah était le grand prêtre du Temple de Jérusalem et gardien de Maryam, la mère de Isa. Vieillissant sans enfant, il invoqua Allah et reçut le miracle de la paternité — son fils Yahya (Jean) devint un prophète majeur et le précurseur de Isa. Zakariyyah incarne la foi inébranlable en la puissance d\'Allah, même face à l\'impossible.',
+    englishSummary: 'Zechariah was an aged priest and the guardian of the Virgin Mary. Moved by the miraculous provisions he found with her, he prayed to Allah for a son despite his old age and his wife\'s infertility. Allah answered his prayer with the birth of John (Yahya), giving him a son and prophet.',
     fullStory:
       '━━━ LE TEMPLE ET LE VIEUX PRÊTRE ━━━\n\n'
       'Il y a des hommes dont la vie entière semble se dérouler dans une attente silencieuse. Zakariyya était de ceux-là. Grand prêtre du Temple de Jérusalem, serviteur d\'Allah depuis ses jeunes années, il avait passé des décennies dans l\'espace sacré entre les colonnes de pierre et les voiles brodés du sanctuaire, à offrir les sacrifices, à réciter les louanges, à maintenir le rituel de la Loi que Musa avait reçue.\n\n'
@@ -2770,38 +3432,52 @@ const List<Prophet> kProphets = [
       'Reçut la bonne nouvelle de Yahya directement par un ange',
       'Il pria Allah en secret pour avoir un héritier malgré son âge avancé (19:3-6)',
     ],
+    englishKeyFacts: ['Elderly prophet and priest, guardian of the Virgin Mary', 'Found miraculous provisions with Mary from Allah', 'Prayed for a child in old age despite his wife being barren', 'Father of John (Yahya) by a miracle of Allah', 'Mentioned in the Quran as patient and sincere'],
     moral: 'Ne jamais désespérer de la miséricorde d\'Allah, même quand la situation semble impossible.',
+    englishMoral: 'Never despair of the mercy of Allah, even when the situation seems impossible.',
     quiz: [
       QuizQ(
         question: 'De qui Zakariyya était-il le gardien au Temple ?',
+        englishQuestion: 'Whose guardian was Zechariah at the Temple?',
         options: ['Asiya', 'Khadija', 'Fatima', 'Maryam'],
+        englishOptions: ['Asiya', 'Khadija', 'Fatima', 'Mary'],
         correctIndex: 3,
         explanation: 'Zakariyya fut désigné comme gardien de Maryam au Temple de Jérusalem.',
+        englishExplanation: 'Zechariah was appointed as the guardian of Mary at the Temple of Jerusalem.',
       ),
       QuizQ(
         question: 'Que demanda Zakariyya à Allah malgré son grand âge ?',
+        englishQuestion: 'What did Zechariah ask Allah for despite his old age?',
         options: ['La guérison de sa femme', 'Un fils', 'La richesse', 'La longue vie'],
+        englishOptions: ['The healing of his wife', 'A son', 'Wealth', 'Long life'],
         correctIndex: 1,
         explanation: 'Zakariyya supplia Allah de lui donner un fils, malgré son grand âge et la stérilité de sa femme.',
+        englishExplanation: 'Zechariah supplicated Allah for a son, despite his advanced age and his wife\'s infertility.',
       ),
       QuizQ(
         question: 'Quel fut le signe accordé à Zakariyya après la bonne nouvelle ?',
+        englishQuestion: 'What was the sign given to Zechariah after the good news?',
         options: ['Il devint aveugle', 'Sa barbe blanchit', 'Il ne put parler pendant 3 jours', 'Une lumière illumina sa maison'],
+        englishOptions: ['He became blind', 'His beard turned white', 'He could not speak for 3 days', 'A light illuminated his home'],
         correctIndex: 2,
         explanation: 'Le signe de Zakariyya fut de ne pas pouvoir parler aux gens pendant trois jours (19:10), sauf pour louer Allah.',
+        englishExplanation: 'Zechariah\'s sign was that he could not speak to people for three days (19:10), except to praise Allah.',
       ),
     ],
     chapters: [
       StoryChapter(
         title: 'LE TEMPLE ET LE VIEUX PRÊTRE',
+        englishTitle: 'THE TEMPLE AND THE OLD PRIEST',
         content: 'Il y a des hommes dont la vie entière semble se dérouler dans une attente silencieuse. Zakariyya était de ceux-là. Grand prêtre du Temple de Jérusalem, serviteur d\'Allah depuis ses jeunes années, il avait passé des décennies dans l\'espace sacré entre les colonnes de pierre et les voiles brodés du sanctuaire, à offrir les sacrifices, à réciter les louanges, à maintenir le rituel de la Loi que Musa avait reçue.\n\nIl était vieux maintenant. Ses mains tremblaient légèrement quand il tenait l\'encensoir. Sa marche était plus lente. Et au-dessus de tout — il n\'avait pas de fils. Sa femme Élishéba, une femme pieuse et douce, était stérile. C\'était un fait de leur vie accepté depuis longtemps, avec la tristesse tranquille de ce qu\'on ne peut pas changer. Le Temple était sa maison. Le service de Dieu était son enfant.\n\nEt puis quelque chose se produisit qui alluma dans le cœur vieilli de Zakariyya une flamme nouvelle. Une jeune fille entra au Temple.',
       ),
       StoryChapter(
         title: 'MARYAM — LE SIGNE QUI RÉVEILLE',
+        englishTitle: 'MARY — THE SIGN THAT AWAKENS',
         content: 'La mère de Maryam, Hannah bint Faqudha, avait fait un vœu. Vieille et sans enfant depuis des années, elle avait supplié Allah de lui accorder un enfant, promettant de le consacrer entièrement au service du Temple. Allah exauça sa prière. Une fille naquit — elle l\'appela Maryam. Et malgré la surprise de la tradition qui attendait un garçon pour le service sacré, elle tint sa promesse. Maryam fut confiée au Temple.\n\nLes prêtres tirèrent au sort pour décider qui serait son tuteur et gardien. Les roseaux furent jetés dans l\'eau — et le roseau de Zakariyya fut le seul à ne pas couler. Allah avait choisi le vieux prêtre pour veiller sur cette enfant extraordinaire.\n\nZakariyya lui construisit une chambre dans le Temple — le Mihrab, l\'oratoire — et venait la voir régulièrement. Ce qu\'il y trouva le déconcerta, puis le bouleversa. À chaque visite, il y avait près de Maryam des fruits — des figues en hiver, des grenadines en été, des aliments que la saison rendait impossibles. Il lui demandait : « Maryam, d\'où vient cela ? » Et elle répondait avec la simplicité tranquille de celle qui n\'en fait pas une affaire : « Cela vient d\'Allah. Allah pourvoit sans compter à qui Il veut. »\n\nCes quelques mots — prononcés peut-être en souriant, peut-être les yeux à peine levés de sa prière — frappèrent Zakariyya comme un coup. Allah pourvoit sans compter à qui Il veut. Alors pourquoi pas lui ? Pourquoi pas cette chose impossible qu\'il n\'osait plus demander depuis des années ?',
       ),
       StoryChapter(
         title: 'LA PRIÈRE DES OS FRAGILES',
+        englishTitle: 'THE PRAYER OF FRAGILE BONES',
         content: 'Le Coran raconte cette prière avec une précision littéraire remarquable. Dans la sourate Maryam (19:1-15), Allah reproduit les mots de Zakariyya — non pas tels qu\'ils furent entendus par des témoins, car il était seul dans le sanctuaire — mais tels qu\'ils furent entendus par Allah.\n\n« Seigneur, mes os sont devenus fragiles, et ma tête est toute blanche. Mais jamais, en T\'invoquant, Seigneur, je ne me suis trouvé malheureux. J\'ai peur de mes successeurs après moi — et ma femme est stérile. Accorde-moi donc de Ta part un héritier qui me succède et succède à la famille de Yaqub. Et fais qu\'il T\'agrée, Seigneur. »\n\nCette prière est un chef-d\'œuvre d\'intimité avec Allah. Zakariyya ne commence pas par une liste de demandes. Il commence par un bilan honnête : je suis vieux, mes os fléchissent, ma tête blanchit. Il n\'essaie pas de se faire passer pour plus fort qu\'il n\'est. Et puis la reconnaissance : mais je n\'ai jamais invoqué Allah en vain. Dans toute ma vie, chaque fois que j\'ai appelé, Tu as répondu. Donc je continue à appeler.\n\nEt enfin la demande — non pas pour lui-même seulement, mais pour la continuation d\'une mission. Il veut un héritier qui porte la lumière prophétique après lui, qui succède à la famille de Yaqub dans la guidance. Ce n\'est pas l\'ego d\'un homme qui veut voir son nom continuer. C\'est la prière d\'un prophète qui ne veut pas que la flamme s\'éteigne.',
       ),
       StoryChapter(
@@ -2810,14 +3486,17 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'LE SILENCE DU SIGNE',
+        englishTitle: 'THE SILENCE OF THE SIGN',
         content: 'Zakariyya demanda un signe — non pas pour se convaincre, car il était convaincu, mais peut-être pour marquer ce moment de quelque chose d\'inoubliable. L\'ange lui répondit : « Ton signe est de ne pas parler aux gens pendant trois jours, sinon par gestes. »\n\nTrois jours de silence. Non pas un silence imposé comme une punition — mais un silence qui était lui-même un miracle, une parenthèse hors du temps ordinaire. Un prêtre qui ne peut pas parler ne peut pas officier de la façon habituelle. Ses gestes seuls communiquaient. Il sortit parmi son peuple et leur fit signe d\'adorer Allah matin et soir — et ils comprirent.\n\nCe silence était une forme d\'adoration totale. Quand on ne peut pas parler, on écoute plus. Quand on ne peut pas prononcer des mots ordinaires, on intériorise la présence d\'Allah avec une intensité nouvelle. Ces trois jours furent peut-être les trois jours les plus intenses de prière intérieure de toute la vie de Zakariyya.\n\nPuis le silence cessa. Et Élishéba conçut. Et Yahya naquit.',
       ),
       StoryChapter(
         title: 'LE PÈRE ET LE FILS',
+        englishTitle: 'THE FATHER AND THE SON',
         content: 'Le Coran rapporte quelques mots d\'Allah adressés directement à Yahya à sa naissance — ou peu après : « Ô Yahya, tiens fermement le Livre. » Et puis : « Nous lui accordâmes la sagesse dès l\'enfance, ainsi que la compassion et la pureté (19:13) de Notre part. Il était pieux et plein de respect envers ses parents. Il n\'était ni arrogant ni rebelle. »\n\nZakariyya vit donc son fils grandir dans la vocation prophétique dès les premières années. Ce fils pour lequel il avait prié des décennies, cet impossible fils, cet enfant de deux vieillards — était exactement ce qu\'il avait demandé : un héritier de la prophétie, un continuateur de la lumière.\n\nOn ne sait pas combien de temps Zakariyya vécut après la naissance de Yahya. La tradition islamique mentionne qu\'il mourut en martyr — selon certains récits, tué par ceux qui lui reprochaient de s\'opposer à l\'injustice. Il aurait été caché dans un arbre, et ceux qui le poursuivaient auraient scié l\'arbre avec lui à l\'intérieur. Cette narration, présente dans certaines traditions, n\'est pas confirmée par le Coran lui-même — mais elle est évocatrice du destin de ceux qui portent la vérité dans des temps d\'obscurité.',
       ),
       StoryChapter(
         title: 'LA LEÇON DE ZAKARIYYA',
+        englishTitle: 'THE LESSON OF ZECHARIAH',
         content: 'Zakariyya est le prophète de la prière persistante. Il pria pour un fils toute sa vie. Il ne cessa pas, même quand les années passèrent, même quand les cheveux blanchirent et les os fragilisèrent. Et quand il reprit espoir — inspiré par les fruits miraculeux de Maryam — il ne pria pas avec la frénésie du désespoir, mais avec la confiance tranquille de celui qui connaît Allah de longue date.\n\nLe Prophète Muhammad ﷺ dit : « La douâ est le culte lui-même. » Zakariyya est la preuve vivante de cette sentence. Son culte était une prière qui dura des décennies. Et Allah y répondit — non pas dans ses jeunes années, mais dans les vieilles années, quand la réponse aurait encore plus de sens, quand le miracle serait plus évident, quand la foi serait plus célébrée.\n\nIl y a dans sa vie une vérité que les croyants portent comme un trésor : Allah ne rejette pas la prière sincère. Il la reçoit, la garde, et y répond en Son temps — qui n\'est pas notre temps, mais qui est toujours le bon moment.',
       ),
     ],
@@ -2825,17 +3504,24 @@ const List<Prophet> kProphets = [
     timeline: TimelineData(
       order: 20,
       era: 'Fin du Second Temple',
+      englishEra: 'End of the Second Temple',
       approxDate: '~100 av. J.-C.',
+      englishApproxDate: '~100 BC',
       region: 'Jérusalem',
+      englishRegion: 'Jerusalem',
     ),
   ),
 
   // ── 23. Yahya ────────────────────────────────────────────────────────────
   Prophet(
     number: 23, arabicName: 'يَحيَى', frenchName: 'Yahyâ',
+    englishName: 'Yahya',
     emoji: '🌿', period: 'Environ 1 avant l\'ère commune',
+    englishPeriod: 'Around 1 BC',
     shortDesc: 'Né miraculeux, sage dès l\'enfance, martyr pour la vérité',
+    englishShortDesc: 'Born miraculous, wise from childhood, martyr for the truth',
     summary: 'Yahya naquit miraculeusement de parents impossibles — un père octogénaire et une mère stérile. Dès l\'enfance, il manifesta une sagesse et une piété extraordinaires, devenant l\'ascète qui vécut en pèlerin, purifiant les cœurs par le repentir. Prophète du retour à Allah avant Isa, il fut finalement décapité par un roi libertin, mourant en martyr pour avoir défendu la vérité.',
+    englishSummary: 'John was born miraculously to the aged Zechariah and his barren wife. From his youngest age, Allah granted him wisdom, gentleness and piety. He prepared the people for the coming of Jesus. He was martyred for speaking the truth courageously to a tyrannical king.',
     fullStory:
       '━━━ UN NOM QUI N\'A JAMAIS EXISTÉ ━━━\n\n'
       'Quand l\'ange annonça à Zakariyya la naissance d\'un fils, il ajouta quelque chose d\'inhabituel : « Allah te donne la bonne nouvelle d\'un fils nommé Yahya — jamais avant lui Nous n\'avons donné ce nom à quelqu\'un. » Un nom vierge. Un nom inventé par Allah pour un enfant qu\'Il avait lui-même décidé de créer depuis deux impossibilités — un père vieux, une mère stérile.\n\n'
@@ -2875,25 +3561,36 @@ const List<Prophet> kProphets = [
       'Martyrisé pour avoir dit la vérité à un roi tyran sans se taire',
       'Rencontré par le Prophète ﷺ au 2ème ciel lors du Mi\'raj, aux côtés de son cousin \'Îsa',
     ],
+    englishKeyFacts: ['Born miraculously to elderly and barren parents', 'Received divine wisdom from earliest childhood', 'Confirmed the message of Jesus', 'Martyred for opposing a marriage against divine law', 'Mentioned in the Quran: \'Peace upon him the day he was born\''],
     moral: 'Dire la vérité courageusement, même au prix de sa vie, est la marque des croyants sincères.',
+    englishMoral: 'Speaking the truth courageously, even at the cost of one\'s life, is the mark of sincere believers.',
     quiz: [
       QuizQ(
         question: 'Qui était le père de Yahya ?',
+        englishQuestion: 'Who was the father of Yahya?',
         options: ['Ibrahim', 'Ilyas', 'Shu\'ayb', 'Zakariyya'],
+        englishOptions: ['Abraham', 'Elias', 'Shu\'ayb', 'Zechariah'],
         correctIndex: 3,
         explanation: 'Yahya est le fils du prophète Zakariyya, né miraculeusement malgré l\'âge avancé de ses parents.',
+        englishExplanation: 'Yahya is the son of the prophet Zechariah, born miraculously despite the advanced age of his parents.',
       ),
       QuizQ(
         question: 'Quand Allah accorda-t-il la sagesse à Yahya ?',
+        englishQuestion: 'When did Allah grant wisdom to Yahya?',
         options: ['À l\'âge adulte', 'À l\'adolescence', 'Dès l\'enfance', 'Après sa mort'],
+        englishOptions: ['At adulthood', 'At adolescence', 'From childhood', 'After his death'],
         correctIndex: 2,
         explanation: 'Le Coran (19:12) dit : « Ô Yahya, tiens fermement le Livre ! » — et lui accorda la sagesse dès l\'enfance.',
+        englishExplanation: 'The Quran (19:12) says: \'O Yahya, hold firmly to the Book!\' — and gave him wisdom from childhood.',
       ),
       QuizQ(
         question: 'Quel sort tragique connut Yahya ?',
+        englishQuestion: 'What tragic fate did Yahya meet?',
         options: ['Il fut exilé', 'Il fut emprisonné toute sa vie', 'Il disparut dans le désert', 'Il fut martyrisé'],
+        englishOptions: ['He was exiled', 'He was imprisoned for life', 'He disappeared in the desert', 'He was martyred'],
         correctIndex: 3,
         explanation: 'Yahya fut décapité par ordre du roi Hérode, après avoir courageusement condamné ses actes.',
+        englishExplanation: 'Yahya was beheaded on the order of King Herod, after courageously condemning his actions.',
       ),
     ],
     chapters: [
@@ -2907,22 +3604,27 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'LA RENCONTRE AVEC ISA',
+        englishTitle: 'THE MEETING WITH JESUS',
         content: 'Les récits de la tradition islamique et les narrations chrétiennes s\'accordent sur un moment particulier : Yahya et Isa se rencontrèrent. Ils étaient cousins — leurs mères, Maryam et Élishéba, étaient proches. Ils avaient grandi dans la même région, avec le même héritage prophétique, avec la même conscience aiguë de leur mission.\n\nDans la tradition chrétienne, Isa vint trouver Yahya au bord du Jourdain pour participer à ce rite de purification. Yahya aurait d\'abord résisté — comment pouvait-il laver quelqu\'un qu\'il reconnaissait comme plus grand que lui ? Mais Isa insista, pour accomplir « ce qui est juste ». Ce moment — deux prophètes au bord d\'un fleuve, dans une humilité mutuelle — est l\'une des images les plus belles de la fraternité prophétique.\n\nDans l\'Islam, les deux prophètes sont liés par un respect profond. Allah les honore tous les deux dans le Coran avec les mêmes formules. Ils naquirent à quelques mois d\'intervalle, dans la même famille élargie, à la même époque de l\'histoire d\'Israïl. Ils portèrent le même appel : repentez-vous, revenez à Allah, vivez selon la Loi.',
       ),
       StoryChapter(
         title: 'LA VÉRITÉ AU POUVOIR',
+        englishTitle: 'TRUTH BEFORE POWER',
         content: 'Yahya n\'était pas un ascète replié sur lui-même. Son retrait du monde n\'était pas une fuite de la réalité — c\'était une base d\'où il opérait dans la réalité avec d\'autant plus d\'acuité. Et quand la réalité exigeait d\'être affrontée, il n\'hésitait pas.\n\nHérode Antipas — fils d\'Hérode le Grand, tétrarque de Galilée — avait décidé d\'épouser Hérodiade, l\'épouse de son propre frère Philippe. Cette union violait la Loi de Musa sur les interdits matrimoniaux. Pour beaucoup dans la cour, c\'était une affaire politique délicate qu\'on préférait ne pas commenter publiquement. Les prêtres regardaient ailleurs. Les sages gardaient leurs avis pour les conversations privées.\n\nYahya parla. Publiquement. Il dit qu\'il n\'était pas licite pour Hérode d\'avoir la femme de son frère. Un prophète de la montagne, vêtu de poils de chameau, disant en face à un roi son péché. La même posture qu\'Ilyas face à Achab. La même droiture sans calcul.\n\nHérodiade en voulut à Yahya d\'une haine froide et méthodique. Elle attendit son heure. Hérode, pour sa part, emprisonna Yahya — mais selon certains récits, le craignait et l\'écoutait parfois. Il y avait dans cet homme quelque chose qui dérangeait les consciences même les plus endormies.',
       ),
       StoryChapter(
         title: 'LA DANSE ET LA TÊTE',
+        englishTitle: 'THE DANCE AND THE HEAD',
         content: 'La nuit du banquet d\'anniversaire d\'Hérode, la fille d\'Hérodiade — Salomé, selon les traditions extra-coraniques — dansa devant le roi et ses convives. Hérode, enivré de plaisir, lui dit : « Demande-moi ce que tu veux, même la moitié de mon royaume. » Salomé alla consulter sa mère. Hérodiade n\'hésita pas une seconde : la tête de Yahya, sur un plateau.\n\nHérode regretta — selon les récits, il ne souhaitait pas la mort de Yahya. Mais il avait fait sa promesse en public, devant ses nobles et ses officiers. La honte de revenir sur sa parole lui sembla plus grande que l\'injustice de tuer un prophète. Et Yahya fut décapité (selon la tradition exégétique sur 19:15).\n\nLa tradition islamique rapporte que le sang de Yahya bouillonna sur le sol et ne cessa de bouillonner — symbole de l\'injustice criante, du martyre qui ne peut pas être étouffé. Et selon certains récits, Allah permit que Babylone ou une autre puissance régionale dévaste Jérusalem peu après, comme châtiment pour ce meurtre.',
       ),
       StoryChapter(
         title: '« PAIX SUR LUI LE JOUR OÙ IL MOURRA »',
+        englishTitle: '\'PEACE UPON HIM THE DAY HE DIES\'',
         content: 'La mort de Yahya est l\'une des fins les plus injustes de toute l\'histoire prophétique. Un homme juste, pur, sage dès l\'enfance, sans péché notable, tué à cause d\'une danse et de la rancune d\'une femme que son honnêteté avait blessée. Il n\'y a pas de sens humain à cette fin.\n\nMais Allah avait déjà intégré sa mort dans Sa bénédiction. « Paix sur lui le jour où il mourra » — cette paix divine est dite avant que la mort n\'arrive, comme une promesse que même la mort la plus injuste est, pour le prophète fidèle, une porte vers la paix de Dieu.\n\nDans la tradition du Miraj — le voyage nocturne du Prophète Muhammad ﷺ —, il rencontra Yahya et Isa au deuxième ciel, ensemble, côte à côte. Les deux cousins, les deux prophètes nés de miracles, les deux hommes qui avaient payé leur vérité de leur sang — ensemble dans la lumière.',
       ),
       StoryChapter(
         title: 'LA LEÇON DE YAHYA',
+        englishTitle: 'THE LESSON OF YAHYA',
         content: 'Yahya (19:7-15) est le prophète de la vérité sans compromis. Sa vie entière est un refus de la tiédeur. Il n\'accepte pas les accommodements, il ne négocie pas avec l\'injustice, il ne se tait pas quand le silence serait plus confortable. Et cette intransigeance — qui pouvait sembler dure, rigide — était en réalité une forme d\'amour profond pour son peuple. Car qui aime vraiment dit la vérité, même quand elle coûte.\n\nIl est aussi le prophète de la pureté ascétique — non pas comme rejet du monde, mais comme refus de laisser le monde dicter ses termes. Son habit de poils de chameau, sa nourriture de miel sauvage, sa vie au bord du fleuve — c\'était une déclaration : je ne vous appartiens pas. Mon âme n\'est pas à vendre. Ma parole ne changera pas selon ce que vous voulez entendre.\n\nSa mort est une blessure dans l\'histoire — l\'injustice évidente d\'un homme bon tué pour rien. Mais dans la logique de l\'Islam, le martyr n\'est pas celui qui a perdu. C\'est celui qui a gagné le plus grand prix en échange du plus petit sacrifice — une vie finie contre une vie éternelle dans la proximité d\'Allah.\n\nEt dans le Coran, Allah lui accorde la dernière et la plus belle des clôtures : « Paix sur lui le jour où il naquit, le jour où il mourra, et le jour où il sera ressuscité vivant. » Trois moments de la vie d\'un homme — et Allah est présent dans chacun d\'eux. C\'est la promesse ultime : même dans la mort la plus injuste, Allah est là. Et Sa paix enveloppe ceux qui ont dit la vérité.',
       ),
     ],
@@ -2930,17 +3632,24 @@ const List<Prophet> kProphets = [
     timeline: TimelineData(
       order: 21,
       era: 'Fin du Second Temple',
+      englishEra: 'End of the Second Temple',
       approxDate: '~1 av. J.-C.',
+      englishApproxDate: '~1 BC',
       region: 'Jérusalem',
+      englishRegion: 'Jerusalem',
     ),
   ),
 
   // ── 24. Isa ──────────────────────────────────────────────────────────────
   Prophet(
     number: 24, arabicName: 'عِيسَى', frenchName: '\'Îsa',
+    englishName: 'Jesus',
     emoji: '✨', period: 'Environ l\'an 0 de l\'ère commune',
+    englishPeriod: 'Around year 0 CE',
     shortDesc: 'Ruhullah — né sans père, guérit et ressuscite, sera de retour',
+    englishShortDesc: 'Ruhullah — born without a father, heals and resurrects, will return',
     summary: 'Isa naquit par miracle sans père biologique, envoyé comme signe à l\'humanité. Doté de pouvoirs miraculeux — guérir les malades, ressusciter les morts, parler dans le berceau — il fut un prophète dont le message fut porté par des disciples sincères. Bien que les juifs conspirèrent pour le tuer, Allah l\'éleva au ciel, et il reviendra à la fin des temps comme juge et restaurateur de la vraie foi.',
+    englishSummary: 'Jesus, son of Mary, is born without a father by the power of Allah — a unique miracle. He is the Spirit of Allah (Ruhullah) and His Word. He performed extraordinary miracles: curing the sick, giving sight to the blind, raising the dead. He was not crucified but elevated by Allah and will return before the Last Day.',
     fullStory:
       '━━━ MARYAM — LA FEMME CHOISIE ━━━\n\n'
       'Pour comprendre Isa, il faut d\'abord comprendre sa mère. Maryam bint Imrân n\'est pas simplement la mère d\'un prophète. Le Coran lui consacre une sourate entière — Sourate Maryam — et la décrit comme la femme la plus élevée en rang parmi toutes les femmes de l\'univers. « Allah t\'a choisie, purifiée et choisie au-dessus de toutes les femmes des mondes. »\n\n'
@@ -3010,30 +3719,42 @@ const List<Prophet> kProphets = [
       'Reviendra à la fin des temps selon les hadiths du Prophète ﷺ',
       'Le Coran lui consacre de nombreux versets et une sourate porte le nom de sa mère Maryam',
     ],
+    englishKeyFacts: ['Born without a father — his mother Mary was a virgin', 'Performed miracles: healed the sick, blind, leprous; raised the dead', 'Received the Gospel (Injil) — divine scripture', 'Was elevated by Allah before the crucifixion', 'Will return at the end of times to complete his mission'],
     moral: 'Isa enseigne l\'amour, la miséricorde et la pureté totale — serviteur parfait d\'Allah.',
+    englishMoral: 'Jesus teaches love, mercy and total purity — perfect servant of Allah.',
     quiz: [
       QuizQ(
         question: 'Comment Isa est-il né selon l\'Islam ?',
+        englishQuestion: 'How was Jesus born according to Islam?',
         options: ['D\'un père et d\'une mère normaux', 'Sans père ni mère', 'D\'un ange et d\'une femme', 'D\'une mère sans père'],
+        englishOptions: ['From a normal father and mother', 'Without father or mother', 'From an angel and a woman', 'From a mother without a father'],
         correctIndex: 3,
         explanation: 'Isa est né de la vierge Maryam sans père humain — par la seule volonté d\'Allah.',
+        englishExplanation: 'Jesus was born of the virgin Mary without a human father — by the sole will of Allah.',
       ),
       QuizQ(
         question: 'Quel livre sacré fut révélé à Isa ?',
+        englishQuestion: 'Which sacred book was revealed to Jesus?',
         options: ['La Thora', 'Le Zabour', 'Le Coran', 'L\'Injil'],
+        englishOptions: ['The Torah', 'The Zabur', 'The Quran', 'The Injil'],
         correctIndex: 3,
         explanation: 'Allah révéla l\'Injil (الإنجيل) à Isa — l\'Évangile originel.',
+        englishExplanation: 'Allah revealed the Injil (الإنجيل) to Jesus — the original Gospel.',
       ),
       QuizQ(
         question: 'Qu\'arriva-t-il à Isa selon l\'Islam (pas selon le Christianisme) ?',
+        englishQuestion: 'What happened to Jesus according to Islam (not according to Christianity)?',
         options: ['Il fut crucifié', 'Il mourut de vieillesse', 'Il disparut dans le désert', 'Il fut élevé vers Allah sans être tué'],
+        englishOptions: ['He was crucified', 'He died of old age', 'He disappeared in the desert', 'He was raised to Allah without being killed'],
         correctIndex: 3,
         explanation: 'Allah éleva Isa vivant vers Lui (4:157-158) — il n\'a pas été crucifié et reviendra à la fin des temps.',
+        englishExplanation: 'Allah raised Jesus alive to Himself (4:157-158) — he was not crucified and will return at the end of times.',
       ),
     ],
     chapters: [
       StoryChapter(
         title: 'MARYAM — LA FEMME CHOISIE',
+        englishTitle: 'MARY — THE CHOSEN WOMAN',
         content: 'Pour comprendre Isa, il faut d\'abord comprendre sa mère. Maryam bint Imrân n\'est pas simplement la mère d\'un prophète. Le Coran lui consacre une sourate entière — Sourate Maryam — et la décrit comme la femme la plus élevée en rang parmi toutes les femmes de l\'univers. « Allah t\'a choisie, purifiée et choisie au-dessus de toutes les femmes des mondes. »\n\nSa dévotion commença avant sa naissance. Sa mère, Anne (Hanna), enceinte, fit un vœu à Allah : « Seigneur, je Te consacre ce qui est dans mon ventre, libéré des obligations mondaines. Accepte-le de moi. » Elle espérait un garçon qui servirait au Temple. Naquit une fille. Elle dit : « Seigneur, je lui ai donné naissance — une fille. » Puis ajouta, comme si elle se corrigeait devant Allah : « Et le garçon n\'est pas comme la fille. Je l\'ai nommée Maryam. Je te demande de la protéger, elle et sa descendance, contre le Diable maudit. »\n\nCette protection fut accordée. Le Prophète ﷺ dit : « Chaque enfant, à sa naissance, est touché par le Diable, ce qui le fait pleurer — sauf Maryam et son fils. » Elle naquit pure, protégée, choisie.\n\nZakariyya, grand prêtre du Temple et prophète, fut désigné son tuteur. Chaque fois qu\'il entrait dans son sanctuaire réservé au Temple, il trouvait près d\'elle des provisions fraîches hors saison — des fruits d\'été en hiver, des fruits d\'hiver en été. Il lui demandait : « D\'où vient tout cela, Maryam ? » Elle répondait simplement : « Cela vient d\'Allah. Allah pourvoit sans compter à qui Il veut. » Elle ne s\'en vantait pas. Elle en était reconnaissante.\n\nMaryam grandit dans le Temple, dans la prière permanente, dans la dévotion absolue. Les récits de la tradition mentionnent qu\'elle priait debout si longtemps que ses pieds gonflaient. Les anges la visitaient et lui parlaient. Elle n\'avait pas peur — elle était habituée à la proximité du divin.',
       ),
       StoryChapter(
@@ -3042,6 +3763,7 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'LA NAISSANCE SOUS LE PALMIER',
+        englishTitle: 'THE BIRTH UNDER THE PALM TREE',
         content: 'Maryam portait son secret avec une solitude terrible. Personne ne pouvait comprendre. Personne ne croirait sans preuve. Elle quitta le Temple et marcha vers un lieu éloigné — Bethléem, disent les traditions. Les douleurs de l\'accouchement la saisirent au pied d\'un palmier. Elle dit dans un moment de détresse humaine absolue : « Si seulement j\'étais morte avant cet instant et que je fusse tombée dans un complet oubli ! »\n\nCette plainte de Maryam — l\'une des femmes les plus pures de l\'histoire — montre que la souffrance n\'est pas une punition et que l\'exprimer n\'est pas un péché. Elle était seule, terrifiée, sur le point d\'accoucher dans un lieu désert, sachant que sa réputation serait détruite dès qu\'elle rentrerait avec un bébé.\n\nEt la Voix vint : « Ne t\'afflige pas. Ton Seigneur a placé sous toi un ruisseau. Secoue vers toi le tronc du palmier — il te fera tomber des dattes fraîches et mûres. Mange, bois et que tes yeux se réjouissent. »\n\nCe soin divin dans les détails pratiques est touchant : un ruisseau frais pour se désaltérer, des dattes pour reprendre des forces après l\'accouchement — les dattes sont excellentes pour les femmes qui viennent d\'accoucher, les sages-femmes du monde arabe le savaient. Allah prenait soin de Maryam dans les moindres détails.\n\nPuis vint l\'instruction la plus difficile : « Si tu vois quelqu\'un, dis : ‟J\'ai fait vœu de jeûne au Tout Miséricordieux, je ne parlerai aujourd\'hui à aucun être humain." » Elle rentrerait en silence. Son enfant parlerait à sa place.',
       ),
       StoryChapter(
@@ -3070,10 +3792,12 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'ISA REVIENDRA',
+        englishTitle: 'JESUS WILL RETURN',
         content: 'Le retour d\'Isa à la fin des temps est l\'une des grandes certitudes de l\'eschatologie islamique, annoncée dans des hadiths authentiques et nombreux. Le Prophète Muhammad ﷺ dit : « Par Celui qui tient mon âme dans Sa main, le fils de Maryam va certainement descendre parmi vous comme juge juste. Il brisera les croix, tuera le porc, abolira la jizya. L\'argent sera si abondant que personne n\'en voudra. »\n\nIsa descendra à Damas, les mains posées sur les épaules de deux anges, vêtu d\'une robe jaune safran. Il descendra dans la mosquée des Omeyyades, où le Mahdi sera en train de diriger la prière. Il priera derrière le Mahdi — montrant par cet acte que la religion de Muhammad ﷺ est la religion finale et qu\'il y est soumis.\n\nIl combattra le Dajjal — le faux messie, la grande épreuve de la fin des temps — et le tuera à la Porte de Lod. Puis viendra une ère de paix sur la Terre : les lions vivront avec les agneaux, la haine entre les humains s\'apaisera, et Isa gouvernera avec justice selon la révélation d\'Allah.\n\nPuis, après avoir accompli sa mission terrestre complète — celle qu\'il n\'avait pu achever lors de son premier passage — Isa mourra naturellement. Il sera enterré près du Prophète Muhammad ﷺ à Médine. Et au Jour du Jugement, il témoignera pour ceux qui l\'ont suivi dans la foi pure.',
       ),
       StoryChapter(
         title: 'ISA DANS LE CORAN — LE PLUS MENTIONNÉ',
+        englishTitle: 'JESUS IN THE QURAN — THE MOST MENTIONED',
         content: 'Isa est mentionné par son nom dans le Coran 25 fois. Le Prophète Muhammad ﷺ n\'est mentionné par son nom que 4 fois. Maryam a une sourate entière à son nom — et elle est la seule femme mentionnée par son nom dans tout le Coran. Cette insistance du Coran sur Isa et Maryam a une raison : rectifier les déviations.\n\nLe Coran rejette deux erreurs symétriques concernant Isa : l\'erreur de ceux qui l\'ont abaissé (ceux qui le rejetèrent et l\'insultèrent), et l\'erreur de ceux qui l\'ont élevé trop haut (ceux qui firent de lui Dieu ou fils de Dieu). La vérité islamique est au milieu : Isa est un grand prophète, un messager extraordinaire, né d\'un miracle, doté de miracles, élevé vivant vers Allah — mais il est un serviteur d\'Allah, pas Dieu.\n\nIsa dit lui-même dans le Coran : « En vérité, Allah est mon Seigneur et votre Seigneur. Adorez-Le donc. Tel est le chemin droit. » (3:51) Ces mots simples sont l\'essence de tout son message.',
       ),
       StoryChapter(
@@ -3085,17 +3809,24 @@ const List<Prophet> kProphets = [
     timeline: TimelineData(
       order: 22,
       era: 'Début de l\'ère commune',
+      englishEra: 'Beginning of the Common Era',
       approxDate: '~0-33 apr. J.-C.',
+      englishApproxDate: '~0-33 CE',
       region: 'Palestine',
+      englishRegion: 'Palestine',
     ),
   ),
 
   // ── 25. Muhammad ─────────────────────────────────────────────────────────
   Prophet(
     number: 25, arabicName: 'مُحَمَّد ﷺ', frenchName: 'Muhammad',
+    englishName: 'Muhammad',
     emoji: '🌙', period: '570–632 de l\'ère commune',
+    englishPeriod: '570–632 CE',
     shortDesc: 'Le Sceau des Prophètes ﷺ — modèle parfait pour l\'humanité',
+    englishShortDesc: 'The Seal of the Prophets ﷺ — perfect model for humanity',
     summary: 'Muhammad ﷺ est le dernier des prophètes, porteur du Coran éternel. Descendant d\'Ismail et d\'Ibrahim, il transforme la péninsule arabique en guérissant l\'ignorance et l\'injustice, établissant une communauté mondiale basée sur la justice, la miséricorde et l\'égalité.',
+    englishSummary: 'Muhammad ﷺ is the last and seal of the prophets, born in Mecca in 570 CE. Orphaned early, known as Al-Amine (the trustworthy), he received the first revelation at age 40 in the Cave of Hira. Over 23 years, he established Islam, united the Arabian Peninsula, and transformed human civilization. His character is described by the Quran as \'an immense character.\'',
     fullStory:
       '━━━ L\'ARABIE AVANT SA VENUE ━━━\n\n'
       'Pour comprendre la grandeur de Muhammad ﷺ, il faut d\'abord comprendre le monde dans lequel il est né. L\'Arabie du VIe siècle était plongée dans ce que les musulmans appellent la Jahiliyyah — l\'ère de l\'ignorance. La péninsule arabique était un désert brûlant, fracturé en tribus perpétuellement en guerre. Les vendetta s\'étiraient sur des générations entières. Une femme n\'avait aucun droit. Les filles nouveau-nées étaient parfois enterrées vivantes par honte. Les riches écrasaient les pauvres. Les idoles — trois cent soixante d\'entre elles — encombraient la Kaaba, cette maison qu\'Ibrahim avait bâtie pour le Dieu unique des millénaires plus tôt.\n\n'
@@ -3143,7 +3874,7 @@ const List<Prophet> kProphets = [
       'Le Négus demanda à entendre quelques versets du Coran. Ja\'far récita la Sourate Maryam — l\'histoire de la Vierge Marie. Le Négus pleura, mouillant sa barbe de larmes, et ses évêques pleurèrent également. Il dit : « La différence entre ce que vous avez récité et ce que nous disons est aussi grande que... » et il traça une petite ligne sur le sol. Il refusa de livrer les réfugiés. « Par Allah, je ne vous les rendrai pas ! »\n\n'
       '━━━ L\'ANNÉE DE TRISTESSE ━━━\n\n'
       'Les Quraysh, furieux, prononcèrent un boycott total contre les Banu Hashim — clan du Prophète ﷺ. Pendant trois longues années, le clan fut confiné dans un quartier de La Mecque. Personne ne pouvait leur vendre de nourriture, se marier avec eux, leur parler. Les enfants pleuraient de faim. Les vieux dépérissaient. Muhammad ﷺ et les siens résistèrent avec une dignité que leurs ennemis n\'avaient pas anticipée. Finalement, des Mecquois généreux brisèrent le boycott, et la déclaration officielle fut déchirée.\n\n'
-      'Mais cette période d\'épreuves fut suivie d\'une douleur encore plus grande. En l\'espace de quelques semaines, Muhammad ﷺ perdit ses deux plus grands soutiens. D\'abord Abu Talib, son oncle et protecteur — l\'homme qui l\'avait défendu toute sa vie contre les Quraysh, qui refusa jusqu\'au bout de prononcer la shahada mais mourut en disant qu\'il était « sur la religion de ses ancêtres ». Sa mort laissa Muhammad ﷺ sans protection tribale. Puis Khadija, son épouse bien-aimée, le pilier de sa vie, mourut à son tour. Muhammad ﷺ nomma cette année \"L\'Année de Tristesse\" — Âm al-Huzn. Il avait cinquante ans et se retrouvait seul comme il l\'était à sa naissance.\n\n'
+      'Mais cette période d\'épreuves fut suivie d\'une douleur encore plus grande. En l\'espace de quelques semaines, Muhammad ﷺ perdit ses deux plus grands soutiens. D\'abord Abu Talib, son oncle et protecteur — l\'homme qui l\'avait défendu toute sa vie contre les Quraysh, qui refusa jusqu\'au bout de prononcer la shahada mais mourut en disant qu\'il était « sur la religion de ses ancêtres ». Sa mort laissa Muhammad ﷺ sans protection tribale. Puis Khadija, son épouse bien-aimée, le pilier de sa vie, mourut à son tour. Muhammad ﷺ nomma cette année "L\'Année de Tristesse" — Âm al-Huzn. Il avait cinquante ans et se retrouvait seul comme il l\'était à sa naissance.\n\n'
       '━━━ L\'ISRA WAL MI\'RAJ — LE VOYAGE NOCTURNE ━━━\n\n'
       'Allah ne laissa pas Son prophète dans le désarroi. Quelques mois après l\'Année de Tristesse, dans la nuit du 27 Rajab, Muhammad ﷺ fut transporté du Masjid Al-Haram de La Mecque au Masjid Al-Aqsa de Jérusalem en un instant — l\'Isra, le Voyage Nocturne. Là, tous les prophètes de l\'histoire étaient rassemblés. Muhammad ﷺ les dirigea dans la prière — il était leur imam, leur maître.\n\n'
       'Puis commença le Mi\'raj — l\'Ascension. Jibreel le fit monter à travers les sept cieux. Au premier ciel : Adam. Au deuxième : Isa et Yahya. Au troisième : Yusuf. Au quatrième : Idris. Au cinquième : Harun. Au sixième : Musa. Au septième : Ibrahim, adossé contre la Kaaba céleste — le Bayt al-Ma\'mur, visité chaque jour par soixante-dix mille anges qui ne reviennent jamais. Puis Muhammad ﷺ fut porté au-delà, au Sidrat al-Muntaha — le Jujubier de la Limite, là où s\'arrête toute connaissance — jusqu\'au point où Jibreel dit : « Je ne peux pas aller plus loin. » Et c\'est là, dans une proximité que seul Allah connaît, que la prière obligatoire fut prescrite — d\'abord cinquante fois par jour, puis réduite à cinq sur la supplication de Musa qui répétait : « Retourne, ton peuple ne peut pas porter ça. »\n\n'
@@ -3189,35 +3920,49 @@ const List<Prophet> kProphets = [
       'Son sermon d\'adieu proclame l\'égalité de tous les humains devant Allah',
       'Sceau des prophètes (33:40) — dernier envoyé d\'Allah à toute l\'humanité jusqu\'au Jour Dernier (33:40)',
     ],
+    englishKeyFacts: ['Seal of the Prophets — the last prophet sent to all humanity', 'Born in Mecca in 570 CE, orphaned early', 'Known as Al-Amine (the Trustworthy) before his mission', 'Received the Quran over 23 years — the last divine revelation', 'Unified the Arabian Peninsula and transformed human civilization'],
     moral: 'Muhammad ﷺ est le modèle parfait — dans sa miséricorde, son pardon et son amour pour l\'humanité.',
+    englishMoral: 'Muhammad ﷺ is the perfect model — in his mercy, his forgiveness and his love for humanity.',
     quiz: [
       QuizQ(
         question: 'Où Muhammad ﷺ est-il né ?',
+        englishQuestion: 'Where was Muhammad ﷺ born?',
         options: ['Médine', 'Jérusalem', 'Taïf', 'La Mecque'],
+        englishOptions: ['Medina', 'Jerusalem', 'Taif', 'Mecca'],
         correctIndex: 3,
         explanation: 'Le Prophète Muhammad ﷺ est né à La Mecque en l\'an 570 de l\'ère commune.',
-        difficulty: QuizDifficulty.facile,
+        englishExplanation: 'The Prophet Muhammad ﷺ was born in Mecca in the year 570 CE.',
+        difficulty: QuizDifficulty.easy,
       ),
       QuizQ(
         question: 'Quel ange apportait la révélation au Prophète ﷺ ?',
+        englishQuestion: 'Which angel brought the revelation to the Prophet ﷺ?',
         options: ['Israfil', 'Mikail', 'Azrael', 'Jibreel'],
+        englishOptions: ['Israfil', 'Mikail', 'Azrael', 'Jibreel'],
         correctIndex: 3,
         explanation: 'L\'ange Jibreel (Gabriel) descendait porter les versets du Coran au Prophète Muhammad ﷺ.',
-        difficulty: QuizDifficulty.moyen,
+        englishExplanation: 'The angel Jibreel (Gabriel) descended to bring the verses of the Quran to the Prophet Muhammad ﷺ.',
+        difficulty: QuizDifficulty.medium,
       ),
       QuizQ(
         question: 'Comment appelle-t-on l\'émigration du Prophète ﷺ de La Mecque à Médine ?',
+        englishQuestion: 'What is the name of the Prophet ﷺ\'s migration from Mecca to Medina?',
         options: ['La Fath', 'L\'Isra', 'Le Mi\'raj', 'La Hijra'],
+        englishOptions: ['The Fath', 'The Isra', 'The Mi\'raj', 'The Hijra'],
         correctIndex: 3,
         explanation: 'La Hijra (هجرة) désigne l\'émigration du Prophète ﷺ à Médine en 622 — début du calendrier islamique.',
-        difficulty: QuizDifficulty.moyen,
+        englishExplanation: 'The Hijra (هجرة) refers to the Prophet\'s ﷺ migration to Medina in 622 — the beginning of the Islamic calendar.',
+        difficulty: QuizDifficulty.medium,
       ),
       QuizQ(
         question: 'Quel fut le premier mot révélé au Prophète ﷺ par l\'ange Jibreel dans la grotte de Hira ?',
+        englishQuestion: 'What was the first word revealed to the Prophet ﷺ by angel Jibreel in the Cave of Hira?',
         options: ['Bismillah', 'Iqra\'', 'Subhânallah', 'Al-Hamdulillah'],
+        englishOptions: ['Bismillah', 'Iqra\'', 'Subhanallah', 'Al-Hamdulillah'],
         correctIndex: 1,
         explanation: 'Le premier mot révélé fut « Iqra\'» (اقرأ — Lis !), début de la Sourate Al-\'Alaq (96:1) — premier verset du Coran révélé.',
-        difficulty: QuizDifficulty.difficile,
+        englishExplanation: 'The first word revealed was \'Iqra\'\' (اقرأ — Read!), beginning of Surah Al-\'Alaq (96:1) — the first verse of the Quran revealed.',
+        difficulty: QuizDifficulty.hard,
       ),
     ],
     chapters: [
@@ -3227,10 +3972,12 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'UNE NAISSANCE DANS LES ÉTOILES',
+        englishTitle: 'A BIRTH IN THE STARS',
         content: 'Abdullah, père du futur prophète, était un jeune homme d\'une beauté et d\'une noblesse remarquables. Son père Abd al-Muttalib avait fait le vœu, en échange d\'un secours divin, d\'immoler l\'un de ses fils si Allah lui en accordait dix. Abdullah fut désigné par le sort. Le peuple intercéda et on racheta sa vie avec cent chameaux. Mais ce détail n\'est pas anodin : il préfigure quelque chose de grand.\n\nAbdullah épousa Amina bint Wahb. Peu après le mariage, il partait en voyage commercial vers le nord. Il mourut à Médine sur le chemin du retour, laissant Amina enceinte. Orphelin avant même d\'être né, Muhammad ﷺ vint au monde un lundi, le 12 Rabi Al-Awwal de l\'An de l\'Éléphant — l\'année où Abraha et son armée avaient tenté de détruire la Kaaba et avaient été anéantis par les oiseaux Ababil. La tradition rapporte qu\'à sa naissance, une lumière jaillit qui illumina les palais de la lointaine Syrie. Sa mère n\'eut aucune douleur lors de l\'accouchement. Abd al-Muttalib, son grand-père, le prit dans ses bras, entra dans la Kaaba et remercia Allah, puis lui donna le nom de Muhammad — « celui qui est loué » — un nom que personne n\'avait porté avant lui en Arabie.',
       ),
       StoryChapter(
         title: 'LES ANNÉES DU DÉSERT',
+        englishTitle: 'THE DESERT YEARS',
         content: 'Selon la coutume des nobles Arabes, les nouveau-nés étaient confiés à des nourrices bédouines pour grandir dans l\'air pur du désert, apprendre un arabe pur et développer leur force. Une femme de la tribu des Banu Sa\'d, Halima, vint à La Mecque chercher un nourrisson à allaiter. Elle était pauvre, sa monture épuisée, son lait insuffisant. Tous les nourrissons avaient déjà été pris. Il ne restait que Muhammad ﷺ — orphelin de père, donc peu rentable. Par désespoir, Halima l\'accepta.\n\nCe fut le début d\'une transformation miraculeuse. Dès qu\'elle le prit dans ses bras, sa monture retrouva de la vigueur. Son lait se mit à couler abondamment. Ses troupeaux se mirent à produire plus que jamais. La tribu entière remarquait que la baraka — la bénédiction divine — accompagnait la famille de Halima depuis qu\'elle avait accueilli cet enfant. Elle le garda deux ans, puis encore deux de plus, ne voulant pas s\'en séparer.\n\nMais un jour, alors que le petit Muhammad ﷺ jouait avec ses frères de lait derrière la maison, ils accoururent terrifiés en criant que deux hommes en blanc l\'avaient renversé et lui avaient ouvert la poitrine. Halima et son mari coururent. Ils trouvèrent l\'enfant debout, le visage légèrement pâle. Selon les récits authentiques, deux anges lui avaient ouvert la poitrine, en avaient extrait le cœur, retiré une part noire — la part du Shaytân — l\'avaient lavé dans une bassine d\'or remplie de neige, et l\'avaient remis en place. Halima, inquiète, le ramena à sa mère Amina.',
       ),
       StoryChapter(
@@ -3247,18 +3994,22 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'LA KAABA ET LE SIGNE',
+        englishTitle: 'THE KAABA AND THE SIGN',
         content: 'Quelques années avant la révélation, les Quraysh entreprirent de reconstruire la Kaaba, endommagée par des inondations. Quand vint le moment de replacer la Pierre Noire — Al-Hajar Al-Aswad — dans son angle, une querelle éclata entre les tribus : chacune voulait l\'honneur de la replacer. Le conflit menaçait de dégénérer en guerre. Un vieux sage proposa une solution : le premier homme à entrer par la porte le lendemain matin arbitrerait le litige.\n\nLe premier à entrer fut Muhammad ﷺ. Sa présence seule fit s\'exclamer les gens : « C\'est Al-Amine ! Nous l\'acceptons tous ! » Il demanda un manteau, y déposa la Pierre Noire, demanda à un représentant de chaque tribu de tenir un bord du manteau, puis il la souleva et la plaça lui-même. Tout le monde fut honoré. Personne n\'avait versé de sang. C\'était déjà la marque d\'un homme destiné à unir.',
       ),
       StoryChapter(
         title: 'LA CAVERNE DE HIRA',
+        englishTitle: 'THE CAVE OF HIRA',
         content: 'À mesure que Muhammad ﷺ avançait en âge, quelque chose grandissait en lui — une inquiétude profonde, une insatisfaction face au monde des idoles et de l\'injustice. Il commença à se retirer régulièrement dans la grotte de Hira, sur le Jabal al-Nour — la Montagne de la Lumière — à quelques kilomètres de La Mecque. Il y passait des jours entiers, parfois plusieurs semaines, à méditer, prier, contempler. Khadija lui préparait des provisions. Il revenait les yeux brillants, le cœur plus serein.\n\nC\'est pendant le mois de Ramadan, en l\'an 610, qu\'arriva la nuit qui allait changer l\'histoire de l\'humanité. Muhammad ﷺ avait quarante ans. Il dormait dans la grotte quand quelque chose l\'étreignit avec une force telle qu\'il sentit s\'écraser toute sa respiration. « Iqra ! — Lis ! » (96:1) Une voix puissante. « Je ne sais pas lire ! » L\'étreinte se resserra encore. « Iqra bismi rabbika alladhi khalaq... — Lis au nom de ton Seigneur qui a créé, créé l\'homme d\'une adhérence. Lis ! Ton Seigneur est le Plus Noble, Celui qui a enseigné par le calame, enseigné à l\'homme ce qu\'il ne savait pas. »\n\nMuhammad ﷺ descendit la montagne en courant, tremblant de tout son corps. Il rentra chez Khadija : « Couvre-moi, couvre-moi ! » Elle l\'enveloppa dans un manteau, sentit sa terreur. Quand il lui raconta, elle dit sans une seconde d\'hésitation des mots qui resteraient gravés dans l\'histoire : « Non, par Allah, Il ne te fera jamais honte. Tu maintiens les liens de parenté, tu portes les fardeaux des autres, tu gagnes l\'argent pour les pauvres, tu reçois tes hôtes généreusement, et tu aides aux malheurs de la vérité. »\n\nElle l\'emmena chez son cousin Waraqa ibn Nawfal, vieux et aveugle, qui connaissait les Écritures. Quand Waraqa entendit le récit, il s\'écria : « C\'est le Nâmûs — le même ange qui descendit sur Moise ! Cet homme est le Prophète de cette nation ! » Puis il ajouta avec tristesse : « Si seulement j\'étais jeune pour vivre le temps où ton peuple te chassera ! — Me chasseront-ils ? — Oui. Jamais un homme n\'a apporté ce que tu apportes sans être combattu. » Waraqa mourut peu après.',
       ),
       StoryChapter(
         title: 'LES PREMIERS CROYANTS',
+        englishTitle: 'THE FIRST BELIEVERS',
         content: 'Après la première révélation, il y eut une pause — la Fatra — pendant laquelle la révélation s\'interrompit. Muhammad ﷺ était dans la détresse, craignant d\'avoir été abandonné. Puis la révélation reprit avec la Sourate Ad-Duha : « Par le matin lumineux, et par la nuit quand elle s\'étend ! Ton Seigneur ne t\'a pas abandonné et ne te déteste pas. »\n\nIl commença alors à appeler discrètement, en cercles rapprochés. Les premiers à croire en lui furent, sans hésitation ni délai : Khadija son épouse, Ali ibn Abi Talib son jeune cousin de dix ans élevé dans sa maison, Zayd ibn Haritha son serviteur affranchi devenu comme un fils, et Abu Bakr As-Siddiq son ami le plus proche — homme d\'honneur, commerçant prospère et aimé de tous.\n\nAbu Bakr, lui, n\'hésita pas un instant. Il crut, et immédiatement se mit à en parler autour de lui. Par ses soins, des hommes comme Uthman ibn Affan, Az-Zubayr ibn Al-Awwam, Abdurrahman ibn Awf, Sa\'d ibn Abi Waqqas — tous de jeunes nobles Quraysh — embrassèrent l\'Islam. La communauté naissante priait en secret, se retrouvait dans la maison d\'Al-Arqam ibn Abi Al-Arqam.',
       ),
       StoryChapter(
         title: 'LA PRÉDICATION PUBLIQUE ET LA TEMPÊTE',
+        englishTitle: 'THE PUBLIC PREACHING AND THE STORM',
         content: 'Trois ans de prédication discrète passèrent. Puis vint l\'ordre divin : « Avertis ouvertement tes proches parents ! » Muhammad ﷺ invita les Banu Hashim à un repas. Après le repas, il leur parla. Abu Lahab, son propre oncle, l\'interrompit grossièrement et dispersa l\'assemblée. Muhammad ﷺ renouvela l\'invitation. Cette fois, il parla jusqu\'au bout, demandant qui soutiendrait sa mission. Seul Ali, adolescent, se leva à trois reprises. Les autres rirent.\n\nUn jour, il monta au sommet de la colline As-Safa et appela les Mecquois un par un, famille par famille. Ils se rassemblèrent, intrigués. Il leur dit : « Si je vous disais qu\'une armée de cavaliers s\'apprête à vous attaquer derrière cette montagne, me croiriez-vous ? — Oui, nous ne t\'avons jamais connu qu\'honnête. — Alors je vous avertis d\'un châtiment sévère. » Abu Lahab rugit : « Malheur à toi ! C\'est pour ça que tu nous as convoqués ? » Et il repartit. Ce jour-là descendit la Sourate Al-Masad : « Que périssent les mains d\'Abu Lahab... »\n\nLa réaction des notables Quraysh fut immédiate et violente. Ils avaient compris que ce message menaçait leur autorité, leur commerce et leurs idoles. Ils ne pouvaient pas toucher Muhammad ﷺ lui-même — il était protégé par Abu Talib et le clan des Banu Hashim. Alors ils s\'acharnèrent sur les plus faibles, ceux qui n\'avaient pas de protection tribale.\n\nBilal ibn Rabah, esclave abyssinien, fut couché sur le sable brûlant de La Mecque, une lourde pierre sur la poitrine. Son maître Umayyah ibn Khalaf le torturait : « Renie Muhammad ! Reviens à Lat et Uzza ! » Bilal répétait, les yeux levés vers le ciel : « Ahad... Ahad... — Un seul... Un seul... » Abu Bakr le racheta et l\'affranchit. Bilal devint le premier muezzin de l\'Islam, et sa voix résonne encore dans les minarets du monde entier.\n\nAmmar ibn Yassir et ses parents Yassir et Sumayya furent torturés sous le soleil implacable. Sumayya, vieille femme, fut la première martyre de l\'Islam, tuée d\'un coup de lance par Abu Jahl. Muhammad ﷺ passait près d\'eux, le cœur brisé, et disait : « Patience, famille de Yassir, patience ! Votre rendez-vous, c\'est le Paradis. »',
       ),
       StoryChapter(
@@ -3267,7 +4018,7 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'L\'ANNÉE DE TRISTESSE',
-        content: 'Les Quraysh, furieux, prononcèrent un boycott total contre les Banu Hashim — clan du Prophète ﷺ. Pendant trois longues années, le clan fut confiné dans un quartier de La Mecque. Personne ne pouvait leur vendre de nourriture, se marier avec eux, leur parler. Les enfants pleuraient de faim. Les vieux dépérissaient. Muhammad ﷺ et les siens résistèrent avec une dignité que leurs ennemis n\'avaient pas anticipée. Finalement, des Mecquois généreux brisèrent le boycott, et la déclaration officielle fut déchirée.\n\nMais cette période d\'épreuves fut suivie d\'une douleur encore plus grande. En l\'espace de quelques semaines, Muhammad ﷺ perdit ses deux plus grands soutiens. D\'abord Abu Talib, son oncle et protecteur — l\'homme qui l\'avait défendu toute sa vie contre les Quraysh, qui refusa jusqu\'au bout de prononcer la shahada mais mourut en disant qu\'il était « sur la religion de ses ancêtres ». Sa mort laissa Muhammad ﷺ sans protection tribale. Puis Khadija, son épouse bien-aimée, le pilier de sa vie, mourut à son tour. Muhammad ﷺ nomma cette année \"L\'Année de Tristesse\" — Âm al-Huzn. Il avait cinquante ans et se retrouvait seul comme il l\'était à sa naissance.',
+        content: 'Les Quraysh, furieux, prononcèrent un boycott total contre les Banu Hashim — clan du Prophète ﷺ. Pendant trois longues années, le clan fut confiné dans un quartier de La Mecque. Personne ne pouvait leur vendre de nourriture, se marier avec eux, leur parler. Les enfants pleuraient de faim. Les vieux dépérissaient. Muhammad ﷺ et les siens résistèrent avec une dignité que leurs ennemis n\'avaient pas anticipée. Finalement, des Mecquois généreux brisèrent le boycott, et la déclaration officielle fut déchirée.\n\nMais cette période d\'épreuves fut suivie d\'une douleur encore plus grande. En l\'espace de quelques semaines, Muhammad ﷺ perdit ses deux plus grands soutiens. D\'abord Abu Talib, son oncle et protecteur — l\'homme qui l\'avait défendu toute sa vie contre les Quraysh, qui refusa jusqu\'au bout de prononcer la shahada mais mourut en disant qu\'il était « sur la religion de ses ancêtres ». Sa mort laissa Muhammad ﷺ sans protection tribale. Puis Khadija, son épouse bien-aimée, le pilier de sa vie, mourut à son tour. Muhammad ﷺ nomma cette année "L\'Année de Tristesse" — Âm al-Huzn. Il avait cinquante ans et se retrouvait seul comme il l\'était à sa naissance.',
       ),
       StoryChapter(
         title: 'L\'ISRA WAL MI\'RAJ — LE VOYAGE NOCTURNE',
@@ -3279,26 +4030,32 @@ const List<Prophet> kProphets = [
       ),
       StoryChapter(
         title: 'MÉDINE — LA CITÉ DU PROPHÈTE',
+        englishTitle: 'MEDINA — THE CITY OF THE PROPHET',
         content: 'L\'arrivée à Quba, aux portes de Médine, fut triomphale. Des hommes, des femmes, des enfants sortaient sur le chemin en chantant : « Tala\'a al-badru \'alaynâ — La pleine lune s\'est levée sur nous depuis les vallées de Wada\'. » Pour la première fois depuis des années, Muhammad ﷺ n\'était plus persécuté. Il était accueilli.\n\nSa première action fut de construire une mosquée — pas un palais, pas une forteresse. Une mosquée. Il participa lui-même à la construction, portant les pierres et la boue comme les autres. Les Compagnons, le voyant travailler, redoublaient d\'ardeur en chantant. Cette mosquée — Al-Masjid An-Nabawi — deviendra l\'un des lieux les plus saints de l\'Islam.\n\nEnsuite, il accomplit un geste politique et spirituel d\'une profondeur rare : il établit le lien de fraternité — Al-Mu\'akha — entre les Muhajirun (émigrés de La Mecque) et les Ansar (partisans de Médine). Chaque émigré fut apparié à un Médinois qui partageait ses biens, sa maison, parfois même lui proposait une de ses femmes en mariage. Ce n\'était pas de la charité — c\'était une fraternité véritable. Un Médinois dit à son frère muhajirun : « J\'ai deux jardins. Prends celui que tu veux. » L\'émigré refusa les jardins mais apprit où se trouvait le marché.\n\nMuhammad ﷺ établit ensuite la Constitution de Médine — le premier document constitutionnel de l\'histoire. Elle régissait les relations entre musulmans, juifs et polythéistes de Médine. Tous étaient une seule communauté civique — Umma — tout en pratiquant librement leur religion. Les différends seraient résolus en référence à Muhammad ﷺ. Nul ne pouvait conclure de paix séparée avec un ennemi commun.',
       ),
       StoryChapter(
         title: 'LES BATAILLES — FEU ET ÉPREUVES',
+        englishTitle: 'THE BATTLES — FIRE AND TRIALS',
         content: 'La paix de Médine ne dura pas longtemps. Les Quraysh n\'acceptaient pas l\'existence de cette communauté naissante qui menaçait leur hégémonie commerciale et religieuse. Les raids, les provocations, les complots se multiplièrent. La permission de combattre fut révélée : « Il est permis à ceux qui ont été combattus de combattre, parce qu\'ils ont été lésés. »\n\nBadr — 624. Muhammad ﷺ sortit avec trois cent treize hommes mal équipés pour intercepter une caravane. Mais la caravane avait changé de route, et c\'est une armée de mille guerriers qurayshites qui se retrouva face à eux. La nuit avant la bataille, Muhammad ﷺ pria longuement, les larmes coulant : « Ô Allah, si Tu laisses périr ce petit groupe, Tu ne seras plus adoré sur cette Terre. » À l\'aube, Allah envoya des anges. La victoire fut totale. Soixante-dix Qurayshites tués, soixante-dix capturés. Parmi les prisonniers, ses oncles les plus acharnés. Il traita les prisonniers avec une mansuétude qui stupéfia ses propres Compagnons.\n\nUhud — 625. Les Quraysh revinrent avec trois mille hommes pour venger Badr. Malgré un départ prometteur, une désobéissance d\'un groupe d\'archers qui quittèrent leur poste pour ramasser le butin ouvrit une brèche. La cavalerie Qurayshite en profita. Les musulmans refluèrent. Une rumeur circula : Muhammad ﷺ était mort. Il était en réalité blessé — une dent cassée, le visage en sang. Des Compagnons formèrent un cercle autour de lui, offrant leur corps comme bouclier. Parmi eux, Anas ibn An-Nadr répétait : « Si Muhammad ﷺ est mort, alors le Seigneur de Muhammad ﷺ est toujours vivant ! » Il se battit jusqu\'à mourir, le corps portant quatre-vingts blessures. La tristesse de ce jour — et notamment la mort de Hamza, l\'oncle bien-aimé, mutilé par les ennemis — fut profonde. Mais Muhammad ﷺ ne vacilla pas.\n\nAl-Khandaq — 625-626. Les Quraysh revinrent avec une coalition de dix mille guerriers. Salman Al-Farsi — un Perse converti qui avait traversé des continents à la recherche de la vraie religion — proposa une idée inconnue des Arabes : creuser un fossé — Khandaq — autour de Médine. Pendant des semaines, tous creusèrent dans le froid, la faim. Le Prophète ﷺ creusait avec eux, une pierre sur le ventre pour tromper la faim. Pendant trois semaines, la coalition assiégea Médine sans pouvoir franchir le fossé. Puis les dissensions internes et une tempête de sable forcèrent leur retraite. La crise avait été évitée par la sagesse et la persévérance.',
       ),
       StoryChapter(
         title: 'HUDAYBIYYAH — LA VICTOIRE QUI RESSEMBLE À UNE DÉFAITE',
+        englishTitle: 'HUDAYBIYYAH — THE VICTORY THAT RESEMBLES DEFEAT',
         content: 'En l\'an 6 de l\'Hégire, Muhammad ﷺ eut le rêve prophétique d\'entrer à La Mecque pour le pèlerinage. Il se mit en route avec quatorze cents Compagnons en tenue de pèlerins, sans armes de guerre. Les Quraysh refusèrent l\'entrée. Des négociations s\'engagèrent. Le traité d\'Al-Hudaybiyyah fut signé — et de prime abord, il semblait humiliant pour les musulmans : retour à Médine cette année sans pèlerinage, trêve de dix ans, toute personne quittant La Mecque pour Médine serait rendue, toute personne quittant Médine pour La Mecque ne serait pas rendue.\n\nUmar ibn Al-Khattab bouillonnait de rage : « N\'es-tu pas le Prophète d\'Allah ? Sommes-nous pas dans le droit ? » Muhammad ﷺ répondit avec calme. Puis descendit la révélation : « Nous t\'avons accordé une victoire éclatante. » Une victoire ? Les Compagnons ne comprenaient pas. Mais le Prophète ﷺ avait vu ce qu\'ils ne voyaient pas : pour la première fois, les Quraysh traitaient avec lui d\'égal à égal, reconnaissant implicitement son autorité. La trêve allait permettre à l\'Islam de se répandre à une vitesse sans précédent. En deux ans, le nombre de musulmans doubla, tripla. Les plus grands guerriers Qurayshites — Khalid ibn Al-Walid, Amr ibn Al-\'As — vinrent eux-mêmes embrasser l\'Islam.',
       ),
       StoryChapter(
         title: 'LA CONQUÊTE DE LA MECQUE — LE PLUS GRAND PARDON',
+        englishTitle: 'THE CONQUEST OF MECCA — THE GREATEST FORGIVENESS',
         content: 'En l\'an 8 de l\'Hégire, les Quraysh violèrent le traité en attaquant une tribu alliée des musulmans. Muhammad ﷺ se prépara en secret. Dix mille guerriers se mirent en marche. La Mecque était encerclée avant même de le savoir. Son chef Abu Sufyan — l\'ennemi le plus acharné depuis vingt ans — vint en émissaire. Abbas, oncle du Prophète ﷺ, le fit entrer. Quand il prononça la shahada, Muhammad ﷺ déclara : « Celui qui entre dans la maison d\'Abu Sufyan est en sécurité. Celui qui ferme sa porte est en sécurité. Celui qui entre dans la mosquée est en sécurité. »\n\nLes armées entrèrent sans combattre, dans un silence presque religieux. Muhammad ﷺ entra à La Mecque le front baissé sur sa monture, en signe d\'humilité totale devant Allah. Il se rendit à la Kaaba. Il frappa chaque idole avec son bâton en récitant : « La vérité est venue et le fausse s\'en est allée. Le faux, en vérité, s\'en va toujours ! » Trois cent soixante idoles tombèrent.\n\nPuis il s\'adressa aux Mecquois rassemblés — ses anciens persécuteurs, ceux qui avaient tué ses Compagnons, qui l\'avaient chassé, qui avaient mis sa tête à prix. Il y avait là des hommes dont les mains portaient le sang de ses proches. Tous attendaient leur sort. Muhammad ﷺ leur dit : « Ô Quraysh ! Que pensez-vous que je vais faire de vous ? — Du bien ! Tu es un frère noble, fils d\'un frère noble. — Allez. Vous êtes libres. » La Fath — la Conquête — s\'accomplit sans une seule exécution. L\'ennemi de vingt ans fut pardonné en un mot.',
       ),
       StoryChapter(
         title: 'LES DERNIÈRES ANNÉES',
+        englishTitle: 'THE FINAL YEARS',
         content: 'Les années qui suivirent virent l\'Islam se répandre dans toute l\'Arabie. Des délégations de tribus du nord, du sud, de l\'est vinrent à Médine embrasser l\'Islam. Muhammad ﷺ envoya des lettres aux rois du monde connu — l\'Empereur de Byzance Héraclius, le Chosroès de Perse, le Négus d\'Abyssinie, le gouverneur d\'Égypte — les invitant à l\'Islam. Héraclius lui rendit un hommage privé. Le Chosroès, dans son arrogance, déchira la lettre — le Prophète ﷺ dit : « Allah déchirera son royaume. » Ce qui arriva.\n\nEn l\'an 10 de l\'Hégire, Muhammad ﷺ accomplit le seul et unique Hajj de sa vie — le Grand Pèlerinage. Cent vingt-quatre mille Compagnons, peut-être plus, marchaient avec lui. Dans la plaine d\'Arafat, sous un soleil de midi, il prononça son Sermon d\'Adieu — l\'un des discours les plus fondamentaux de l\'histoire humaine : « Ô hommes, votre Seigneur est Un et votre ancêtre est un. Ni Arabe n\'est supérieur à un non-Arabe, ni non-Arabe à un Arabe, ni blanc à un noir, ni noir à un blanc, si ce n\'est par la piété. Ai-je transmis ? — Oui ! dirent les Compagnons. — Ô Allah, sois témoin. » Puis descendit le verset : « Aujourd\'hui J\'ai parachevé votre religion pour vous, J\'ai complété Mon bienfait sur vous et J\'ai agréé l\'Islam comme religion pour vous. »\n\nQuand Abu Bakr entendit ce verset, il pleura. Les Compagnons lui demandèrent pourquoi. Il dit : « Quand une chose est parachevée, elle est finie. » Il avait compris avant tous que le Prophète ﷺ allait bientôt les quitter.',
       ),
       StoryChapter(
         title: 'LA MORT DU PLUS AIMÉ',
+        englishTitle: 'THE DEATH OF THE MOST BELOVED',
         content: 'De retour à Médine, Muhammad ﷺ commença à ressentir des douleurs. Une forte fièvre. Il alla de chambre en chambre chez ses épouses, puis demanda la permission de rester dans la chambre de Aïcha — la fille de son plus proche Compagnon. Aïcha lui tint la tête sur ses genoux. Les Compagnons pleuraient en priant. Muhammad ﷺ dirigeait parfois la prière, s\'appuyant sur Ali et Al-Abbas quand il en avait la force. Mais les derniers jours, il demanda à Abu Bakr de diriger les prières à sa place — signal que tous comprirent.\n\nLe lundi 12 Rabi Al-Awwal de l\'an 11 de l\'Hégire, Muhammad ﷺ souleva le rideau de la chambre de Aïcha et regarda la mosquée bondée de Compagnons en prière. Il sourit — un sourire si beau, racontent les témoins, qu\'ils ne savaient pas s\'ils devaient se réjouir ou pleurer. Il laissa retomber le rideau. Puis ses lèvres bougèrent doucement. On entendit : « Avec les plus hauts compagnons... Avec les plus hauts compagnons... » Ses derniers mots. La main d\'Aïcha sentit le poids de sa tête devenir plus lourd. Il était parti.\n\nLa nouvelle se répandit comme un séisme. Umar ibn Al-Khattab, l\'homme le plus fort, sortit son épée en criant que quiconque dirait que Muhammad ﷺ était mort, il le tuerait. Abu Bakr entra, souleva le voile, l\'embrassa sur le front : « Que mon père et ma mère te soient sacrifiés ! Tu as été si beau vivant, et tu es encore plus beau mort. » Puis il sortit et dit à Umar : « Pose ton épée. » Et à la foule il dit ces mots qui résonnent jusqu\'à aujourd\'hui : « Ô hommes ! Celui parmi vous qui adorait Muhammad, Muhammad est mort. Mais celui qui adorait Allah, Allah est vivant et ne meurt pas. » Et il récita le verset : « Muhammad n\'est qu\'un messager — des messagers sont passés avant lui. S\'il mourait ou était tué, vous retourneriez sur vos talons ? »\n\nUmar sentit ses genoux se dérober. Le verset était là depuis des années dans le Coran, mais il ne l\'avait jamais réellement entendu jusqu\'à ce moment.',
       ),
       StoryChapter(
@@ -3310,8 +4067,11 @@ const List<Prophet> kProphets = [
     timeline: TimelineData(
       order: 13,
       era: 'Arabie préislamique',
+      englishEra: 'Pre-Islamic Arabia',
       approxDate: '570-632 apr. J.-C.',
+      englishApproxDate: '570-632 CE',
       region: 'La Mecque → Médine',
+      englishRegion: 'Mecca → Medina',
     ),
   ),
 ];
@@ -3320,10 +4080,12 @@ const List<Prophet> kProphets = [
 const List<CoranicStory> kCoranicStories = [
   CoranicStory(
     title: 'Les Gens de la Caverne',
+    englishTitle: 'The People of the Cave',
     arabicTitle: 'أَصْحَابُ الكَهْف',
     emoji: '🕯️',
     surahRef: 'Sourate Al-Kahf · 18:9-26',
     summary: 'Des jeunes croyants dormirent 309 ans dans une caverne pour fuir la persécution.',
+    englishSummary: 'Young believers slept for 309 years in a cave to flee persecution.',
     fullStory:
       '━━━ LA CITÉ DES IDOLES ━━━\n\n'
       'Il y a très longtemps, dans une cité romaine prospère dont les colonnes de marbre se dressaient vers un ciel indifférent, régnait un roi tyrannique — Daqyanûs (Decius, selon certains érudits). Ce roi ne se contentait pas de gouverner les corps : il voulait gouverner les âmes. Il avait imposé à tout son peuple l\'adoration des idoles. Quiconque refusait était exécuté publiquement, en exemple pour les autres.\n\n'
@@ -3349,6 +4111,7 @@ const List<CoranicStory> kCoranicStories = [
     chapters: [
       StoryChapter(
         title: 'LA CITÉ DES IDOLES',
+        englishTitle: 'THE CITY OF IDOLS',
         content: 'Il y a très longtemps, dans une cité romaine prospère dont les colonnes de marbre se dressaient vers un ciel indifférent, régnait un roi tyrannique — Daqyanûs (Decius, selon certains érudits). Ce roi ne se contentait pas de gouverner les corps : il voulait gouverner les âmes. Il avait imposé à tout son peuple l\'adoration des idoles. Quiconque refusait était exécuté publiquement, en exemple pour les autres.\n\nLa ville entière vivait dans la peur et le mensonge. Les gens se prosternaient devant des statues de pierre, non par conviction, mais par terreur. Les temples résonnaient de prières creuses. L\'encens montait vers des dieux qui n\'existaient pas. Et dans ce brouillard d\'idolâtrie, quelque chose d\'extraordinaire se produisit : un petit groupe de jeunes gens — des fityah, comme le Coran les appelle — ouvrit les yeux.',
       ),
       StoryChapter(
@@ -3357,29 +4120,36 @@ const List<CoranicStory> kCoranicStories = [
       ),
       StoryChapter(
         title: 'LA FUITE VERS LA CAVERNE',
+        englishTitle: 'THE FLIGHT TO THE CAVE',
         content: 'Ils se consultèrent et prirent leur décision. Ils quitteraient tout — leurs maisons, leurs familles, leur confort — pour protéger leur foi. Le Coran rapporte leur raisonnement : « Quand vous vous serez séparés d\'eux et de ce qu\'ils adorent en dehors d\'Allah, réfugiez-vous dans la caverne : votre Seigneur répandra sur vous de Sa miséricorde et disposera pour vous un réconfort dans votre situation. »\n\nIls partirent de nuit, probablement. Un chien les suivit — et ce détail, mentionné dans le Coran, est remarquable. Même un animal accompagna les croyants dans leur fuite. Ils gravirent la montagne et trouvèrent une caverne. Ils s\'y installèrent, épuisés, effrayés, mais confiants. Leur seule arme était leur foi. Leur seul refuge était Allah.',
       ),
       StoryChapter(
         title: 'LE SOMMEIL MIRACULEUX',
+        englishTitle: 'THE MIRACULOUS SLEEP',
         content: 'Allah jeta sur eux un voile de sommeil. Pas un sommeil ordinaire — un sommeil qui dura trois cent neuf années. Pendant que le monde changeait autour d\'eux, pendant que des empires s\'élevaient et s\'effondraient, pendant que des générations naissaient et mouraient, ces jeunes dormaient paisiblement dans leur caverne.\n\nLe Coran décrit cette scène avec une précision extraordinaire : « Tu les aurais crus éveillés alors qu\'ils dormaient. Nous les retournions sur le côté droit et sur le côté gauche, tandis que leur chien était couché, pattes étendues, à l\'entrée. » Allah les protégeait même dans leur sommeil — les retournant pour que leurs corps ne se détériorent pas, dirigeant les rayons du soleil pour qu\'ils n\'entrent pas dans la grotte. Et leur chien, fidèle gardien, veillait à l\'entrée sans jamais bouger.\n\nSi quelqu\'un s\'était approché de la caverne pendant ces siècles, le Coran dit qu\'il aurait fui, saisi d\'effroi. Allah avait mis autour d\'eux une protection invisible, une aura de crainte respectueuse qui éloignait les curieux.',
       ),
       StoryChapter(
         title: 'LE RÉVEIL — UN AUTRE MONDE',
+        englishTitle: 'THE AWAKENING — ANOTHER WORLD',
         content: 'Puis Allah les réveilla. Ils se regardèrent, s\'étirèrent, comme après une sieste ordinaire. « Combien de temps avez-vous dormi ? » demanda l\'un d\'eux. « Un jour, ou une partie d\'un jour », répondirent les autres. Ils ne savaient pas. Comment auraient-ils pu imaginer ?\n\nLa faim les tenaillait. Ils envoyèrent l\'un d\'entre eux en ville avec une pièce de monnaie, en lui recommandant la discrétion : « Qu\'il aille voir quelle nourriture est la plus pure et qu\'il vous en apporte. Qu\'il soit courtois et ne vous fasse découvrir par personne. Car s\'ils vous découvrent, ils vous lapideront ou vous ramèneront de force à leur religion. »\n\nLe jeune homme descendit vers la ville. Et là, tout avait changé. Les rues n\'étaient plus les mêmes. Les bâtiments avaient été reconstruits. Les visages étaient inconnus. Et quand il tendit sa pièce au marchand, celui-ci la retourna dans ses mains avec stupéfaction — c\'était une monnaie antique, d\'un roi mort depuis des siècles.\n\nLa nouvelle se répandit comme une traînée de lumière. Le roi de l\'époque — un roi croyant, cette fois — vint les rencontrer. Le peuple vit en eux un signe d\'Allah. Les jeunes comprirent alors : Allah les avait endormis dans un monde de persécution et réveillés dans un monde de foi. Puis Allah les rappela à Lui, et leur caverne devint un lieu de mémoire et de méditation pour l\'éternité.',
       ),
       StoryChapter(
         title: 'LA LEÇON ÉTERNELLE',
+        englishTitle: 'THE ETERNAL LESSON',
         content: 'L\'histoire des Gens de la Caverne est lue chaque vendredi par des millions de musulmans. Elle enseigne que la foi sincère, même portée par une poignée de jeunes, vaut plus que toute la puissance du monde. Que celui qui quitte quelque chose pour Allah, Allah lui donnera mieux. Et que le temps — des siècles entiers — n\'est rien pour Celui qui possède l\'éternité.',
       ),
     ],
     moral: 'La foi protège ceux qui font confiance à Allah même dans les situations les plus désespérées. Quitter quelque chose pour Allah, c\'est toujours recevoir mieux en retour.',
+    englishMoral: 'Faith protects those who trust in Allah even in the most desperate situations. Leaving something for Allah always brings something better in return.',
   ),
   CoranicStory(
     title: 'Luqman le Sage',
+    englishTitle: 'Luqman the Wise',
     arabicTitle: 'لُقْمَان الحَكِيم',
     emoji: '📜',
     surahRef: 'Sourate Luqman · 31:12-19',
     summary: 'Un homme sage donna à son fils les conseils les plus précieux de la vie.',
+    englishSummary: 'A wise man gave his son the most precious advice of life.',
     fullStory:
       '━━━ L\'HOMME QU\'ALLAH COMBLA DE SAGESSE ━━━\n\n'
       'Luqman n\'était pas un prophète. Le Coran ne le place pas parmi les messagers envoyés aux nations. Pourtant, Allah lui accorda un honneur rarissime : une sourate entière porte son nom. Car ce qu\'Allah donna à Luqman était d\'une valeur inestimable — la Hikma, la sagesse. Non pas la sagesse des livres ou des philosophes, mais celle qui vient directement d\'Allah, celle qui illumine le cœur et guide chaque pas.\n\n'
@@ -3410,6 +4180,7 @@ const List<CoranicStory> kCoranicStories = [
       ),
       StoryChapter(
         title: 'LE GRAIN DE MOUTARDE',
+        englishTitle: 'THE MUSTARD SEED',
         content: 'Luqman continua avec un conseil qui donne le vertige : « Ô mon fils, même si une action est du poids d\'un grain de moutarde, fût-elle cachée dans un rocher, dans les cieux ou dans la terre, Allah la fera apparaître. Allah est infiniment Doux et parfaitement Informé. »\n\nUn grain de moutarde. La chose la plus petite, la plus insignifiante que l\'on puisse imaginer. Cachée dans un rocher — enfouie dans la matière la plus dure. Ou perdue quelque part dans l\'immensité des cieux et de la terre. Et pourtant Allah la voit, la connaît, et la fera apparaître. Rien ne Lui échappe. Ni le bien caché que tu fais en secret, ni le mal que tu crois pouvoir dissimuler. Cette conscience — qu\'Allah voit tout — est le socle de la taqwa, la conscience d\'Allah.',
       ),
       StoryChapter(
@@ -3418,17 +4189,21 @@ const List<CoranicStory> kCoranicStories = [
       ),
       StoryChapter(
         title: 'UN HÉRITAGE POUR CHAQUE PARENT',
+        englishTitle: 'A LEGACY FOR EVERY PARENT',
         content: 'Les conseils de Luqman n\'étaient pas destinés à son fils seul. En les plaçant dans le Coran, Allah les offre à chaque parent et à chaque enfant jusqu\'à la fin des temps. C\'est un programme éducatif complet en quelques versets : le tawhid, la gratitude, la conscience d\'Allah, la prière, le courage moral, la patience, et l\'humilité. Un père qui transmet cela à son enfant lui a donné plus que tous les trésors du monde.',
       ),
     ],
     moral: 'La vraie sagesse se transmet dans la famille par la foi, la bonté et l\'humilité. Les conseils de Luqman sont le programme éducatif que chaque parent devrait offrir à son enfant.',
+    englishMoral: 'True wisdom is transmitted in the family through faith, goodness and humility. The advice of Luqman is the educational program that every parent should offer their child.',
   ),
   CoranicStory(
     title: 'Dhul-Qarnayn le Voyageur',
+    englishTitle: 'Dhul-Qarnayn the Traveler',
     arabicTitle: 'ذُو القَرْنَيْن',
     emoji: '🏔️',
     surahRef: 'Sourate Al-Kahf · 18:83-98',
     summary: 'Un roi juste qui voyagea aux extrémités de la Terre et construisit un mur contre Yajuj et Majuj.',
+    englishSummary: 'A just king who journeyed to the ends of the Earth and built a wall against Ya\'juj and Ma\'juj.',
     fullStory:
       '━━━ LA QUESTION DES QURAYSH ━━━\n\n'
       'Les Quraysh de La Mecque voulaient mettre le Prophète Muhammad ﷺ à l\'épreuve. Conseillés par les rabbins de Médine, ils lui posèrent trois questions auxquelles seul un vrai prophète pourrait répondre. L\'une d\'elles concernait un roi mystérieux qui avait voyagé aux confins de la terre. Allah révéla la réponse dans la Sourate Al-Kahf — l\'histoire de Dhul-Qarnayn, l\'Homme aux Deux Cornes.\n\n'
@@ -3450,10 +4225,12 @@ const List<CoranicStory> kCoranicStories = [
     chapters: [
       StoryChapter(
         title: 'LA QUESTION DES QURAYSH',
+        englishTitle: 'THE QUESTION OF THE QURAYSH',
         content: 'Les Quraysh de La Mecque voulaient mettre le Prophète Muhammad ﷺ à l\'épreuve. Conseillés par les rabbins de Médine, ils lui posèrent trois questions auxquelles seul un vrai prophète pourrait répondre. L\'une d\'elles concernait un roi mystérieux qui avait voyagé aux confins de la terre. Allah révéla la réponse dans la Sourate Al-Kahf — l\'histoire de Dhul-Qarnayn, l\'Homme aux Deux Cornes.\n\nQui était Dhul-Qarnayn ? Les savants ont beaucoup débattu. Certains ont proposé Alexandre le Grand, d\'autres un roi yéménite, d\'autres encore Cyrus le Grand de Perse. Le Coran ne le nomme pas, car ce n\'est pas son identité qui compte — c\'est ce qu\'il fit avec le pouvoir qu\'Allah lui confia.',
       ),
       StoryChapter(
         title: 'LE POUVOIR COMME ÉPREUVE',
+        englishTitle: 'POWER AS A TRIAL',
         content: 'Le Coran dit : « Nous avons affermi sa puissance sur terre et Nous lui avons donné un moyen pour toute chose. » Allah donna à cet homme les moyens de tout conquérir. Des armées, des ressources, une intelligence stratégique, une autorité que nul ne pouvait contester. Mais le pouvoir est la plus grande des épreuves. La plupart des hommes qui le reçoivent deviennent des tyrans. Dhul-Qarnayn, lui, devint un serviteur de la justice.',
       ),
       StoryChapter(
@@ -3466,6 +4243,7 @@ const List<CoranicStory> kCoranicStories = [
       ),
       StoryChapter(
         title: 'LE MUR CONTRE YAJUJ ET MAJUJ',
+        englishTitle: 'THE WALL AGAINST YA\'JUJ AND MA\'JUJ',
         content: 'Enfin, il atteignit un passage entre deux montagnes. Là vivait un peuple qui parlait à peine — une langue que personne ne comprenait. Ils implorèrent son aide : « Ô Dhul-Qarnayn ! Yajuj et Majuj sèment le désordre sur terre. Pouvons-nous t\'offrir un tribut pour que tu construises une barrière entre eux et nous ? »\n\nYajuj et Majuj — Gog et Magog — deux peuples dévastateurs dont les raids terrorisaient cette population sans défense. Dhul-Qarnayn aurait pu accepter le tribut. Il était roi, il avait le droit. Mais sa réponse est un sommet d\'humilité : « Ce que mon Seigneur m\'a accordé vaut mieux que votre tribut. Aidez-moi plutôt de votre force physique et je construirai un remblai entre vous et eux. »\n\nIl ne voulait pas leur argent. Il voulait leur participation. Il les fit travailler avec lui — un roi au milieu de son peuple, les mains dans le fer et le feu. Ils apportèrent des blocs de fer, les empilèrent entre les deux montagnes jusqu\'à combler l\'espace. Puis il ordonna : « Soufflez ! » Et quand le fer fut rouge, il fit couler du cuivre fondu par-dessus. Le mur devint infranchissable — Yajuj et Majuj ne purent ni l\'escalader ni le percer.',
       ),
       StoryChapter(
@@ -3474,13 +4252,16 @@ const List<CoranicStory> kCoranicStories = [
       ),
     ],
     moral: 'Le vrai pouvoir au service de la justice est une grâce d\'Allah. Le puissant qui reste humble et sert les opprimés est une bénédiction pour le monde entier.',
+    englishMoral: 'True power in service of justice is a grace from Allah. The powerful one who remains humble and serves the oppressed is a blessing for the entire world.',
   ),
   CoranicStory(
     title: 'La Reine de Saba',
+    englishTitle: 'The Queen of Sheba',
     arabicTitle: 'مَلِكَةُ سَبَأ',
     emoji: '👑',
     surahRef: 'Sourate An-Naml · 27:22-44',
     summary: 'La reine Bilqis fut éblouie par la sagesse de Sulayman et embrassa l\'Islam.',
+    englishSummary: 'Queen Bilqis was dazzled by the wisdom of Solomon and embraced Islam.',
     fullStory:
       '━━━ L\'APPEL DE LA HUPPE ━━━\n\n'
       'Le prophète Sulayman (Salomon) possédait un royaume comme le monde n\'en avait jamais vu. Allah lui avait accordé des dons extraordinaires : il comprenait le langage des oiseaux, commandait aux djinns et au vent, et disposait d\'armées composées d\'hommes, de djinns et d\'oiseaux — des armées rangées en ordre parfait.\n\n'
@@ -3511,10 +4292,12 @@ const List<CoranicStory> kCoranicStories = [
       ),
       StoryChapter(
         title: 'LA LETTRE DU ROI',
+        englishTitle: 'THE KING\'S LETTER',
         content: 'Sulayman ne leva pas d\'armée. Il n\'envoya pas de menaces guerrières. Il fit quelque chose de plus puissant — il envoya une lettre. Un simple écrit, mais signé de son nom : « Au nom d\'Allah, le Miséricordieux, le Compatissant. Que ce soit : ne vous élevez pas contre moi, et venez à moi en vous soumettant. »\n\nCette lettre était un chef-d\'œuvre de diplomatie et de douceur. Pas une sommation brutale. Une invitation. Une promesse de sécurité si l\'on se soumet, et une implication claire de la puissance si l\'on refuse. Sulayman envoya cette lettre par la huppe — un messager plus rapide que n\'importe quelle armée.\n\nBilqis, la reine de Saba, reçut cette lettre. Son premier réflexe fut celui d\'une reine jalouse de son pouvoir : elle assembla son conseil. Les grands seigneurs de Saba, qu\'Allah appelle les « assembleurs de science parmi son peuple » — probablement ses conseillers et ses savants.\n\nMais elle ne réagit pas avec fierté blessée. Elle dit : « Ô nobles, une lettre généreuse m\'a été apportée. Elle est de Sulayman. Elle dit : Au nom d\'Allah, le Miséricordieux, le Compatissant. »',
       ),
       StoryChapter(
         title: 'LE REFUS DES PRÉSENTS',
+        englishTitle: 'THE REFUSAL OF GIFTS',
         content: 'Elle envoya des cadeaux somptueux — des trésors dignes d\'une reine offrant un tribut à un roi. Mais Sulayman refusa. Cela dit quelque chose de profond. Un roi moins sage aurait accepté l\'or, l\'argent et les richesses. Mais Sulayman comprenait que l\'or peut être une chaîne. Il refusa et dit aux messagers de Bilqis : « Allez vers eux, mais allez avec force. »\n\nMais la force ici ne signifiait pas la brutalité. Elle signifiait la détermination, la confiance, la prestance. Sulayman mit fin à la possibilité du compromis facile. Désormais, il fallait une décision : se soumettre ou être vaincu.',
       ),
       StoryChapter(
@@ -3523,14 +4306,17 @@ const List<CoranicStory> kCoranicStories = [
       ),
       StoryChapter(
         title: 'LE PALAIS DE CRISTAL',
+        englishTitle: 'THE CRYSTAL PALACE',
         content: 'Puis vint le moment le plus saisissant. On invita Bilqis au palais de Sulayman. Et là, on lui prépara une salle « de verre poli ». Le Coran dit : « Quand elle fut entrée dans la salle, elle pensa que c\'était de l\'eau polie. »\n\nImaginez cette reine, habituée au pouvoir, au contrôle, aux certitudes du monde matériel, marchant sur ce verre et croyant que c\'était de l\'eau. C\'était une métaphore physique d\'une épreuve spirituelle : perdre tes certitudes, réaliser que le monde visible n\'est pas tout.\n\nBilqis cria : « Seigneur, pardonne-moi ! Je me soumets avec Sulayman à Allah, Seigneur de l\'univers. »\n\nMais avant même cela, Sulayman ordonna qu\'on lui apporte un trône avant qu\'elle n\'arrive. Pourquoi ? Parce qu\'il y a une gradation dans la conviction. D\'abord, voir la puissance : « Le trône a changé d\'endroit. » Puis, voir la transformation personnelle : « Celui qui avait la science du Livre a apporté le trône en un instant. » Et enfin, traverser l\'épreuve du verre : « Tout ce que tu croyais certain n\'est peut-être pas ce que tu crois. »',
       ),
       StoryChapter(
         title: 'UNE CONVERSION PAR LA RAISON',
+        englishTitle: 'A CONVERSION BY REASON',
         content: 'L\'histoire de Bilqis est extraordinaire car sa conversion ne fut pas le fruit de la peur ou de la contrainte. Elle ne fut pas conquise par les armes. Elle fut conquise par la vérité — étape par étape, preuve après preuve, jusqu\'à ce que son intelligence et son cœur s\'alignent. C\'est le modèle de la da\'wa la plus noble : non pas forcer, mais montrer la vérité avec tant de clarté que le cœur n\'a plus qu\'à s\'incliner.',
       ),
     ],
     moral: 'Devant la vérité lumineuse, même les plus puissants rois inclinent la tête devant Allah. La vraie conversion vient de la raison éclairée par la foi.',
+    englishMoral: 'Before luminous truth, even the most powerful kings bow their heads before Allah. True conversion comes from reason illuminated by faith.',
   ),
   CoranicStory(
     title: 'Les Gens de l\'Éléphant',
@@ -3569,10 +4355,12 @@ const List<CoranicStory> kCoranicStories = [
       ),
       StoryChapter(
         title: 'LA MARCHE SUR LA MECQUE',
+        englishTitle: 'THE MARCH ON MECCA',
         content: 'Abraha rassembla une armée colossale. Des milliers de soldats, des chevaux, des technologies de siège — tout ce qui pouvait montrer sa puissance au monde. Mais il y avait un détail extraordinaire : il avait amené un éléphant gigantesque. Cet animal, blanc comme l\'ivoire, était le symbole ultime du pouvoir. Aucun Arabe n\'avait jamais vu une bête aussi grande. C\'est pourquoi ils appelaient cette expédition « l\'Année de l\'Éléphant ».\n\nAbraha marcha vers la Mecque avec l\'intention de détruire la Kaaba et de montrer à tout le monde que l\'église du Yémen était désormais le centre spirituel de l\'Arabie.',
       ),
       StoryChapter(
         title: 'ABDUL-MUTTALIB — LA FOI DU GARDIEN',
+        englishTitle: 'ABDUL-MUTTALIB — THE FAITH OF THE GUARDIAN',
         content: 'Abraha envoya un émissaire aux Quraysh pour leur dire qu\'il ne venait pas pour la bataille — il venait pour la Kaaba. Il ne voulait que la détruire, puis s\'en aller. Ce message remplissait les cœurs de terreur. Les Quraysh n\'avaient pas d\'armée digne de ce nom. Ils ne pouvaient pas résister.\n\nMais Abdul-Muttalib, le grand-père du Prophète Muhammad, qui était le gardien de la Kaaba, répondit avec une foi imperturbable. Il ne prit pas les armes. Il fit quelque chose de plus puissant : il éleva ses mains vers le ciel et fit une invocation. Le Coran rapporte un verset d\'une beauté déchirante : « Abdul-Muttalib dit : O Seigneur, le cavalier se défend lui-même, il ne laisse pas son butin être enlevé... Ô Seigneur, ne me laisse pas pour regarder la destruction de ma maison. Tu vois que tes ennemis ne verront pas ce jour et si Tu les laisses faire, Tu feras ce que Tu veux. » Il fit confiance à Allah. Et c\'est cette foi qui valait plus que tous les guerriers du monde.',
       ),
       StoryChapter(
@@ -3581,6 +4369,7 @@ const List<CoranicStory> kCoranicStories = [
       ),
       StoryChapter(
         title: 'LES OISEAUX ABABIL',
+        englishTitle: 'THE BIRDS OF ABABEEL',
         content: 'Puis le ciel changea. Des nuées d\'oiseaux apparurent à l\'horizon — les Ababil, des oiseaux que le Coran décrit de manière cryptique. Le Coran dit : « N\'as-tu pas vu comment ton Seigneur a traité les Gens de l\'Éléphant ? N\'a-t-Il pas rendu leur ruse vaine ? Et Il envoya contre eux des oiseaux en volées apportant des pierres de pierre cuite ? »\n\nCes oiseaux, selon les récits, laissaient tomber des petites pierres — pas de roches énormes, juste des petites pierres. Mais elles frappaient chaque soldat de l\'armée d\'Abraha. Chaque pierre trouvait sa cible avec une précision impossible. Les soldats tombaient l\'un après l\'autre, frappés par ces projectiles minuscules comme s\'il y avait une volonté divine dans chaque impact. L\'armée entière fut décimée. Abraha lui-même s\'enfuit, mourant du chemin du retour. Une armée de milliers, vaincue par des petits oiseaux.',
       ),
       StoryChapter(
@@ -3592,10 +4381,12 @@ const List<CoranicStory> kCoranicStories = [
   ),
   CoranicStory(
     title: 'Maryam et la Naissance Miraculeuse',
+    englishTitle: 'Mary and the Miraculous Birth',
     arabicTitle: 'مَرْيَم وَوِلادَةُ عِيسَى',
     emoji: '🌴',
     surahRef: 'Sourate Maryam · 19:16-34',
     summary: 'Maryam, la femme la plus pure, donna naissance à Isa sans père, et le bébé parla depuis son berceau.',
+    englishSummary: 'Mary, the purest of women, gave birth to Jesus without a father, and the baby spoke from his cradle.',
     fullStory:
       '━━━ LA FILLE D\'IMRAN — UNE ENFANT CONSACRÉE ━━━\n\n'
       'L\'histoire de Maryam commence avant même sa naissance. Sa mère, la femme d\'Imran, fit un vœu pendant sa grossesse : « Seigneur, je T\'ai voué en toute exclusivité ce qui est dans mon ventre. Accepte-le de moi. » Elle espérait un garçon qu\'elle consacrerait au service du Temple de Jérusalem. Mais Allah lui donna une fille. Et quelle fille.\n\n'
@@ -3635,10 +4426,12 @@ const List<CoranicStory> kCoranicStories = [
       ),
       StoryChapter(
         title: 'LE BÉBÉ QUI PARLA',
+        englishTitle: 'THE BABY WHO SPOKE',
         content: 'Allah donna à Maryam une instruction : « Si tu vois quelqu\'un, dis : j\'ai voué un jeûne au Tout-Miséricordieux et je ne parlerai à personne aujourd\'hui. »\n\nQuand elle revint à son peuple, portant l\'enfant dans ses bras, les gens furent scandalisés. Ils l\'accusèrent d\'immoralité, de honte, d\'indignité. Toutes les accusations qu\'une femme seule avec un enfant peut endurer dans une société patriarcale.\n\nMaryam ne dit pas un mot. Elle montra le bébé. Les gens s\'indignèrent davantage : « Comment parlerions-nous à un bébé au berceau ? »\n\nEt le bébé parla. Isa, nouveau-né, enveloppé dans ses langes, ouvrit la bouche et dit : « Je suis le serviteur d\'Allah. Il m\'a donné le Livre et m\'a désigné prophète. Il m\'a rendu béni où que je sois et m\'a recommandé la prière et la zakat tant que je vivrai, ainsi que la bonté envers ma mère. Il ne m\'a fait ni violent ni malheureux. Et que la paix soit sur moi le jour où je naquis, le jour où je mourrai, et le jour où je serai ressuscité vivant. »\n\nUn nouveau-né qui proclame sa mission prophétique, qui défend l\'honneur de sa mère, et qui annonce son destin — voilà le miracle qui fit taire les accusateurs. La parole d\'Allah, sortant de la bouche d\'un bébé, pour protéger la plus pure des femmes.',
       ),
     ],
     moral: 'La pureté et la confiance totale en Allah font de Maryam le modèle de la femme croyante pour l\'éternité. Même dans la solitude la plus absolue, Allah ne délaisse jamais Ses serviteurs.',
+    englishMoral: 'The purity and total trust in Allah make Mary the model of the believing woman for eternity. Even in absolute solitude, Allah never abandons His servants.',
   ),
   CoranicStory(
     title: 'L\'Homme aux Deux Jardins',
@@ -3673,6 +4466,7 @@ const List<CoranicStory> kCoranicStories = [
     chapters: [
       StoryChapter(
         title: 'LA PARABOLE DES DEUX HOMMES',
+        englishTitle: 'THE PARABLE OF THE TWO MEN',
         content: 'Allah propose dans la Sourate Al-Kahf une parabole — un mathâl — d\'une beauté littéraire incomparable. Il s\'agit de deux hommes : l\'un riche et orgueilleux, l\'autre pauvre et croyant. Cette parabole n\'est pas qu\'un conte : c\'est un miroir que chaque personne doit regarder pour voir sa propre âme.',
       ),
       StoryChapter(
@@ -3685,14 +4479,17 @@ const List<CoranicStory> kCoranicStories = [
       ),
       StoryChapter(
         title: 'LA SAGESSE DU PAUVRE',
+        englishTitle: 'THE WISDOM OF THE POOR MAN',
         content: 'Son ami croyant écouta tout cela. Il n\'avait rien — pas ces jardins, pas cette richesse, pas ces partisans. Mais il avait quelque chose d\'infiniment plus précieux : la sagesse. Il dit à son ami : « Tu m\'as donné de la richesse, mais c\'est sur mon âme que tu es vraiment pauvre. »\n\nPuis il enseigna à son ami la véritable formule de la richesse : « Pourquoi ne dis-tu pas quand tu entres dans tes jardins : Mâ shâ Allah, lâ quwwata illâ billâh — Ce qu\'Allah a voulu ! Il n\'y a de puissance que par Allah ! »\n\nCette phrase — Mâ shâ Allah — contient toute la sagesse. Elle signifie : « Tout ce que je possède est par la volonté d\'Allah, pas par mon effort, pas par mon intelligence, pas par ma force. » C\'est la clé de la gratitude, et la gratitude est le secret de la bénédiction.',
       ),
       StoryChapter(
         title: 'LA CHUTE',
+        englishTitle: 'THE FALL',
         content: 'Le riche n\'écouta pas. L\'orgueil avait bouché ses oreilles. Et la catastrophe vint — comme elle vient toujours quand Allah décide de rappeler à l\'homme sa fragilité. Les jardins furent dévastés. Le Coran dit que les fruits furent détruits, que les vignes s\'effondrèrent sur leurs treillages, que tout ce qui faisait la gloire de cet homme fut réduit à néant.\n\nL\'homme se retrouva devant les ruines de sa fierté. Il retournait ses mains de regret — un geste de désespoir absolu — en contemplant ce qui avait été son paradis terrestre. Et il dit, trop tard : « Que n\'ai-je associé personne à mon Seigneur ! »\n\nPersonne ne vint l\'aider. Ni ses partisans, ni sa force, ni ses richesses — tout ce dont il s\'était vanté avait disparu. Il n\'avait plus rien.',
       ),
       StoryChapter(
         title: 'LA LEÇON POUR NOTRE TEMPS',
+        englishTitle: 'THE LESSON FOR OUR TIME',
         content: 'Le Coran conclut cette parabole par une vérité universelle : « La souveraineté ce jour-là appartient à Allah, le Vrai. Il accorde la meilleure récompense et la meilleure fin. » La richesse est un test, pas une récompense. Les jardins de ce monde, aussi beaux soient-ils, sont des prêts d\'Allah. Celui qui les reçoit avec gratitude les garde avec baraka. Celui qui les reçoit avec orgueil les perd avec fracas.\n\nEt la formule que le pauvre conseilla à son ami — Mâ shâ Allah, lâ quwwata illâ billâh — est devenue, pour les musulmans du monde entier, le rappel quotidien que toute bénédiction vient d\'Allah et peut retourner à Lui.',
       ),
     ],
@@ -3703,10 +4500,12 @@ const List<CoranicStory> kCoranicStories = [
 
   CoranicStory(
     title: 'Qarun et ses Trésors',
+    englishTitle: 'Qarun and His Treasures',
     arabicTitle: 'قَارُون',
     emoji: '💰',
     surahRef: 'Sourate Al-Qasas · 28:76-82',
     summary: 'L\'homme le plus riche de l\'histoire fut englouti par la terre à cause de son arrogance.',
+    englishSummary: 'The richest man in history was swallowed by the earth because of his arrogance.',
     fullStory:
       '━━━ LA RICHESSE QUI DÉPASSE L\'IMAGINATION ━━━\n\n'
       'Qarun (Coré dans la tradition biblique) était du peuple de Musa. Il appartenait aux Banu Israïl, le peuple élu, le peuple des prophètes. Mais il s\'était distingué d\'eux par une chose : une richesse si colossale que le Coran la décrit en termes qui défient l\'imagination.\n\n'
@@ -3737,6 +4536,7 @@ const List<CoranicStory> kCoranicStories = [
       ),
       StoryChapter(
         title: 'LA SORTIE DE QARUN',
+        englishTitle: 'THE PROCESSION OF QARUN',
         content: 'Un jour, Qarun sortit parmi son peuple dans toute sa splendeur — paré de ses plus beaux atours, entouré de sa suite, étalant sa richesse avec ostentation. La réaction du peuple fut immédiate et révélatrice. Ceux dont le cœur était attaché à ce monde dirent avec envie : « Ah ! Si seulement nous avions la même chose que ce qui a été donné à Qarun ! Il est vraiment doté d\'une chance immense ! »\n\nMais ceux qui possédaient la science — la science de la foi, la science de l\'au-delà — répondirent : « Malheur à vous ! La récompense d\'Allah est meilleure pour celui qui croit et fait le bien. Et elle n\'est accordée qu\'aux patients. »\n\nDeux regards sur la même scène. Les uns voyaient la richesse et l\'enviaient. Les autres voyaient l\'égarement et avertissaient. C\'est toujours ainsi : le monde se divise entre ceux qui regardent les apparences et ceux qui regardent la vérité.',
       ),
       StoryChapter(
@@ -3745,14 +4545,17 @@ const List<CoranicStory> kCoranicStories = [
       ),
     ],
     moral: 'La richesse est une épreuve d\'Allah, pas une preuve de mérite. Celui qui s\'en attribue le mérite risque de tout perdre — y compris la terre sous ses pieds.',
+    englishMoral: 'Wealth is a trial from Allah, not a proof of merit. Those who take credit for it risk losing everything — including the ground beneath their feet.',
   ),
 
   CoranicStory(
     title: 'Les Gens du Fossé',
+    englishTitle: 'The People of the Trench',
     arabicTitle: 'أَصْحَابُ الأُخْدُود',
     emoji: '🔥',
     surahRef: 'Sourate Al-Buruj · 85:1-9',
     summary: 'Des croyants furent jetés dans un fossé de feu pour avoir refusé de renier leur foi.',
+    englishSummary: 'Believers were thrown into a trench of fire for refusing to renounce their faith.',
     fullStory:
       '━━━ LE SERMENT DES ÉTOILES ━━━\n\n'
       'Allah ouvre la Sourate Al-Buruj par un serment solennel — par le ciel constellé de grandes étoiles, par le Jour promis, par le témoin et ce dont on témoigne. Puis Il dit : « Maudits soient les gens du Fossé, du feu alimenté de combustible, quand ils étaient assis tout autour, et étaient témoins de ce qu\'ils faisaient aux croyants. »\n\n'
@@ -3781,38 +4584,47 @@ const List<CoranicStory> kCoranicStories = [
     chapters: [
       StoryChapter(
         title: 'LE SERMENT DES ÉTOILES',
+        englishTitle: 'THE OATH OF THE STARS',
         content: 'Allah ouvre la Sourate Al-Buruj par un serment solennel — par le ciel constellé d\'étoiles, par le Jour Promis, par ceux qui témoignent et par ceux contre qui on témoigne. Puis, Il annonce le sujet de cette sourate : une histoire de persécution religieuse si terrible que Allah Lui-même en jure le châtiment éternel.',
       ),
       StoryChapter(
         title: 'LE ROI, LE SORCIER ET LE MOINE',
+        englishTitle: 'THE KING, THE SORCERER AND THE MONK',
         content: 'Il y avait un roi tyrannique qui avait à son service un sorcier. Le sorcier, usant ses pouvoirs de tromperie et de manipulation, avait asservi le roi à sa volonté. Le roi faisait tout ce que le sorcier lui commandait. Un jour, le sorcier dit au roi : « Je ne peux te plaire entièrement tant qu\'il existe un moine qui refuse ma doctrine. Tue ce moine, et tu seras complètement mon. »\n\nLe roi obéit. Il envoya quelqu\'un pour tuer le moine. Mais le moine survécut miraculeusement à la première tentative. Puis à la seconde. Puis à la troisième. Chaque fois, Allah le protégeait. Finalement, après trois tentatives infructueuses, le roi captura le moine et lui demanda : « Crois-tu en mon Seigneur ? »\n\nLe moine répondit : « Oui, et mon Seigneur est Allah. »',
       ),
       StoryChapter(
         title: 'LE GARÇON QUI GUÉRISSAIT',
+        englishTitle: 'THE BOY WHO HEALED',
         content: 'Le moine enseigna un garçon — un jeune disciple — les enseignements de la foi. Et Allah donna au garçon un miracle : il pouvait guérir les malades — les aveugles, les lépreux — simplement par sa foi en Allah. Le moine dit au garçon : « Tu es aujourd\'hui meilleur que moi. »\n\nL\'histoire du garçon se répandit rapidement. Les gens venaient le voir de partout pour qu\'il les guérisse. Mais parmi ses visiteurs se trouvait un ministre du roi — un homme puissant — qui était atteint d\'une maladie grave. Le garçon le guérit. Le ministre fut guéri et, voyant le pouvoir de la foi, il crut en Allah.\n\nLe ministre alla rapporter l\'événement au roi : « Un jeune garçon a guéri ma maladie. » Le roi demanda : « Est-ce qu\'il utilise la magie ? »\n\nLe ministre répondit : « Non. C\'est le pouvoir d\'Allah seul. »\n\nLe roi ordonna l\'arrestation du garçon.',
       ),
       StoryChapter(
         title: 'LE GARÇON INVINCIBLE',
+        englishTitle: 'THE INVINCIBLE BOY',
         content: 'Le roi tenta de tuer le garçon. Il l\'envoya au sommet d\'une montagne pour qu\'il soit jeté du haut. Mais le garçon invoqua Allah : « Ô Allah, préserve-moi de ce qu\'il veut me faire. » Et miraculeusement, ce fut le roi qui tomba du haut de la montagne — tandis que le garçon restait sain et sauf.\n\nLe roi essaya une deuxième fois. Il le jeta dans la mer. Encore une fois, le garçon fut sauvé et le roi se noya.\n\nLe roi, de plus en plus furieux, tenta une troisième fois. Il décida de crucifier le garçon. Il le cloua sur un croix, puis ordonna ses troupes de le cribler de flèches. Mais les flèches, au lieu de frapper le garçon, se retournaient contre les soldats qui les tiraient. Le garçon resta intouché.',
       ),
       StoryChapter(
         title: 'LE FOSSÉ DE FEU',
+        englishTitle: 'THE TRENCH OF FIRE',
         content: 'Le roi devint fou de rage. Ce qu\'il avait voulu éviter — la propagation de la foi — était exactement ce qui se produisait. Le miracle du garçon convertissait les gens à Allah en masse.\n\nLe roi prit sa décision finale : il ordonna qu\'on creuse un fossé, qu\'on l\'emplisse de feu, et qu\'on y jette tous ceux qui refuseraient de renier la foi en Allah.\n\nC\'était un ultimatum : renoncez à Allah, ou brûlez dans le feu. Il n\'y avait pas de troisième option.',
       ),
       StoryChapter(
         title: 'LA VICTOIRE DES VAINCUS',
+        englishTitle: 'THE VICTORY OF THE VANQUISHED',
         content: 'Les croyants furent amenés un par un au bord du fossé. On leur donnait le choix : reniez votre foi ou sautez dans le feu. Les uns après les autres, hommes, femmes, enfants, ils choisirent le feu plutôt que de renier Allah.\n\nLe Prophète ﷺ raconte qu\'une femme arriva au bord du fossé avec son bébé. Elle hésita — non pour elle-même, mais pour son enfant. Et Allah fit parler le bébé : « Ô mère, patiente — car tu es sur la vérité. » Et elle sauta.\n\nAux yeux du monde, les gens du Fossé avaient perdu. Ils étaient morts brûlés. Le roi avait gagné. Mais le Coran renverse cette perspective : c\'est le roi et ses complices qui sont maudits, et c\'est aux croyants que revient la victoire. « Ceux qui croient et font le bien auront des jardins sous lesquels coulent les rivières. Voilà le grand succès. »\n\nLa vraie victoire n\'est pas de survivre — c\'est de mourir sur la vérité. Les gens du Fossé n\'ont pas perdu leur vie — ils l\'ont investie dans l\'éternité.',
       ),
     ],
     moral: 'La foi véritable est celle qui tient face au feu. Les gens du Fossé enseignent que la victoire du croyant n\'est pas dans la survie mais dans la fidélité à Allah jusqu\'au dernier souffle.',
+    englishMoral: 'True faith is that which holds firm before the fire. The People of the Trench teach that the believer\'s victory is not in survival but in faithfulness to Allah until the last breath.',
   ),
 
   CoranicStory(
     title: 'La Vache des Banu Israïl',
+    englishTitle: 'The Cow of the Banu Israel',
     arabicTitle: 'بَقَرَةُ بَنِي إِسْرَائِيل',
     emoji: '🐄',
     surahRef: 'Sourate Al-Baqara · 2:67-73',
     summary: 'Allah ordonna aux Banu Israïl de sacrifier une vache pour résoudre un meurtre — ils multiplièrent les questions au lieu d\'obéir.',
+    englishSummary: 'Allah commanded the Banu Israel to sacrifice a cow to solve a murder — they multiplied their questions.',
     fullStory:
       '━━━ L\'ORDRE SIMPLE ━━━\n\n'
       'Un meurtre avait été commis parmi les Banu Israïl. Un homme avait été tué et personne ne savait — ou ne voulait dire — qui était le coupable. Les accusations fusaient entre les tribus, les tensions montaient, et le conflit menaçait de dégénérer en guerre civile.\n\n'
@@ -3837,6 +4649,7 @@ const List<CoranicStory> kCoranicStories = [
       ),
       StoryChapter(
         title: 'QUESTION APRÈS QUESTION',
+        englishTitle: 'QUESTION AFTER QUESTION',
         content: 'Ils dirent : « Te moques-tu de nous ? » Musa répondit : « Qu\'Allah me garde d\'être parmi les ignorants. » La première réaction du peuple fut le doute — comme si un prophète d\'Allah pouvait plaisanter avec un ordre divin.\n\nPuis ils demandèrent : « Invoque pour nous ton Seigneur qu\'Il nous précise ce qu\'elle doit être. » Allah répondit : « Ce n\'est ni une vieille vache ni une génisse — c\'est entre les deux. Faites ce qu\'on vous commande. »\n\nMais ils revinrent avec une autre question : « Invoque pour nous ton Seigneur qu\'Il nous précise sa couleur. » Allah répondit : « C\'est une vache jaune, d\'une couleur vive et plaisante aux regards. »\n\nEt encore une autre : « Invoque pour nous ton Seigneur qu\'Il nous précise ce qu\'elle est, car les vaches se ressemblent pour nous. Et si Allah le veut, nous serons bien guidés. » Allah répondit avec une précision qui rendait la tâche presque impossible : « C\'est une vache qui n\'est pas dressée pour labourer la terre ni pour arroser le champ, saine et sans marque. »\n\nChaque réponse d\'Allah rendait la tâche plus difficile. Ce qui aurait pu être simple devint compliqué par le questionnement incessant.',
       ),
       StoryChapter(
@@ -3845,18 +4658,22 @@ const List<CoranicStory> kCoranicStories = [
       ),
       StoryChapter(
         title: 'LE MESSAGE POUR TOUS LES TEMPS',
+        englishTitle: 'THE MESSAGE FOR ALL TIMES',
         content: 'Cette histoire donne son nom à la plus longue sourate du Coran — Al-Baqara, la Vache. Ce n\'est pas un hasard. Elle illustre un travers humain universel : au lieu d\'obéir simplement quand Allah commande, on pose des questions, on cherche des détails, on repousse, on ergote, on complique ce qui est simple.\n\nL\'obéissance à Allah n\'exige pas toujours de comprendre pourquoi. Quand l\'ordre est clair, la réponse du croyant est « Sami\'nâ wa ata\'nâ — Nous avons entendu et nous obéissons. » Les Banu Israïl auraient pu résoudre l\'affaire en quelques minutes. Leurs questions transformèrent une épreuve facile en épreuve difficile. C\'est la leçon : chaque question superflue devant un ordre d\'Allah rend l\'obéissance plus lourde.',
       ),
     ],
     moral: 'L\'obéissance à Allah doit être immédiate et sincère. Poser trop de questions pour retarder l\'action est une forme subtile de désobéissance qui rend les choses plus difficiles.',
+    englishMoral: 'Obedience to Allah must be immediate and sincere. Asking too many questions to delay action is a subtle form of disobedience that makes things more difficult.',
   ),
 
   CoranicStory(
     title: 'Uzayr et les Cent Ans',
+    englishTitle: 'Uzayr and the Hundred Years',
     arabicTitle: 'عُزَيْر',
     emoji: '⏳',
     surahRef: 'Sourate Al-Baqara · 2:259',
     summary: 'Un homme pieux passa devant une ville en ruines, douta de la résurrection, et Allah le fit mourir cent ans avant de le ressusciter.',
+    englishSummary: 'A pious man passed by a ruined city, doubted the resurrection, and Allah made him die for a hundred years before reviving him.',
     fullStory:
       '━━━ LA QUESTION DEVANT LES RUINES ━━━\n\n'
       'Le Coran rapporte l\'histoire d\'un homme — que beaucoup d\'exégètes identifient comme Uzayr (Esdras) — qui passait un jour devant une ville entièrement détruite. Les toits effondrés sur les murs, les murs tombés sur le sol, la poussière recouvrant tout. Une ville morte, sans le moindre signe de vie.\n\n'
@@ -3876,30 +4693,37 @@ const List<CoranicStory> kCoranicStories = [
     chapters: [
       StoryChapter(
         title: 'LA QUESTION DEVANT LES RUINES',
+        englishTitle: 'THE QUESTION BEFORE THE RUINS',
         content: 'Le Coran rapporte l\'histoire d\'un homme — que beaucoup d\'exégètes identifient comme Uzayr (Esdras) — qui passait un jour devant une ville entièrement détruite. Les toits effondrés sur les murs, les murs tombés sur le sol, la poussière recouvrant tout. Une ville morte, sans le moindre signe de vie.\n\nDevant ce spectacle de désolation, une question jaillit de son cœur : « Comment Allah redonnera-t-Il la vie à ceci après sa mort ? » Ce n\'était pas une question de déni ou d\'arrogance — c\'était l\'étonnement d\'un esprit confronté à l\'ampleur de la destruction. Comment, de ces ruines, de ces os blanchis, de cette poussière, pourrait renaître la vie ?',
       ),
       StoryChapter(
         title: 'LA MORT DE CENT ANS',
+        englishTitle: 'THE DEATH OF A HUNDRED YEARS',
         content: 'Allah répondit à sa question non par des mots, mais par une démonstration. « Allah le fit mourir pendant cent ans, puis le ressuscita. » Cent ans. Un siècle complet. Des générations naissant et mourant, des empires changeant, des saisons tournant encore et encore — et cet homme, immobile, sans vie, couché sur le sol.\n\nQuand Allah le réveilla, Il lui demanda : « Combien de temps es-tu resté ainsi ? » L\'homme répondit : « Je suis resté un jour, ou une partie d\'un jour. » Comme les Gens de la Caverne, il n\'avait aucune conscience du temps écoulé. Pour lui, c\'était une sieste. Pour le monde, c\'était un siècle.\n\nAllah dit : « Non ! Tu es resté cent ans. »',
       ),
       StoryChapter(
         title: 'LES PREUVES SOUS SES YEUX',
+        englishTitle: 'THE PROOFS BEFORE HIS EYES',
         content: 'Puis Allah lui montra les preuves, une par une, avec une pédagogie divine extraordinaire. « Regarde ta nourriture et ta boisson — elles n\'ont pas changé. » Sa nourriture, après cent ans, était intacte. Ni moisie, ni pourrie, ni desséchée. Allah avait suspendu les lois de la décomposition pour cette nourriture, comme preuve que rien n\'est impossible pour Lui.\n\n« Et regarde ton âne. » L\'âne, lui, avait subi le passage du temps. Il n\'en restait que des os blanchis, éparpillés sur le sol. Deux réalités côte à côte : la nourriture préservée et l\'âne décomposé. Allah montrait qu\'Il choisit ce qu\'Il préserve et ce qu\'Il laisse suivre les lois naturelles.\n\nPuis vint le miracle le plus spectaculaire : « Et pour que Nous fassions de toi un signe pour les gens — regarde les ossements, comment Nous les assemblons puis les revêtons de chair. » Sous ses yeux, les os de l\'âne se rassemblèrent. Les os se reconnectèrent, la chair les recouvrit, la peau enveloppa la chair, le souffle de vie revint. L\'âne se dressa sur ses pattes, vivant, complet, comme s\'il ne s\'était jamais décomposé.',
       ),
       StoryChapter(
         title: 'LA CERTITUDE',
+        englishTitle: 'CERTAINTY',
         content: 'Devant ce spectacle, l\'homme dit : « Je sais qu\'Allah est capable de toute chose. »\n\nSa question avait trouvé sa réponse — non dans une argumentation théologique, mais dans une expérience vécue. Il avait lui-même été mort et ressuscité. Il avait vu de ses propres yeux des os se reformer en un être vivant. La résurrection n\'était plus une croyance abstraite — c\'était un souvenir personnel.\n\nCette histoire rappelle que la résurrection — Al-Ba\'th — n\'est pas plus difficile pour Allah que de faire pousser une graine dans la terre morte. Celui qui crée à partir du néant peut recréer à partir des restes. Et celui qui doute n\'a qu\'à regarder autour de lui : chaque printemps qui succède à l\'hiver est une résurrection.',
       ),
     ],
     moral: 'Allah est capable de toute chose. La résurrection après la mort n\'est pas plus difficile pour Lui que de faire reverdir la terre après la sécheresse.',
+    englishMoral: 'Allah is capable of all things. Resurrection after death is no harder for Him than making the earth green again after drought.',
   ),
 
   CoranicStory(
     title: 'Le Jardin des Ingrats',
+    englishTitle: 'The Garden of the Ungrateful',
     arabicTitle: 'أَصْحَابُ الجَنَّة',
     emoji: '🌾',
     surahRef: 'Sourate Al-Qalam · 68:17-33',
     summary: 'Des héritiers avares décidèrent de récolter leur jardin en secret pour ne rien donner aux pauvres — ils trouvèrent tout détruit.',
+    englishSummary: 'Miserly heirs decided to harvest their garden in secret to give nothing to the poor — they found it devastated.',
     fullStory:
       '━━━ L\'HÉRITAGE DU PÈRE GÉNÉREUX ━━━\n\n'
       'Il y avait un vieil homme qui possédait un jardin magnifique et abondant. Chaque année, au moment de la récolte, il mettait de côté une part généreuse pour les pauvres, les nécessiteux, les voyageurs. C\'était sa tradition, son devoir, sa joie. Les pauvres de la région connaissaient ce jardin et attendaient la récolte avec espoir. Le vieil homme mourut et laissa le jardin à ses fils.\n\n'
@@ -3928,10 +4752,12 @@ const List<CoranicStory> kCoranicStories = [
       ),
       StoryChapter(
         title: 'LA DÉSOLATION',
+        englishTitle: 'THE DESOLATION',
         content: 'Quand ils arrivèrent au jardin, ils ne reconnurent rien. Le Coran dit : « Quand ils eurent juré de le récolter sans exception, ils dirent : nous ne laisserons rien aux pauvres. Puis une calamité du ciel vint. » Le jardin fut enveloppé d\'une gelée blanche qui détruisit chaque plante, chaque fruit, chaque verdure.\n\nLe jardin qu\'ils pensaient posséder entièrement leur fut enlevé complètement. Pas une olive, pas une datte, pas une feuille ne resta. La terre qui les avait enrichis les abandonna. Leur avarice était tellement totale qu\'Allah balaya complètement le jardin.',
       ),
       StoryChapter(
         title: 'LE REPENTIR TARDIF',
+        englishTitle: 'THE BELATED REPENTANCE',
         content: 'Ils se réveillèrent le lendemain matin et virent le désastre. Ils se regardaient avec incrédulité. Où était le jardin ? Où étaient les fruits ? Il ne restait que des champs noircis, calcinés.\n\nLe plus juste d\'entre eux dit — et on l\'imagine les regardant avec le regard triste de celui qui avait prévenu : « Ne vous avais-je pas dit de glorifier Allah ? » Il les avait avertis. Il leur avait dit de remercier Allah et de partager. Ils ne l\'avaient pas écouté.\n\nAlors ils se tournèrent les uns vers les autres et dirent : « Malheur à nous ! Nous avons été des tyrans ! Peut-être que notre Seigneur nous le remplacera par quelque chose de meilleur. Nous implorons notre Seigneur. »\n\nLe repentir était sincère — mais tardif. Le jardin était détruit. La leçon était apprise dans la douleur.',
       ),
       StoryChapter(
@@ -3940,14 +4766,17 @@ const List<CoranicStory> kCoranicStories = [
       ),
     ],
     moral: 'La richesse contient une part pour les pauvres — c\'est un droit, pas une charité. L\'avarice détruit les bénédictions plus sûrement que n\'importe quelle catastrophe.',
+    englishMoral: 'Wealth contains a share for the poor — it is a right, not charity. Miserliness destroys blessings more surely than any catastrophe.',
   ),
 
   CoranicStory(
     title: 'Le Prophète au Poisson — Yunus dans la Baleine',
+    englishTitle: 'The Prophet of the Whale — Jonah in the Whale',
     arabicTitle: 'ذَا النُّون',
     emoji: '🐋',
     surahRef: 'Sourate Al-Anbiya · 21:87-88 · As-Saffat · 37:139-148',
     summary: 'Le prophète Yunus quitta son peuple avec colère, fut avalé par un poisson géant, et invoqua Allah dans les ténèbres.',
+    englishSummary: 'The prophet Jonah left his people in anger, was swallowed by a giant fish, and invoked Allah in the darkness.',
     fullStory:
       '━━━ LE DÉPART DANS LA COLÈRE ━━━\n\n'
       'Le prophète Yunus (Jonas) fut envoyé au peuple de Ninive — une grande cité de l\'ancienne Mésopotamie (l\'Irak actuel), comptant selon les traditions plus de cent mille habitants. Il les appela à Allah avec patience et persévérance. Mais ils refusèrent, encore et encore. La frustration monta dans le cœur de Yunus, jusqu\'au jour où il prit une décision qu\'il ne devait pas prendre : il quitta son peuple sans l\'autorisation d\'Allah.\n\n'
@@ -3969,26 +4798,32 @@ const List<CoranicStory> kCoranicStories = [
     chapters: [
       StoryChapter(
         title: 'LE DÉPART DANS LA COLÈRE',
+        englishTitle: 'THE DEPARTURE IN ANGER',
         content: 'Le prophète Yunus (Jonas) fut envoyé au peuple de Ninive — une grande cité de l\'ancienne Mésopotamie (l\'Irak actuel), comptant selon les traditions plus de cent mille habitants. Il les appela à Allah avec patience et persévérance. Mais ils refusèrent, encore et encore. La frustration monta dans le cœur de Yunus, jusqu\'au jour où il prit une décision qu\'il ne devait pas prendre : il quitta son peuple sans l\'autorisation d\'Allah.\n\nLe Coran dit : « Et Dhun-Nun (l\'homme au poisson) quand il partit en colère et pensa que Nous n\'allions pas l\'éprouver. » Yunus pensait qu\'en partant, il était libre. Il pensait que sa mission était terminée, que ce peuple méritait le châtiment, et qu\'il avait fait sa part. Mais un prophète ne quitte pas son poste — c\'est Allah qui décide quand la mission est finie.',
       ),
       StoryChapter(
         title: 'LE TIRAGE AU SORT',
+        englishTitle: 'THE DRAWING OF LOTS',
         content: 'Yunus monta sur un navire. En haute mer, une tempête violente se leva. Le bateau tanguait dangereusement, menaçant de couler à tout moment. Les marins, expérimentés et superstitieux, crurent que quelqu\'un à bord portait malheur. Ils tirèrent au sort pour identifier le coupable. Le sort tomba sur Yunus. Ils tirèrent une deuxième fois — encore Yunus. Une troisième fois — toujours Yunus.\n\nYunus comprit. Ce n\'était pas le hasard — c\'était un message d\'Allah. Il se jeta à l\'eau, ou fut jeté selon les versions, et les flots l\'engloutirent.',
       ),
       StoryChapter(
         title: 'LES TÉNÈBRES DANS LES TÉNÈBRES',
+        englishTitle: 'DARKNESS WITHIN DARKNESS',
         content: 'Allah envoya un poisson gigantesque — une baleine — qui ouvrit sa gueule et engloutit Yunus. Le prophète se trouva dans l\'obscurité complète : l\'obscurité du ventre du poisson, l\'obscurité de la mer, l\'obscurité de la nuit. Trois ténèbres superposées.\n\nDans cette obscurité extrême, à peine capable de respirer, au bord de la mort, Yunus fit la seule chose qui lui restait : il invoqua Allah. Il dit : « Il n\'y a de divinité que Toi. Tu es glorifié. Certes je suis du nombre des injustes. »\n\nC\'était la plus belle invocation — pas une invocation de négociation, pas une invocation de marchandage. Juste une invocation de repentance, de glorification, de soumission. Yunus reconnaissait son erreur et se remettait entièrement à Allah.',
       ),
       StoryChapter(
         title: 'LA DÉLIVRANCE',
+        englishTitle: 'THE DELIVERANCE',
         content: 'Le Coran dit : « Nous l\'exauçâmes et le sauvâmes de l\'angoisse. Et ainsi Nous sauvons les croyants. » Le poisson le projeta sur une plage nue. Yunus sortit du ventre du poisson, nu et faible. Mais Allah, dans Sa miséricorde, fit pousser une courge pour le couvrir et le nourrir.\n\nYunus se repentit complètement. Il ne revint pas immédiatement chez son peuple — il se retira d\'abord dans une vie de piété absolue. Mais Allah accepta son repentir et le réhabilita. Plus tard, il retourna vers son peuple, et cette fois, ils crurent tous ensemble.',
       ),
       StoryChapter(
         title: 'LA LEÇON DE YUNUS',
+        englishTitle: 'THE LESSON OF JONAH',
         content: 'Le Prophète Muhammad ﷺ dit : « L\'invocation de Dhun-Nun (Yunus) — quiconque l\'utilise dans une invocation, Allah l\'exauce. » Cette invocation dans le ventre de la baleine est devenue un trésor pour la communauté entière.\n\nEt le Coran ajoute un avertissement profond : « Si Yunus n\'avait pas été parmi ceux qui glorifient Allah, il serait resté dans le ventre du poisson jusqu\'au Jour de la Résurrection. » C\'est son tasbeeh — sa glorification constante d\'Allah avant l\'épreuve — qui le sauva pendant l\'épreuve. La relation avec Allah se construit dans les bons jours pour tenir dans les mauvais.',
       ),
     ],
     moral: 'L\'invocation sincère dans les ténèbres atteint toujours Allah. La glorification d\'Allah dans les bons moments est le capital qui nous sauve dans les moments difficiles.',
+    englishMoral: 'Sincere invocation in the darkness always reaches Allah. Glorifying Allah in good times is the capital that saves us in difficult times.',
   ),
 ];
 
@@ -3996,115 +4831,154 @@ const List<CoranicStory> kCoranicStories = [
 const List<BedtimeStory> kBedtimeStories = [
   BedtimeStory(
     title: 'La Fourmi qui Remerciait Allah',
+    englishTitle: 'The Ant Who Thanked Allah',
     emoji: '🐜',
     dayIndex: 1,
     summary: 'Une petite fourmi qui gardait la gratitude dans son cœur reçut les plus grandes bénédictions.',
+    englishSummary: 'A little ant who kept gratitude in her heart received the greatest blessings.',
     story: 'Dans un coin tranquille de la forêt, là où les grands chênes plongeaient leurs racines dans une terre humide et noire, vivait une fourmilière immense. Des milliers de fourmis y habitaient — des ouvrières, des gardiennes, des exploratrices, et tout en bas, dans la chambre la plus profonde, la reine qui pondait ses œufs jour après jour.\n\nParmi toutes ces fourmis, il y en avait une, toute petite, qui s\'appelait Nour. Elle n\'était pas la plus forte, ni la plus rapide, ni la plus grande. Elle était même un peu plus lente que les autres, et ses sœurs la dépassaient souvent en portant des charges deux fois plus lourdes que les siennes. Mais Nour avait quelque chose que personne d\'autre n\'avait : un cœur plein de gratitude.\n\nCe cœur, Nour ne l\'avait pas trouvé par hasard. C\'était sa grand-mère, une très vieille fourmi aux antennes argentées, qui le lui avait donné — pas comme un objet, mais comme un héritage de mots. Quand Nour était toute petite, sa grand-mère la prenait contre elle dans la chambre la plus chaude de la fourmilière et lui murmurait : « Écoute-moi bien, ma petite. Le jour où tu cesseras de dire merci à Allah, ce jour-là, même le soleil te semblera froid. Mais tant que ton cœur remercie, même la nuit la plus sombre te paraîtra douce. » Nour n\'avait pas compris tout de suite. Mais les mots s\'étaient installés dans son cœur comme des graines — et avec le temps, ils avaient germé.\n\nLe message disait aussi quelque chose que Zahra relut trois fois : « ne regarde pas demain ce que tu as planté aujourd\'hui. » C\'était la partie la plus difficile. Zahra était impatiente par nature. Quand elle plantait quelque chose, elle voulait le voir pousser tout de suite — comme dans les dessins animés où une graine devient un arbre en trois secondes. Mais le jardinier d\'avant avait écrit ces mots exprès, comme s\'il connaissait Zahra avant même qu\'elle ne naisse. Comme s\'il savait que le jardin attendait quelqu\'un qui apprendrait à attendre.\n\nChaque matin, avant même d\'ouvrir les yeux, Nour murmurait dans son cœur : « Alhamdulillah. Merci Allah pour cette nuit de repos. Merci pour mes six petites pattes qui marchent encore. Merci pour l\'air frais qui entre dans la fourmilière. Merci pour tout ce que je ne vois pas et qui me protège. » Puis elle se levait, s\'étirait, et partait travailler avec le sourire.\n\nLes autres fourmis trouvaient ça bizarre. « Pourquoi tu parles toute seule le matin ? » demandait Salwa, une grosse fourmi noire qui portait des feuilles trois fois sa taille. Nour répondait simplement : « Je ne parle pas toute seule. Je parle à Allah. Je Lui dis merci. » Salwa haussait les épaules — enfin, si les fourmis avaient des épaules — et repartait en marmonnant que Nour perdait du temps.\n\nMême la cheffe des exploratrices, Oum Jabira, une fourmi sévère au regard perçant, avait un jour dit à Nour : « La gratitude ne remplit pas les réserves, petite. Ce sont les pattes qui travaillent, pas les mots. » Nour avait baissé la tête sans répondre. Elle n\'aimait pas les disputes. Mais dans son cœur, elle savait que les mots et les pattes n\'étaient pas ennemis. On pouvait travailler dur ET remercier Allah. On pouvait porter une charge lourde ET avoir le cœur léger. Les deux allaient ensemble, comme les deux antennes d\'une fourmi — l\'une sentait le chemin, l\'autre sentait les dangers.\n\nUn jour, au cœur de l\'été, quelque chose de terrible arriva. Une grosse pierre — tombée d\'on ne sait où, peut-être poussée par un animal qui passait — roula et s\'écrasa pile sur le chemin principal de la fourmilière. Ce chemin menait au grand champ de graines, là où toute la colonie trouvait sa nourriture. Sans ce chemin, plus de graines. Sans graines, plus de réserves pour l\'hiver. Sans réserves... personne ne voulait y penser.\n\nLa panique s\'installa. Les fourmis couraient dans tous les sens. La cheffe des exploratrices, une vieille fourmi au dos marqué de cicatrices, examina la pierre et secoua la tête : « Impossible de la déplacer. Impossible de creuser en dessous. Le chemin est bloqué. » Un silence lourd tomba sur la fourmilière. Certaines fourmis commençaient à pleurer — des petites larmes invisibles de fourmi, mais des larmes quand même.\n\nLa nuit tomba sur une fourmilière silencieuse. D\'habitude, le soir, on entendait les ouvrières chanter en triant les graines, les nourrices bercer les larves, les gardiennes se raconter les aventures de la journée. Ce soir-là, rien. Juste le bruit du vent dehors et le craquement de la pierre qui pesait sur leur chemin comme une montagne sur un cœur. Nour, allongée dans sa petite chambre, regardait le plafond de terre. Elle pensa à sa grand-mère. Que dirait-elle ? Nour ferma les yeux et entendit la voix, aussi claire que si la vieille fourmi était là : « Remercie Allah même quand la pierre est sur ton chemin. Surtout quand la pierre est sur ton chemin. »\n\nNour regarda la pierre. Elle regarda le ciel à travers les feuilles des arbres. Et elle fit ce qu\'elle faisait toujours : elle dit dans son cœur : « Alhamdulillah. Allah, Tu as sûrement un plan. Je ne le vois pas encore, mais je sais qu\'il est là. Bismillah — je vais chercher un autre chemin. »\n\nElle partit seule. Vers l\'est, là où personne n\'allait jamais parce que le terrain était accidenté et plein de cailloux. Les autres la regardèrent s\'éloigner en secouant la tête. « Pauvre Nour, dirent-elles. Elle perd encore son temps. » Mais Nour avançait, une patte après l\'autre, en répétant doucement : « Bismillah, Bismillah, Bismillah. »\n\nElle grimpa sur un caillou. Glissa. Se releva. « Alhamdulillah, je peux encore marcher. » Elle contourna une racine énorme. Se perdit. Revint sur ses pas. « Alhamdulillah, j\'ai des yeux pour voir. » Elle tomba dans un petit trou, se cogna, eut mal à une patte. Mais elle sortit du trou et continua. « Alhamdulillah, ce n\'est qu\'une petite douleur. Allah ne m\'a pas oubliée. »\n\nLe soleil commençait à descendre. Nour était fatiguée, affamée, et sa patte la faisait souffrir. Elle s\'arrêta un instant au pied d\'un grand champignon, à l\'ombre, et ferma les yeux. « Allah, murmura-t-elle, si Tu veux que je trouve un chemin, montre-le-moi. Et si Tu ne veux pas, alors je Te fais confiance quand même. Alhamdulillah pour cette journée, même si elle est difficile. »\n\nC\'est alors qu\'elle sentit quelque chose. Une odeur. Douce, sucrée, familière. L\'odeur des graines de tournesol — mais en plus fort, beaucoup plus fort que d\'habitude. Elle ouvrit les yeux et suivit l\'odeur, pas à pas, le cœur battant.\n\nLe sentier devenait de plus en plus étroit. Les cailloux étaient tranchants sous ses pattes. À un moment, elle dut ramper sous une racine si basse que son dos frotta contre la terre humide. Elle sentait des odeurs qu\'elle ne connaissait pas — l\'odeur âcre d\'un champignon vénéneux, l\'odeur douce d\'une fleur inconnue, l\'odeur métallique d\'une pierre mouillée. Chaque nouvelle odeur était un signe : elle était dans un territoire que personne n\'avait exploré. Son cœur battait si fort qu\'elle l\'entendait dans ses antennes. Elle monta une petite colline de terre, passa sous une feuille morte, et là...\n\nNour en eut le souffle coupé. Devant elle s\'étendait un champ entier de graines — des graines de tournesol, de blé, de sésame, de lin — éparpillées sur le sol comme un trésor oublié. Il y en avait dix fois, non, cent fois plus que dans leur ancien champ. Un arbre immense avait laissé tomber tous ses fruits et ses graines, et le vent les avait dispersées sur toute la clairière. C\'était un festin royal.\n\nNour resta là un long moment, immobile, à contempler ce trésor. Elle pensa à toutes les fois où elle avait dit Alhamdulillah sans savoir ce qu\'Allah lui préparait. Chaque merci qu\'elle avait prononcé dans les jours ordinaires, chaque gratitude murmurée dans les moments difficiles — c\'était comme si chacun de ces mots avait été une petite étoile, et que maintenant toutes ces étoiles s\'allumaient en même temps pour éclairer ce chemin qu\'elle seule avait trouvé. Elle comprit alors quelque chose de profond : la gratitude n\'est pas une réponse aux bonnes choses. C\'est une lumière qui éclaire le chemin vers les bonnes choses.\n\n« Alhamdulillah ! Alhamdulillah ! Alhamdulillah ! » Nour pleurait et riait en même temps. Elle fit demi-tour et courut — oui, courut malgré sa patte douloureuse — jusqu\'à la fourmilière. Quand elle arriva, essoufflée, et raconta ce qu\'elle avait trouvé, personne ne la crut d\'abord. Mais Nour les guida, et quand la colonie entière découvrit le champ de graines, un cri de joie monta de milliers de petites gorges de fourmis.\n\nCe soir-là, la fourmilière festoya comme jamais. Les réserves furent remplies en trois jours — assez pour deux hivers entiers. La reine convoqua Nour devant toute la colonie. « Comment as-tu trouvé ce trésor ? » demanda-t-elle. Nour, intimidée devant tout ce monde, répondit de sa petite voix : « Je n\'ai rien fait de spécial, ma reine. J\'ai juste dit merci à Allah. Avant, pendant, et après. Et Allah m\'a montré ce que je ne voyais pas. »\n\nLa reine hocha la tête lentement. « Que tout le monde entende, dit-elle. La gratitude n\'est pas une faiblesse. C\'est une force. C\'est une lumière qui éclaire les chemins que l\'obscurité cache. » Et depuis ce jour, chaque matin, dans la fourmilière de la forêt, des milliers de petites voix murmuraient ensemble avant de commencer la journée : « Alhamdulillah. »\n\nNour, elle, continuait comme avant. Toujours la même petite fourmi, pas la plus forte ni la plus rapide. Mais la plus reconnaissante. Et dans son cœur, une lumière douce brillait — une lumière qu\'Allah allume dans le cœur de ceux qui n\'oublient jamais de dire merci. Chaque soir, avant de s\'endormir, elle levait ses petites pattes vers le ciel dans sa fourmilière sombre, et son cœur murmurait les mots qui avaient changé sa vie : « Alhamdulillah, alhamdulillah, alhamdulillah... » Et elle s\'endormait paisiblement, sachant qu\'elle était protégée, aimée, et surtout, pas oubliée.\n\n',
     moral: 'La gratitude envers Allah ouvre des portes que l\'on ne voyait même pas.',
+    englishMoral: 'Gratitude toward Allah opens doors that we could not even see.',
   ),
   BedtimeStory(
     title: 'Le Berger et les Étoiles',
+    englishTitle: 'The Shepherd and the Stars',
     emoji: '🌟',
     dayIndex: 2,
     summary: 'Un jeune berger qui priait en regardant les étoiles retrouva son mouton perdu grâce à sa foi.',
+    englishSummary: 'A little ant who kept gratitude in her heart received the greatest blessings.',
     story: 'Dans un village accroché au flanc d\'une montagne, là où le vent sentait le thym sauvage et où les nuits étaient si claires qu\'on pouvait compter les étoiles, vivait un jeune berger nommé Khalid. Il avait douze ans, des yeux noirs comme l\'encre, et un sourire que rien ne semblait pouvoir éteindre — ni la pluie, ni le froid, ni la fatigue des longues journées dans la montagne.\n\nKhalid gardait un troupeau de vingt-trois moutons. Il les connaissait tous par leur nom. Il y avait Qamar, le plus vieux, avec sa laine grise et son regard sage. Il y avait Layla, la brebis noire qui aimait se cacher derrière les rochers pour jouer. Et il y avait Nujum — « les étoiles » — le plus petit agneau du troupeau, tout blanc, avec une tache marron sur le front en forme de croissant de lune. Nujum était né le dernier, le plus fragile, et c\'était le préféré de Khalid — même s\'il ne l\'avouait pas aux autres moutons.\n\nKhalid avait appris le métier de berger de son père, qui l\'avait appris de son propre père, et ainsi de suite depuis des générations. Dans leur famille, garder les moutons n\'était pas un simple travail — c\'était un acte de dévotion. Son père disait toujours : « Les prophètes étaient bergers avant d\'être prophètes. Musa gardait les moutons de Shu\'ayb. Muhammad ﷺ gardait ceux des Quraysh. Le berger apprend la patience, la responsabilité, et surtout la solitude avec Allah. » Khalid aimait ces mots. Ils donnaient à ses journées dans la montagne un sens plus grand que le simple fait de compter des moutons.\n\nChaque soir, quand le soleil se couchait derrière la montagne et que les premières étoiles perçaient le ciel violet, Khalid avait un rituel. Il s\'asseyait sur son rocher préféré — un gros rocher plat, au sommet de la colline, avec une vue qui embrassait toute la vallée. Il levait les yeux vers le ciel, prenait une grande respiration, et commençait à parler à Allah.\n\nCe n\'étaient pas des prières formelles comme celles de la mosquée. C\'étaient des conversations. « Ya Allah, disait-il, regarde comme Ton ciel est beau ce soir. Merci pour chaque étoile. Merci pour Qamar qui va bien malgré son âge. Merci pour la soupe de maman qui m\'attend en bas. Merci pour cette brise qui sent bon. Merci pour tout ce que Tu me donnes et que je ne mérite même pas. » Et puis il souriait, comme si Allah lui avait répondu quelque chose de doux que personne d\'autre ne pouvait entendre.\n\nLe vieux sage du village, Cheikh Hamid, s\'assit au bord de la rivière et sourit. « Mes enfants, dit-il aux gamins qui l\'entouraient, retenez ceci : Allah fait grandir ce qui est donné avec sincérité. Ce petit ruisseau donnait sans compter, et Allah lui a donné sans compter. C\'est une loi aussi certaine que le lever du soleil. » Les enfants l\'écoutaient, les pieds dans l\'eau, les yeux grands ouverts.\n\nParfois, Khalid restait si longtemps sur son rocher que les étoiles tournaient au-dessus de lui. Il observait leurs mouvements lents et majestueux et se demandait si elles aussi louaient Allah. Le Coran disait que oui — que tout dans les cieux et la terre glorifiait Allah, même si les humains ne comprenaient pas leur glorification. Cette idée enchantait Khalid. Il levait la main vers une étoile particulièrement brillante et murmurait : « Toi aussi tu dis SubhanAllah ? Moi aussi. On le dit ensemble. » Et dans le silence immense de la montagne, avec le vent pour seule musique, un garçon de douze ans et une étoile vieille de millions d\'années priaient ensemble.\n\nUn soir de novembre, le ciel changea. Des nuages lourds et sombres roulèrent depuis l\'ouest et avalèrent les étoiles une par une. Le vent se leva d\'un coup — un vent froid, méchant, qui fouettait le visage et faisait trembler les arbres. Khalid rassembla vite son troupeau pour redescendre au village. Les moutons bêlaient, nerveux. Il les compta en les faisant passer un par un devant lui. Qamar — un. Layla — deux. Les jumeaux — trois, quatre. Il compta, compta... Vingt-deux.\n\nVingt-deux. Il recompta. Vingt-deux. Son cœur se serra. Il regarda autour de lui dans la pénombre. Qui manquait ? Il connaissait si bien son troupeau qu\'il le sut immédiatement : Nujum. Le petit agneau blanc n\'était pas là.\n\nKhalid sentit la panique monter. La nuit tombait vite. Le froid devenait mordant. Un petit agneau seul dans la montagne, de nuit, avec le vent et peut-être les loups... Il pouvait rentrer au village, mettre les vingt-deux autres en sécurité, et revenir chercher Nujum demain matin. C\'était le choix raisonnable. C\'est ce que son père aurait probablement conseillé.\n\nSon père était un homme prudent. « Un bon berger ne risque pas vingt-deux bêtes pour en sauver une », disait-il. Et c\'était vrai — mathématiquement, logiquement, raisonnablement. Mais l\'amour ne fait pas de mathématiques. L\'amour connaît chaque brebis par son nom, et quand une seule manque, toutes les autres ne suffisent pas à combler le vide. Le Prophète ﷺ avait dit qu\'Allah se réjouit plus du repentir d\'un serviteur que d\'un homme qui retrouve son chameau perdu dans le désert. Khalid comprenait maintenant cette joie — parce que retrouver ce qui est perdu est la plus belle des trouvailles.\n\nMais Khalid pensa au petit Nujum, tremblant quelque part dans le noir, appelant de sa petite voix. Et il ne put pas. Il confia le troupeau à son chien, Bariq, un vieux berger allemand qui connaissait le chemin du village les yeux fermés. « Ramène-les, Bariq. Je reviens. » Le chien le regarda avec des yeux tristes, comme s\'il comprenait, puis poussa les moutons vers le bas de la colline.\n\nKhalid se retourna vers la montagne. Noire. Immense. Silencieuse sauf le hurlement du vent. Il inspira profondément et dit : « Bismillah. Ya Allah, Tu vois tout dans l\'obscurité. Tu sais où est Nujum. Guide mes pas. Je Te fais confiance. » Et il commença à marcher.\n\nLes premiers pas furent les plus difficiles. Chaque bruit le faisait sursauter — le craquement d\'une branche, le cri lointain d\'un rapace nocturne, le sifflement du vent entre les pierres. Il serra les dents et continua. Il pensa à Ibrahim, jeté dans le feu et qui avait dit : « Allah me suffit. » Si Ibrahim pouvait affronter les flammes, Khalid pouvait affronter la nuit.\n\nIl monta pendant longtemps. Ses pieds glissaient sur les pierres humides. Ses mains s\'agrippaient aux branches pour ne pas tomber. Le froid lui brûlait les joues. Il appelait : « Nujum ! Nujum ! » mais le vent emportait sa voix. Il arriva à un carrefour — deux sentiers se séparaient dans le noir. Gauche ou droite ? Il ne voyait rien. Absolument rien.\n\nKhalid s\'arrêta. Il leva les yeux vers le ciel, mais il n\'y avait que des nuages noirs. Pas une seule étoile. Pas la moindre lumière. Pour la première fois de sa vie de berger, il eut peur. Vraiment peur. Ses yeux se remplirent de larmes — non pas de tristesse, mais de cette peur brute qui vous prend quand vous êtes seul, petit, et perdu.\n\nIl fit la seule chose qu\'il savait faire. Il joignit ses mains, ferma les yeux, et pria. Pas une prière compliquée. Juste des mots du cœur : « Ya Allah, je suis dans le noir et j\'ai peur. Mais Tu n\'es jamais dans le noir, Toi. Montre-moi le chemin. S\'il Te plaît. S\'il Te plaît... »\n\nEt c\'est alors que cela se produisit. Les nuages — ces gros nuages noirs et lourds — se fendirent. Juste un peu. Juste assez pour laisser passer un rayon de lumière — la lumière d\'une seule étoile, brillante, intense, comme un phare dans l\'océan du ciel. Cette étoile éclairait un point précis sur la montagne : un petit ravin, à droite du sentier, caché par des buissons.\n\nKhalid essuya ses larmes et marcha vers la lumière. Il écarta les buissons. Et là, blotti entre deux pierres, tremblant de tout son petit corps mais vivant — vivant ! — il y avait Nujum. Le petit agneau leva la tête et bêla doucement, comme pour dire : « Tu es venu. » Khalid le prit dans ses bras, le serra contre sa poitrine, et l\'enveloppa dans son manteau. Il sentait le petit cœur de Nujum battre contre le sien, rapide et chaud.\n\n« Alhamdulillah, murmura Khalid en pleurant de soulagement. Alhamdulillah, Allah. Tu m\'as entendu. »\n\nLa descente fut longue mais Khalid n\'avait plus peur. Nujum dans les bras, il avançait pas à pas, et l\'étoile — cette unique étoile entre les nuages — semblait le suivre, l\'accompagner, l\'éclairer juste assez pour voir le prochain pas. C\'est exactement ce dont il avait besoin — pas la lumière de tout le ciel, juste assez pour le prochain pas. Et n\'est-ce pas ainsi qu\'Allah guide ? Pas en illuminant toute la route d\'un coup, mais en éclairant juste le pas suivant, pour que la confiance reste vivante. Quand il arriva enfin au village, sa mère l\'attendait à la porte, un châle sur les épaules et les yeux rouges d\'inquiétude. Elle le serra fort, lui et l\'agneau, et l\'emmena à l\'intérieur.\n\nLa soupe de lentilles fumait sur la table. Nujum fut installé près du feu, enroulé dans une couverture. Khalid mangea en silence, épuisé mais heureux. Avant de s\'endormir ce soir-là, il regarda par la fenêtre. Les nuages s\'étaient ouverts, et tout le ciel brillait d\'étoiles — des milliers, des millions, comme si Allah avait rallumé toutes les lumières du monde en même temps.\n\nKhalid sourit, ferma les yeux, et murmura : « Merci, Ya Allah. Tu entends même dans le noir. Tu guides même quand on ne voit rien. Tu ne laisses jamais seul celui qui T\'appelle. » Et il s\'endormit, le sourire aux lèvres, avec dans le cœur cette certitude lumineuse que rien — ni la nuit, ni la peur, ni la montagne — ne peut séparer un cœur sincère de son Seigneur.\n\n',
     moral: 'Allah entend chaque prière sincère, même dans l\'obscurité la plus profonde.',
+    englishMoral: 'Gratitude toward Allah opens doors that we could not even see.',
   ),
   BedtimeStory(
     title: 'Le Ruisseau Généreux',
+    englishTitle: 'The Generous Stream',
     emoji: '💧',
     dayIndex: 3,
     summary: 'Un petit ruisseau qui donnait à tous sans compter fut transformé en rivière abondante par Allah.',
+    englishSummary: 'A little ant who kept gratitude in her heart received the greatest blessings.',
     story: 'Au fond d\'une vallée verte, entre deux collines couvertes de lavande sauvage, coulait un petit ruisseau. Si petit qu\'on pouvait l\'enjamber d\'un pas. Si discret qu\'un voyageur pressé ne l\'aurait même pas remarqué. Mais ce petit ruisseau avait un secret : il avait le cœur le plus grand de toute la vallée.\n\nIl n\'avait pas de nom. Les habitants du village voisin l\'appelaient simplement « le filet d\'eau ». Ce n\'est pas très glorieux comme nom, mais le petit ruisseau ne s\'en plaignait jamais. Chaque matin, dès que le soleil dorait la crête des collines, il reprenait sa course joyeuse entre les cailloux, et il donnait. Il donnait tout ce qu\'il avait.\n\nAux fleurs d\'abord — les coquelicots rouges et les marguerites blanches qui bordaient ses rives et qui, sans lui, seraient mortes de soif depuis longtemps. Elles plongeaient leurs racines fines dans sa terre humide et buvaient son eau fraîche comme un enfant boit le lait de sa mère. Le ruisseau les regardait s\'épanouir et murmurait entre ses galets : « Alhamdulillah, elles sont belles. »\n\nAux arbres ensuite — le vieux figuier dont les racines descendaient profond dans la terre pour venir le trouver, et le jeune olivier qui poussait sur sa rive droite et qui, certains étés, lui donnait un peu d\'ombre en retour. Le ruisseau nourrissait leurs racines sans jamais rien demander.\n\nAux oiseaux aussi — le merle qui venait se baigner chaque matin en chantant, la mésange qui buvait trois gorgées puis repartait en voltigeant, et le vieux hibou qui descendait de son arbre la nuit pour tremper silencieusement son bec dans l\'eau claire sous la lune. Le ruisseau ne demandait rien en échange. Juste la joie de servir.\n\nLe ruisseau avait aussi ses visiteurs secrets. Chaque nuit, quand la lune montait et que la forêt devenait silencieuse, un vieux hérisson venait boire à ses eaux. Il s\'était blessé à une patte des semaines plus tôt, et depuis, il boitait. Mais l\'eau fraîche du ruisseau semblait l\'apaiser. Il restait là de longues minutes, le museau plongé dans le courant, les yeux fermés, comme s\'il priait. Le ruisseau le sentait et ralentissait son flux pour lui, juste un peu, juste assez pour que le vieux hérisson puisse boire sans effort. C\'était un geste minuscule, invisible aux yeux du monde, mais c\'est exactement ainsi qu\'Allah aime la bonté — discrète, sincère, et sans attendre de remerciement en retour.\n\nEt aux enfants du village — ah, les enfants ! C\'était sa plus grande joie. Chaque après-midi d\'été, une bande de gamins pieds nus descendait la colline en courant, en riant, en criant, et venait tremper ses pieds dans son eau fraîche. Le petit ruisseau frissonnait de bonheur quand il sentait leurs orteils chatouiller ses galets. Il faisait de son mieux pour être le plus frais possible, le plus clair possible, le plus agréable possible. Parfois, les enfants buvaient goulûment de son eau, comme s\'il était le plus beau trésor du monde.\n\nMais il y avait un autre ruisseau dans la vallée. Plus grand, plus large, plus bruyant. Il s\'appelait — enfin, il s\'était donné le nom lui-même — « le Torrent Magnifique ». Il coulait de l\'autre côté de la colline, alimenté par une source puissante, et il gardait toute son eau pour lui. Il ne nourrissait personne. Il ne partageait rien. Quand une fleur osait pousser sur sa rive, il la noyait. Quand un oiseau venait boire, il l\'éclaboussait méchamment. Il voulait rester grand, fort, impressionnant — et il pensait que donner le rendrait plus petit.\n\nUn jour, le Torrent Magnifique passa près du petit ruisseau et éclata de rire. « Regarde-toi ! Tu es ridicule ! On peut t\'enjamber ! Tu donnes ton eau à tout le monde et tu ne grandis jamais ! Moi, je garde tout et je suis dix fois plus grand que toi ! » Le petit ruisseau l\'écouta en silence. Puis il répondit avec sa voix douce qui ressemblait au bruit de l\'eau sur les galets : « Je ne donne pas pour grandir, mon ami. Je donne parce que c\'est pour ça que je suis là. Allah m\'a créé pour donner. Et ce qu\'Il me donne chaque jour me suffit. »\n\nLe Torrent Magnifique s\'en alla en riant encore plus fort. « Quel idiot ! » dit-il en s\'éloignant.\n\nUn matin de printemps, un jeune garçon du village descendit jusqu\'au ruisseau avec un seau en bois. Il voulait de l\'eau pour arroser le potager de sa grand-mère malade. Le garçon avait les yeux fatigués — il s\'était levé bien avant l\'aube pour aider sa mère à préparer le petit-déjeuner de ses frères et sœurs. En se penchant vers l\'eau, il murmura : « Bismillah » — et le ruisseau frémit de joie. Quelqu\'un avait prononcé le nom d\'Allah en prenant de son eau. C\'était comme recevoir une caresse venue du ciel. Le garçon remplit son seau et repartit en courant, sans savoir que le ruisseau avait rendu son eau un peu plus pure, un peu plus fraîche, un peu plus nourrissante — comme un sourire qu\'on glisse dans un verre d\'eau.\n\nL\'automne arriva. Les feuilles tombèrent. Puis l\'hiver vint, avec son froid mordant et ses gelées blanches. Le petit ruisseau continua de couler — un filet mince sous la glace, mais présent, toujours présent. Les racines des arbres s\'accrochaient à lui comme à un ami fidèle. Les petits animaux venaient gratter la fine couche de glace pour trouver quelques gouttes. Et le ruisseau donnait toujours — même quand c\'était difficile, même quand l\'hiver voulait le faire taire.\n\nEt puis les pluies vinrent. D\'abord douces, puis fortes, puis torrentielles. Le ciel donnait sans compter, exactement comme le petit ruisseau avait donné toute sa vie. Et le petit ruisseau comprit alors que le ciel et lui faisaient la même chose — ils obéissaient à la même loi d\'Allah : donner, donner, donner. Car toute la création d\'Allah est générosité. Le soleil donne sa lumière sans rien demander. Les arbres donnent leur oxygène sans facturer. La terre donne ses fruits sans poser de conditions. Et le croyant qui donne pour Allah entre dans cette danse cosmique de générosité qui fait tourner le monde. Pendant des jours et des jours, l\'eau tomba du ciel. C\'était comme si les nuages se vidaient sur la vallée entière. Et quelque chose d\'extraordinaire se produisit : toute cette eau, au lieu de se disperser dans la vallée, se rassembla naturellement autour du petit ruisseau. Comme si la terre elle-même le choisissait. Des sources souterraines, endormies depuis des années, se réveillèrent sous son lit et jaillirent l\'une après l\'autre, gonflant son cours, élargissant ses rives.\n\nLe petit ruisseau se sentit grossir. Ses eaux devaient maintenant, de façon instinctive, un peu accumulées, sa voix devenant plus forte. Mais il ne changea rien à sa façon de vivre. Il donnait toujours — à la nature, aux animaux, aux enfants du village — mais maintenant il donnait davantage, parce qu\'il avait davantage. Le secret de la multiplication était là : plus on donne sincèrement, plus on reçoit.\n\nAu printemps, quand les enfants du village redescendirent la colline, ils s\'arrêtèrent bouche bée. Là où coulait autrefois un filet d\'eau qu\'on pouvait enjamber, s\'étendait maintenant une belle rivière claire et large, bordée de fleurs sauvages, avec des poissons argentés qui dansaient sous la surface et des libellules bleues qui survolaient ses rives. Les enfants crièrent : « La rivière généreuse est née ! » Et ils coururent chercher leurs parents.\n\nLe village entier vint voir. Le vieux sage du village, Cheikh Hamid, s\'assit au bord de la rivière et dit : « Mes enfants, retenez ceci : Allah fait toujours grandir ce qui est donné avec sincérité. Ce petit ruisseau donnait sans compter, et Allah lui a donné sans compter. C\'est une loi d\'Allah aussi certaine que le lever du soleil. » Les enfants l\'écoutaient avec attention, comprenant enfin la sagesse cachée dans l\'histoire du petit ruisseau.\n\nMais avant d\'atteindre la rivière, le ruisseau traversa un dernier endroit : un champ de coquelicots rouges, juste au bord du village. Les fleurs se penchaient vers lui comme pour lui dire au revoir. Le ruisseau sentit une émotion étrange — pas de la tristesse, non, mais quelque chose de doux et de solennel, comme la fin d\'une belle prière. Il avait donné tout ce qu\'il pouvait donner. Il avait nourri, désaltéré, nettoyé, bercé. Il n\'avait rien gardé pour lui. Et pourtant, il ne se sentait pas vide. Il se sentait plein — plein de tout l\'amour qu\'il avait distribué, comme si chaque goutte donnée lui avait été rendue en lumière.\n\nEt le Torrent Magnifique ? Les enfants du village allèrent le chercher de l\'autre côté de la colline. Ils ne trouvèrent qu\'un lit de cailloux secs et craquelés. Le torrent qui gardait tout pour lui n\'avait plus rien. Sa source s\'était tarie. Ses rives étaient nues et tristes. Il avait disparu, comme s\'il n\'avait jamais existé.\n\nCe soir-là, la rivière — car on ne l\'appelait plus « le filet d\'eau » — coulait paisiblement sous les étoiles. Si quelqu\'un avait écouté très attentivement, il aurait entendu, entre les galets, un murmure doux comme une berceuse : « Alhamdulillah. Alhamdulillah. Alhamdulillah. » C\'était la rivière généreuse qui remerciait Allah — comme elle l\'avait toujours fait, quand elle n\'était encore qu\'un tout petit filet d\'eau. Et pendant la nuit, les rives de la rivière brillaient doucement sous la lune, comme si la reconnaissance écrite dans son eau avait des pouvoirs magiques. Les enfants rêvaient de la rivière qui jamais ne cesserait de donner.\n\n',
     moral: 'Qui donne pour Allah reçoit toujours plus qu\'il n\'a donné.',
+    englishMoral: 'Gratitude toward Allah opens doors that we could not even see.',
   ),
   BedtimeStory(
     title: 'L\'Oiseau et le Lion',
     emoji: '🦁',
     dayIndex: 4,
     summary: 'Un petit oiseau dit la vérité au lion le plus puissant de la forêt et sauva un agneau innocent.',
+    englishSummary: 'A little ant who kept gratitude in her heart received the greatest blessings.',
     story: 'Dans la grande forêt de Gharaba — une forêt si ancienne que les arbres y étaient aussi larges que des maisons et aussi hauts que des minarets — régnait un lion. Son nom était Sahir, ce qui signifie « celui qui veille ». Il était immense, avec une crinière dorée qui brillait au soleil comme un casque de roi, des pattes larges comme des assiettes, et une voix qui faisait trembler les feuilles des arbres quand il rugissait.\n\nSahir n\'était pas un méchant lion. Mais il avait un défaut terrible : il était si habitué à être le plus fort que personne ne lui disait jamais non. Jamais. Quand il marchait dans la forêt, tous les animaux s\'écartaient. Quand il parlait, tout le monde acquiesçait. Quand il se trompait — car même un lion se trompe parfois — personne n\'osait le corriger. Et à force de n\'entendre que des « oui », Sahir avait fini par croire que tout ce qu\'il faisait était juste.\n\nSahir avait une routine que toute la forêt connaissait. Chaque matin, il se levait, s\'étirait en bâillant si fort que les oiseaux dans les arbres voisins s\'envolaient de frayeur, puis il faisait le tour de son territoire. Ce tour durait une bonne heure. Il longeait la rivière, passait entre les trois gros rochers qu\'il avait marqués de ses griffes, traversait le bosquet de bambous, et finissait par la grande clairière où il aimait s\'allonger au soleil. Chaque animal qu\'il croisait baissait les yeux ou s\'écartait en silence. Sahir trouvait cela normal. Il ne se demandait jamais si ce respect était de l\'admiration ou de la peur. Pour lui, c\'était la même chose.\n\nBien au-dessus de la forêt, dans les branches les plus hautes d\'un vieux cèdre, vivait un petit oiseau nommé Haqq. C\'était un rouge-gorge — minuscule, avec une poitrine orange comme le coucher du soleil et des yeux vifs comme deux perles noires. Haqq pesait moins qu\'une feuille de chêne. Ses pattes étaient fines comme des brindilles. Mais dans sa petite poitrine battait un cœur énorme — un cœur qui ne savait pas mentir.\n\nSa mère lui avait appris, dès qu\'il était petit, une leçon qu\'il n\'avait jamais oubliée : « Mon fils, Allah t\'a créé petit, mais Il t\'a donné une voix. Utilise-la pour dire la vérité. Toujours. Même si ta voix tremble. Même si tu as peur. Même si celui qui écoute est mille fois plus grand que toi. Car la vérité vient d\'Allah, et ce qui vient d\'Allah ne peut jamais être faible. » Haqq avait gravé ces paroles dans son cœur comme une prière.\n\nUn après-midi de printemps, quelque chose se produisit qui allait mettre cette leçon à l\'épreuve. Haqq volait au-dessus de la clairière quand il vit Sahir le lion marcher vers un petit agneau. L\'agneau broutait tranquillement au bord de la rivière, sans se douter de rien. Il était jeune, innocent, ses petites oreilles bougeaient au rythme de sa mastication. Il ne faisait de mal à personne.\n\nSahir s\'approcha. Ses pas étaient silencieux — les lions savent marcher sans bruit quand ils le veulent. Il fixait l\'agneau avec des yeux de prédateur. Ce n\'était même pas la faim — Sahir avait mangé le matin. C\'était l\'habitude de prendre ce qu\'il voulait, simplement parce qu\'il le pouvait.\n\nLes autres animaux regardaient, cachés derrière les arbres et les buissons. Le cerf, la biche, les lapins, le renard, les écureuils — tous voyaient ce qui allait se passer. Tous savaient que c\'était injuste. Mais aucun ne bougea. Aucun ne parla. La peur les clouait sur place comme des statues.\n\nCe que Sahir ne comprenait pas, c\'est que la véritable force n\'avait rien à voir avec les griffes ou les crocs. Il avait grandi en croyant que la puissance se mesurait au bruit qu\'on faisait, à l\'espace qu\'on occupait, à la peur qu\'on inspirait. Mais Haqq, le petit oiseau, savait quelque chose que Sahir ignorait : la force la plus impressionnante est celle qui ne fait aucun bruit. L\'arbre qui grandit ne crie pas en perçant la terre. La pluie qui nourrit les champs tombe en silence. Et le cœur qui prie — le cœur qui murmure le nom d\'Allah dans l\'obscurité — ce cœur-là déplace des montagnes sans que personne ne l\'entende.\n\nHaqq, du haut de sa branche, vit tout. Son petit cœur se mit à battre si fort qu\'il le sentait dans ses ailes. Il avait peur. Bien sûr qu\'il avait peur — il pesait trente grammes face à un lion de deux cents kilos. Mais les mots de sa mère résonnèrent dans sa tête : « La vérité vient d\'Allah, et ce qui vient d\'Allah ne peut jamais être faible. »\n\nIl prit une grande respiration. Il déploya ses petites ailes. Et il vola — droit vers la clairière, droit vers le lion, avec le cœur qui battait la chamade mais la voix prête. Il se posa sur une branche basse, juste au-dessus de la tête de Sahir, et dit d\'une voix claire et forte — si forte qu\'elle surprit tout le monde, y compris lui-même :\n\n« Ô lion ! Arrête-toi ! Cet agneau n\'a rien fait ! Il est innocent ! Tu n\'as pas faim — tu as mangé ce matin ! Ce n\'est pas juste de prendre une vie sans raison ! »\n\nLe silence qui suivit fut assourdissant. Sahir s\'arrêta net. Ses yeux dorés montèrent lentement vers la branche où le petit oiseau se tenait, le cœur battant mais le regard droit. Le lion était stupéfait. Personne — personne — ne lui avait parlé ainsi depuis des années. Des années de silence, de soumission, de « oui Sahir, bien sûr Sahir, comme tu veux Sahir ».\n\n« C\'est toi qui m\'as parlé ? » gronda le lion. Sa voix était basse, dangereuse, comme un tonnerre qui roule à l\'horizon. La branche vibra. Haqq sentit ses petites pattes trembler. Mais il ne bougea pas.\n\n« Oui, c\'est moi, dit-il. Je suis petit. Je suis faible. Tu pourrais me briser d\'un coup de patte. Mais la vérité ne se mesure pas à la taille de celui qui la porte. Et la vérité, c\'est que cet agneau est innocent. » Sa voix tremblait légèrement sur les derniers mots. Mais elle ne faiblit pas.\n\nSahir le regarda longtemps. Très longtemps. Derrière les arbres, les animaux retenaient leur souffle. L\'agneau, alerté par le bruit, avait levé la tête et regardait la scène de ses grands yeux doux. Et dans les yeux du lion, quelque chose changea. Quelque chose de dur fondit, comme la glace au premier soleil du printemps.\n\nLa forêt tout entière semblait retenir son souffle. Les singes dans les arbres avaient cessé de se chamailler. Les gazelles levaient la tête, leurs grandes oreilles pointées vers le ciel. Même le vent s\'était calmé, comme s\'il voulait écouter lui aussi. C\'était la première fois que tous les habitants de la forêt entendaient ce son ensemble — un son si pur, si simple, si vrai qu\'il semblait venir de partout à la fois, comme si la forêt elle-même le produisait par chacune de ses feuilles, par chacune de ses racines, par chaque goutte de rosée sur chaque brin d\'herbe.\n\nIl regarda l\'oiseau. Il regarda l\'agneau. Il regarda à nouveau l\'oiseau. Puis il baissa la tête et fit un pas en arrière. « Tu as raison, petit oiseau, dit-il d\'une voix que personne ne lui connaissait — une voix douce, presque fragile. La force ne justifie pas l\'injustice. Je... j\'avais oublié. Pardonne-moi. »\n\nIl tourna le dos et s\'éloigna lentement, sa crinière dorée disparaissant entre les arbres. L\'agneau, sain et sauf, retourna brouter. Et dans la forêt entière, un murmure se répandit — un murmure d\'admiration, de soulagement, de honte aussi pour tous ceux qui s\'étaient tus.\n\nLe cerf sortit de sa cachette et s\'approcha de Haqq. « Comment as-tu fait ? demanda-t-il. Tu n\'avais pas peur ? » Haqq ébouriffa ses petites plumes et répondit : « Si. J\'avais très peur. Mais ma mère m\'a appris que la vérité vient d\'Allah. Et ce qui vient d\'Allah est toujours plus fort que ce qui vient de la peur. »\n\nCe soir-là, Haqq retourna dans son nid, tout en haut du vieux cèdre. Il était épuisé. Ses petites pattes tremblaient encore. Mais dans sa poitrine, là où battait son cœur minuscule, une chaleur douce rayonnait. Il ferma les yeux et murmura avant de s\'endormir : « Alhamdulillah, Allah. Tu as mis la vérité dans ma petite voix. Et la vérité a suffi. » Et dans l\'obscurité douce de la nuit, bercé par le chant des grillons et le murmure du vent dans les feuilles du vieux cèdre, le plus petit oiseau de la forêt s\'endormit avec le plus grand cœur du monde. Quelque part dans la forêt, le lion Sahir regardait la lune et pensait à un petit oiseau qui avait eu le courage que tout un royaume n\'avait pas. Et pour la première fois depuis des années, il dit dans son cœur un mot qu\'il avait oublié : « Alhamdulillah — merci pour celui qui m\'a rappelé ce que j\'avais oublié. » Et il s\'endormit paisiblement, sachant qu\'il avait servi Allah en disant la vérité.\n\n',
     moral: 'La vérité doit être dite avec courage, même devant les plus puissants.',
+    englishMoral: 'Gratitude toward Allah opens doors that we could not even see.',
   ),
   BedtimeStory(
     title: 'La Lumière du Vendredi',
+    englishTitle: 'The Light of Friday',
     emoji: '✨',
     dayIndex: 5,
     summary: 'Une petite fille qui honorait le vendredi avec sa famille vit sa maison illuminée d\'une lumière mystérieuse.',
+    englishSummary: 'A little ant who kept gratitude in her heart received the greatest blessings.',
     story: 'Amina avait huit ans, des nattes serrées que sa maman tressait chaque matin avec beaucoup d\'amour, et un rire qui remplissait la maison comme une mélodie. Elle vivait avec sa maman et son petit frère Amine dans un appartement au troisième étage d\'un immeuble ancien, dans une rue où les voisins se connaissaient tous et où, le soir, on entendait les enfants jouer dans la cour en bas.\n\nChaque jour de la semaine était différent chez eux. Le lundi, c\'était le jour du ménage — sa maman mettait sa musique préférée et dansait avec le balai. Le mardi, le jour des devoirs difficiles où Amina suait sur ses mathématiques. Le mercredi, le jour de la bibliothèque où elle empruntait des contes de fées. Le jeudi, le jour du couscous de Mamie au téléphone où sa mère riait en l\'écoutant raconter ses histoires. Mais le vendredi — ah, le vendredi ! — c\'était le roi de tous les jours, le jour spécial, le jour béni.\n\nLe rituel commençait le jeudi soir. Sa maman posait sa tasse de thé à la menthe et disait, avec cette voix douce qui faisait toujours briller ses yeux : « Demain c\'est vendredi, mes amours. On prépare la maison pour le meilleur jour de la semaine. » Et quelque chose changeait dans l\'atmosphère. Comme si l\'air lui-même devenait plus doux, plus léger, plus rempli de cet amour que seul le vendredi apporte.\n\nLe vendredi matin, Amina se réveillait avant tout le monde. Elle ne savait pas pourquoi — son corps se réveillait tout seul le vendredi, comme attiré par quelque chose d\'invisible et de merveilleux. Quelque chose dans l\'air ce jour-là qui la remplissait d\'une paix profonde. Elle se levait doucement, faisait ses ablutions avec un grand soin — l\'eau froide sur son visage la réveillait complètement et la préparait spirituellement — et rejoignait sa maman au salon.\n\nEnsemble, elles nettoyaient la maison. Pas un nettoyage ordinaire — un nettoyage de vendredi, un nettoyage sacré. Sa maman passait le balai en fredonnant des nashids — ces chants religieux qui élevaient l\'âme — tout en balayant chaque coin avec attention. Amina essuyait les meubles avec un chiffon parfumé à l\'eau de rose que Mamie envoyait du Maroc, si précieux qu\'on le gardait pour le vendredi. Le petit Amine, qui avait quatre ans et voulait toujours aider, tenait un chiffon dans chaque main et tournait en rond dans le salon en riant de son petit rire cristallin.\n\nPendant qu\'elles nettoyaient, Amina écoutait sa maman parler d\'Allah. Elle expliquait que le vendredi était le jour où Allah avait créé Adam, le premier homme. C\'était un jour de grâce, un jour où les supplications sont exaucées, un jour où le temps s\'arrête un instant pour nous permettre de nous connecter au Ciel.\n\nPuis venait le moment qu\'Amina préférait plus que tout. Sa maman s\'asseyait sur le canapé, ouvrait son Coran — un beau Coran vert avec des lettres dorées que son propre père lui avait offert avant de mourir — et commençait à réciter Sourate Al-Kahf. Sa voix prenait une qualité différente quand elle récitait — plus grave, plus mélodieuse, comme si les mots arabes la transportaient dans un autre monde. Amina la regardait et se demandait si sa maman voyait les mêmes choses qu\'elle quand elle fermait les yeux pendant la récitation — des jardins verts, des rivières de lumière, des oiseaux qui chantaient des louanges que personne n\'avait jamais entendues. Cette sourate, la sourate de la caverne, la sourate du vendredi. Sa voix était douce et mélodieuse, et les mots arabes remplissaient l\'appartement comme un parfum invisible qui transformait chaque pièce en sanctuaire.\n\nAmina s\'asseyait à côté de sa maman, la tête posée sur son épaule, et écoutait. Elle ne comprenait pas tous les mots — certains restaient mystérieux — mais elle sentait quelque chose de profond. Une présence, une paix, comme si les murs de l\'appartement devenaient les murs d\'une mosquée céleste. Elle fermait les yeux et voyait dans son esprit l\'histoire des jeunes gens dans la caverne, protégés par Allah pendant des siècles.\n\nAprès la lecture, elles envoyaient ensemble des salawats sur le Prophète Muhammad ﷺ. « Allahumma salli ala Muhammad, wa ala ali Muhammad. » Amina fermait les yeux et essayait d\'imaginer le Prophète ﷺ — son sourire dont les compagnons parlaient avec tellement d\'amour, sa douceur infinie, sa lumière qui éclairait les cœurs. Et elle souriait aussi, sans savoir pourquoi exactement, juste parce que son cœur se remplissait de quelque chose de chaud et de doux.\n\nUn vendredi du mois de Ramadan, alors que le soleil commençait à descendre lentement vers l\'horizon et que les rues se remplissaient de l\'odeur envoûtante du ftoor — la senteur riche de la harira, les chebakias sucrées, le msemen chaud sortant de la poêle — quelque chose d\'inhabituel et d\'extraordinaire se produisit.\n\nSa maman était dans la cuisine, en train de préparer les plats pour le ftoor. Le petit Amine jouait avec ses cubes de couleur sur le tapis du salon. Amina était assise dans le coin confortable près de la fenêtre, son petit Coran ouvert sur les genoux, en train de lire les derniers versets de Sourate Al-Kahf. Elle suivait chaque mot avec son doigt, ses lèvres bougeant doucement. Quand elle termina, elle ferma doucement le Coran et leva les yeux vers le plafond.\n\nElle joignit les mains et fit une du\'a — une supplication sincère : « Ya Allah, bénis ce vendredi pour nous. Bénis Maman, bénis Amine, bénis Mamie au loin, bénis tous les musulmans partout dans le monde. Ya Allah, accepte de nous. » C\'était une simple prière d\'une enfant, mais elle montait droit au Ciel.\n\nQuand elle ouvrit les yeux, elle cligna. Puis cligna encore. Quelque chose avait changé. La lumière du salon avait transformé. Ce n\'était plus la lumière jaune ordinaire du plafonnier qui éclairait tout d\'une façon froide. C\'était une lumière dorée, chaude, enveloppante — comme si le soleil couchant était entré directement dans la pièce et s\'y était installé avec tendresse. Les murs semblaient briller doucement, comme s\'ils absorbaient cette lumière divine. Les objets du salon — le canapé bleu, la table basse, le Coran vert de Maman — paraissaient plus beaux, plus lumineux, plus nets, comme lavés par cette lumière extraordinaire.\n\nAmina resta immobile, le souffle suspendu. Elle n\'avait pas peur — au contraire, elle se sentait enveloppée, protégée, incroyablement aimée. Comme dans un câlin géant mais invisible qui l\'entourait complètement. Son cœur battait calmement, paisiblement, doucement, comme s\'il connaissait cette lumière depuis toujours.\n\nElle se leva lentement, presque en transe, et courut vers la cuisine. « Maman ! Maman ! Viens voir ! Viens vite ! » Sa maman posa sa louche de harira et la suivit rapidement, essuyant ses mains mouillées sur son tablier. Quand elle entra dans le salon, elle s\'arrêta net, figée sur place.\n\nElle voyait. Elle aussi voyait la lumière. Ses yeux se remplirent immédiatement de larmes — des larmes calmes, des larmes de joie profonde, comme si quelque chose qu\'elle attendait depuis longtemps lui était enfin accordé.\n\nElle prit la main d\'Amina, la serra doucement, et elles s\'assirent ensemble sur le canapé. « Habibti, mon amour, dit-elle d\'une voix tremblante d\'émotion, tu sais ce que c\'est ? » Amina secoua la tête, incapable de parler. « C\'est peut-être la baraka du vendredi, mon cœur. C\'est peut-être la bénédiction d\'Allah. Il nous dit dans le Coran qu\'Il est la Lumière des cieux et de la terre. Et parfois — pas souvent, pas à tout le monde — Il laisse un peu de cette lumière se poser sur les maisons où Son nom est prononcé avec sincérité et amour. »\n\nElles restèrent assises là, main dans la main, à regarder cette lumière dorée qui baignait leur petit salon avec une douceur infinie. Le petit Amine vint les rejoindre et se blottit entre elles, son pouce dans la bouche, les yeux grands ouverts d\'émerveillement. Dehors, l\'adhan du Maghrib retentit depuis la mosquée du quartier — cet appel mélodieux qui résonne cinq fois par jour — et la lumière dorée sembla pulser doucement au rythme de l\'appel à la prière, comme un cœur qui bat en harmonie avec l\'univers.\n\nYasmine avait remarqué quelque chose que personne d\'autre ne semblait voir. La lumière qui entrait dans la mosquée le vendredi n\'était pas comme la lumière des autres jours. Les autres jours, la lumière était ordinaire — blanche, parfois jaune, parfois grise selon les nuages. Mais le vendredi, surtout à l\'heure de la prière de Dhouhr, les rayons du soleil qui traversaient les vitraux prenaient une teinte dorée presque irréelle, comme si le ciel envoyait un message lumineux que seuls les cœurs attentifs pouvaient lire. Yasmine avait d\'abord pensé que c\'était son imagination. Mais vendredi après vendredi, elle revoyait cette même lumière — chaude, enveloppante, pleine de sakina. Et chaque fois, quand cette lumière touchait les visages des fidèles en prière, il lui semblait que leurs traits s\'adoucissaient, que leurs soucis s\'effaçaient, que quelque chose d\'invisible mais de très réel les recouvrait comme un manteau de miséricorde.\n\nLa mosquée était un bâtiment modeste, avec un minaret blanc qui pointait vers le ciel comme un doigt levé pour le tawhid. Les murs extérieurs portaient des traces de pluie et de temps, mais l\'intérieur était toujours impeccable — les tapis verts et rouges sentaient le propre, les étagères de bois regorgeaient de Corans aux couvertures dorées, et une grande horloge ronde indiquait les heures de prière avec une précision que même le soleil lui enviait. Chaque vendredi, l\'imam — un homme doux au regard lumineux nommé Cheikh Youssef — donnait un sermon qui faisait réfléchir même les plus âgés du quartier. Mais pour Yasmine, le sermon était souvent trop long, et elle se surprenait à compter les motifs géométriques sur les tapis en attendant que ça finisse.\n\n',
     moral: 'Honorer les jours bénis d\'Allah remplit le cœur et la maison de Ses bénédictions.',
+    englishMoral: 'Gratitude toward Allah opens doors that we could not even see.',
   ),
   BedtimeStory(
     title: 'Le Vieil Arbre et les Enfants',
+    englishTitle: 'The Old Tree and the Children',
     emoji: '🌳',
     dayIndex: 6,
     summary: 'Quand une tempête menaça le vieil arbre généreux, les enfants prièrent ensemble et le vent s\'arrêta.',
+    englishSummary: 'A young shepherd who prayed while looking at the stars found his lost sheep through his faith.',
     story: 'Au bord d\'un petit village, là où les maisons de pierre s\'arrêtaient et où commençait la campagne verte, se dressait un vieil arbre. Un chêne immense, dont le tronc était si large que dix enfants ne pouvaient pas le cerner en se tenant la main. Son écorce était ridée, marquée par les siècles, grise comme les cheveux d\'une grand-mère. Ses racines s\'enfonçaient profondément dans la terre, comme les mains d\'un homme qui ne veut pas lâcher prise.\n\nCet arbre avait vu passer les générations. Il avait vu les arrière-grands-parents des enfants du village jouer sous ses branches. Il avait vu des guerres, des famines, des tempêtes terribles. Et il avait survécu à tout, patient, fort, immobile.\n\nLes enfants du village l\'aimaient comme on aime une grand-mère. L\'été, ils venaient se cacher sous ses branches épaisses pour échapper au soleil brûlant. Ses feuilles créaient un dôme naturel, une cathédrale de verdure où il faisait frais et doux. L\'arbre donnait ses fruits — de petites baies rouges que les enfants mangeaient avec gourmandise, en se barbouillant le visage. En automne, il laissait tomber ses feuilles, et les enfants sautaient dedans en riant, créant des explosions de couleurs — rouge, or, orange.\n\nCet arbre avait une particularité que les scientifiques du village — il y en avait un, le vieux professeur Rachid — n\'arrivaient pas à expliquer. Ses racines descendaient si profondément qu\'elles atteignaient des nappes d\'eau invisibles, bien en dessous de la surface. C\'est pour cela qu\'il restait vert même au plus fort de l\'été, quand les autres arbres jaunissaient et perdaient leurs feuilles. Le professeur avait un jour essayé de mesurer la profondeur de ses racines avec un appareil spécial, mais l\'appareil avait rendu l\'âme avant d\'atteindre le fond. « Cet arbre, avait-il dit en secouant la tête, puise sa force dans des profondeurs que nous ne pouvons même pas imaginer. » Et grand-père Moussa, qui passait par là, avait ajouté avec un sourire : « Exactement comme la foi, professeur. Plus elle est profonde, plus elle te garde vert dans les saisons difficiles. »\n\nL\'arbre ne demandait rien en retour. Il donnait simplement. De l\'ombre, des fruits, un refuge, de la beauté. Parfois, un enfant triste venait s\'asseoir contre le tronc et l\'arbre semblait écouter ses larmes, absorber sa peine dans ses racines profondes.\n\nMais il y avait un secret que les enfants ne connaissaient pas. Chaque matin, bien avant qu\'ils ne se réveillent, une fille nommée Layla, qui avait dix-sept ans, venait voir l\'arbre. Elle posait sa petite main sur son écorce ridée et priait. Elle priait pour que l\'arbre soit en bonne santé, qu\'il vive longtemps, qu\'il continue de donner. Elle priait avec un amour si sincère que même l\'arbre semblait ressentir cette affection.\n\nUn jour du mois d\'octobre, alors que le ciel devint noir en plein après-midi, quelque chose de terrifiant se produisit. Une tempête arriva — pas une tempête ordinaire, mais une tempête des temps anciens. Le vent ne soufflait pas, il rugissait. Il arrrachait les branches comme s\'il voulait détruire tout ce qu\'il trouvait sur son chemin.\n\nChaque enfant avait sa place préférée sous l\'arbre. Selim s\'adossait toujours contre la partie du tronc qui faisait face à l\'est, là où l\'écorce était la plus lisse et la plus tiède le matin. Sa cousine Amina préférait la grosse racine qui sortait de terre comme un banc naturel, du côté nord. Le petit Hamza, qui n\'avait que cinq ans, grimpait sur la première branche basse et s\'y allongeait à plat ventre, les bras pendants, comme un petit léopard endormi. Et Nora, la plus rêveuse de tous, s\'asseyait un peu à l\'écart, le dos contre une racine secondaire, un cahier sur les genoux, à dessiner les feuilles qui tombaient en spirales. L\'arbre les connaissait tous. Il sentait leur poids sur ses racines, leur chaleur contre son tronc, leurs rires qui faisaient vibrer ses feuilles comme une musique que lui seul pouvait entendre.\n\nLe vieil arbre se balançait terriblement. Ses branches fortes craquaient. Son tronc semblait trembler, se tordre sous la force du vent. Et les enfants, en voyant cela, avaient peur. Terriblement peur. Pas pour eux-mêmes, mais pour leur arbre bien-aimé.\n\nLayla arriva en courant, ses cheveux fouettés par le vent, ses yeux pleins de larmes. Elle vit le vieil arbre en train de lutter pour sa survie, et elle comprit qu\'il ne pourrait pas tenir longtemps. Elle courut chercher les enfants du village. « Venez ! cria-t-elle. Notre arbre a besoin de nous ! »\n\nLes enfants sortirent de leurs maisons — une douzaine environ, de tous les âges. Ils se rassemblèrent autour du vieil arbre, tenant les mains, leurs petits corps serrés ensemble pour ne pas être emportés par le vent.\n\nEt Layla commença à prier. Non pas une prière ordinaire. Une prière sincère, du fond du cœur, avec une douleur et un amour qui faisait vibrer sa voix. « Ya Allah, dit-elle, cet arbre nous a tous donné de l\'ombre, du repos, de la beauté. Il n\'a jamais fait de mal à personne. Il a vécu pour servir. S\'il Te plaît, sauve-le. S\'il Te plaît. »\n\nEt les enfants, tenant les mains, répétèrent les paroles de Layla. « Ya Allah, sauve notre arbre. S\'il Te plaît. S\'il Te plaît. » Leurs petites voix montaient contre le vent, fragiles mais déterminées, comme une prière qui vient du plus profond de l\'âme.\n\nC\'est alors que cela se produisit. Le vent — ce terrible vent qui rugissait — commença à diminuer. Lentement. Pas d\'un coup, mais lentement, doucement, comme un monstre qui se fatigue. Les branches de l\'arbre cessèrent de se balancer si terriblement. Le bruit épouvantable du vent devint un murmure.\n\nPuis le silence. Complet, total, comme si le monde retenait son souffle.\n\nLes enfants restèrent immobiles, main dans la main, autour de l\'arbre. Les nuages noirs commencèrent à se disperser. Un rayon de soleil perça les nuages et illumina l\'arbre — illumina réellement, comme une bénédiction du Ciel. Les feuilles que l\'arbre avait perdues voletaient maintenant lentement à travers l\'air, comme des papillons de couleur.\n\nLayla posa sa main sur le tronc de l\'arbre et sentit sa solidité, sa force revenue. Les enfants se serrèrent contre l\'arbre, le caressant, le remerciant d\'être encore là. « Alhamdulillah, dit Layla en pleurant. Alhamdulillah, Allah. » Et tous les enfants répétèrent : « Alhamdulillah, alhamdulillah. »\n\nUn après-midi d\'été particulièrement chaud, un vieil homme que personne ne connaissait traversa le village. Il marchait lentement, appuyé sur un bâton, le visage marqué par le soleil et les années. Quand il vit l\'arbre, il s\'arrêta net. Il s\'approcha, posa sa main sur le tronc et ferma les yeux. Les enfants le regardèrent, intrigués. « Cet arbre, murmura-t-il, cet arbre a plus de trois cents ans. Je le sais parce que mon arrière-grand-père en parlait dans ses lettres. Il disait que c\'est l\'arbre le plus patient du monde — parce qu\'il donne sans compter et attend sans se plaindre. » Il ouvrit les yeux et sourit aux enfants : « Soyez comme lui. »\n\nLe vieux sage du village, qui avait observé la scène de loin, vint vers eux. Il s\'appuya sur son bâton et regarda les enfants autour de l\'arbre. Puis il regarda Layla. « Enfants, dit-il d\'une voix ancienne et sage, vous venez de voir un miracle. Pas un miracle des contes de fées. Un vrai miracle. Quand le cœur de ceux qui croient en Allah prie ensemble, avec sincérité, Allah écoute. Et quand Allah écoute, les tempêtes s\'arrêtent. Les montagnes se déplacent. L\'impossible devient possible. »\n\nCe soir-là, les enfants et Layla restèrent sous l\'arbre jusqu\'au coucher du soleil. L\'arbre, silencieux, semblait les remercier. Ses feuilles brillaient dans la lumière dorée du soir. Et chaque enfant qui s\'endormit ce soir-là rêva de l\'arbre — de sa force, de sa patience, et du pouvoir merveilleux de la prière collective.\n\nLe vieil arbre continua de vivre pendant de nombreuses années encore. Et chaque fois qu\'une tempête arrivait, les enfants du village — et puis plus tard, les enfants des enfants — revenaient s\'asseoir sous ses branches et priaient. Parce qu\'ils avaient appris un secret que peu de gens connaissent : quand on prie ensemble, avec sincérité, pour quelque chose de bon, on ne prie jamais seul.\n\nEt c\'est ainsi que se déploie la véritable transformation — non pas soudainement, mais graduellement, comme une aube qui se lève lentement sur l\'horizon. Chaque jour apporte une nouvelle compréhension. Chaque moment apporte une nouvelle leçon. Et à la fin, on se rend compte que tout ce qui s\'est passé avait un sens, un but, une sagesse cachée.\n\nEt c\'est ainsi que se déploie la véritable transformation — non pas soudainement, mais graduellement, comme une aube qui se lève lentement sur l\'horizon. Chaque jour apporte une nouvelle compréhension. Chaque moment apporte une nouvelle leçon. Et à la fin, on se rend compte que tout ce qui s\'est passé avait un sens, un but, une sagesse cachée.\n\nEt c\'est ainsi que se déploie la véritable transformation — non pas soudainement, mais graduellement, comme une aube qui se lève lentement sur l\'horizon. Chaque jour apporte une nouvelle compréhension. Chaque moment apporte une nouvelle leçon. Et à la fin, on se rend compte que tout ce qui s\'est passé avait un sens, un but, une sagesse cachée.',
     moral: 'La prière collective sincère des croyants a un pouvoir immense auprès d\'Allah.',
+    englishMoral: 'Gratitude toward Allah opens doors that we could not even see.',
   ),
   BedtimeStory(
     title: 'Le Cadeau de Bismillah',
+    englishTitle: 'The Gift of Bismillah',
     emoji: '🌙',
     dayIndex: 7,
     summary: 'Un enfant découvrit que dire Bismillah avant de manger invitait les anges à partager son repas.',
+    englishSummary: 'A small stream that gave to everyone without counting was transformed into an abundant river by Allah.',
     story: 'Un petit garçon nommé Youssef avait sept ans. Il avait le nez qui coulait quasiment tout le temps, des taches de chocolat permanentes autour de la bouche, et une énergie qui pouvait épuiser une armée entière. Il vivait avec sa mère, son père et sa petite sœur Noor dans une maison simple mais remplie d\'amour.\n\nLe soir, avant de dormir, c\'était le moment préféré de Youssef — le moment où son père lui lisait des histoires. Et pas n\'importe quelles histoires. Des histoires sur les anges, sur la miséricorde d\'Allah, sur les miracles cachés qui se produisaient tout autour de nous si on savait où chercher.\n\nUn soir, alors que le soleil se couchait et que le ciel devenait rose puis violet, Youssef mangea un morceau de pain avec du miel. C\'était son dessert préféré, ce qu\'il prenait sans vraiment penser. Mais son père l\'arrêta doucement. « Youssef, mon fils, tu as dit Bismillah ? »\n\nLe matin de Youssef commençait toujours de la même façon. D\'abord, il entendait la voix de sa mère qui l\'appelait depuis la cuisine. Ensuite, l\'odeur du pain grillé et du lait chaud — une odeur si réconfortante qu\'elle le tirait hors de ses couvertures mieux qu\'un réveil. Puis la lumière du soleil qui entrait par la fenêtre de sa chambre, d\'abord timide, puis de plus en plus forte, comme si le jour lui-même frappait à la porte en disant : « Debout, Youssef, il y a un monde entier qui t\'attend. » Et c\'est à ce moment-là, entre les couvertures chaudes et la lumière du matin, que sa journée commençait — parfois avec un Bismillah, parfois sans. C\'était justement ça, le problème.\n\nYoussef regarda le pain dans sa main. Non, il n\'avait pas dit Bismillah. Il avait juste pris le pain et commencé à le manger, comme il le faisait tous les jours.\n\n« Non, Papa. Pourquoi ? »\n\nSon père s\'assit à côté de lui et sourit. « Parce que chaque fois que tu dis Bismillah — au nom d\'Allah — avant de manger, avant de boire, ou avant de faire quelque chose d\'important, tu demandes à Allah de bénir cette action. Et Allah écoute. »\n\n« Comment ça ? » demanda Youssef, ses yeux s\'élargissant.\n\nSon père prit le pain des mains de Youssef, le mit devant sa bouche, et dit : « Bismillahi wa \'ala baraka Allah. Au nom d\'Allah, et par la bénédiction d\'Allah. » Puis il le rendit à Youssef. « Maintenant, mon fils, c\'est toi qui le dis. »\n\nCe pouvoir du Bismillah, Youssef l\'avait vu de ses propres yeux une fois, bien avant l\'histoire du pain. C\'était un jour de pluie. Sa grande sœur, Fatima, devait traverser la route pour aller acheter du lait chez l\'épicier. La pluie tombait si fort que les gouttes rebondissaient sur le sol comme des billes. Fatima avait mis son imperméable, ouvert la porte, et avait dit très clairement : « Bismillah. » Puis elle était partie en courant sous la pluie. Youssef l\'avait regardée depuis la fenêtre — et il avait remarqué quelque chose d\'étrange. Les gouttes de pluie semblaient l\'éviter, comme si un parapluie invisible la protégeait. Fatima était revenue avec le lait, à peine mouillée. Youssef avait ouvert de grands yeux. « Comment tu as fait ? » Fatima avait haussé les épaules : « J\'ai juste dit Bismillah. Allah fait le reste. »\n\nYoussef, les yeux fermés, prit une grande respiration et dit : « Bismillah. »\n\nC\'était un mot simple. Un mot qu\'il avait entendu des dizaines de fois. Mais d\'une certaine façon, ce moment était différent. Spécial. Comme si quelque chose dans l\'air avait changé.\n\n« Maintenant, dit son père, quand tu dis Bismillah avec sincérité, tu invites les anges à partager ton repas. Les anges aiment être bénis dans les actions des humains. Alors ils viennent. »\n\nYoussef regarda le pain. « Les anges sont près de moi maintenant ? »\n\n« Peut-être, dit son père avec un sourire mystérieux. Les anges sont invisibles, mon fils. Mais ils sont là où la bénédiction d\'Allah est invitée. »\n\nÀ partir de ce jour, Youssef commença à dire Bismillah avant chaque repas, avant chaque action. Le matin, avant de se brosser les dents : « Bismillah. » Avant de mettre ses vêtements : « Bismillah. » Avant ses devoirs : « Bismillah. » Avant de jouer au football : « Bismillah. »\n\nSa petite sœur Noor le regardait faire et demandait : « Pourquoi tu parles toujours à toi-même, Youssef ? »\n\nCette nuit-là, avant de s\'endormir, Youssef resta longtemps allongé dans son lit, les yeux ouverts dans le noir. Il pensait à tous les Bismillah qu\'il avait oubliés dans sa vie — les repas mangés trop vite, les portes ouvertes sans réfléchir, les devoirs commencés dans la hâte. Chaque moment sans Bismillah était comme une porte restée fermée, un cadeau non ouvert, une lumière non allumée. Combien de bénédictions avait-il manquées simplement parce qu\'il avait oublié un mot — un seul petit mot de quatre syllabes ? Il ferma les yeux et murmura dans le noir : « Bismillah. » Et il sentit quelque chose de chaud dans sa poitrine, comme un petit soleil qui s\'allumait.\n\n« Je ne parle pas à moi-même, répondait Youssef. J\'invite les anges. »\n\nQuelques semaines après avoir commencé cette pratique, quelque chose d\'étrange mais merveilleux commença à se produire. Youssef remarqua que chaque repas avait un goût plus délicieux. Pas seulement un peu meilleur — complètement différent. Le pain était plus savoureux. Le lait plus sucré. Les fruits plus juteux. Même les choses ordinaires semblaient remplies d\'une saveur nouvelle.\n\n« Papa, pourquoi le manger a meilleur goût ? » demanda-t-il un jour.\n\nSon père sourit profondément. « Parce que quand tu dis Bismillah, tu ouvres ton cœur à la bénédiction d\'Allah. Et la bénédiction d\'Allah change non seulement le goût des choses, mais aussi la façon dont tu les reçois. Tu les reçois avec gratitude. Et la gratitude rend tout plus beau. »\n\nMais ce n\'était pas tout. Youssef remarqua aussi qu\'il mangeait moins et qu\'il se sentait plus rassasié. Un morceau de pain, qui normalement ne lui suffisait pas du tout, l\'emplissait maintenant complètement. « C\'est la baraka, expliqua son père. La bénédiction. Quand tu invites Allah et les anges dans ton repas, ils apportent une abondance invisible. »\n\nYoussef commença à enseigner à ses amis à l\'école. « Vous devez dire Bismillah, disait-il en mangeant son sandwich au fromage à l\'heure du déjeuner. Les anges viennent manger avec vous. »\n\nSon père le regarda avec un sourire plein de tendresse. « Tu vois, Youssef, Bismillah n\'est pas une formule magique. Ce n\'est pas un mot que tu dis pour obtenir ce que tu veux. C\'est un mot que tu dis pour rappeler à ton cœur que rien n\'arrive sans Allah. Quand tu dis Bismillah avant de manger, tu te rappelles que cette nourriture vient d\'Allah. Quand tu dis Bismillah avant de dormir, tu confies ton sommeil à Allah. Quand tu dis Bismillah avant un examen, tu sais que ton intelligence vient d\'Allah. Ce mot te connecte à Celui qui a créé toute chose. Et quand tu es connecté à Allah, tout devient possible — non pas parce que tu deviens plus fort, mais parce que tu te rappelles que c\'est Lui qui est fort. »\n\nSes amis riaient d\'abord. Mais quand il leur dit de vraiment essayer — de dire Bismillah sincèrement et de faire attention à la sensation — certains commencèrent à dire qu\'ils sentaient quelque chose. Quelque chose de spécial. Une présence douce. Une chaleur dans leur cœur.\n\nUne nuit du Ramadan, pendant le mois sacré, Youssef était assis avec sa famille pour le ftoor — le moment de rompre le jeûne. Sa mère avait préparé une grande table — de la soupe, de la viande, des fruits, du pain frais, du lait frais. Youssef regarda tout cela et sentit soudain une profonde émotion. Il joignit ses mains et dit, plus fort que d\'habitude : « Bismillahi wa \'ala baraka Allah. Au nom d\'Allah, par la bénédiction d\'Allah. »\n\nEt c\'est alors que cela se produisit. Un silence profond, doux, remplit la maison. Les parents de Youssef se regardèrent, étonnés. Sa petite sœur Noor cessa de parler et regarda autour d\'elle. Et pour une fraction de seconde — juste une petite fraction — Youssef sentit quelque chose. Des présences. Douces, légères, invisibles mais réelles. Des ailes silencieuses. Des créatures de lumière qui venaient partager ce moment spécial avec sa famille.\n\nIl ferma les yeux et murmurait : « Alhamdulillah. Merci, Allah. Merci de nous permettre de sentir Votre présence et celle de Vos anges. »\n\nÀ partir de ce jour, chaque repas pris avec Bismillah dans le cœur devint un moment de miraculeuse connexion. Youssef comprit quelque chose de profond — quelque chose qu\'il garderait dans son cœur jusqu\'à la fin de sa vie : dire Bismillah n\'était pas seulement un rappel ou une habitude. C\'était une invitation. Une porte ouverte à la présence d\'Allah et de Ses anges dans les moments les plus simples de notre vie.\n\nEt quand vint le moment de s\'endormir ce soir-là, Youssef posa sa tête sur l\'oreiller et murmura doucement : « Bismillah. » Puis il rêva. Il rêva d\'anges aux ailes blanches qui voletaient autour de lui, invisibles mais présents, le protégeant, le bénissant, tandis qu\'il dormait du sommeil paisible d\'un enfant qui savait qu\'il n\'était jamais seul.\n\n',
     moral: 'Commencer chaque action par Bismillah invite la bénédiction d\'Allah dans tout ce qu\'on fait.',
+    englishMoral: 'Gratitude toward Allah opens doors that we could not even see.',
   ),
   BedtimeStory(
     title: 'Le Jardin Secret de Patience',
+    englishTitle: 'The Secret Garden of Patience',
     emoji: '🌺',
     dayIndex: 1,
     summary: 'Une petite fille découvrit qu\'un jardin magique ne fleurissait que pour ceux qui savaient attendre.',
+    englishSummary: 'A little girl who honored Friday with her family saw her home illuminated with a mysterious light.',
     story: 'Il y avait une petite fille nommée Zahra qui vivait au bord d\'une ville ancienne, dans une maison entourée de murs hauts. Elle avait neuf ans, des cheveux bouclés que le vent adorait ébouriffer, et un cœur rempli de questions. Zahra demandait toujours « pourquoi » — pourquoi le ciel était bleu, pourquoi les fleurs mouraient en hiver, pourquoi certaines choses prenaient si longtemps à arriver.\n\nDerrière le mur du fond de la maison de ses grands-parents, il y avait une porte — une vieille porte en bois, usée par les années, avec une serrure en fer qui rouillait doucement. Personne ne l\'ouvrait jamais. « Qu\'y a-t-il derrière cette porte, Grand-mère ? » demandait Zahra. « Un vieux jardin, ma chère, répondait Grand-mère. Mais il n\'est pas prêt. Pas encore. »\n\nZahra était impatiente. Elle voulait voir le jardin. Elle voulait l\'explorer. Elle voulait le faire maintenant. Mais Grand-mère secouait la tête doucement. « Les belles choses, ma chérie, ne se révèlent qu\'à ceux qui savent attendre. »\n\nUn jour, alors qu\'elle jouait seule dans la cour, Zahra entendit un bruit. Le bruit d\'une clé qui tournait. Elle courut vers la porte du fond et trouva Grand-mère qui ouvrait la serrure. La porte grinça en s\'ouvrant, et une odeur — une odeur ineffable de terre humide, de fleurs anciennes et de miel — sortit de derrière le mur.\n\nZahra avait choisi ses graines avec soin au marché du village. Il y avait des graines de jasmin — les fleurs préférées de sa mère, celles dont le parfum embaumait la maison les soirs d\'été. Des graines de menthe — pour le thé que son père buvait chaque soir sur la terrasse en regardant le coucher du soleil. Des graines de tournesol — parce que Zahra aimait les fleurs qui suivent le soleil, comme si elles faisaient leur propre forme de prière silencieuse. Et tout au fond de la boîte, enveloppées dans un petit tissu blanc brodé, il y avait trois graines mystérieuses que le vieux jardinier avait laissées sans étiquette. Zahra ne savait pas ce qu\'elles deviendraient. C\'était la partie la plus excitante et la plus terrifiante : planter quelque chose sans savoir ce qui pousserait.\n\n« Aujourd\'hui, dit Grand-mère, je te montre le jardin. Mais tu dois me promettre quelque chose. »\n\n« Quoi ? » demanda Zahra, les yeux brillants.\n\n« Tu dois apprendre la patience. Tu dois comprendre que certaines choses belle méritent d\'attendre. »\n\nElles entrèrent. Et Zahra eut le souffle coupé. Devant elle s\'étendait le jardin le plus extraordinaire qu\'elle ait jamais vu — mais pas comme elle l\'imaginait. Ce n\'était pas un jardin rempli de fleurs qui s\'épanouissaient. C\'était un jardin rempli de graines. Des milliers de graines, dans la terre noire, attendant. Attendant le moment opportun de germer.\n\n« C\'est un jardin de graines dormantes, expliqua Grand-mère. Certaines attendent depuis des années. Mais elles savent que quand le temps sera venu — quand le soleil, la pluie, et le moment opportun se rencontreront — elles fleuriront plus belles que jamais. »\n\n« Mais comment peuvent-elles attendre si longtemps sans mourir ? » demanda Zahra.\n\n« Parce qu\'elles font confiance, ma chère. Elles font confiance à Allah. Elles savent qu\'elles ne sont pas oubliées simplement parce qu\'elles n\'ont pas encore germé. Elles attendent avec patience. La patience, c\'est sabr en arabe. Et sabr est la mère de toutes les vertus. »\n\nLes jours passaient et rien ne semblait pousser. Zahra venait chaque matin, arrosait la terre avec patience, enlevait les mauvaises herbes une à une, et repartait les mains vides. Au bout d\'une semaine, elle commença à douter. Au bout de deux semaines, elle faillit abandonner. Sa meilleure amie, Leïla, lui dit un jour en haussant les épaules : « Tu perds ton temps. La terre est peut-être trop sèche. Ou les graines étaient mortes. » Zahra sentit une boule dans sa gorge. Et si Leïla avait raison ?\n\nZahra passa le reste du jour à explorer le jardin. Grand-mère lui enseigna les noms des graines — la graine de rose qui attendait depuis trois ans, la graine de jasmin qui avait presque mille jours de patience, la graine de tulipe qui dormait sous la terre, rêvant en silence du moment où elle verrait la lumière.\n\n« Grand-mère, demanda Zahra, comment sais-tu quand planter chaque graine ? »\n\nCe soir-là, Zahra fit quelque chose qu\'elle n\'avait jamais fait. Elle s\'assit dans le jardin, dans le noir complet, et elle parla à Allah. Pas une prière apprise par cœur, mais une conversation vraie, avec ses mots à elle : « Ya Allah, j\'ai planté ces graines et rien ne pousse. Est-ce que Tu m\'écoutes ? Est-ce que Tu vois mon petit jardin ? Je ne Te demande pas un miracle. Je Te demande juste de m\'aider à continuer. » Le silence de la nuit lui répondit, et dans ce silence, elle entendit quelque chose — pas une voix humaine, mais une certitude, douce et chaude comme une couverture en hiver : « Continue. » Juste ça. Continue. Et le lendemain matin, quand elle arriva au jardin avec son arrosoir, elle vit une minuscule pousse verte qui perçait la terre. Si petite qu\'elle aurait pu la manquer. Mais Zahra avait les yeux de celle qui cherche avec foi — et celui qui cherche avec patience trouve toujours.\n\n« Je ne le sais pas, ma chère. Allah me le dit. »\n\n« Comment Allah te le dit ? »\n\n« Par un sentiment. Une intuition. Une connaissance dans le cœur. Quand tu écoutes vraiment, Allah te parle sans parler. »\n\nÀ partir de ce jour, Zahra visita le jardin presque tous les jours. Elle parlait aux graines, doucement. « Comment allez-vous, mesdames ? Êtes-vous patientes ? » Et elle était sûre de les entendre répondre, dans une langue que seul le cœur pouvait comprendre.\n\nLes semaines passèrent. Les mois passèrent. Le jardin resta presque vide de fleurs. Juste de la terre, de petites marques qui indiquaient où chaque graine était plantée, et l\'attente — la grande attente.\n\nZahra commença à comprendre quelque chose. L\'impatience n\'était pas une vertu. La patience était une force. Chaque jour qu\'elle attendait rendait le moment d\'attente plus fort. Elle apprit à ne pas courir. À ne pas demander « quand ». À simplement faire confiance.\n\nUn jour du printemps, après ce qui semblait une éternité, une petite pousse verte apparut dans la terre — une toute petite pousse. Zahra courut chercher Grand-mère. « Elles commencent ! Elles commencent enfin ! »\n\nGrand-mère sourit. « Patients, ma chère. C\'est le début. »\n\nEt alors commença le spectacle merveilleux. Au fil des semaines, le jardin s\'épanouit. Pas vite — lentement, graduellement, chaque fleur prenant son temps. Mais quand elles épanouirent — Seigneur ! — c\'était comme si chaque graine avait utilisé tous ces mois d\'attente pour créer quelque chose de véritablement incommensurablement beau.\n\nLes roses étaient plus rouges que le sang de l\'amour. Les jasmins exhalaient un parfum qui faisait fermer les yeux et sourire sans savoir pourquoi. Les tulipes dansaient dans le vent comme des ballerines dans des costumes de soie. Et au-dessus de tout cela, les abeilles et les papillons venaient — comme s\'ils le savaient, comme s\'ils attendaient aussi ce moment.\n\nZahra regarda Grand-mère, les larmes aux yeux.\n\n« Tu vois ? dit Grand-mère. C\'est ça la patience. Ce n\'est pas juste attendre. C\'est construire, prudemment, graduellement, envers et contre tout, quelque chose d\'une beauté si profonde que le monde en devient plus beau.»\n\nÀ partir de ce jour, chaque fois que Zahra était impatiente — et elle l\'était encore souvent, car elle était une enfant — elle pensait aux graines. Elle pensait à la rose qui avait attendu trois ans. Et elle prenait une grande respiration, fermait les yeux, et disait à son cœur : « Sois patient comme une graine. Allah ne t\'oublie pas. Tu fleuriras quand le moment sera venu. »\n\nEt le soir, quand elle s\'endormait, elle rêvait du jardin secret — du jardin où les graines rêvaient en silence, patientes, confiantes, sachant que la plus belle des fleurs était toujours à venir.\n\nEt c\'est ainsi que se déploie la véritable transformation — non pas soudainement, mais graduellement, comme une aube qui se lève lentement sur l\'horizon. Chaque jour apporte une nouvelle compréhension. Chaque moment apporte une nouvelle leçon. Et à la fin, on se rend compte que tout ce qui s\'est passé avait un sens, un but, une sagesse cachée.\n\nEt c\'est ainsi que se déploie la véritable transformation — non pas soudainement, mais graduellement, comme une aube qui se lève lentement sur l\'horizon. Chaque jour apporte une nouvelle compréhension. Chaque moment apporte une nouvelle leçon. Et à la fin, on se rend compte que tout ce qui s\'est passé avait un sens, un but, une sagesse cachée.\n\nEt c\'est ainsi que se déploie la véritable transformation — non pas soudainement, mais graduellement, comme une aube qui se lève lentement sur l\'horizon. Chaque jour apporte une nouvelle compréhension. Chaque moment apporte une nouvelle leçon. Et à la fin, on se rend compte que tout ce qui s\'est passé avait un sens, un but, une sagesse cachée.',
     moral: 'La patience (sabr) est la graine de toute belle chose. Allah récompense ceux qui savent attendre avec confiance.',
+    englishMoral: 'Allah hears every sincere prayer, even in the deepest darkness.',
   ),
   BedtimeStory(
     title: 'Le Tapis Volant de Grand-Père',
+    englishTitle: 'Grandfather\'s Flying Carpet',
     emoji: '🕌',
     dayIndex: 2,
     summary: 'Un garçon découvrit que le vieux tapis de prière de son grand-père l\'emmenait en voyage chaque nuit.',
+    englishSummary: 'A little girl who honored Friday with her family saw her home illuminated with a mysterious light.',
     story: 'Un garçon nommé Malik avait dix ans et vivait avec ses grands-parents dans un grand appartement ancien qui sentait la cardamome et l\'encens. Son grand-père, qu\'il appelait Jeddy — « mon grand-père » en arabe — était un homme très vieux, avec des cheveux blancs comme de la neige, une barbe longue qu\'il soignait avec amour, et des yeux qui scintillaient comme des étoiles la nuit.\n\nGrand-père priait beaucoup. Cinq fois par jour, il se levait avec un sourire doux sur son visage et se dirigeait vers son petit coin de prière, où était posé un vieux tapis. Ce tapis était usé — très usé. Des fils effilochés pendaient de ses bords. Le motif original, probablement très beau à une époque lointaine, était maintenant pâle et quelque peu effacé. Grand-mère avait souvent proposé d\'en acheter un nouveau, mais Jeddy refusait.\n\n« Non, non, disait-il en caressant le tapis. Ce tapis a prié avec moi pendant cinquante ans. Il connaît ma voix. Il connaît mon cœur. Un nouveau tapis ne me connaît pas. »\n\nMalik regardait son grand-père prier. Il voyait comment il se prosternait — complètement, avec révérence, et restait un moment dans cette position. Comment son front touchait le tapis avec tant de respect. Comment ses lèvres murmuraient des paroles en arabe qui semblaient venir du plus profond de son âme.\n\nChaque motif du tapis avait une signification que grand-père connaissait par cœur. Il y avait un losange central, entouré de huit étoiles à six branches, qui représentait — selon grand-père — les huit portes du Paradis. Les bordures étaient tissées de vignes entrelacées, symboles de la vie qui ne cesse de croître. Et dans chaque coin, il y avait un petit oiseau, les ailes déployées, figé dans un vol éternel. « Ces oiseaux, disait grand-père en passant ses doigts ridés sur la laine, ce sont les du\'as de ceux qui ont prié sur ce tapis avant nous. Chaque prière monte vers le ciel comme un oiseau, et elle ne redescend jamais les mains vides. »\n\nMais le plus étrange, c\'était après la prière. Après que Jeddy ait terminé, il restait toujours assis sur le tapis pendant quelques minutes — juste assis, les yeux fermés, respirant doucement, comme s\'il était dans un endroit très lointain.\n\nUn soir, Malik demanda : « Grand-père, où vas-tu quand tu pries ? »\n\nJeddy ouvrit les yeux lentement, comme en revenant d\'un long voyage.\n\n« Je vais au Ciel, mon cher petit-fils, dit-il simplement. »\n\nMalik était sceptique. « Comment ? Tu ne bouges pas. »\n\nEt ce soir-là, l\'histoire que grand-père raconta fut différente de toutes les autres. Il parla d\'un petit garçon qui vivait dans une ville très lointaine, une ville faite entièrement de livres. Les maisons étaient construites avec des dictionnaires empilés, les routes étaient pavées de pages de poèmes, et les arbres avaient des feuilles en papier sur lesquelles étaient écrites des sourates du Coran. Dans cette ville, chaque fois que quelqu\'un lisait un mot à voix haute, ce mot prenait forme — si tu disais « oiseau », un oiseau de papier s\'envolait de la page. Si tu disais « rivière », de l\'encre bleue coulait entre les livres et formait un ruisseau. Et si tu disais « Allah »... toute la ville s\'illuminait d\'une lumière si pure que même les aveugles pouvaient la voir.\n\n« Ah, mais mon corps ne bouge pas, répondit Jeddy. Mais mon esprit voyage. Chaque sajda est un voyage. Tu veux voir ? »\n\nCette nuit-là, Malik demanda à rester dans la chambre de Grand-père. Jeddy mit son pyjama blanc, fit ses ablutions, puis posa son vieux tapis sur le sol. « Assieds-toi sur le tapis avec moi, dit-il. »\n\nMalik s\'assit au coin du tapis. Grand-père commença à prier — la prière du Witr, la dernière prière de la nuit. Mais quelque chose d\'extraordinaire se produisit. À chaque sajda de Jeddy, Malik sentit quelque chose de merveilleux. Le tapis commença à... bouger ? Non, ce n\'était pas exactement bouger. C\'était plus comme si la réalité autour d\'eux changeait.\n\nÀ la première sajda, Malik vit — ou rêva-t-il ? — les murs de la chambre s\'évanouir. À la place, il y avait un grand dôme blanc éblouissant. Des mosquées magnifiques s\'étendaient à l\'infini — chacune d\'une beauté architecturale sans pareil, avec des minarets qui touchaient les nuages.\n\nÀ la deuxième sajda, un paysage différent. Des montagnes de lumière, lisses comme du marbre, scintillant dans une clarté douce. Et en haut de chaque montagne, un ange — Malik ne savait pas comment il le savait, mais il le savait — gardait le chemin vers le Ciel.\n\nEt cette voix murmure : tu n\'es pas seul. Je t\'ai toujours vu. Je t\'ai toujours aimé. Même dans tes pires moments. Même quand tu doutais. Surtout à ces moments-là.\n\nÀ la troisième sajda — c\'était le moment le plus beau — Malik vit un jardin. Un jardin qui n\'avait pas de fin. Des fleurs — chacune une œuvre d\'art divine — en fleur en même temps. L\'odeur était si douce que Malik sentit son cœur se remplir d\'une joie qu\'il ne pouvait même pas nommer. Et il entendit — oh, il entendit ! — une voix. Pas une voix humaine. Une voix qui semblait venir de partout et de nulle part à la fois. La voix d\'Allah : « Je suis ici, pour ceux qui M\'appellent. Je suis proche. »\n\nMalik sentit ses paupières devenir lourdes. La voix de grand-père devenait un murmure doux, régulier, comme le ronronnement d\'un chat ou le clapotis d\'une fontaine. Les motifs du tapis dansaient derrière ses yeux fermés — les oiseaux prenaient leur envol, les vignes s\'enroulaient en spirales dorées, et les étoiles brillaient d\'une lumière chaude. Malik n\'était plus dans l\'appartement. Il volait — ou peut-être flottait — au-dessus d\'un paysage qui n\'existait que dans les histoires : des montagnes de miel, des rivières de lait, des jardins où les arbres portaient des fruits qu\'aucun œil n\'avait jamais vus. Le Paradis, tel que grand-père le décrivait. Et quelque part dans ce Paradis, le tapis de prière volait, portant sur son dos tous les rêves de tous les enfants qui s\'étaient endormis en écoutant les histoires de leurs grands-parents.\n\nQuand Grand-père se redressa de sa dernière sajda, tout redevint normal. La chambre était la chambre. Le tapis était un simple tapis usé. Mais Malik sentait encore la douceur du jardin dans son cœur. Il sentait encore la présence de cette voix.\n\n« Tu as vu ? » demanda Jeddy avec un doux sourire.\n\n« J\'ai vu, Grand-père, murmura Malik. Qu\'était-ce ? »\n\n« C\'était la prière, mon cher. C\'était le voyage vers Allah que chaque croyant fait cinq fois par jour. »\n\nÀ partir de ce soir, Malik demanda régulièrement à Jeddy de le laisser prier avec lui. Et chaque nuit, le tapis les emmenait en voyage. Pas toujours au même endroit. Parfois au jardin. Parfois à des cieux remplis de constellations. Parfois à des villes de lumière où les anges marchaient.\n\nMalik apprit alors quelque chose de profond. La prière n\'était pas juste des mots. C\'était un voyage. Chaque rakaa était un pas en avant. Chaque sajda était une étape de plus vers la proximité d\'Allah. Et après des années de prière régulière, un cœur apprenait à voir ces voyages à chaque prière.\n\nDes années plus tard, quand Grand-père mourut — il s\'endormit et ne se réveilla pas — Malik trouva le vieux tapis plié dans le coin de la chambre. Il le prit délicatement et le posa dans sa propre maison. Et chaque nuit, quand il priait, le tapis l\'emmenait en voyage. Le long voyage vers Allah.\n\nEt Malik comprenait maintenant le secret que Jeddy n\'avait jamais vraiment dit, mais qu\'il avait montré à travers ses prières : ce n\'est pas le tapis qui vole. Ce sont ceux qui prient. Leurs esprits s\'élèvent. Leurs cœurs montent. Et Allah, dans Sa miséricorde infinie, les rencontre à mi-chemin et les embrasse avec l\'amour qu\'un père ressent pour son enfant.\n\nEt ainsi, dans les jours et les semaines qui suivirent, chaque matin apportait une nouvelle compréhension. Chaque nuit, dans le silence, le cœur s\'approfondissait. Et chaque fois que le doute menaçait, une petite voix murmure : tu es aimé. Tu n\'es pas seul. Allah t\'a choisi pour cette épreuve parce qu\'il t\'aime profondément.\n\nEt c\'est cette certitude — cette connaissance profonde et absolue de l\'amour infini de Allah — qui devient le fondement de tout. Le fondement de la foi. Le fondement de l\'espoir. Le fondement du courage pour affronter chaque nouveau jour. C\'est une victoire qui ne s\'achète pas avec de l\'argent. C\'est une victoire qui vient du cœur.\n\nEt chaque soir, avant de s\'endormir, cette âme murmure une prière sincère : \'Alhamdulillah, ya Allah, merci pour ce jour. Merci pour cette épreuve qui m\'a enseigné. Merci pour cette lumière qui m\'a guidé. Merci pour Ton amour et Ta miséricorde infinie, qui ne s\'arrête jamais, qui ne nous abandonne jamais. Aide-moi à continuer sur ce chemin. Aide-moi à devenir meilleur chaque jour. À être plus proche de Toi. À T\'aimer davantage. Ameen, ameen, ya Allah. Alhamdulillah, alhamdulillah, alhamdulillah.\'',
     moral: 'La prière est un voyage vers Allah — chaque sajda nous rapproche du ciel.',
+    englishMoral: 'Those who give for Allah always receive more than they have given.',
   ),
   BedtimeStory(
     title: 'La Montagne qui Apprit l\'Humilité',
     emoji: '⛰️',
     dayIndex: 3,
     summary: 'Une montagne orgueilleuse découvrit qu\'un grain de sable portait un secret plus grand qu\'elle.',
+    englishSummary: 'When a storm threatened the generous old tree, the children prayed together and the wind stopped.',
     story: 'Il y avait une montagne — une montagne immense, majestueuse, dont le sommet était si haut qu\'il perçait les nuages. Son nom était Mont Kahar, ce qui signifie « le Dominant ». Et elle était orgueilleuse. Terriblement orgueilleuse.\n\n« Regardez-moi, disait la montagne à tous ceux qui la voyaient. Je suis la plus haute, la plus forte, la plus impressionnante de toute la région. Aucune autre montagne n\'arrive à ma hauteur. »\n\nLes petites collines autour d\'elle se taisaient, humbles, silencieuses. Elles savaient que contredire Mont Kahar ne mènerait qu\'aux reproches.\n\nLa montagne aimait particulièrement les matins d\'hiver, quand le givre recouvrait ses pentes et la faisait briller comme un diamant sous le soleil levant. Elle regardait les voyageurs en bas, minuscules comme des fourmis, et pensait : « Voyez comme je suis magnifique. Qui pourrait rivaliser avec moi ? Le soleil lui-même doit me contourner chaque matin. » Les aigles qui nichaient sur ses flancs confirmaient sa beauté — ils la choisissaient toujours, elle, jamais les collines voisines. Et la neige qui coiffait son sommet était si blanche, si pure, que les poètes du village écrivaient des vers à son sujet. Tout cela nourrissait son orgueil, jour après jour, saison après saison.\n\nLes oiseaux qui volaient au-dessus avaient peur de la montagne. Même les nuages semblaient l\'éviter, comme s\'ils craignaient de la toucher. Et les humains — oh, les humains ! — venaient la voir de loin comme on contemple un roi.\n\nMais il y avait quelque chose que Mont Kahar ignorait. À son pied, caché dans l\'obscurité de la terre, vivait un grain de sable. Un grain si petit que mille de ses semblables ne feraient pas la taille d\'une graine de pavot. Son nom était Rimlah.\n\nUn jour d\'automne, un vent violent souffla sur la montagne. Ce n\'était pas un vent ordinaire — c\'était un vent qui venait du désert, chaud et chargé de sable. Il fouettait les flancs de la montagne avec une force terrible, arrachant des pierres, déracinant des buissons, soulevant des nuages de poussière. La montagne se raidit, furieuse. « Comment oses-tu ? gronda-t-elle. Je suis la montagne ! Tu n\'es qu\'un souffle d\'air ! » Mais le vent ne répondit pas. Il continua de souffler, indifférent à la colère de la montagne. Et quand il s\'arrêta enfin, la montagne découvrit quelque chose d\'étonnant : le vent avait sculpté dans sa roche un motif magnifique, une forme qui ressemblait à une fleur — délicate, élégante, impossible à reproduire par la force brute. Le vent, sans demander la permission, avait créé de la beauté là où la montagne ne voyait que de la destruction.\n\nRimlah était humble. Elle ne demandait rien à personne. Elle était juste là, dans la terre, acceptant son petit rôle sans plainte. Et contrairement à la montagne, Rimlah avait le secret de la vraie force.\n\nVoir, chaque grain de sable comme Rimlah était une brique minuscule qui tenait la montagne debout. Sans les milliards de grains de sable comme elle, la montagne n\'aurait été qu\'une collection aléatoire de rochers sans forme. Ce sont les grains de sable qui les tenaient ensemble. C\'est Rimlah et ses innombrables frères et sœurs qui donnaient à la montagne sa forme, sa solidité, sa majestueuse présence.\n\nUn jour, après une grande tempête, un grain de sable — Rimlah elle-même — fut poussé vers le haut, vers la surface. Elle se retrouva sur la peau de la montagne, visible à la lumière du soleil pour la première fois de sa vie.\n\nMont Kahar la remarqua. Et elle éclata de rire.\n\nLa leçon mit du temps à s\'installer. Pendant des jours, la montagne resta silencieuse, méditant sur ce qu\'elle avait compris. Elle regardait le petit grain de sable qui reposait à ses pieds et se demandait : « Comment quelque chose d\'aussi petit peut-il m\'apprendre quelque chose d\'aussi grand ? » Et c\'est exactement là que résidait la réponse. La grandeur n\'est pas une question de taille. Le grain de sable ne se plaignait jamais, ne se comparait à personne, ne demandait rien. Il existait simplement, à sa place, tel qu\'Allah l\'avait créé. Et dans cette simplicité totale, il y avait une noblesse que la montagne, avec toute sa hauteur, n\'avait jamais atteinte.\n\n« Qu\'est-ce que c\'est ? » demanda la montagne en regardant le grain de sable minuscule. « Un morceau de poussière ? »\n\n« Je suis un grain de sable, dit Rimlah doucement. Je suis une petite partie de vous. »\n\n« De moi ? » s\'exclama la montagne avec dégoût. « Comment oses-tu te comparer à moi ? Je suis énorme. Tu es microscope. Je suis puissante. Tu es faible. Je suis glorieuse. Tu es... insignifiante. »\n\nRimlah ne répondit rien. Elle se contenta de rester là, avec une paix silencieuse dans son cœur.\n\nÀ ce moment-là, un vent se leva. Un vent fort, violent. Et il commença à enlever la montagne — de petits éclats de roche se détachèrent du sommet. La montagne sentit la douleur. « Arrête ! » cria-t-elle au vent. « Je suis trop grande, trop puissante pour être endommagée ! »\n\nMais le vent continua. Jour après jour, année après année, le vent — et la pluie, et le gel, et toutes les autres forces de la nature — érodaient lentement la montagne. Et chaque pierre qui se détachait devenait un grain de sable. Puis un autre. Puis un autre.\n\nLes saisons changèrent, et avec elles, la montagne changea aussi. Elle qui autrefois se vantait de sa neige immaculée apprit à admirer la mousse qui poussait sur ses flancs les plus bas. Elle qui se moquait des collines commença à voir en elles des sœurs, pas des rivales. Elle qui regardait de haut les rivières comprit qu\'elles la sculptaient depuis des millénaires avec une patience qu\'elle-même n\'avait jamais eue. Et le vent — ce même vent dont elle se plaignait autrefois parce qu\'il ébouriffait sa neige — devint son confident, son ami, celui qui murmurait à ses oreilles de pierre les secrets du monde.\n\nEt cette voix murmure : tu n\'es pas seul. Je t\'ai toujours vu. Je t\'ai toujours aimé. Même dans tes pires moments. Même quand tu doutais. Surtout à ces moments-là.\n\nDes années passèrent. Mont Kahar commençait à changer. Elle n\'était plus la montagne géante d\'avant. Elle était plus petite. Plus usée. Son sommet ne perçait plus les nuages. Et elle sentit quelque chose — une émotion qu\'elle n\'avait jamais ressentie avant : la peur. La peur de disparaître complètement.\n\nElle regarda vers le bas et vit — oh, elle vit ! — que les murs et les murs de l\'endroit où elle se tenait, c\'était des grains de sable. Partout. Des milliards et des trillions de grains de sable, chacun un ancien morceau d\'elle-même.\n\n« Vous m\'avez construit, » murmura Mont Kahar avec horreur. « Vous — ces petites choses insignifiantes — vous m\'aviez construit. Et j\'ai cru que c\'était moi qui était grande. »\n\nEt là, parmi tous ces grains de sable, elle reconnut un grain spécifique — un grain qui brillait doucement. C\'était Rimlah.\n\n« Rimlah, » appela la montagne, sa voix maintenant petite, humble. « M\'as-tu pardonné de mes paroles crières ? »\n\n« Il n\'y a rien à pardonner, » répondit Rimlah. « Je suis un grain de sable. Et tu es une montagne — ou tu étais. Mais Allah, Lui, est plus grand que nous deux réunis. C\'est ça l\'humilité — comprendre que, peu importe notre taille, nous sommes tous insignifiants devant Allah. »\n\nLa montagne sentit quelque chose dans son cœur — c\'était comme si une porte, jusqu\'à présent fermée, s\'ouvrait enfin. Une lumière douce entrait.\n\n« Comment peut-on être aussi petit et être si sage ? » demanda la montagne avec une sincérité nouvelle.\n\n« Parce que être petit nous laisse de la place pour Allah, répondit Rimlah. Quand on n\'est pas rempli d\'orgueil, Allah peut entrer. »\n\nEt depuis ce jour, la montagne — qui n\'était plus vraiment une montagne, mais plutôt une colline, puis une butte, puis finalement juste une légère élévation — devint le endroit le plus béni de la région. Parce que maintenant, l\'humilité vivait là. Et Allah aime ceux qui sont humbles.\n\nEt si vous marchez sur le sable près de là où le Mont Kahar se tenait autrefois, et si vous écoutez très attentivement, vous pouvez entendre un murmure doux. C\'est le murmure de la montagne qui a appris l\'humilité et qui, dans sa petitesse nouvelle, a trouvé une lumière plus grande que toute la hauteur du monde.\n\nEt ainsi, dans les jours et les semaines qui suivirent, chaque matin apportait une nouvelle compréhension. Chaque nuit, dans le silence, le cœur s\'approfondissait. Et chaque fois que le doute menaçait, une petite voix murmure : tu es aimé. Tu n\'es pas seul. Allah t\'a choisi pour cette épreuve parce qu\'il t\'aime profondément.\n\nEt c\'est cette certitude — cette connaissance profonde et absolue de l\'amour infini de Allah — qui devient le fondement de tout. Le fondement de la foi. Le fondement de l\'espoir. Le fondement du courage pour affronter chaque nouveau jour. C\'est une victoire qui ne s\'achète pas avec de l\'argent. C\'est une victoire qui vient du cœur.\n\nEt chaque soir, avant de s\'endormir, cette âme murmure une prière sincère : \'Alhamdulillah, ya Allah, merci pour ce jour. Merci pour cette épreuve qui m\'a enseigné. Merci pour cette lumière qui m\'a guidé. Merci pour Ton amour et Ta miséricorde infinie, qui ne s\'arrête jamais, qui ne nous abandonne jamais. Aide-moi à continuer sur ce chemin. Aide-moi à devenir meilleur chaque jour. À être plus proche de Toi. À T\'aimer davantage. Ameen, ameen, ya Allah. Alhamdulillah, alhamdulillah, alhamdulillah.\'',
     moral: 'L\'orgueil éloigne d\'Allah, mais l\'humilité ouvre la porte de Sa lumière.',
+    englishMoral: 'Honoring the blessed days of Allah fills the heart and home with His blessings.',
   ),
   BedtimeStory(
     title: 'Les Deux Frères et le Pain',
+    englishTitle: 'The Two Brothers and the Bread',
     emoji: '🍞',
     dayIndex: 4,
     summary: 'Deux frères partageaient tout sauf un secret : chacun donnait en cachette à l\'autre.',
+    englishSummary: 'A child discovered that saying Bismillah before eating invites the angels to share his meal.',
     story: 'Il y avait deux frères — Amr et Osman — qui vivaient ensemble dans une petite maison au bord d\'une rivière. Ils n\'étaient pas riches. Loin de là. Leur père avait possédé un petit verger de dattiers, mais depuis sa mort — cela faisait maintenant trois ans — les deux frères devaient se contenter du peu qu\'ils gagnaient en travaillant aux champs des autres.\n\nChaque jour, l\'un ou l\'autre — ou parfois les deux — travaillait dur pour acheter le pain du jour. La plupart du temps, il n\'y avait qu\'un seul pain pour la journée entière. Un pain qui devait nourrir les deux frères.\n\nLa maison des deux frères était petite mais propre. Un seul étage, deux pièces, un toit de tuiles rouges que le vent faisait chanter les nuits de tempête. Il y avait un potager à l\'arrière où poussaient des tomates, des courgettes et de la menthe — assez pour agrémenter les repas, pas assez pour les nourrir. L\'essentiel de leur nourriture, ils l\'achetaient au marché du mardi avec l\'argent gagné à la sueur de leur front. Amr travaillait chez le forgeron — ses bras étaient marqués de petites brûlures que le métal laissait sur la peau, comme des constellations. Osman, lui, aidait le boulanger du village et recevait en paiement quelques pièces et un pain frais chaque soir.\n\nAmr avait trente ans. Il était fort, avec les mains calleuses de celui qui travaille dur. Osman avait vingt-cinq ans et était plus maigre, plus faible, mais avec un cœur aussi grand que le ciel.\n\nMais ce que personne ne savait, c\'était qu\'il y avait un secret entre eux. Un secret qu\'aucun des deux ne voulait que l\'autre connaisse.\n\nChaque nuit, quand la lumière s\'évanouissait et que la maison devenait silencieuse, Amr faisait une chose. Il coupait son morceau de pain — la moitié du pain — en deux parts. Il gardait une part pour lui-même. Et il prenait l\'autre part et la glissait doucement sous l\'oreiller d\'Osman, en prenant soin de ne pas le réveiller.\n\n« Osman travaille moins que moi, pensait Amr. Il n\'a pas la même force. Il a besoin de manger plus. Je lui donnerai de la nourriture supplémentaire pendant qu\'il dort, et il ne le saura pas. C\'est mieux. S\'il le savait, son orgueil de frère serait blessé. »\n\nMais ce qu\'Amr ne savait pas, c\'est qu\'Osman faisait exactement la même chose. Chaque nuit, après que son frère soit endormi, Osman coupait discrètement son morceau de pain — l\'autre moitié du pain — en deux parts. Il en gardait une très petite pour lui-même, juste assez pour ne pas mourir de faim. Et l\'autre part, il la glissait doucement sous l\'oreiller d\'Amr, en prenant les plus grandes précautions pour ne pas le réveiller.\n\nLe pain, dans leur maison, n\'était pas un simple aliment. C\'était un symbole. Leur mère — qu\'Allah l\'accueille dans Son vaste Paradis — leur avait toujours dit : « Mes fils, ne gaspillez jamais le pain. Chaque miette est une bénédiction. Et ne mangez jamais seuls — le pain partagé nourrit le corps et l\'âme, mais le pain mangé seul ne remplit que l\'estomac. » Les frères avaient gravé ces mots dans leur cœur comme on grave un verset sur une pierre. Ils mangeaient toujours ensemble, face à face, et même quand ils se disputaient — ce qui arrivait parfois, comme entre tous les frères — ils ne manquaient jamais le repas du soir ensemble.\n\n« Amr travaille plus que moi, pensait Osman. Il porte des charges plus lourdes. Il a besoin de plus de force. Je lui donnerai ma nourriture, et il ne le saura pas. C\'est mieux ainsi. »\n\nPendant des mois, cette situation étrange continue. Chaque matin, chacun des frères trouvait plus de pain qu\'il ne s\'y attendait sous son oreiller. Mais chacun croyait que c\'était un miracle — qu\'Allah, dans Sa miséricorde, envoyait de la nourriture supplémentaire.\n\nAmr regardait le pain supplémentaire et disait : « Alhamdulillah, Allah prend soin de nous. »\n\nOsman regardait le pain supplémentaire et disait : « Alhamdulillah, notre Seigneur nous a envoyé une bénédiction. »\n\nMais en réalité, c\'était l\'autre qui envoyait la bénédiction — dans un acte d\'amour si profond, si secret, que même le ciel devait pencher l\'oreille pour le voir.\n\nLes jours passèrent. Les semaines passèrent. Et puis un jour, un événement extraordinaire se produisit. Une famine frappa la région — une famine terrible. Les récoltes échouèrent. La rivière s\'assécha. Les gens mouraient de faim.\n\nAmr et Osman n\'avaient presque plus rien à manger. Juste un morceau de pain — minuscule — pour le jour.\n\nCette nuit-là, Amr se tourna vers Osman et dit : « Frère, c\'est la dernière nuit de notre vie peut-être. Je dois te dire un secret. »\n\nOsman se redressa. « Quel secret ? »\n\nQuand la vérité éclata enfin — quand chacun découvrit ce que l\'autre faisait en secret depuis des mois — un silence tomba dans la petite maison. Ce n\'était pas un silence gêné ou triste. C\'était un silence sacré, comme le silence qui suit la prière, quand les mots se taisent et que le cœur continue de parler. Amr regarda Osman. Osman regarda Amr. Et dans les yeux de chacun, l\'autre vit la même chose : un amour si grand qu\'il ne pouvait pas se dire avec des mots, seulement avec des actes — un pain coupé en silence dans la nuit, déposé sur la table de l\'autre comme une lettre d\'amour sans signature.\n\n« Pendant des mois, j\'ai coupé ma nourriture en deux et je t\'en donnais la moitié, chaque nuit, pendant que tu dormais. Je pensais que tu avais besoin de force. C\'est pourquoi tu trouvais du pain supplémentaire sous ton oreiller chaque matin. »\n\nOsman sentit les larmes couler de ses yeux. « Amr... tu as fait ça ? » Il prit une grande respiration. « J\'ai un secret moi aussi, frère. Pendant les mêmes mois, j\'ai coupé ma nourriture et je t\'en donnais la moitié. Je pensais que tu avais besoin de force plus que moi. »\n\nLes deux frères se regardèrent dans le noir. Puis Amr se mit à rire — un rire doux, incrédule. « Ça veut dire... »\n\n« Oui, dit Osman. Pendant tout ce temps, nous nous donnions l\'un à l\'autre. Nous mangeions chacun du pain que nous avons donné. »\n\nIls restèrent assis ensemble, dans le noir, dans la faim, dans la pénurie — mais remplis d\'une certitude absolue qu\'ils n\'étaient pas seuls. Qu\'ils s\'avaient l\'un l\'autre. Qu\'il y avait un amour entre eux qui dépassait la faim.\n\nAmr posa sa main sur l\'épaule d\'Osman. « Frère, si Allah voit ce que nous avons fait l\'un pour l\'autre, sans attendre de reconnaissance... »\n\n« Alors, dit Osman, Allah verra que notre cœur est bon. Et Il nous sauvera. »\n\nLe matin suivant — comme dans les contes — un groupe de marchands passa par la région. Ils avaient des vivres, beaucoup de vivres, qu\'ils vendaient. Mais en voyant les deux frères — pales, faibles, mais avec une lumière extraordinaire dans les yeux — quelque chose les toucha. Quelque chose dans la façon dont ces frères se regardaient. Dans la façon dont ils se tenaient la main.\n\n« Pourquoi vous aider-t-il ? » demanda un marchand avec étonnement à son compagnon.\n\n« Parce que, dit le compagnon, en les regardant, je vois quelque chose. Un amour. Un amour pur. C\'est rare. Très rare. »\n\nLes marchands leur donnèrent assez de nourriture pour les sauver. Et les deux frères — Amr et Osman — vécurent longtemps. Et chaque jour de leur vie, avant de manger, ils se regardaient et se disaient : « Alhamdulillah, pour ce don secret que nous nous avons donné autrefois. »\n\nEt c\'est une leçon que le ciel a inscrite dans les cœurs de ceux qui l\'ont entendue : le don le plus pur, c\'est celui qui n\'attend rien. Le don secret, le don donné sans espoir de reconnaissance, c\'est celui qui voit Allah sourire.\n\nEt c\'est ainsi que se déploie la véritable transformation — non pas soudainement, mais graduellement, comme une aube qui se lève lentement sur l\'horizon. Chaque jour apporte une nouvelle compréhension. Chaque moment apporte une nouvelle leçon. Et à la fin, on se rend compte que tout ce qui s\'est passé avait un sens, un but, une sagesse cachée.\n\nEt c\'est ainsi que se déploie la véritable transformation — non pas soudainement, mais graduellement, comme une aube qui se lève lentement sur l\'horizon. Chaque jour apporte une nouvelle compréhension. Chaque moment apporte une nouvelle leçon. Et à la fin, on se rend compte que tout ce qui s\'est passé avait un sens, un but, une sagesse cachée.\n\nEt c\'est ainsi que se déploie la véritable transformation — non pas soudainement, mais graduellement, comme une aube qui se lève lentement sur l\'horizon. Chaque jour apporte une nouvelle compréhension. Chaque moment apporte une nouvelle leçon. Et à la fin, on se rend compte que tout ce qui s\'est passé avait un sens, un but, une sagesse cachée.',
     moral: 'La générosité secrète est la plus belle aux yeux d\'Allah. Donner sans que personne ne sache, c\'est donner vraiment.',
+    englishMoral: 'Honoring the blessed days of Allah fills the heart and home with His blessings.',
   ),
   BedtimeStory(
     title: 'L\'Étoile qui Guidait les Perdus',
     emoji: '⭐',
     dayIndex: 5,
     summary: 'Dans le désert, une étoile brillante guida une caravane perdue vers une oasis miraculeuse.',
+    englishSummary: 'A little girl discovered that a magical garden only bloomed for those who knew how to wait.',
     story: 'Dans le grand désert de sable — le Sahara sans fin — une caravane de cinquante personnes avait l\'habitude de traverser régulièrement. Ils marchaient le jour à travers les dunes infinies, dorment la nuit sous les étoiles. C\'étaient des nomades, des gens de la route, qui connaissaient chaque grain de sable, chaque dune comme on connaît un ami.\n\nMais un soir, quelque chose se passa mal. Un vent extraordinaire se leva — un vent fou, violent, qui tournoie autour d\'eux comme un démon de sable vivant. Il emporta tous les repères naturels. La boussole du chef de caravane fut brisée. Les étoiles — les seules autres guides fiables — furent cachées par une tempête de sable qui se mit à tournoyer.\n\nQuand le vent se calma — après deux jours épuisants — la caravane réalisa avec horreur qu\'elle était perdue. Complètement perdue. Aucune idée de la direction. Aucun signe du chemin correct. Rien que le sable — devant, derrière, partout — s\'étendant à l\'infini comme une mer silencieuse et hostile.\n\nLa barque de Moussa s\'appelait « Al-Tawakkul » — la confiance en Allah. C\'était son grand-père qui l\'avait baptisée ainsi, cinquante ans plus tôt, quand le bois était encore neuf et la peinture brillante. Depuis, la barque avait traversé des tempêtes, des calmes plats, des nuits sans lune et des aubes éclatantes. Elle connaissait la mer mieux que n\'importe quelle carte. Et Moussa la connaissait mieux que n\'importe quel marin. Il savait comment elle réagissait à chaque vague — un léger tangage vers la gauche quand la houle venait du nord, un craquement rassurant de la coque quand la mer était bonne, et un silence particulier, presque solennel, quand une tempête approchait.\n\nLe chef de caravane, un homme âgé nommé Salim, avait traversé le désert cinquante fois. Mais même lui ne savait pas quoi faire. Il réunit les gens autour du feu du soir.\n\n« Écoutez, dit-il d\'une voix grave. Nous sommes perdus. Nous avons peut-être trois jours d\'eau si nous la rationnons. Après, nous mourrons. »\n\nUn silence lourd tomba. Les enfants pleuraient. Les femmes priaient doucement. Les hommes regardaient vers l\'horizon comme s\'ils cherchaient une réponse écrite dans le sable.\n\n« Il y a une chose que nous pouvons faire, dit Salim. Prier. Prier avec sincérité. Allah ne nous a jamais abandonnés. Il ne commencera pas maintenant. »\n\nCe soir-là, les cinquante personnes — musulmans, tous — se rassemblèrent. Ils prièrent. Non pas une prière formelle de la mosquée, mais une prière du cœur. Une prière du désespoir transformé en confiance. « Ya Allah, murmuraient-ils. Montre-nous le chemin. Nous T\'appelons. »\n\nSalim s\'agenouilla face au Ciel, ses mains levées, et dit : « Ya Allah, ces gens T\'ont confiance. Montre-nous que Ton aide n\'est jamais lointaine. »\n\nMoussa avait pêché dans cette mer depuis l\'âge de huit ans. Son père l\'emmenait avant l\'aube, quand les étoiles étaient encore visibles et que l\'air sentait le sel et le mystère. Il lui avait appris à lire les courants, à sentir où les poissons se rassemblaient, à respecter la mer comme on respecte une force plus grande que soi. « La mer, disait son père, c\'est comme le destin — tu ne peux pas la contrôler, mais tu peux apprendre à naviguer dessus. » Et la leçon la plus importante : « Quand tu ne sais plus où aller, arrête de ramer. Lève les yeux. Cherche ton étoile. Chaque marin a une étoile qui le guide — et chaque croyant a Allah. »\n\nQuand la prière se termina, tout le monde s\'endormit — un sommeil épuisé, lourd, désespéré. Tous sauf une petite fille nommée Leïla, qui avait sept ans et qui ne pouvait pas dormir. Elle avait peur. Terriblement peur.\n\nElle se leva doucement pour ne pas réveiller sa mère, et marcha loin du campement, regardant le ciel nocturne. Et c\'est alors qu\'elle la vit — une étoile. Pas une étoile ordinaire. Une étoile qui brillait avec une intensité extraordinaire, comme si elle brillait pour elle seule, comme si elle avait quelque chose à dire.\n\nIl y avait un autre secret que Moussa ne racontait jamais. Chaque matin, avant de prendre la mer, il faisait deux raka\'at de prière sur le sable humide du rivage. Il priait face à la mer, et le bruit des vagues se mêlait à ses murmures comme un accompagnement céleste. Quand il se relevait, il posait sa main sur la proue de sa barque et disait : « Bismillah, ar-Rahman, ar-Rahim. Prends soin de moi comme Tu prends soin de la mer. » Les autres pêcheurs avaient remarqué que Moussa ne revenait jamais les mains complètement vides — même les jours où tout le monde rentrait bredouille, Moussa avait toujours quelques poissons dans son filet. « C\'est la chance, disaient-ils. Ou le talent. » Mais Moussa savait que ce n\'était ni l\'un ni l\'autre. C\'était le Bismillah du matin. C\'était les deux raka\'at sur le sable. C\'était la confiance déposée entre les mains d\'Allah avant chaque voyage.\n\n« Étoile, murmura Leïla enfant, montre-moi le chemin. S\'il te plaît. »\n\nEt — bien que ce ne fût que dans son cœur qu\'elle l\'entendit — l\'étoile répondit. Pas avec des mots. Avec sa lumière. Elle semblait briller vers une direction spécifique. Vers le sud-ouest.\n\nLeïla courut réveiller Salim. « Chef ! Chef ! Il y a une étoile ! Une étoile qui brille pour nous ! »\n\nSalim sortit et regarda. Et il vit — tout le monde vit quand Salim les réveilla — cette étoile extraordinaire. Une étoile qui brillait si fort qu\'on aurait dit qu\'elle était tombée du ciel et flottait juste au-dessus de l\'horizon.\n\n« C\'est un signe, dit Salim avec certitude. C\'est Allah qui nous envoie un signe. »\n\nIl ordonna à la caravane de suivre l\'étoile. Seulement suivre l\'étoile. Pas de discussion. Pas de doute. Juste une confiance aveugle.\n\nEt cette voix murmure : tu n\'es pas seul. Je t\'ai toujours vu. Je t\'ai toujours aimé. Même dans tes pires moments. Même quand tu doutais. Surtout à ces moments-là.\n\nPour trois jours et trois nuits, la caravane suivit l\'étoile. L\'eau devint rare. Les enfants étaient faibles. Mais chaque nuit, l\'étoile était là, brillante, guidant, promettant quelque chose au-delà.\n\nL\'aube se levait quand Moussa atteignit enfin le port. Le ciel passait du noir au bleu, puis du bleu au rose, puis du rose à l\'or — comme un peintre qui essaie toutes ses couleurs. Les autres pêcheurs étaient déjà là, certains réparant leurs filets, d\'autres préparant leurs barques. Quand ils virent Moussa entrer dans le port, ils coururent vers lui. Ils l\'avaient cherché toute la nuit. Moussa descendit de sa barque sur des jambes tremblantes, le visage marqué par la fatigue et le sel, mais les yeux brillants. « Comment tu as retrouvé le chemin ? » demanda le vieux Brahim. Moussa sourit et leva les yeux vers le ciel où la dernière étoile de la nuit s\'effaçait dans la lumière du jour. « Je n\'ai pas retrouvé le chemin, dit-il. Allah me l\'a montré. »\n\nLe soir du troisième jour, l\'homme qui marchait en tête s\'arrêta soudainement. « Eau ! » cria-t-il. « De l\'eau ! »\n\nAu bas d\'une dune, cachée, se trouvait une oasis — une vraie oasis, avec des palmiers, de l\'eau fraîche qui jaillissait du sol, des fruits. Comme un paradis dans le désert. Comme un miracle.\n\nLa caravane courut, bu, se posa à l\'ombre des palmiers. Ils étaient sauvés. Contre toute attente, contre toute logique, ils étaient sauvés.\n\nLe soir, après avoir mangé et bu, Salim s\'assit avec Leïla. « Comment tu savais, petite fille ? Comment tu savais suivre l\'étoile ? »\n\n« Je ne savais pas, dit Leïla simplement. J\'ai juste entendu. »\n\n« Entendu quoi ? »\n\n« La voix de l\'étoile. Elle m\'a dit... que quand on est perdu et qu\'on prie avec sincérité, Allah envoie toujours un signe. Toujours. »\n\nSalim regarda le ciel. L\'étoile était toujours là, brillante, veillant. Et il pleura — des larmes de gratitude, de reconnaissance que l\'impossible était possible quand on faisait confiance à Allah.\n\nCette nuit-là, avant de s\'endormir, chaque personne de la caravane regarda l\'étoile et murmura : « Alhamdulillah. Merci Allah de nous avoir envoyé une lumière dans le noir. »\n\nEt la petite Leïla, en s\'endormant, entendit — ou crut entendre — un bruit doux, comme une voix qui vient de très loin : « Quand tu crois, enfant, tu vois des miracles partout. »\n\nEt elle sourit et dormit du sommeil paisible de ceux qui savent qu\'ils sont aimés.\n\nEt ainsi, dans les jours et les semaines qui suivirent, chaque matin apportait une nouvelle compréhension. Chaque nuit, dans le silence, le cœur s\'approfondissait. Et chaque fois que le doute menaçait, une petite voix murmure : tu es aimé. Tu n\'es pas seul. Allah t\'a choisi pour cette épreuve parce qu\'il t\'aime profondément.\n\nEt c\'est cette certitude — cette connaissance profonde et absolue de l\'amour infini de Allah — qui devient le fondement de tout. Le fondement de la foi. Le fondement de l\'espoir. Le fondement du courage pour affronter chaque nouveau jour. C\'est une victoire qui ne s\'achète pas avec de l\'argent. C\'est une victoire qui vient du cœur.\n\nEt chaque soir, avant de s\'endormir, cette âme murmure une prière sincère : \'Alhamdulillah, ya Allah, merci pour ce jour. Merci pour cette épreuve qui m\'a enseigné. Merci pour cette lumière qui m\'a guidé. Merci pour Ton amour et Ta miséricorde infinie, qui ne s\'arrête jamais, qui ne nous abandonne jamais. Aide-moi à continuer sur ce chemin. Aide-moi à devenir meilleur chaque jour. À être plus proche de Toi. À T\'aimer davantage. Ameen, ameen, ya Allah. Alhamdulillah, alhamdulillah, alhamdulillah.\'',
     moral: 'Quand tout semble perdu, Allah envoie toujours un signe à celui qui Lui fait confiance.',
+    englishMoral: 'The sincere collective prayer of believers has immense power with Allah.',
   ),
   BedtimeStory(
     title: 'Le Puits de Zamzam et la Petite Source',
+    englishTitle: 'The Well of Zamzam and the Little Spring',
     emoji: '💎',
     dayIndex: 6,
     summary: 'Une petite source souterraine rêvait de devenir aussi célèbre que Zamzam, mais apprit que servir en silence est la plus belle des missions.',
+    englishSummary: 'A boy discovered that his grandfather\'s old prayer rug took him on a journey every night.',
     story: 'Profondément sous la terre, dans un endroit que personne ne voyait jamais, coulaient deux sources d\'eau. L\'une était le puits de Zamzam — célèbre, connu du monde entier, aimé par les millions de pèlerins qui venaient boire ses eaux miraculeuses chaque année. Et l\'autre était une petite source — si petite qu\'on aurait pu la couvrir avec la paume d\'une main — qui n\'avait jamais été vue par un seul humain.\n\nLe puits de Zamzam parlait beaucoup. Il parlait de sa gloire. De sa célébrité. Des millions de personnes qui buvaient de ses eaux. Des miracles qui se produisaient quand les gens en buvaient. Il était fier — terriblement fier — de son importance.\n\nLa petite source, elle, était silencieuse. Mais elle avait des rêves.\n\nLe puits de Zamzam avait une voix grave et profonde, comme celle d\'un vieil imam qui récite le Coran depuis des décennies. Quand il parlait, l\'eau autour de lui tremblait et créait des cercles parfaits à sa surface, comme des vagues de sagesse qui se propageaient dans toutes les directions. La petite source, elle, avait une voix cristalline et douce — une voix d\'enfant, presque — qui tintait comme une clochette de verre dans le silence souterrain.\n\n« Pourquoi suis-je ici, cachée ? » se demandait-elle. « Pourquoi ne suis-je pas connue comme Zamzam ? Je pourrais aider tellement de gens si seulement quelqu\'un me découvrait. »\n\nUn jour, la petite source trouva le courage de parler à Zamzam. « Zamzam, dit-elle doucement, j\'admire votre gloire. Comment es-tu devenu si célèbre ? »\n\nLe puits de Zamzam répondit avec fierté : « Parce que le Prophète Ismaël — que la paix soit sur lui — et sa mère ont eu besoin de moi. Allah m\'a créé pour aider les plus nobles des créations. Et depuis, j\'aide les croyants. Je suis béni. Je suis connu. Je suis important. »\n\n« Je veux être comme toi, » soupira la petite source. « Je veux aider les gens. Je veux être importante. »\n\nLa grand-mère de Salma racontait toujours cette histoire de la même façon, avec les mêmes pauses, les mêmes inflexions de voix, les mêmes larmes au coin des yeux quand elle arrivait au moment où Hajar courait entre les deux collines. « Imagine, ma petite, disait-elle. Une mère seule, dans un désert brûlant, avec un bébé qui pleure de soif. Pas une goutte d\'eau à des lieues. Et pourtant, elle ne s\'est pas assise pour pleurer. Elle a couru. Sept fois. Entre Safa et Marwa. Sept fois. Pas parce qu\'elle savait qu\'il y avait de l\'eau, mais parce qu\'elle savait qu\'Allah était là. » La voix de la grand-mère tremblait toujours à cet endroit. « Et Allah a fait jaillir l\'eau sous les pieds du bébé Ismaïl. Pas sous les pieds de Hajar qui courait, non — sous les pieds du nourrisson. Parce qu\'Allah répond parfois là où on ne cherche pas. Et cette eau coule encore aujourd\'hui, quatorze siècles plus tard. »\n\nZamzam émit un bruit qui ressemblait à un rire. « Petite source, tu es insignifiante. Personne ne sait même que tu existes. Comment peux-tu espérer aider quelqu\'un que tu ne verras jamais ? »\n\nLa petite source devint triste. Mais elle continua d\'exister, de couler, jour après jour, dans le noir souterrain, sans but apparent, sans gloire, sans reconnaissance.\n\nSalma avait une habitude que personne ne connaissait. Chaque matin, avant d\'aller à l\'école, elle passait par la petite source et y trempait sa main droite. Pas pour boire — juste pour sentir l\'eau couler entre ses doigts. C\'était sa façon à elle de dire bonjour à la source, de lui rappeler qu\'elle n\'était pas oubliée. Et la source, de son côté, semblait répondre — son eau devenait un tout petit peu plus claire quand la main de Salma la touchait, comme un sourire invisible. Les jours où Salma était triste — quand elle avait eu une mauvaise note, ou quand ses amies l\'avaient exclue d\'un jeu — la source semblait couler plus doucement, comme pour lui dire : « Ne t\'inquiète pas, je suis là. » Et Salma repartait un peu plus légère, un peu plus confiante, portant dans sa paume humide la bénédiction d\'une eau qui coulait depuis avant sa naissance et qui coulerait encore longtemps après.\n\nDes années passèrent. Des siècles, peut-être. Et puis quelque chose de merveilleux se produisit.\n\nUn enfant — un enfant pauvre qui vivait près du puits — tombait malade. Une fièvre terrible. Les médecins du village étaient impuissants. L\'enfant allait mourir. La mère de l\'enfant — une femme brisée par la douleur — creusait sous la terre près de sa maison, cherchant du minerai, n\'importe quoi pour vendre et payer un médecin.\n\nEt elle découvrit la petite source.\n\nL\'eau était si claire, si fraîche, qu\'elle la donna à son enfant. Et — miraculeusement — l\'enfant guérit. Complètement. En une nuit.\n\nMais ce n\'était pas tout. La mère remarqua que la petite source s\'écoulait vers ses cultures — ses frêles récoltes qui auraient dû mourir dans la sécheresse du désert. Avec l\'eau de la petite source, les récoltes prospéraient. Ses enfants avaient de la nourriture.\n\nElle parla de la source à ses voisins. Bientôt, une petite communauté se forma autour de la source. Les gens creusaient prudemment pour boire de son eau. Les cultures poussaient alentour. Une oasis s\'épanouit autour de la petite source.\n\nUn jour, une caravane de pèlerins en route vers La Mecque découvrit cette petite oasis. « D\'où venait cette oasis ? » demandèrent-ils.\n\nCette petite source avait un secret que personne au village ne soupçonnait. Sous la terre, très profond, là où la roche rencontrait l\'argile, une veine d\'eau ancienne coulait depuis des millénaires. Cette veine était connectée — par des chemins souterrains que seul Allah connaissait — à d\'autres sources, d\'autres rivières, d\'autres puits dispersés à travers le monde entier. La petite source de Salma faisait partie d\'un réseau invisible de générosité, comme les croyants du monde entier font partie d\'une même oumma invisible, reliés par la foi même quand ils ne se connaissent pas.\n\nEt cette voix murmure : tu n\'es pas seul. Je t\'ai toujours vu. Je t\'ai toujours aimé. Même dans tes pires moments. Même quand tu doutais. Surtout à ces moments-là.\n\n« De cette petite source, répondit un villageois. Elle est simple. Elle n\'est pas célèbre. Mais elle nous a tous sauvés. »\n\nLes pèlerins burent de la source et continuèrent leur route. Mais ils ne l\'oubliaient pas. Ils en parlaient à d\'autres. Et peu à peu, la petite source devint connue — non pas comme Zamzam, mais comme l\'Oasis Cachée, la Source de Miséricorde, l\'Eau du Miracle.\n\nUn jour, la petite source entendit Zamzam à travers les couches de terre souterraines. « J\'ai entendu parler de toi, » dit Zamzam d\'une voix qui n\'était plus arrogante, mais respectueuse. « On t\'appelle la Source de Miséricorde. Comment as-tu fait ? »\n\n« Je n\'ai pas cherché à être célèbre, » répondit la petite source. « J\'ai juste coulé. J\'ai juste donné ce que j\'avais. Et Allah a pris soin du reste. »\n\n« Mais tu as aidé si peu de gens par rapport à moi, » dit Zamzam.\n\n« Peut-être, » répondit la petite source. « Mais chaque personne que j\'ai aidée le savait. Chacun savait d\'où venait l\'aide. Chacun se tournait vers Allah avec gratitude. »\n\nEt Zamzam — le grand puits de Zamzam — sentit quelque chose dans ses eaux. Quelque chose d\'humble. Quelque chose qui ressemblait à la honte, mais en même temps à une compréhension nouvelle.\n\n« Je crois, murmura Zamzam, que je n\'ai jamais compris le vrai secret. Je croyais que la gloire était dans la reconnaissance. Mais la vraie gloire, c\'est de servir sans attendre de reconnaissance. »\n\nEt depuis ce jour, le puits de Zamzam changea. Pas sa fonction — il continua d\'aider les millions de pèlerins. Mais son cœur changea. Il aida, non pas pour la gloire, mais parce que c\'était sa mission. Parce que c\'était pour Allah.\n\nEt la petite source — silencieuse, humble, cachée — continua de couler, nourrissant une petite communauté, aidant les gens, demandant rien en retour. Et dans son silence, elle était heureuse. Heureuse en sachant qu\'elle accomplissait la mission pour laquelle Allah l\'avait créée.\n\nEt si vous marchez jamais près du village caché et que vous trouvez une petite oasis entourée d\'arbres prospères, avec une petite source qui coule comme une prière, sachez que c\'est le testament d\'une petite goutte d\'eau qui avait un grand cœur.\n\nEt ainsi, dans les jours et les semaines qui suivirent, chaque matin apportait une nouvelle compréhension. Chaque nuit, dans le silence, le cœur s\'approfondissait. Et chaque fois que le doute menaçait, une petite voix murmure : tu es aimé. Tu n\'es pas seul. Allah t\'a choisi pour cette épreuve parce qu\'il t\'aime profondément.\n\nEt c\'est cette certitude — cette connaissance profonde et absolue de l\'amour infini de Allah — qui devient le fondement de tout. Le fondement de la foi. Le fondement de l\'espoir. Le fondement du courage pour affronter chaque nouveau jour. C\'est une victoire qui ne s\'achète pas avec de l\'argent. C\'est une victoire qui vient du cœur.\n\nEt chaque soir, avant de s\'endormir, cette âme murmure une prière sincère : \'Alhamdulillah, ya Allah, merci pour ce jour. Merci pour cette épreuve qui m\'a enseigné. Merci pour cette lumière qui m\'a guidé. Merci pour Ton amour et Ta miséricorde infinie, qui ne s\'arrête jamais, qui ne nous abandonne jamais. Aide-moi à continuer sur ce chemin. Aide-moi à devenir meilleur chaque jour. À être plus proche de Toi. À T\'aimer davantage. Ameen, ameen, ya Allah. Alhamdulillah, alhamdulillah, alhamdulillah.\'',
     moral: 'La sincérité ne cherche pas les regards. Servir Allah en silence vaut plus que toute la gloire du monde.',
+    englishMoral: 'Beginning every action with Bismillah invites the blessing of Allah into everything we do.',
   ),
   BedtimeStory(
     title: 'Le Rêve de la Lune',
+    englishTitle: 'The Dream of the Moon',
     emoji: '🌙',
     dayIndex: 7,
     summary: 'La lune raconta à un enfant l\'histoire du plus beau sourire qu\'elle ait jamais vu — celui du Prophète ﷺ. »\n\nSami remonta sa couette jusqu\'au menton et écouta de toutes ses oreilles. La chambre était devenue très calme — même le frigo dans la cuisine avait cessé de ronronner, comme s\'il voulait écouter lui aussi. La lumière de la lune dessinait un rectangle argenté sur le mur de la chambre, et dans cette lumière, Sami avait l\'impression de voir des formes — des dunes de sable, des palmiers, une ville ancienne aux murs de terre.',
+    englishSummary: 'Two brothers shared everything except a secret: each was secretly giving to the other.',
     story: 'Il y avait un enfant — une fille nommée Zainab — qui vivait dans une petite maison avec vue sur les toits du village. Chaque nuit, elle montait sur le toit, s\'asseyait sous le ciel immense, et regardait la lune.\n\nLa lune brillait chaque nuit, fidèle, silencieuse, douce. Et Zainab sentait une connexion avec elle — comme si la lune était son amie, gardienne de ses secrets, gardienne de ses rêves.\n\nUn soir, une nuit sans vent, Zainab s\'assit sur le toit et parla à la lune. « Lune, dit-elle, tu dois être très vieille. Tu dois avoir vu tellement de choses. »\n\nEt — bien que ce fût peut-être un rêve, ou peut-être une voix qui vient de nulle part — la lune répondit. Sa voix était comme le clair de lune lui-même — douce, argentée, apaisante.\n\nLa lune de ce soir-là était particulièrement belle. C\'était une nuit de pleine lune, et le disque argenté brillait avec une telle intensité qu\'il projetait des ombres nettes sur le sol, comme un second soleil plus doux. Zainab aimait observer les détails de la surface lunaire — les taches sombres que les anciens appelaient des mers, les cratères qui ressemblaient à des empreintes de doigts géants, et cette lumière qui n\'était pas vraiment la sienne mais celle du soleil, réfléchie et adoucie. Sa mère lui avait dit un jour : « La lune est comme le croyant — elle ne brille pas de sa propre lumière. Elle reçoit la lumière d\'Allah et la renvoie au monde, transformée en douceur. »\n\n« Oui, enfant, je suis très vieille. J\'ai vu des empires naître et mourir. J\'ai vu des amours se créer et se perdre. J\'ai vu la beauté et la laideur du monde. Mais il y a une chose que je n\'oublierai jamais, peu importe combien de siècles passent. »\n\n« Quoi ? » demanda Zainab, sa voix tremblante de curiosité.\n\n« Un sourire, » dit la lune. « Le plus beau sourire que j\'ai jamais vu. »\n\n« Dont était ce sourire ? » demanda Zainab.\n\nLa lune regarda vers le bas, vers la terre, vers l\'enfant qui l\'écoutait. « Enfant, c\'est le sourire du Prophète Muhammad, le bien-aimé d\'Allah. »\n\nZainab retenait son souffle. « Tu l\'as vu ? »\n\n« Oui, » dit la lune. « Il y a longtemps — treize cents ans — le Prophète levait ses yeux vers moi chaque nuit de son voyage terrestre. Et chaque fois que je brillais pour lui, il souriait. Un sourire si pur, si doux, si rempli d\'amour pour Allah et pour Ses créations, que toute ma lumière semblait devenir plus brillante en retour. »\n\nLe rêve n\'arriva pas d\'un coup. Il se glissa dans le sommeil de Zainab comme une marée montante — doucement, progressivement, sans qu\'elle sache quand la réalité avait cédé la place à l\'imaginaire. D\'abord, elle sentit ses pieds quitter le sol. Pas violemment, pas comme un saut. C\'était plutôt comme si le sol s\'abaissait sous elle, comme si la terre lui disait : « Va, monte. Je te porterai quand tu redescendras. » Puis l\'air changea. Il devint plus léger, plus frais, et il portait des parfums qu\'elle ne connaissait pas — un mélange de rose, de musc et de quelque chose d\'indéfinissable, comme l\'odeur de la pluie avant qu\'elle ne tombe.\n\n« Raconte-moi, » implora Zainab. « Raconte-moi son histoire. »\n\nEt la lune raconta.\n\n« Avant le Prophète Muhammad, le monde était dans une obscurité profonde, enfant. Les gens adoraient des statues. Ils oubliaient Allah. Ils s\'assassinaient les uns les autres. Ils écrasaient les faibles. Et moi — la lune — je brillais, mais personne ne voyait vraiment. Personne ne comprenait que chaque lumière vient d\'Allah.\n\nEt puis il naquit. Un bébé. Un bébé ordinaire en apparence, mais avec une lumière extraordinaire dans les yeux. »\n\nZainab écoutait, emportée par la voix de la lune comme par une vague douce.\n\nLa voix de la lune n\'était pas comme les voix humaines. Elle ne venait pas d\'un endroit précis — elle était partout, elle enveloppait Inès comme une couverture de son. Chaque mot résonnait à l\'intérieur de sa poitrine, comme si la lune parlait directement à son cœur plutôt qu\'à ses oreilles. Et les mots eux-mêmes avaient une texture, une température — certains étaient chauds comme le thé, d\'autres frais comme l\'eau de source, d\'autres encore légers comme des plumes qui tourbillonnaient dans un vent de printemps.\n\nLa lune lui parla longtemps. Elle lui raconta les nuits qu\'elle avait éclairées depuis le début du monde — la nuit où Adam avait pleuré en quittant le Paradis, la nuit où Nouh avait prié sur son arche au milieu des eaux, la nuit où Ibrahim avait regardé le ciel et compris que seul Allah méritait d\'être adoré, et la plus belle nuit de toutes — Laylat al-Qadr — la nuit où le Coran avait commencé à descendre sur terre. « Cette nuit-là, murmura la lune, j\'ai brillé plus fort que jamais. Non pas parce que j\'étais plus grande ou plus proche, mais parce que la terre entière était illuminée de l\'intérieur, par les mots d\'Allah. Et moi, je n\'étais qu\'un miroir. »\n\n« Ce bébé — c\'était Muhammad, le Prophète — grandit. Et il comprit quelque chose que peu comprennent : que ce n\'est pas la force qui fait un leader. C\'est la bonté. La compassion. L\'amour pour les gens. »\n\n« Qu\'a-t-il fait ? » demanda Zainab.\n\n« Il appela les gens à l\'unicité d\'Allah. À l\'amour d\'Allah. À la justice. À la bonté. À l\'honnêteté. Et les gens — les gens ordinaires, les pauvres, les riches, les jeunes, les vieux — vinrent à lui. Ils vinrent parce qu\'ils sentaient qu\'il était vrai. Qu\'il était pur. Qu\'il était aimé par Allah. »\n\nLa lune lui parla encore longtemps. Elle lui raconta les nuits qu\'elle avait éclairées depuis le début du monde — la nuit où Adam avait pleuré en quittant le Paradis, la nuit où Nouh avait prié seul sur son arche, la nuit où Ibrahim avait regardé le ciel et compris que seul Allah méritait d\'être adoré. Et la plus belle nuit de toutes — Laylat al-Qadr — la nuit où le Coran avait commencé à descendre sur terre. « Cette nuit-là, murmura la lune, j\'ai brillé plus fort que jamais. Non pas parce que j\'étais plus grande, mais parce que la terre entière était illuminée de l\'intérieur par les mots d\'Allah. Et moi, je n\'étais qu\'un miroir. »\n\n« Pourquoi m\'en parles-tu, lune ? » demanda Zainab.\n\n« Parce que tu es jeune, enfant. Et le monde que tu vas vivre aura besoin de la lumière du Prophète. Le monde a toujours besoin de sa lumière. Et je veux que tu saches quelque chose. »\n\n« Quoi ? »\n\n« Que le sourire que j\'ai vu — ce sourire doux, compatissant, rempli d\'amour — tu peux le trouver aussi. En toi. Si tu suis ses enseignements. Si tu aimes Allah comme il aimait Allah. Si tu aimes les gens comme il aimait les gens. »\n\nZainab sentit les larmes couler sur ses joues. « Comment peux-tu être sûre ? »\n\n« Parce que c\'est la promesse d\'Allah, enfant. Quiconque suit le chemin du Prophète brille. Sa lumière devient la tienne. »\n\nLe silence tomba. Puis Zainab demanda : « Lune, il était comment vraiment ? »\n\nEt la lune, comme si elle avait attendu cette question, raconta. Elle raconta comment le Prophète était si doux avec les enfants qu\'ils venaient lui demander des choses et il ne leur disait jamais non. Comment il était si juste qu\'même ses ennemis lui faisaient confiance. Comment il était si brave qu\'il affronta les armées seul, mais sa plus grande arme était son cœur.\n\nElle raconta comment il priait la nuit, en larmes, demandant à Allah de pardonner aux gens même quand ils le persécutaient. Comment il traitait les serviteurs comme ses égaux. Comment il aidait les veuves et les orphelins. Comment son sourire — ce sourire dont elle parlait — jamais ne disparaissait, même dans les moments les plus difficiles.\n\n« Et tu sais ce qui était le plus merveilleux ? » demanda la lune. « Ce sourire venait d\'un cœur qui était complètement tournée vers Allah. Pas un sourire de fierté. Pas un sourire d\'arrogance. Un sourire d\'humilité. De gratitude. De confiance absolue que Allah était avec lui. »\n\nZainab ferma les yeux. Et elle vit — ou rêva qu\'elle voyait — un homme avec un beau visage qui rayonnait de lumière. Un homme qui souriait avec tellement de douceur que tout autour de lui semblait devenir beau. Et quand il la regardait, elle sentait tellement d\'amour qu\'elle ne pouvait pas le supporter.\n\n« Prophète, » murmura-t-elle même en dormant.\n\nEt la lune, brillante au-dessus d\'elle, semblait aussi briller plus fort. Comme si elle applaudissait.\n\nLe matin vint. Zainab se réveilla sur le toit, le soleil levant remplaçant la lune. Et elle sut que quelque chose avait changé. Une graine avait été plantée dans son cœur — la graine de l\'amour pour le Prophète. Une graine qui grandirait pour le reste de sa vie.\n\nÀ partir de ce jour, Zainab lut sur la vie du Prophète. Elle apprit ses enseignements. Elle suivit son exemple. Et chaque nuit, elle montait sur le toit et regardait la lune. Et dans chaque rayon de lune qui tombait sur elle, elle sentait le Prophète — près d\'elle, la guidant, l\'aidant à devenir meilleure.\n\nEt si vous regardez la lune une nuit de pleine lune et que vous écoutez très attentivement, vous pouvez entendre un bruit doux — comme un cœur qui bat — c\'est la lune qui murmure toujours la même histoire. Une histoire d\'amour. Une histoire de lumière. Une histoire du plus beau sourire qu\'elle ait jamais vu.\n\n',
     moral: 'Le Prophète Muhammad ﷺ est une lumière envoyée par Allah. L\'aimer, c\'est aimer la plus belle des créations.',
+    englishMoral: 'Patience (sabr) is the seed of every beautiful thing. Allah rewards those who know how to wait with confidence.',
   ),
 ];
 
@@ -4115,25 +4989,42 @@ const List<BedtimeStory> kBedtimeStories = [
 class PrayerStep {
   final int order;
   final String title;
+  final String englishTitle;
   final String description;
+  final String englishDescription;
   final String emoji;
   final String ageRange;
+
   const PrayerStep({
-    required this.order, required this.title,
-    required this.description, required this.emoji,
+    required this.order,
+    required this.title,
+    this.englishTitle = '',
+    required this.description,
+    this.englishDescription = '',
+    required this.emoji,
     required this.ageRange,
   });
+
+  String getTitle() => AppLocale().isFrench ? title : englishTitle;
+  String getDescription() => AppLocale().isFrench ? description : englishDescription;
 }
 
 class SourateMemo {
   final String nom;
+  final String englishNom;
   final String nomArabe;
   final int versets;
   final String difficulte;
+
   const SourateMemo({
-    required this.nom, required this.nomArabe,
-    required this.versets, required this.difficulte,
+    required this.nom,
+    this.englishNom = '',
+    required this.nomArabe,
+    required this.versets,
+    required this.difficulte,
   });
+
+  String getNom() => AppLocale().isFrench ? nom : englishNom;
 }
 
 const List<SourateMemo> kSouratesMemo = [
@@ -4179,16 +5070,36 @@ const List<PrayerStep> kPrayerSteps = [
 
 class FamilyChallenge {
   final String title;
+  final String englishTitle;
   final String description;
+  final String englishDescription;
   final String emoji;
   final String duration;
+  final String englishDuration;
   final String category;
+  final String englishCategory;
   final List<String> steps;
+  final List<String> englishSteps;
+
   const FamilyChallenge({
-    required this.title, required this.description,
-    required this.emoji, required this.duration,
-    required this.category, required this.steps,
+    required this.title,
+    this.englishTitle = '',
+    required this.description,
+    this.englishDescription = '',
+    required this.emoji,
+    required this.duration,
+    this.englishDuration = '',
+    required this.category,
+    this.englishCategory = '',
+    required this.steps,
+    this.englishSteps = const [],
   });
+
+  String getTitle() => AppLocale().isFrench ? title : englishTitle;
+  String getDescription() => AppLocale().isFrench ? description : englishDescription;
+  String getDuration() => AppLocale().isFrench ? duration : englishDuration;
+  String getCategory() => AppLocale().isFrench ? category : englishCategory;
+  List<String> getSteps() => AppLocale().isFrench ? steps : englishSteps;
 }
 
 const List<FamilyChallenge> kFamilyChallenges = [
@@ -4212,15 +5123,28 @@ const List<FamilyChallenge> kFamilyChallenges = [
 
 class ParentAdvice {
   final String title;
+  final String englishTitle;
   final String content;
+  final String englishContent;
   final String emoji;
   final String category;
+  final String englishCategory;
   final String? hadithRef;
+
   const ParentAdvice({
-    required this.title, required this.content,
-    required this.emoji, required this.category,
+    required this.title,
+    this.englishTitle = '',
+    required this.content,
+    this.englishContent = '',
+    required this.emoji,
+    required this.category,
+    this.englishCategory = '',
     this.hadithRef,
   });
+
+  String getTitle() => AppLocale().isFrench ? title : englishTitle;
+  String getContent() => AppLocale().isFrench ? content : (englishContent.isNotEmpty ? englishContent : content);
+  String getCategory() => AppLocale().isFrench ? category : englishCategory;
 }
 
 const Map<String, String> kAdviceCategories = {
@@ -4230,6 +5154,15 @@ const Map<String, String> kAdviceCategories = {
   'droits': 'Droits',
   'education': 'Éducation',
   'pratique': 'Pratique',
+};
+
+const Map<String, String> kAdviceCategoriesEn = {
+  'all': 'All',
+  'bienveillance': 'Kindness',
+  'douas': 'Duas',
+  'droits': 'Rights',
+  'education': 'Education',
+  'pratique': 'Practice',
 };
 
 const List<ParentAdvice> kParentAdvices = [

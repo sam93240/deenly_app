@@ -7,13 +7,12 @@ import 'quran_screen.dart';
 import 'hadith_screen.dart';
 import 'journal_screen.dart';
 import 'learning/learning_home_screen.dart';
+import 'translations.dart';
 
 // ── Palette UpYourDeen ──────────────────────────────────────────────────
 const _kGreenDeep    = Color(0xFF0A2018);
-const _kGreenPrimary = Color(0xFF1B4D38);
 const _kGold         = Color(0xFFC8933A);
 const _kBeige        = Color(0xFFF6F0E3);
-const _kTextLight    = Color(0xFF8A7863);
 
 // ── Écran principal avec navigation ───────────────────────────────
 class MainNavScreen extends StatefulWidget {
@@ -58,11 +57,11 @@ class _DeenlyBottomNav extends StatelessWidget {
   const _DeenlyBottomNav({required this.currentIndex, required this.onTap});
 
   static const _items = [
-    _NavItem(icon: Icons.home_rounded,        label: 'Accueil'),
-    _NavItem(icon: Icons.menu_book_rounded,   label: 'Coran'),
-    _NavItem(icon: Icons.school_rounded,      label: 'Apprendre'),
-    _NavItem(icon: Icons.format_quote_rounded, label: 'Hadiths'),
-    _NavItem(icon: Icons.book_rounded,        label: 'Journal'),
+    _NavItem(icon: Icons.home_rounded,        label: 'navHome'),
+    _NavItem(icon: Icons.menu_book_rounded,   label: 'navQuran'),
+    _NavItem(icon: Icons.school_rounded,      label: 'navLearn'),
+    _NavItem(icon: Icons.format_quote_rounded, label: 'navHadith'),
+    _NavItem(icon: Icons.book_rounded,        label: 'navJournal'),
   ];
 
   @override
@@ -99,22 +98,22 @@ class _DeenlyBottomNav extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: selected
                                 ? _kGold
-                                : Colors.white.withOpacity(0.08),
+                                : Colors.white.withValues(alpha: 0.08),
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: selected
                                 ? [BoxShadow(
-                                    color: _kGold.withOpacity(0.4),
+                                    color: _kGold.withValues(alpha: 0.4),
                                     blurRadius: 12, offset: const Offset(0, 2))]
                                 : [],
                           ),
                           child: Icon(item.icon,
-                              color: selected ? Colors.white : Colors.white.withOpacity(0.4),
+                              color: selected ? Colors.white : Colors.white.withValues(alpha: 0.4),
                               size: 22),
                         ),
                         const SizedBox(height: 3),
-                        Text(item.label,
+                        Text(_getLabelText(context, item.label),
                             style: TextStyle(
-                              color: selected ? _kGold : Colors.white.withOpacity(0.35),
+                              color: selected ? _kGold : Colors.white.withValues(alpha: 0.35),
                               fontSize: 9,
                               fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
                             )),
@@ -136,18 +135,18 @@ class _DeenlyBottomNav extends StatelessWidget {
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: selected
-                              ? Colors.white.withOpacity(0.12)
+                              ? Colors.white.withValues(alpha: 0.12)
                               : Colors.transparent,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Icon(item.icon,
-                            color: selected ? Colors.white : Colors.white.withOpacity(0.35),
+                            color: selected ? Colors.white : Colors.white.withValues(alpha: 0.35),
                             size: 20),
                       ),
                       const SizedBox(height: 2),
-                      Text(item.label,
+                      Text(_getLabelText(context, item.label),
                           style: TextStyle(
-                            color: selected ? Colors.white : Colors.white.withOpacity(0.35),
+                            color: selected ? Colors.white : Colors.white.withValues(alpha: 0.35),
                             fontSize: 9,
                             fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
                           )),
@@ -171,6 +170,23 @@ class _DeenlyBottomNav extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _getLabelText(BuildContext context, String labelKey) {
+    switch (labelKey) {
+      case 'navHome':
+        return context.t.navHome;
+      case 'navQuran':
+        return context.t.navQuran;
+      case 'navLearn':
+        return context.t.navLearn;
+      case 'navHadith':
+        return context.t.navHadith;
+      case 'navJournal':
+        return context.t.navJournal;
+      default:
+        return labelKey;
+    }
   }
 }
 

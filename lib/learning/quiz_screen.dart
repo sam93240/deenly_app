@@ -1,8 +1,12 @@
 // quiz_screen.dart — UpYourDeen · Quiz intermédiaire & final de sourate
 
 import 'package:flutter/material.dart';
+import '../translations.dart';
+import '../app_locale.dart';
 import 'learning_models.dart';
 import 'review_screen.dart';
+
+String _s(String fr, String en) => AppLocale().isFrench ? fr : en;
 
 // ── Palette ────────────────────────────────────────────────────────────────
 const _kGreenDeep    = Color(0xFF0A2018);
@@ -23,6 +27,7 @@ const _kBlue         = Color(0xFF1CB0F6);
 const _kBlueLight    = Color(0xFFE7F7FF);
 const _kOrange       = Color(0xFFFF9800);
 
+
 // ══════════════════════════════════════════════════════════════════════════════
 // ÉCRAN QUIZ
 // ══════════════════════════════════════════════════════════════════════════════
@@ -40,7 +45,7 @@ class QuizScreen extends StatefulWidget {
   final int    quizIndex;
 
   const QuizScreen({
-    Key? key,
+    super.key,
     required this.lessons,
     required this.surahName,
     required this.surahNameFr,
@@ -48,7 +53,7 @@ class QuizScreen extends StatefulWidget {
     required this.stats,
     this.isFinalQuiz = false,
     this.quizIndex   = 1,
-  }) : super(key: key);
+  });
 
   @override
   State<QuizScreen> createState() => _QuizScreenState();
@@ -111,12 +116,12 @@ class _QuizScreenState extends State<QuizScreen>
         : 5;
 
     // Pool de distracteurs construits depuis TOUS les versets du quiz
-    final allFr = versets.map((v) => v.francais).toList();
+    final allTranslations = versets.map((v) => v.traduction).toList();
     final allAr = versets.map((v) => v.arabe).toList();
     final allPh = versets.map((v) => v.phonetique).toList();
 
     // Fallbacks si pool trop petit
-    allFr.addAll([
+    allTranslations.addAll([
       'Au nom d\'Allah, le Tout Miséricordieux',
       'Louange à Allah, Seigneur des univers',
       'Maître du Jour du Jugement',
@@ -143,8 +148,8 @@ class _QuizScreenState extends State<QuizScreen>
         questions.add(Exercise(
           type:          ExerciseType.listenChoose,
           verset:        v,
-          correctAnswer: v.francais,
-          options:       _buildOptions(v.francais, allFr),
+          correctAnswer: v.traduction,
+          options:       _buildOptions(v.traduction, allTranslations),
         ));
       } else if (typeIdx == 1) {
         // fillBlank : voir arabe → choisir phonétique
@@ -168,8 +173,8 @@ class _QuizScreenState extends State<QuizScreen>
           questions.add(Exercise(
             type:          ExerciseType.listenChoose,
             verset:        v,
-            correctAnswer: v.francais,
-            options:       _buildOptions(v.francais, allFr),
+            correctAnswer: v.traduction,
+            options:       _buildOptions(v.traduction, allTranslations),
           ));
         }
       }
@@ -194,7 +199,9 @@ class _QuizScreenState extends State<QuizScreen>
       if (o != correct) opts.add(o);
       if (opts.length >= 4) break;
     }
-    while (opts.length < 4) opts.add('—');
+    while (opts.length < 4) {
+      opts.add('—');
+    }
     final list = opts.toList()..shuffle();
     return list;
   }
@@ -264,14 +271,14 @@ class _QuizScreenState extends State<QuizScreen>
           children: [
             const Text('❓', style: TextStyle(fontSize: 60)),
             const SizedBox(height: 16),
-            const Text('Pas assez de versets pour ce quiz.',
+            Text(_s('Pas assez de versets pour ce quiz.', 'Not enough verses for this quiz.'),
                 textAlign: TextAlign.center,
-                style: TextStyle(color: _kTextMid, fontSize: 16)),
+                style: const TextStyle(color: _kTextMid, fontSize: 16)),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () => Navigator.pop(context, false),
               style: ElevatedButton.styleFrom(backgroundColor: _kGreenPrimary, foregroundColor: Colors.white),
-              child: const Text('Retour'),
+              child: Text(_s('Retour', 'Back')),
             ),
           ],
         )),
@@ -327,7 +334,7 @@ class _QuizScreenState extends State<QuizScreen>
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.15),
+                color: Colors.white.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(Icons.close_rounded, color: Colors.white, size: 18),
@@ -340,15 +347,15 @@ class _QuizScreenState extends State<QuizScreen>
               Text(label,
                   style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w800)),
               Text('Question ${_currentIdx + 1} / ${_questions.length}',
-                  style: TextStyle(color: Colors.white.withOpacity(0.60), fontSize: 11)),
+                  style: TextStyle(color: Colors.white.withValues(alpha: 0.60), fontSize: 11)),
             ],
           )),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: _kGold.withOpacity(0.22),
+              color: _kGold.withValues(alpha: 0.22),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: _kGold.withOpacity(0.40)),
+              border: Border.all(color: _kGold.withValues(alpha: 0.40)),
             ),
             child: Text('⚡ $_score / ${_questions.length}',
                 style: const TextStyle(color: _kGoldLight, fontSize: 12, fontWeight: FontWeight.w800)),
@@ -360,7 +367,7 @@ class _QuizScreenState extends State<QuizScreen>
           child: LinearProgressIndicator(
             value:           progress,
             minHeight:       7,
-            backgroundColor: Colors.white.withOpacity(0.18),
+            backgroundColor: Colors.white.withValues(alpha: 0.18),
             valueColor:      const AlwaysStoppedAnimation(_kGold),
           ),
         ),
@@ -378,7 +385,7 @@ class _QuizScreenState extends State<QuizScreen>
         questionText = 'Quelle est la traduction de ce verset ?';
         break;
       case ExerciseType.fillBlank:
-        questionText = 'Quelle est la phonétique de ce verset ?';
+        questionText = context.t.quizPhoneticQuestion;
         break;
       case ExerciseType.translateChoice:
         questionText = 'Quel est ce verset en arabe ?';
@@ -396,9 +403,9 @@ class _QuizScreenState extends State<QuizScreen>
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: _kGold.withOpacity(0.13),
+              color: _kGold.withValues(alpha: 0.13),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: _kGold.withOpacity(0.35)),
+              border: Border.all(color: _kGold.withValues(alpha: 0.35)),
             ),
             child: Text(questionText,
                 textAlign: TextAlign.center,
@@ -409,7 +416,7 @@ class _QuizScreenState extends State<QuizScreen>
 
         // Carte arabe (sauf translateChoice → montre la traduction)
         if (q.type != ExerciseType.translateChoice) _buildArabicCard(q),
-        if (q.type == ExerciseType.translateChoice)  _buildFrenchCard(q.verset.francais),
+        if (q.type == ExerciseType.translateChoice)  _buildFrenchCard(q.verset.traduction),
 
         // Hint phonétique pour fillBlank
         if (q.type == ExerciseType.fillBlank && q.hint != null) ...[
@@ -419,7 +426,7 @@ class _QuizScreenState extends State<QuizScreen>
             decoration: BoxDecoration(
               color: _kBlueLight,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: _kBlue.withOpacity(0.30)),
+              border: Border.all(color: _kBlue.withValues(alpha: 0.30)),
             ),
             child: Text(q.hint!,
                 textAlign: TextAlign.center,
@@ -450,11 +457,11 @@ class _QuizScreenState extends State<QuizScreen>
           begin: Alignment.topLeft, end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(22),
-        boxShadow: [BoxShadow(color: _kGreenPrimary.withOpacity(0.28), blurRadius: 18, offset: const Offset(0, 6))],
+        boxShadow: [BoxShadow(color: _kGreenPrimary.withValues(alpha: 0.28), blurRadius: 18, offset: const Offset(0, 6))],
       ),
       child: Column(children: [
         Text('(${q.verset.numero})',
-            style: TextStyle(color: Colors.white.withOpacity(0.45), fontSize: 11)),
+            style: TextStyle(color: Colors.white.withValues(alpha: 0.45), fontSize: 11)),
         const SizedBox(height: 12),
         Text(q.verset.arabe,
             textDirection: TextDirection.rtl,
@@ -472,7 +479,7 @@ class _QuizScreenState extends State<QuizScreen>
       decoration: BoxDecoration(
         color: const Color(0xFFFFF4DC),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _kGold.withOpacity(0.4)),
+        border: Border.all(color: _kGold.withValues(alpha: 0.4)),
       ),
       child: Text(text,
           textAlign: TextAlign.center,
@@ -517,7 +524,7 @@ class _QuizScreenState extends State<QuizScreen>
         child: Row(children: [
           Expanded(child: Text(opt,
               style: TextStyle(color: text, fontSize: 14, fontWeight: FontWeight.w600, height: 1.4))),
-          if (icon != null) icon,
+          ?icon,
         ]),
       ),
     );
@@ -541,13 +548,13 @@ class _QuizScreenState extends State<QuizScreen>
             color: _arrangeSelected.isEmpty ? const Color(0xFFF8F4ED) : _kBlueLight,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: _arrangeSelected.isEmpty ? _kBeigeBorder : _kBlue.withOpacity(0.55),
+              color: _arrangeSelected.isEmpty ? _kBeigeBorder : _kBlue.withValues(alpha: 0.55),
               width: 1.5,
             ),
           ),
           child: _arrangeSelected.isEmpty
-              ? Center(child: Text('Touche les mots ci-dessous...',
-                  style: TextStyle(color: _kTextLight, fontSize: 12)))
+              ? Center(child: Text(_s('Touche les mots ci-dessous...', 'Tap the words below...'),
+                  style: const TextStyle(color: _kTextLight, fontSize: 12)))
               : Wrap(
                   spacing: 8, runSpacing: 6,
                   children: _arrangeSelected.map((w) => Container(
@@ -594,7 +601,7 @@ class _QuizScreenState extends State<QuizScreen>
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               padding: const EdgeInsets.symmetric(vertical: 14), elevation: 0,
             ),
-            child: const Text('Vérifier', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
+            child: Text(context.t.quizVerify, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
           ),
         ),
     ]);
@@ -625,7 +632,7 @@ class _QuizScreenState extends State<QuizScreen>
         ]),
         if (!_lastCorrect) ...[
           const SizedBox(height: 8),
-          Text('Bonne réponse :',
+          Text(context.t.hadithQuizGoodAnswer,
               style: TextStyle(color: Colors.grey[600], fontSize: 11)),
           const SizedBox(height: 3),
           Text(q.correctAnswer,
@@ -642,7 +649,7 @@ class _QuizScreenState extends State<QuizScreen>
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
               padding: const EdgeInsets.symmetric(vertical: 14), elevation: 0,
             ),
-            child: const Text('Continuer →',
+            child: Text(_s('Continuer →', 'Continue →'),
                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
           ),
         ),
@@ -698,7 +705,7 @@ class _QuizScreenState extends State<QuizScreen>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Score', style: TextStyle(color: _kTextLight, fontSize: 13)),
+                    Text(_s('Score', 'Score'), style: const TextStyle(color: _kTextLight, fontSize: 13)),
                     Text('${(pct * 100).round()}%',
                         style: TextStyle(
                           color: passed ? _kGreenPrimary : _kOrange,
@@ -752,7 +759,7 @@ class _QuizScreenState extends State<QuizScreen>
                     });
                   },
                   icon: const Icon(Icons.auto_fix_high_rounded, size: 18),
-                  label: Text('Réviser les ${_failedVersets.length} versets ratés'),
+                  label: Text(context.t.quizReviewFailed(_failedVersets.length)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _kOrange, foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -795,8 +802,8 @@ class _QuizScreenState extends State<QuizScreen>
                   _questions      = _buildQuestions();
                   _initArrange();
                 }),
-                child: const Text('Recommencer le quiz',
-                    style: TextStyle(color: _kTextLight, fontSize: 13)),
+                child: Text(_s('Recommencer le quiz', 'Restart quiz'),
+                    style: const TextStyle(color: _kTextLight, fontSize: 13)),
               ),
             ],
             const SizedBox(height: 16),
@@ -821,19 +828,19 @@ class _QuizScreenState extends State<QuizScreen>
       builder: (ctx) => AlertDialog(
         backgroundColor: _kBeigeCard,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Quitter le quiz ?',
-            style: TextStyle(color: _kTextDark, fontWeight: FontWeight.w800)),
-        content: const Text('Ta progression sera perdue.',
-            style: TextStyle(color: _kTextMid)),
+        title: Text(_s('Quitter le quiz ?', 'Quit quiz?'),
+            style: const TextStyle(color: _kTextDark, fontWeight: FontWeight.w800)),
+        content: Text(_s('Ta progression sera perdue.', 'Your progress will be lost.'),
+            style: const TextStyle(color: _kTextMid)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Continuer',
-                style: TextStyle(color: _kGreenPrimary, fontWeight: FontWeight.w700)),
+            child: Text(_s('Continuer', 'Continue'),
+                style: const TextStyle(color: _kGreenPrimary, fontWeight: FontWeight.w700)),
           ),
           TextButton(
             onPressed: () { Navigator.pop(ctx); Navigator.pop(context, false); },
-            child: const Text('Quitter', style: TextStyle(color: _kRed)),
+            child: Text(_s('Quitter', 'Quit'), style: const TextStyle(color: _kRed)),
           ),
         ],
       ),

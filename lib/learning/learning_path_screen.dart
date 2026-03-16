@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../translations.dart';
+import '../app_locale.dart';
 import 'learning_models.dart';
 import 'lesson_screen.dart';
 import 'lesson_generator.dart';
@@ -8,7 +10,6 @@ import 'quiz_screen.dart';
 // ─── Palette UpYourDeen ─────────────────────────────────────────────────
 const _kGreenDeep    = Color(0xFF0A2018);
 const _kGreenPrimary = Color(0xFF1B4D38);
-const _kGreenMedium  = Color(0xFF2A7A52);
 const _kGold         = Color(0xFFC8933A);
 const _kGoldLight    = Color(0xFFE8BF6A);
 const _kBeige        = Color(0xFFF6F0E3);
@@ -18,45 +19,51 @@ const _kTextDark     = Color(0xFF1A130A);
 const _kTextMid      = Color(0xFF5A4833);
 const _kTextLight    = Color(0xFF8A7863);
 
+// Inline translation helper
+String _s(String fr, String en) => AppLocale().isFrench ? fr : en;
+
 // ─── Path Config ─────────────────────────────────────────────────
 class _PathConfig {
-  final String title, subtitle, emoji;
+  final String title, titleEn, subtitle, subtitleEn, emoji;
   final Color  primary, light;
   final List<Color> gradient;
   const _PathConfig({
-    required this.title, required this.subtitle, required this.emoji,
+    required this.title, required this.titleEn, required this.subtitle, required this.subtitleEn, required this.emoji,
     required this.primary, required this.light, required this.gradient,
   });
+
+  String getTitle() => _s(title, titleEn);
+  String getSubtitle() => _s(subtitle, subtitleEn);
 }
 
 const _configs = <LearningPathType, _PathConfig>{
   LearningPathType.debutant: _PathConfig(
-    title: 'Parcours Débutant', subtitle: 'Courtes sourates du Juz 30', emoji: '🌱',
+    title: 'Parcours Débutant', titleEn: 'Beginner Path', subtitle: 'Courtes sourates du Juz 30', subtitleEn: 'Short surahs from Juz 30', emoji: '🌱',
     primary: _kGreenPrimary, light: Color(0xFFE8F4EE),
     gradient: [Color(0xFF2A7A52), Color(0xFF0A2018)]),
 
   LearningPathType.priere: _PathConfig(
-    title: 'Parcours Prière', subtitle: 'Sourates essentielles de la prière', emoji: '🕌',
+    title: 'Parcours Prière', titleEn: 'Prayer Path', subtitle: 'Sourates essentielles de la prière', subtitleEn: 'Essential surahs for prayer', emoji: '🕌',
     primary: Color(0xFF1A5C8A), light: Color(0xFFE3EDF7),
     gradient: [Color(0xFF1E88E5), Color(0xFF0D47A1)]),
 
   LearningPathType.protection: _PathConfig(
-    title: 'Parcours Protection', subtitle: 'Sourates de protection et de refuge', emoji: '🛡️',
+    title: 'Parcours Protection', titleEn: 'Protection Path', subtitle: 'Sourates de protection et de refuge', subtitleEn: 'Protection and refuge surahs', emoji: '🛡️',
     primary: Color(0xFFA85C00), light: Color(0xFFFAEBD7),
     gradient: [Color(0xFFFF9800), Color(0xFFE65100)]),
 
   LearningPathType.importantes: _PathConfig(
-    title: 'Grandes Sourates', subtitle: 'Les sourates les plus importantes', emoji: '⭐',
+    title: 'Grandes Sourates', titleEn: 'Major Surahs', subtitle: 'Les sourates les plus importantes', subtitleEn: 'The most important surahs', emoji: '⭐',
     primary: _kGold, light: Color(0xFFFFF4DC),
     gradient: [Color(0xFFE8BF6A), Color(0xFFC8933A)]),
 
   LearningPathType.juzAmma: _PathConfig(
-    title: 'Juz Amma', subtitle: 'Le 30e juz complet · 37 sourates', emoji: '📖',
+    title: 'Juz Amma', titleEn: 'Juz Amma', subtitle: 'Le 30e juz complet · 37 sourates', subtitleEn: 'The complete 30th juz · 37 surahs', emoji: '📖',
     primary: Color(0xFF6A3FAA), light: Color(0xFFF3ECFA),
     gradient: [Color(0xFF8549BA), Color(0xFF4A148C)]),
 
   LearningPathType.libre: _PathConfig(
-    title: 'Mode Libre', subtitle: 'Toutes les sourates du Coran', emoji: '🔓',
+    title: 'Mode Libre', titleEn: 'Free Mode', subtitle: 'Toutes les sourates du Coran', subtitleEn: 'All surahs of the Quran', emoji: '🔓',
     primary: _kTextMid, light: Color(0xFFEDE7D9),
     gradient: [Color(0xFF5A4833), Color(0xFF2C1A0E)]),
 };
@@ -64,7 +71,7 @@ const _configs = <LearningPathType, _PathConfig>{
 // ─── Groupe de données par sourate ───────────────────────────────
 class _SourateGroup {
   final int    surahNumber;
-  final String name, nameFr, signification, icon;
+  final String name, nameFr, signification, significationEn, icon;
   final int    total, completed;
   final bool   isStarted;
   final List<LearningLesson> lessons;
@@ -74,6 +81,7 @@ class _SourateGroup {
     required this.name,
     required this.nameFr,
     required this.signification,
+    this.significationEn = '',
     required this.icon,
     required this.total,
     required this.completed,
@@ -125,7 +133,7 @@ class _FinalQuizItem extends _ListItem {
 class LearningPathScreen extends StatefulWidget {
   final LearningPathType pathType;
   final UserStats        stats;
-  const LearningPathScreen({Key? key, this.pathType = LearningPathType.debutant, required this.stats}) : super(key: key);
+  const LearningPathScreen({super.key, this.pathType = LearningPathType.debutant, required this.stats});
 
   @override
   State<LearningPathScreen> createState() => _LearningPathScreenState();
@@ -174,6 +182,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
         name:          l0.surahName,
         nameFr:        l0.surahNameFr,
         signification: l0.signification,
+        significationEn: l0.significationEn,
         icon:          l0.icon,
         total:         group.length,
         completed:     done,
@@ -278,24 +287,24 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.18),
+                      color: Colors.white.withValues(alpha: 0.18),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1),
                     ),
                     child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 16),
                   ),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
-                  child: Text(cfg.title,
+                  child: Text(cfg.getTitle(),
                       style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900)),
                 ),
               ]),
               const SizedBox(height: 8),
               Padding(
                 padding: const EdgeInsets.only(left: 42),
-                child: Text(cfg.subtitle,
-                    style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 13)),
+                child: Text(cfg.getSubtitle(),
+                    style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 13)),
               ),
               const SizedBox(height: 20),
 
@@ -311,16 +320,16 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
+                  color: Colors.white.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: Colors.white.withOpacity(0.15), width: 1),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.15), width: 1),
                 ),
                 child: Column(children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('$done/${_lessons.length} versets appris',
-                          style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 12)),
+                      Text(_s('$done/\${_lessons.length} versets appris', '$done/\${_lessons.length} verses learned'),
+                          style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 12)),
                       Text('${(progress * 100).round()}%',
                           style: const TextStyle(color: _kGoldLight, fontSize: 13, fontWeight: FontWeight.w800)),
                     ],
@@ -331,7 +340,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                     child: LinearProgressIndicator(
                       value:           progress,
                       minHeight:       10,
-                      backgroundColor: Colors.white.withOpacity(0.25),
+                      backgroundColor: Colors.white.withValues(alpha: 0.25),
                       valueColor:      const AlwaysStoppedAnimation(_kGold),
                     ),
                   ),
@@ -349,15 +358,15 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.15),
+          color: Colors.white.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.white.withOpacity(0.15), width: 1),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.15), width: 1),
         ),
         child: Column(children: [
           Text(icon, style: const TextStyle(fontSize: 18)),
           const SizedBox(height: 2),
           Text(val,   style: TextStyle(color: color, fontSize: 15, fontWeight: FontWeight.w900)),
-          Text(label, style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 10)),
+          Text(label, style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 10)),
         ]),
       ),
     );
@@ -387,13 +396,13 @@ class _SourateCard extends StatelessWidget {
           color: _kBeigeCard,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: mastered ? config.primary.withOpacity(0.5)
-                 : started  ? config.primary.withOpacity(0.25)
+            color: mastered ? config.primary.withValues(alpha: 0.5)
+                 : started  ? config.primary.withValues(alpha: 0.25)
                  : _kBeigeBorder,
             width: mastered ? 1.8 : 1.2,
           ),
           boxShadow: [
-            if (mastered) BoxShadow(color: config.primary.withOpacity(0.12), blurRadius: 18, offset: const Offset(0, 4)),
+            if (mastered) BoxShadow(color: config.primary.withValues(alpha: 0.12), blurRadius: 18, offset: const Offset(0, 4)),
             const BoxShadow(color: Color(0x0A000000), blurRadius: 8, offset: Offset(0, 2)),
           ],
         ),
@@ -415,7 +424,7 @@ class _SourateCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(
                         color: mastered ? config.primary
-                             : started  ? config.primary.withOpacity(0.3)
+                             : started  ? config.primary.withValues(alpha: 0.3)
                              : _kBeigeBorder,
                         width: 1.2,
                       ),
@@ -446,7 +455,7 @@ class _SourateCard extends StatelessWidget {
                         ]),
                         const SizedBox(height: 3),
                         Text(
-                          group.signification,
+                          _s(group.signification, group.significationEn.isEmpty ? group.signification : group.significationEn),
                           style: const TextStyle(color: _kTextLight, fontSize: 11),
                           maxLines: 1, overflow: TextOverflow.ellipsis,
                         ),
@@ -468,9 +477,9 @@ class _SourateCard extends StatelessWidget {
                     child: LinearProgressIndicator(
                       value:           pct,
                       minHeight:       6,
-                      backgroundColor: _kBeigeBorder.withOpacity(0.5),
+                      backgroundColor: _kBeigeBorder.withValues(alpha: 0.5),
                       valueColor:      AlwaysStoppedAnimation(
-                        mastered ? config.primary : config.primary.withOpacity(0.65)),
+                        mastered ? config.primary : config.primary.withValues(alpha: 0.65)),
                     ),
                   ),
                 ),
@@ -503,7 +512,7 @@ class _SourateCard extends StatelessWidget {
     final bg    = mastered ? config.light
                 : started  ? config.light
                 : const Color(0xFFF0EBE3);
-    final label = mastered ? '✓ Maîtrisée'
+    final label = mastered ? _s('✓ Maîtrisée', '✓ Mastered')
                 : started  ? 'En cours'
                 : 'Commencer';
 
@@ -512,7 +521,7 @@ class _SourateCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.3), width: 1),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
       ),
       child: Text(label,
           style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w800)),
@@ -640,9 +649,9 @@ class _SourateDetailScreenState extends State<_SourateDetailScreen> {
                         child: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.18),
+                            color: Colors.white.withValues(alpha: 0.18),
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+                            border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1),
                           ),
                           child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 16),
                         ),
@@ -654,7 +663,7 @@ class _SourateDetailScreenState extends State<_SourateDetailScreen> {
                           Text(group.nameFr,
                               style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900)),
                           Text(group.name,
-                              style: TextStyle(color: Colors.white.withOpacity(0.65), fontSize: 16)),
+                              style: TextStyle(color: Colors.white.withValues(alpha: 0.65), fontSize: 16)),
                         ],
                       )),
                       Text(group.icon, style: const TextStyle(fontSize: 32)),
@@ -665,9 +674,9 @@ class _SourateDetailScreenState extends State<_SourateDetailScreen> {
                     Padding(
                       padding: const EdgeInsets.only(left: 42),
                       child: Text(
-                        group.signification,
+                        _s(group.signification, group.significationEn.isEmpty ? group.signification : group.significationEn),
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.55),
+                          color: Colors.white.withValues(alpha: 0.55),
                           fontSize: 12, fontStyle: FontStyle.italic),
                       ),
                     ),
@@ -677,16 +686,16 @@ class _SourateDetailScreenState extends State<_SourateDetailScreen> {
                     Container(
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.15),
+                        color: Colors.white.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.white.withOpacity(0.15), width: 1),
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.15), width: 1),
                       ),
                       child: Column(children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('${group.completed}/${group.total} versets appris',
-                                style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 12)),
+                            Text(_s('\${group.completed}/\${group.total} versets appris', '\${group.completed}/\${group.total} verses learned'),
+                                style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 12)),
                             Text('${(pct * 100).round()}%',
                                 style: const TextStyle(color: _kGoldLight, fontSize: 13, fontWeight: FontWeight.w800)),
                           ],
@@ -697,7 +706,7 @@ class _SourateDetailScreenState extends State<_SourateDetailScreen> {
                           child: LinearProgressIndicator(
                             value:           pct,
                             minHeight:       8,
-                            backgroundColor: Colors.white.withOpacity(0.25),
+                            backgroundColor: Colors.white.withValues(alpha: 0.25),
                             valueColor:      const AlwaysStoppedAnimation(_kGold),
                           ),
                         ),
@@ -740,7 +749,7 @@ class _SourateDetailScreenState extends State<_SourateDetailScreen> {
                     onTap: () async {
                       if (!item.allComplete) {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content:  const Text('🔒 Termine les 5 versets précédents d\'abord'),
+                          content:  Text(context.t.learningCompletePrevious5),
                           backgroundColor: _kGreenPrimary,
                           behavior: SnackBarBehavior.floating,
                           shape:    RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
@@ -831,13 +840,13 @@ class _LessonTile extends StatelessWidget {
             color: _kBeigeCard,
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
-              color: done    ? config.primary.withOpacity(0.4)
+              color: done    ? config.primary.withValues(alpha: 0.4)
                   : current ? config.primary
                   : _kBeigeBorder,
               width: current ? 2.0 : 1.2,
             ),
             boxShadow: [
-              if (current) BoxShadow(color: config.primary.withOpacity(0.15), blurRadius: 16, offset: const Offset(0, 4)),
+              if (current) BoxShadow(color: config.primary.withValues(alpha: 0.15), blurRadius: 16, offset: const Offset(0, 4)),
               const BoxShadow(color: Color(0x08000000), blurRadius: 6, offset: Offset(0, 2)),
             ],
           ),
@@ -849,7 +858,7 @@ class _LessonTile extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: done    ? config.primary
                        : current ? config.light
-                       : locked  ? _kBeigeBorder.withOpacity(0.4)
+                       : locked  ? _kBeigeBorder.withValues(alpha: 0.4)
                        : const Color(0xFFF5F0E8),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
@@ -869,7 +878,7 @@ class _LessonTile extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 14),
-              Expanded(child: _buildContent(done, current, locked)),
+              Expanded(child: _buildContent(context, done, current, locked)),
               const SizedBox(width: 6),
               Icon(
                 locked ? Icons.lock_rounded : Icons.arrow_forward_ios_rounded,
@@ -883,13 +892,13 @@ class _LessonTile extends StatelessWidget {
     );
   }
 
-  Widget _buildContent(bool done, bool current, bool locked) {
+  Widget _buildContent(BuildContext context, bool done, bool current, bool locked) {
     final v = lesson.versets.isNotEmpty ? lesson.versets.first : null;
     final phonSnippet = v != null
         ? v.phonetique.split(' ').take(5).join(' ') + (v.phonetique.split(' ').length > 5 ? '...' : '')
         : '';
     final frSnippet = v != null
-        ? v.francais.split(' ').take(6).join(' ') + (v.francais.split(' ').length > 6 ? '...' : '')
+        ? v.traduction.split(' ').take(6).join(' ') + (v.traduction.split(' ').length > 6 ? '...' : '')
         : '';
 
     return Column(
@@ -918,9 +927,9 @@ class _LessonTile extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               if (done)
-                _badge('✓ Maîtrisé', config.primary, config.light)
+                _badge(_s('✓ Maîtrisé', '✓ Mastered'), config.primary, config.light)
               else if (current)
-                _badge('À apprendre', config.primary, config.primary),
+                _badge(_s('À apprendre', 'To learn'), config.primary, config.primary),
               const Spacer(),
               Text('⚡ ${lesson.xpReward} XP',
                   style: const TextStyle(color: _kGold, fontSize: 10, fontWeight: FontWeight.w800)),
@@ -930,11 +939,11 @@ class _LessonTile extends StatelessWidget {
         if (locked)
           Padding(
             padding: const EdgeInsets.only(top: 4),
-            child: Row(children: const [
-              Icon(Icons.lock_outline_rounded, color: _kTextLight, size: 11),
-              SizedBox(width: 3),
-              Text('Termine le verset précédent',
-                  style: TextStyle(color: _kTextLight, fontSize: 10)),
+            child: Row(children: [
+              const Icon(Icons.lock_outline_rounded, color: _kTextLight, size: 11),
+              const SizedBox(width: 3),
+              Text(context.t.learningCompletePreviousVerse,
+                  style: const TextStyle(color: _kTextLight, fontSize: 10)),
             ]),
           ),
       ],
@@ -959,7 +968,7 @@ class _LessonTile extends StatelessWidget {
 
   void _showLockedSnack(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content:  const Text('🔒 Termine le verset précédent pour débloquer'),
+      content:  Text(context.t.learningCompleteToUnlock),
       backgroundColor: _kGreenPrimary,
       behavior: SnackBarBehavior.floating,
       shape:    RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
@@ -984,7 +993,7 @@ class _QuizTile extends StatelessWidget {
     final bgColor     = done    ? const Color(0xFFE8F4EE)
                       : active  ? const Color(0xFFFFF8EC)
                       : const Color(0xFFF8F4ED);
-    final borderColor = done    ? _kGreenPrimary.withOpacity(0.50)
+    final borderColor = done    ? _kGreenPrimary.withValues(alpha: 0.50)
                       : active  ? _kGold
                       : _kBeigeBorder;
     final labelColor  = done    ? _kGreenPrimary
@@ -1003,7 +1012,7 @@ class _QuizTile extends StatelessWidget {
             borderRadius: BorderRadius.circular(18),
             border: Border.all(color: borderColor, width: active ? 2.0 : 1.2),
             boxShadow: [
-              if (active) BoxShadow(color: _kGold.withOpacity(0.18), blurRadius: 16, offset: const Offset(0, 4)),
+              if (active) BoxShadow(color: _kGold.withValues(alpha: 0.18), blurRadius: 16, offset: const Offset(0, 4)),
               const BoxShadow(color: Color(0x06000000), blurRadius: 6, offset: Offset(0, 2)),
             ],
           ),
@@ -1014,8 +1023,8 @@ class _QuizTile extends StatelessWidget {
                 width: 42, height: 42,
                 decoration: BoxDecoration(
                   color: done   ? _kGreenPrimary
-                       : active ? _kGold.withOpacity(0.18)
-                       : _kBeigeBorder.withOpacity(0.4),
+                       : active ? _kGold.withValues(alpha: 0.18)
+                       : _kBeigeBorder.withValues(alpha: 0.4),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: done ? _kGreenPrimary : active ? _kGold : _kBeigeBorder, width: 1.2),
@@ -1038,9 +1047,9 @@ class _QuizTile extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    done    ? '✓ Réussi · +25 XP'
-                    : active ? '5 questions · tous les versets précédents'
-                    :          'Termine les 5 versets précédents',
+                    done    ? _s('✓ Réussi · +25 XP', '✓ Completed · +25 XP')
+                    : active ? _s('5 questions · tous les versets précédents', '5 questions · all previous verses')
+                    :          _s('Termine les 5 versets précédents', 'Complete the 5 previous verses'),
                     style: TextStyle(color: labelColor, fontSize: 11),
                   ),
                 ],
@@ -1086,7 +1095,7 @@ class _FinalQuizTile extends StatelessWidget {
                     begin: Alignment.topLeft, end: Alignment.bottomRight)
                 : active
                   ? LinearGradient(
-                      colors: [_kGold.withOpacity(0.85), const Color(0xFFA87020)],
+                      colors: [_kGold.withValues(alpha: 0.85), const Color(0xFFA87020)],
                       begin: Alignment.topLeft, end: Alignment.bottomRight)
                   : null,
             color: done || active ? null : const Color(0xFFF0EBE2),
@@ -1098,8 +1107,8 @@ class _FinalQuizTile extends StatelessWidget {
               width: active ? 2.0 : 1.2,
             ),
             boxShadow: [
-              if (active) BoxShadow(color: _kGold.withOpacity(0.30), blurRadius: 20, offset: const Offset(0, 6)),
-              if (done)   BoxShadow(color: _kGreenPrimary.withOpacity(0.25), blurRadius: 20, offset: const Offset(0, 6)),
+              if (active) BoxShadow(color: _kGold.withValues(alpha: 0.30), blurRadius: 20, offset: const Offset(0, 6)),
+              if (done)   BoxShadow(color: _kGreenPrimary.withValues(alpha: 0.25), blurRadius: 20, offset: const Offset(0, 6)),
             ],
           ),
           child: Padding(
@@ -1119,11 +1128,11 @@ class _FinalQuizTile extends StatelessWidget {
                   ),
                   const SizedBox(height: 3),
                   Text(
-                    done    ? '✓ Sourate maîtrisée · +50 XP'
+                    done    ? _s('✓ Sourate maîtrisée · +50 XP', '✓ Surah mastered · +50 XP')
                     : active ? '${quizItem.lessons.length} versets · minimum 10 questions'
                     :          'Termine tous les versets de la sourate',
                     style: TextStyle(
-                      color: done || active ? Colors.white.withOpacity(0.75) : _kTextLight,
+                      color: done || active ? Colors.white.withValues(alpha: 0.75) : _kTextLight,
                       fontSize: 11),
                   ),
                 ],
@@ -1131,7 +1140,7 @@ class _FinalQuizTile extends StatelessWidget {
               const SizedBox(width: 6),
               Icon(
                 locked && !done ? Icons.lock_rounded : Icons.arrow_forward_ios_rounded,
-                color: done || active ? Colors.white.withOpacity(0.7) : _kBeigeBorder,
+                color: done || active ? Colors.white.withValues(alpha: 0.7) : _kBeigeBorder,
                 size: 15,
               ),
             ]),

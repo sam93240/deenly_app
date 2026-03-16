@@ -3,6 +3,16 @@
 
 import 'package:flutter/material.dart';
 import 'famille_data.dart';
+import 'translations.dart';
+import 'app_locale.dart';
+
+String _s(String fr, String en) => AppLocale().isFrench ? fr : en;
+
+String _dayName(int index) {
+  const fr = ['', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+  const en = ['', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  return AppLocale().isFrench ? fr[index] : en[index];
+}
 
 // ── Palette ───────────────────────────────────────────────────────────────
 const _kGreenDeep    = Color(0xFF0A2018);
@@ -51,7 +61,7 @@ class _FamilleScreenState extends State<FamilleScreen>
     return Scaffold(
       backgroundColor: _kBeige,
       body: NestedScrollView(
-        headerSliverBuilder: (_, __) => [
+        headerSliverBuilder: (_, _) => [
           SliverAppBar(
             expandedHeight: 130,
             pinned: true,
@@ -79,9 +89,9 @@ class _FamilleScreenState extends State<FamilleScreen>
                             const SizedBox(width: 10),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
-                                Text('Espace Familles',
-                                    style: TextStyle(
+                              children: [
+                                Text(context.t.familyTitle,
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 22,
                                       fontWeight: FontWeight.bold,
@@ -105,14 +115,14 @@ class _FamilleScreenState extends State<FamilleScreen>
               labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
               isScrollable: true,
               tabAlignment: TabAlignment.start,
-              tabs: const [
-                Tab(text: '🕌 Prophètes'),
-                Tab(text: '📖 Histoires'),
-                Tab(text: '🕐 Frise'),
-                Tab(text: '🌙 Bonsoir'),
-                Tab(text: '📋 Suivi'),
-                Tab(text: '🎯 Défis'),
-                Tab(text: '💡 Conseils'),
+              tabs: [
+                Tab(text: context.t.familyProphets),
+                Tab(text: context.t.familyStories),
+                Tab(text: context.t.familyTimeline),
+                Tab(text: context.t.familyEvening),
+                Tab(text: context.t.familyTracking),
+                Tab(text: context.t.familyChallenges),
+                Tab(text: context.t.familyTips),
               ],
             ),
           ),
@@ -145,7 +155,7 @@ class _ProphetsTab extends StatelessWidget {
     return ListView.separated(
       padding: const EdgeInsets.all(14),
       itemCount: kProphets.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 10),
+      separatorBuilder: (_, _) => const SizedBox(height: 10),
       itemBuilder: (ctx, i) => _ProphetCard(prophet: kProphets[i]),
     );
   }
@@ -222,14 +232,14 @@ class _ProphetCard extends StatelessWidget {
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       )),
-                  Text(prophet.frenchName,
+                  Text(prophet.getName(),
                       style: const TextStyle(
                         color: _kTextDark,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       )),
                   const SizedBox(height: 3),
-                  Text(prophet.shortDesc,
+                  Text(prophet.getShortDesc(),
                       style: const TextStyle(color: _kTextLight, fontSize: 12.5),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis),
@@ -270,7 +280,7 @@ class _ProphetDetailScreenState extends State<_ProphetDetailScreen> {
   bool _quizOpen = false;
   bool _showFullStory = false; // false = résumé, true = chapitres
   int _currentChapter = 0;
-  QuizDifficulty _selectedDifficulty = QuizDifficulty.facile;
+  QuizDifficulty _selectedDifficulty = QuizDifficulty.easy;
 
   List<QuizQ> get _filteredQuiz =>
       widget.prophet.quiz.where((q) => q.difficulty == _selectedDifficulty).toList();
@@ -320,7 +330,7 @@ class _ProphetDetailScreenState extends State<_ProphetDetailScreen> {
       appBar: AppBar(
         backgroundColor: _kGreenDeep,
         foregroundColor: Colors.white,
-        title: Text('${p.emoji} ${p.frenchName}'),
+        title: Text('${p.emoji} ${p.getName()}'),
         elevation: 0,
       ),
       body: SingleChildScrollView(
@@ -353,11 +363,11 @@ class _ProphetDetailScreenState extends State<_ProphetDetailScreen> {
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
                             )),
-                        Text('Prophète n°${p.number}',
+                        Text(context.t.familyProphetNumber(p.number),
                             style: const TextStyle(
                                 color: Color(0xFFB8D4C0), fontSize: 13)),
                         const SizedBox(height: 2),
-                        Text(p.period,
+                        Text(p.getPeriod(),
                             style: const TextStyle(
                                 color: Color(0xFF8AB8A0), fontSize: 12)),
                         const SizedBox(height: 4),
@@ -368,7 +378,7 @@ class _ProphetDetailScreenState extends State<_ProphetDetailScreen> {
                             const SizedBox(width: 3),
                             Expanded(
                               child: Text(
-                                '${p.timeline.region} · ${p.timeline.approxDate}',
+                                '${p.timeline.getRegion()} · ${p.timeline.getApproxDate()}',
                                 style: const TextStyle(color: Color(0xFF8AB8A0), fontSize: 11),
                               ),
                             ),
@@ -384,14 +394,14 @@ class _ProphetDetailScreenState extends State<_ProphetDetailScreen> {
 
             // ── Liens familiaux ─────────────────────────────────────────
             if (p.familyLinks.isNotEmpty) ...[
-              _sectionTitle('Liens familiaux'),
+              _sectionTitle(_s('Liens familiaux', 'Family Links')),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
                 children: p.familyLinks.map((link) {
                   final linked = kProphets.where((pr) => pr.number == link.prophetNumber).toList();
-                  final linkedName = linked.isNotEmpty ? linked.first.frenchName : '?';
+                  final linkedName = linked.isNotEmpty ? linked.first.getName() : '?';
                   final linkedEmoji = linked.isNotEmpty ? linked.first.emoji : '';
                   return GestureDetector(
                     onTap: () {
@@ -405,14 +415,14 @@ class _ProphetDetailScreenState extends State<_ProphetDetailScreen> {
                       decoration: BoxDecoration(
                         color: _kGoldLight,
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: _kGold.withOpacity(0.4)),
+                        border: Border.all(color: _kGold.withValues(alpha: 0.4)),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(linkedEmoji, style: const TextStyle(fontSize: 16)),
                           const SizedBox(width: 6),
-                          Text('$linkedName (${link.relation})',
+                          Text('$linkedName (${link.getRelation()})',
                               style: const TextStyle(
                                 color: _kTextDark, fontSize: 12.5,
                                 fontWeight: FontWeight.w500)),
@@ -430,7 +440,7 @@ class _ProphetDetailScreenState extends State<_ProphetDetailScreen> {
             // ── Toggle Résumé / Histoire complète ───────────────────────
             Row(
               children: [
-                Expanded(child: _sectionTitle(_showFullStory ? 'Son Histoire' : 'Résumé')),
+                Expanded(child: _sectionTitle(_showFullStory ? context.t.familyHisStory : context.t.familySummary)),
                 if (hasChapters)
                   GestureDetector(
                     onTap: () => setState(() {
@@ -453,7 +463,7 @@ class _ProphetDetailScreenState extends State<_ProphetDetailScreen> {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            _showFullStory ? 'Chapitres' : 'Lire l\'histoire',
+                            _showFullStory ? context.t.familyChapters : context.t.familyReadStory,
                             style: TextStyle(
                               color: _showFullStory ? Colors.white : _kGold,
                               fontSize: 12.5,
@@ -478,7 +488,7 @@ class _ProphetDetailScreenState extends State<_ProphetDetailScreen> {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: _kBeigeBorder),
                 ),
-                child: Text(p.summary,
+                child: Text(p.getSummary(),
                     style: const TextStyle(
                       color: _kTextDark,
                       fontSize: 15,
@@ -499,8 +509,8 @@ class _ProphetDetailScreenState extends State<_ProphetDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Chapitres',
-                        style: TextStyle(
+                    Text(context.t.familyChapters,
+                        style: const TextStyle(
                           color: _kGreenPrimary,
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
@@ -514,7 +524,7 @@ class _ProphetDetailScreenState extends State<_ProphetDetailScreen> {
                           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                           margin: const EdgeInsets.only(bottom: 4),
                           decoration: BoxDecoration(
-                            color: isActive ? _kGreenPrimary.withOpacity(0.1) : Colors.transparent,
+                            color: isActive ? _kGreenPrimary.withValues(alpha: 0.1) : Colors.transparent,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
@@ -536,7 +546,7 @@ class _ProphetDetailScreenState extends State<_ProphetDetailScreen> {
                               ),
                               const SizedBox(width: 10),
                               Expanded(
-                                child: Text(p.chapters[i].title,
+                                child: Text(p.chapters[i].getTitle(),
                                     style: TextStyle(
                                       color: isActive ? _kGreenPrimary : _kTextMid,
                                       fontSize: 13,
@@ -568,11 +578,11 @@ class _ProphetDetailScreenState extends State<_ProphetDetailScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: _kGreenPrimary.withOpacity(0.1),
+                        color: _kGreenPrimary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        'Chapitre ${_currentChapter + 1} — ${p.chapters[_currentChapter].title}',
+                        "${_s('Chapitre', 'Chapter')} ${_currentChapter + 1} — ${p.chapters[_currentChapter].getTitle()}",
                         style: const TextStyle(
                           color: _kGreenPrimary,
                           fontSize: 14,
@@ -581,7 +591,7 @@ class _ProphetDetailScreenState extends State<_ProphetDetailScreen> {
                       ),
                     ),
                     const SizedBox(height: 14),
-                    Text(p.chapters[_currentChapter].content,
+                    Text(p.chapters[_currentChapter].getContent(),
                         style: const TextStyle(
                           color: _kTextDark,
                           fontSize: 14.5,
@@ -595,7 +605,7 @@ class _ProphetDetailScreenState extends State<_ProphetDetailScreen> {
                         if (_currentChapter > 0)
                           _chapterNavButton(
                             icon: Icons.arrow_back_ios,
-                            label: 'Précédent',
+                            label: context.t.familyPrevious,
                             onTap: () => setState(() => _currentChapter--),
                           )
                         else
@@ -605,7 +615,7 @@ class _ProphetDetailScreenState extends State<_ProphetDetailScreen> {
                         if (_currentChapter < p.chapters.length - 1)
                           _chapterNavButton(
                             icon: Icons.arrow_forward_ios,
-                            label: 'Suivant',
+                            label: context.t.familyNext,
                             onTap: () => setState(() => _currentChapter++),
                             reverse: true,
                           )
@@ -625,7 +635,7 @@ class _ProphetDetailScreenState extends State<_ProphetDetailScreen> {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: _kBeigeBorder),
                 ),
-                child: Text(p.fullStory,
+                child: Text(p.getFullStory(),
                     style: const TextStyle(
                       color: _kTextDark,
                       fontSize: 14.5,
@@ -636,9 +646,9 @@ class _ProphetDetailScreenState extends State<_ProphetDetailScreen> {
             const SizedBox(height: 16),
 
             // ── Faits clés ──────────────────────────────────────────────
-            _sectionTitle('À retenir'),
+            _sectionTitle(_s('À retenir', 'Key Facts')),
             const SizedBox(height: 8),
-            ...p.keyFacts.map((f) => _FactChip(text: f)),
+            ...p.getKeyFacts().map((f) => _FactChip(text: f)),
             const SizedBox(height: 16),
 
             // ── Moral ───────────────────────────────────────────────────
@@ -647,7 +657,7 @@ class _ProphetDetailScreenState extends State<_ProphetDetailScreen> {
               decoration: BoxDecoration(
                 color: _kGoldLight,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: _kGold.withOpacity(0.4)),
+                border: Border.all(color: _kGold.withValues(alpha: 0.4)),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -655,7 +665,7 @@ class _ProphetDetailScreenState extends State<_ProphetDetailScreen> {
                   const Text('💡', style: TextStyle(fontSize: 20)),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: Text(p.moral,
+                    child: Text(p.getMoral(),
                         style: const TextStyle(
                           color: _kTextDark,
                           fontSize: 14,
@@ -684,9 +694,9 @@ class _ProphetDetailScreenState extends State<_ProphetDetailScreen> {
                   children: [
                     const Text('🧠', style: TextStyle(fontSize: 20)),
                     const SizedBox(width: 10),
-                    const Expanded(
-                      child: Text('Quiz du Prophète',
-                          style: TextStyle(
+                    Expanded(
+                      child: Text(context.t.familyProphetQuiz,
+                          style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -707,8 +717,8 @@ class _ProphetDetailScreenState extends State<_ProphetDetailScreen> {
               Row(
                 children: QuizDifficulty.values.map((d) {
                   final isSelected = d == _selectedDifficulty;
-                  final label = d == QuizDifficulty.facile ? '🟢 Facile'
-                      : d == QuizDifficulty.moyen ? '🟡 Moyen' : '🔴 Difficile';
+                  final label = d == QuizDifficulty.easy ? "🟢 ${_s('Facile', 'Easy')}"
+                      : d == QuizDifficulty.medium ? "🟡 ${_s('Moyen', 'Medium')}" : "🔴 ${_s('Difficile', 'Hard')}";
                   return Expanded(
                     child: GestureDetector(
                       onTap: () => setState(() {
@@ -747,9 +757,9 @@ class _ProphetDetailScreenState extends State<_ProphetDetailScreen> {
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: _kBeigeBorder),
                   ),
-                  child: const Center(
-                    child: Text('Pas de questions pour ce niveau.',
-                        style: TextStyle(color: _kTextLight, fontSize: 14)),
+                  child: Center(
+                    child: Text(_s('Pas de questions pour ce niveau.', 'No questions for this level.'),
+                        style: const TextStyle(color: _kTextLight, fontSize: 14)),
                   ),
                 )
               else ...[
@@ -797,7 +807,7 @@ class _ProphetDetailScreenState extends State<_ProphetDetailScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: _kGreenPrimary.withOpacity(0.1),
+          color: _kGreenPrimary.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
@@ -855,8 +865,8 @@ class _QuizCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final answered = selectedAnswer != null;
     // Difficulty badge
-    final diffLabel = question.difficulty == QuizDifficulty.facile ? '🟢'
-        : question.difficulty == QuizDifficulty.moyen ? '🟡' : '🔴';
+    final diffLabel = question.difficulty == QuizDifficulty.easy ? '🟢'
+        : question.difficulty == QuizDifficulty.medium ? '🟡' : '🔴';
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(14),
@@ -873,7 +883,7 @@ class _QuizCard extends StatelessWidget {
               Text(diffLabel, style: const TextStyle(fontSize: 12)),
               const SizedBox(width: 6),
               Expanded(
-                child: Text(question.question,
+                child: Text(question.getQuestion(),
                     style: const TextStyle(
                       color: _kTextDark,
                       fontSize: 14.5,
@@ -883,7 +893,7 @@ class _QuizCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          ...List.generate(question.options.length, (i) {
+          ...List.generate(question.getOptions().length, (i) {
             final isCorrect = i == question.correctIndex;
             final isSelected = selectedAnswer == i;
             Color bg = Colors.transparent;
@@ -916,8 +926,8 @@ class _QuizCard extends StatelessWidget {
                       width: 22, height: 22,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(color: border.withOpacity(0.6)),
-                        color: isSelected ? border.withOpacity(0.2) : null,
+                        border: Border.all(color: border.withValues(alpha: 0.6)),
+                        color: isSelected ? border.withValues(alpha: 0.2) : null,
                       ),
                       child: Center(
                         child: Text(String.fromCharCode(65 + i),
@@ -930,7 +940,7 @@ class _QuizCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 10),
                     Expanded(
-                        child: Text(question.options[i],
+                        child: Text(question.getOptions()[i],
                             style: TextStyle(color: text, fontSize: 13.5))),
                     if (answered && isCorrect)
                       const Text('✅', style: TextStyle(fontSize: 16)),
@@ -948,14 +958,14 @@ class _QuizCard extends StatelessWidget {
               decoration: BoxDecoration(
                 color: _kGoldLight,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: _kGold.withOpacity(0.3)),
+                border: Border.all(color: _kGold.withValues(alpha: 0.3)),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text('💡 ', style: TextStyle(fontSize: 14)),
                   Expanded(
-                    child: Text(question.explanation,
+                    child: Text(question.getExplanation(),
                         style: const TextStyle(
                           color: _kTextMid,
                           fontSize: 13,
@@ -982,12 +992,12 @@ class _ScoreCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final pct = total > 0 ? (score * 100 ~/ total) : 0;
     final msg = pct >= 90
-        ? '🌟 Excellent ! Tu maîtrises cette histoire !'
+        ? _s('🌟 Excellent ! Tu maîtrises cette histoire !', '🌟 Excellent! You have mastered this story!')
         : pct >= 70
-            ? '👍 Très bien ! Continue comme ça !'
+            ? _s('👍 Très bien ! Continue comme ça !', '👍 Very good! Keep it up!')
             : pct >= 50
-                ? '📖 Pas mal ! Encore un peu de révision !'
-                : '💪 Continue à apprendre, tu vas y arriver !';
+                ? _s('📖 Pas mal ! Encore un peu de révision !', '📖 Not bad! A little more review!')
+                : _s('💪 Continue à apprendre, tu vas y arriver !', '💪 Keep learning, you will get there!');
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -1034,9 +1044,9 @@ class _ScoreCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: tierColor.withOpacity(0.15),
+              color: tierColor.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: tierColor.withOpacity(0.5)),
+              border: Border.all(color: tierColor.withValues(alpha: 0.5)),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -1068,7 +1078,7 @@ class _CoranicTab extends StatelessWidget {
     return ListView.separated(
       padding: const EdgeInsets.all(14),
       itemCount: kCoranicStories.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 10),
+      separatorBuilder: (_, _) => const SizedBox(height: 10),
       itemBuilder: (ctx, i) => _CoranicCard(story: kCoranicStories[i]),
     );
   }
@@ -1115,7 +1125,7 @@ class _CoranicCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(story.title,
+                  Text(story.getTitle(),
                       style: const TextStyle(
                         color: _kTextDark,
                         fontSize: 15,
@@ -1128,7 +1138,7 @@ class _CoranicCard extends StatelessWidget {
                   Text(story.surahRef,
                       style: const TextStyle(color: _kTextLight, fontSize: 12)),
                   const SizedBox(height: 4),
-                  Text(story.summary,
+                  Text(story.getSummary(),
                       style: const TextStyle(color: _kTextMid, fontSize: 12.5),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis),
@@ -1164,7 +1174,7 @@ class _CoranicDetailScreenState extends State<_CoranicDetailScreen> {
       appBar: AppBar(
         backgroundColor: _kGreenDeep,
         foregroundColor: Colors.white,
-        title: Text('${s.emoji} ${s.title}'),
+        title: Text('${s.emoji} ${s.getTitle()}'),
         elevation: 0,
       ),
       body: SingleChildScrollView(
@@ -1191,7 +1201,7 @@ class _CoranicDetailScreenState extends State<_CoranicDetailScreen> {
                   Text(s.arabicTitle,
                       style: const TextStyle(
                           color: _kGold, fontSize: 22, fontWeight: FontWeight.bold)),
-                  Text(s.title,
+                  Text(s.getTitle(),
                       style: const TextStyle(color: Colors.white, fontSize: 16)),
                   const SizedBox(height: 4),
                   Text(s.surahRef,
@@ -1217,7 +1227,7 @@ class _CoranicDetailScreenState extends State<_CoranicDetailScreen> {
                           border: Border.all(color: _kGreenPrimary),
                         ),
                         child: Center(
-                          child: Text('Résumé',
+                          child: Text(context.t.familySummary,
                               style: TextStyle(
                                 color: !_showChapters ? Colors.white : _kGreenPrimary,
                                 fontSize: 13,
@@ -1238,7 +1248,7 @@ class _CoranicDetailScreenState extends State<_CoranicDetailScreen> {
                           border: Border.all(color: _kGreenPrimary),
                         ),
                         child: Center(
-                          child: Text('Histoire complète',
+                          child: Text(context.t.familyCompleteStory,
                               style: TextStyle(
                                 color: _showChapters ? Colors.white : _kGreenPrimary,
                                 fontSize: 13,
@@ -1261,7 +1271,7 @@ class _CoranicDetailScreenState extends State<_CoranicDetailScreen> {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: _kBeigeBorder),
                 ),
-                child: Text(s.summary,
+                child: Text(s.getSummary(),
                     style: const TextStyle(
                         color: _kTextDark, fontSize: 15, height: 1.7)),
               ),
@@ -1302,7 +1312,7 @@ class _CoranicDetailScreenState extends State<_CoranicDetailScreen> {
                               ),
                               const SizedBox(width: 10),
                               Expanded(
-                                child: Text(s.chapters[i].title,
+                                child: Text(s.chapters[i].getTitle(),
                                     style: TextStyle(
                                       color: isOpen ? _kGreenPrimary : _kTextDark,
                                       fontSize: 14,
@@ -1319,7 +1329,7 @@ class _CoranicDetailScreenState extends State<_CoranicDetailScreen> {
                         if (isOpen)
                           Padding(
                             padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
-                            child: Text(s.chapters[i].content,
+                            child: Text(s.chapters[i].getContent(),
                                 style: const TextStyle(
                                   color: _kTextDark,
                                   fontSize: 14.5,
@@ -1339,7 +1349,7 @@ class _CoranicDetailScreenState extends State<_CoranicDetailScreen> {
               decoration: BoxDecoration(
                 color: _kGoldLight,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: _kGold.withOpacity(0.4)),
+                border: Border.all(color: _kGold.withValues(alpha: 0.4)),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1347,7 +1357,7 @@ class _CoranicDetailScreenState extends State<_CoranicDetailScreen> {
                   const Text('💡', style: TextStyle(fontSize: 20)),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: Text(s.moral,
+                    child: Text(s.getMoral(),
                         style: const TextStyle(
                             color: _kTextDark,
                             fontSize: 14,
@@ -1396,16 +1406,16 @@ class _TimelineTab extends StatelessWidget {
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text('🕐 Frise des Prophètes',
-                      style: TextStyle(
+                children: [
+                  Text(context.t.familyTimeline,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       )),
-                  SizedBox(height: 4),
-                  Text('Les prophètes dans l\'ordre chronologique, avec leurs liens familiaux.',
-                      style: TextStyle(
+                  const SizedBox(height: 4),
+                  Text(_s('Les prophètes dans l\'ordre chronologique, avec leurs liens familiaux.', 'The prophets in chronological order, with their family links.'),
+                      style: const TextStyle(
                         color: Color(0xFFB8D4C0),
                         fontSize: 13,
                       )),
@@ -1450,7 +1460,7 @@ class _TimelineItem extends StatelessWidget {
                   Expanded(
                     child: Container(
                       width: 2,
-                      color: _kGreenPrimary.withOpacity(0.3),
+                      color: _kGreenPrimary.withValues(alpha: 0.3),
                     ),
                   ),
               ],
@@ -1477,16 +1487,16 @@ class _TimelineItem extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('${prophet.frenchName} ${prophet.arabicName}',
+                          Text('${prophet.getName()} ${prophet.arabicName}',
                               style: const TextStyle(
                                 color: _kTextDark,
                                 fontSize: 14.5,
                                 fontWeight: FontWeight.bold,
                               )),
                           const SizedBox(height: 2),
-                          Text(prophet.timeline.approxDate,
+                          Text(prophet.timeline.getApproxDate(),
                               style: const TextStyle(color: _kGold, fontSize: 12)),
-                          Text(prophet.timeline.region,
+                          Text(prophet.timeline.getRegion(),
                               style: const TextStyle(color: _kTextLight, fontSize: 11.5)),
                           // Liens
                           if (prophet.familyLinks.isNotEmpty) ...[
@@ -1495,14 +1505,14 @@ class _TimelineItem extends StatelessWidget {
                               spacing: 4,
                               children: prophet.familyLinks.map((link) {
                                 final linked = kProphets.where((pr) => pr.number == link.prophetNumber).toList();
-                                final name = linked.isNotEmpty ? linked.first.frenchName : '?';
+                                final name = linked.isNotEmpty ? linked.first.getName() : '?';
                                 return Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                   decoration: BoxDecoration(
                                     color: _kGoldLight,
                                     borderRadius: BorderRadius.circular(10),
                                   ),
-                                  child: Text('${link.relation} de $name',
+                                  child: Text("${link.getRelation()} ${_s('de', 'of')} $name",
                                       style: const TextStyle(
                                         color: _kTextMid,
                                         fontSize: 10,
@@ -1531,8 +1541,6 @@ class _TimelineItem extends StatelessWidget {
 // ══════════════════════════════════════════════════════════════════════════
 class _BedtimeTab extends StatelessWidget {
   const _BedtimeTab();
-
-  static const _dayNames = ['', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
 
   @override
   Widget build(BuildContext context) {
@@ -1580,16 +1588,16 @@ class _BedtimeTab extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Ce soir',
-                          style: TextStyle(color: Color(0xFF8AB8E0), fontSize: 12)),
-                      Text(todayStory.title,
+                      Text(_s('Ce soir', 'Tonight'),
+                          style: const TextStyle(color: Color(0xFF8AB8E0), fontSize: 12)),
+                      Text(todayStory.getTitle(),
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 17,
                             fontWeight: FontWeight.bold,
                           )),
                       const SizedBox(height: 4),
-                      Text(todayStory.summary,
+                      Text(todayStory.getSummary(),
                           style: const TextStyle(
                               color: Color(0xFFB0C8E0), fontSize: 12.5),
                           maxLines: 2,
@@ -1602,8 +1610,8 @@ class _BedtimeTab extends StatelessWidget {
             ),
           ),
         ),
-        const Text('Toutes les histoires du soir',
-            style: TextStyle(
+        Text(_s('Toutes les histoires du soir', 'All Bedtime Stories'),
+            style: const TextStyle(
               color: _kGreenPrimary,
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -1612,7 +1620,7 @@ class _BedtimeTab extends StatelessWidget {
         ...kBedtimeStories.map((s) => _BedtimeCard(
               story: s,
               isToday: s.dayIndex == today,
-              dayName: _dayNames[s.dayIndex],
+              dayName: _dayName(s.dayIndex),
             )),
       ],
     );
@@ -1651,14 +1659,14 @@ class _BedtimeCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(story.title,
+                  Text(story.getTitle(),
                       style: const TextStyle(
                         color: _kTextDark,
                         fontSize: 14.5,
                         fontWeight: FontWeight.w600,
                       )),
                   const SizedBox(height: 2),
-                  Text(story.summary,
+                  Text(story.getSummary(),
                       style: const TextStyle(color: _kTextLight, fontSize: 12),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis),
@@ -1682,8 +1690,8 @@ class _BedtimeCard extends StatelessWidget {
                       color: const Color(0xFF3D5A9E),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Text('Ce soir',
-                        style: TextStyle(color: Colors.white, fontSize: 9)),
+                    child: Text(_s('Ce soir', 'Tonight'),
+                        style: const TextStyle(color: Colors.white, fontSize: 9)),
                   ),
                 ],
               ],
@@ -1702,8 +1710,6 @@ class _BedtimeDetailScreen extends StatelessWidget {
   final BedtimeStory story;
   const _BedtimeDetailScreen({required this.story});
 
-  static const _dayNames = ['', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1711,7 +1717,7 @@ class _BedtimeDetailScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: const Color(0xFF0A1430),
         foregroundColor: Colors.white,
-        title: Text('${story.emoji} ${story.title}'),
+        title: Text('${story.emoji} ${story.getTitle()}'),
         elevation: 0,
       ),
       body: SingleChildScrollView(
@@ -1725,17 +1731,17 @@ class _BedtimeDetailScreen extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(story.emoji, style: const TextStyle(fontSize: 64)),
                   const SizedBox(height: 8),
-                  Text(story.title,
+                  Text(story.getTitle(),
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
                       )),
                   const SizedBox(height: 4),
-                  Text('Histoire du ${_dayNames[story.dayIndex]}',
+                  Text("${_s('Histoire du', 'Story of the')} ${_dayName(story.dayIndex)}",
                       style: const TextStyle(color: Color(0xFF8AB8E0), fontSize: 13)),
                   const SizedBox(height: 4),
-                  Text(story.summary,
+                  Text(story.getSummary(),
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                           color: Color(0xFFB0C8E0), fontSize: 13.5)),
@@ -1750,7 +1756,7 @@ class _BedtimeDetailScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: const Color(0xFF1E3060)),
               ),
-              child: Text(story.story,
+              child: Text(story.getStory(),
                   style: const TextStyle(
                     color: Color(0xFFD8E8FF),
                     fontSize: 15,
@@ -1763,7 +1769,7 @@ class _BedtimeDetailScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: const Color(0xFF0D2040),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFF2A4A80).withOpacity(0.5)),
+                border: Border.all(color: const Color(0xFF2A4A80).withValues(alpha: 0.5)),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1771,7 +1777,7 @@ class _BedtimeDetailScreen extends StatelessWidget {
                   const Text('🌟', style: TextStyle(fontSize: 20)),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: Text(story.moral,
+                    child: Text(story.getMoral(),
                         style: const TextStyle(
                           color: Color(0xFFD0D8FF),
                           fontSize: 14,
@@ -1853,17 +1859,17 @@ class _SuiviTabState extends State<_SuiviTab> {
               Container(
                 width: 44, height: 44,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
+                  color: Colors.white.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: const Icon(Icons.person_add_rounded, color: Colors.white, size: 22),
               ),
               const SizedBox(width: 12),
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                const Text('Ajouter un enfant', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w800)),
-                Text('${_enfants.length} enfant(s) enregistré(s)', style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 11)),
+                Text(_s('Ajouter un enfant', 'Add a Child'), style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w800)),
+                Text(context.t.familyChildrenRegistered(_enfants.length), style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 11)),
               ])),
-              Icon(Icons.add_circle_outline_rounded, color: Colors.white.withOpacity(0.7)),
+              Icon(Icons.add_circle_outline_rounded, color: Colors.white.withValues(alpha: 0.7)),
             ]),
           ),
         ),
@@ -1909,9 +1915,9 @@ class _SuiviTabState extends State<_SuiviTab> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(color: _kBeigeCard, borderRadius: BorderRadius.circular(16), border: Border.all(color: _kBeigeBorder)),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Text('Programme Prière', style: TextStyle(color: _kGreenPrimary, fontSize: 15, fontWeight: FontWeight.w800)),
+              Text(context.t.familyPrayerProgram, style: const TextStyle(color: _kGreenPrimary, fontSize: 15, fontWeight: FontWeight.w800)),
               const SizedBox(height: 4),
-              Text('${_stepsValides[_selectedEnfant]!.length}/${kPrayerSteps.length} étapes validées',
+              Text(context.t.familyStepsValidated(_stepsValides[_selectedEnfant]!.length, kPrayerSteps.length),
                   style: const TextStyle(color: _kTextLight, fontSize: 11)),
               const SizedBox(height: 10),
               ClipRRect(
@@ -1931,9 +1937,9 @@ class _SuiviTabState extends State<_SuiviTab> {
                     margin: const EdgeInsets.only(bottom: 8),
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: done ? _kGreenMedium.withOpacity(0.08) : _kBeige,
+                      color: done ? _kGreenMedium.withValues(alpha: 0.08) : _kBeige,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: done ? _kGreenMedium.withOpacity(0.3) : _kBeigeBorder),
+                      border: Border.all(color: done ? _kGreenMedium.withValues(alpha: 0.3) : _kBeigeBorder),
                     ),
                     child: Row(children: [
                       Container(
@@ -1945,7 +1951,7 @@ class _SuiviTabState extends State<_SuiviTab> {
                       ),
                       const SizedBox(width: 10),
                       Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Text('${step.emoji} ${step.title}',
+                        Text('${step.emoji} ${step.getTitle()}',
                             style: TextStyle(color: _kTextDark, fontSize: 13, fontWeight: FontWeight.w700,
                                 decoration: done ? TextDecoration.lineThrough : null)),
                         Text(step.ageRange, style: const TextStyle(color: _kTextLight, fontSize: 10)),
@@ -1964,14 +1970,14 @@ class _SuiviTabState extends State<_SuiviTab> {
             decoration: BoxDecoration(color: _kBeigeCard, borderRadius: BorderRadius.circular(16), border: Border.all(color: _kBeigeBorder)),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(children: [
-                const Text('Mémorisation Coran', style: TextStyle(color: _kGreenPrimary, fontSize: 15, fontWeight: FontWeight.w800)),
+                Text(context.t.familyQuranMemorization, style: const TextStyle(color: _kGreenPrimary, fontSize: 15, fontWeight: FontWeight.w800)),
                 const Spacer(),
                 Text('${_souratesApprises[_selectedEnfant]!.length}/${kSouratesMemo.length}',
                     style: const TextStyle(color: _kGold, fontSize: 13, fontWeight: FontWeight.w800)),
               ]),
               const SizedBox(height: 12),
               ...['facile', 'moyen', 'avance'].map((diff) {
-                final label = diff == 'facile' ? 'Sourates faciles' : diff == 'moyen' ? 'Sourates intermédiaires' : 'Sourates avancées';
+                final label = diff == 'facile' ? _s('Sourates faciles', 'Easy Surahs') : diff == 'moyen' ? _s('Sourates intermédiaires', 'Intermediate Surahs') : _s('Sourates avancées', 'Advanced Surahs');
                 final sourates = kSouratesMemo.where((s) => s.difficulte == diff).toList();
                 return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Padding(
@@ -1979,9 +1985,9 @@ class _SuiviTabState extends State<_SuiviTab> {
                     child: Text(label, style: const TextStyle(color: _kTextMid, fontSize: 11, fontWeight: FontWeight.w700)),
                   ),
                   Wrap(spacing: 6, runSpacing: 6, children: sourates.map((s) {
-                    final done = _souratesApprises[_selectedEnfant]!.contains(s.nom);
+                    final done = _souratesApprises[_selectedEnfant]!.contains(s.getNom());
                     return GestureDetector(
-                      onTap: () => _toggleSourate(_selectedEnfant!, s.nom),
+                      onTap: () => _toggleSourate(_selectedEnfant!, s.getNom()),
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
@@ -1989,7 +1995,7 @@ class _SuiviTabState extends State<_SuiviTab> {
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: done ? _kGreenMedium : _kBeigeBorder),
                         ),
-                        child: Text(s.nom, style: TextStyle(color: done ? Colors.white : _kTextDark, fontSize: 11, fontWeight: done ? FontWeight.w700 : FontWeight.w500)),
+                        child: Text(s.getNom(), style: TextStyle(color: done ? Colors.white : _kTextDark, fontSize: 11, fontWeight: done ? FontWeight.w700 : FontWeight.w500)),
                       ),
                     );
                   }).toList()),
@@ -2004,14 +2010,14 @@ class _SuiviTabState extends State<_SuiviTab> {
           Container(
             margin: const EdgeInsets.only(top: 30),
             padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(color: _kGoldLight, borderRadius: BorderRadius.circular(18), border: Border.all(color: _kGold.withOpacity(0.3))),
-            child: const Column(children: [
-              Text('👶', style: TextStyle(fontSize: 40)),
-              SizedBox(height: 12),
-              Text('Commencez le suivi', style: TextStyle(color: _kGold, fontSize: 16, fontWeight: FontWeight.w800)),
-              SizedBox(height: 6),
-              Text('Ajoutez un enfant pour suivre sa progression dans l\'apprentissage de la prière et la mémorisation du Coran.',
-                  textAlign: TextAlign.center, style: TextStyle(color: _kTextMid, fontSize: 13, height: 1.4)),
+            decoration: BoxDecoration(color: _kGoldLight, borderRadius: BorderRadius.circular(18), border: Border.all(color: _kGold.withValues(alpha: 0.3))),
+            child: Column(children: [
+              const Text('👶', style: TextStyle(fontSize: 40)),
+              const SizedBox(height: 12),
+              Text(_s('Commencez le suivi', 'Start Tracking'), style: const TextStyle(color: _kGold, fontSize: 16, fontWeight: FontWeight.w800)),
+              const SizedBox(height: 6),
+              Text(context.t.familyAddChildDesc,
+                  textAlign: TextAlign.center, style: const TextStyle(color: _kTextMid, fontSize: 13, height: 1.4)),
             ]),
           ),
       ],
@@ -2027,11 +2033,11 @@ class _SuiviTabState extends State<_SuiviTab> {
       builder: (ctx) => Padding(
         padding: EdgeInsets.fromLTRB(20, 20, 20, MediaQuery.of(ctx).viewInsets.bottom + 20),
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Text('Ajouter un enfant', style: TextStyle(color: _kGreenPrimary, fontSize: 18, fontWeight: FontWeight.w800)),
+          Text(_s('Ajouter un enfant', 'Add a Child'), style: const TextStyle(color: _kGreenPrimary, fontSize: 18, fontWeight: FontWeight.w800)),
           const SizedBox(height: 16),
-          TextField(controller: nomCtrl, decoration: InputDecoration(labelText: 'Prénom', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)))),
+          TextField(controller: nomCtrl, decoration: InputDecoration(labelText: context.t.familyFirstName, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)))),
           const SizedBox(height: 12),
-          TextField(controller: ageCtrl, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: 'Âge', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)))),
+          TextField(controller: ageCtrl, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: _s('Âge', 'Age'), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)))),
           const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
@@ -2042,7 +2048,7 @@ class _SuiviTabState extends State<_SuiviTab> {
                 final age = int.tryParse(ageCtrl.text.trim()) ?? 0;
                 if (nom.isNotEmpty && age > 0 && age < 18) { _ajouterEnfant(nom, age); Navigator.pop(ctx); }
               },
-              child: const Text('Ajouter', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
+              child: Text(context.t.familyAdd, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
             ),
           ),
         ]),
@@ -2072,46 +2078,46 @@ class _DefisTab extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: const LinearGradient(colors: [Color(0xFF8A4A1A), Color(0xFFB86B2A)]),
             borderRadius: BorderRadius.circular(20),
-            boxShadow: [BoxShadow(color: const Color(0xFF8A4A1A).withOpacity(0.3), blurRadius: 16, offset: const Offset(0, 6))],
+            boxShadow: [BoxShadow(color: const Color(0xFF8A4A1A).withValues(alpha: 0.3), blurRadius: 16, offset: const Offset(0, 6))],
           ),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(12)),
-                child: const Text('Défi de la semaine', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w800)),
+                decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(12)),
+                child: Text(context.t.familyWeeklyChallenge, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w800)),
               ),
               const Spacer(),
               Text(defiSemaine.emoji, style: const TextStyle(fontSize: 32)),
             ]),
             const SizedBox(height: 10),
-            Text(defiSemaine.title, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900)),
+            Text(defiSemaine.getTitle(), style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900)),
             const SizedBox(height: 6),
-            Text(defiSemaine.description, style: TextStyle(color: Colors.white.withOpacity(0.75), fontSize: 13, height: 1.4)),
+            Text(defiSemaine.getDescription(), style: TextStyle(color: Colors.white.withValues(alpha: 0.75), fontSize: 13, height: 1.4)),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(color: Colors.white.withOpacity(0.15), borderRadius: BorderRadius.circular(8)),
-              child: Text('⏱️ ${defiSemaine.duration}', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
+              decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
+              child: Text('⏱️ ${defiSemaine.getDuration()}', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
             ),
             const SizedBox(height: 14),
-            ...defiSemaine.steps.asMap().entries.map((entry) => Padding(
+            ...defiSemaine.getSteps().asMap().entries.map((entry) => Padding(
               padding: const EdgeInsets.only(bottom: 6),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Container(
                   width: 22, height: 22, margin: const EdgeInsets.only(top: 1),
-                  decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(6)),
+                  decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(6)),
                   child: Center(child: Text('${entry.key + 1}', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700))),
                 ),
                 const SizedBox(width: 8),
-                Expanded(child: Text(entry.value, style: TextStyle(color: Colors.white.withOpacity(0.85), fontSize: 13, height: 1.3))),
+                Expanded(child: Text(entry.value, style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 13, height: 1.3))),
               ]),
             )),
           ]),
         ),
         const SizedBox(height: 20),
 
-        const Text('Tous les défis', style: TextStyle(color: _kGreenPrimary, fontSize: 16, fontWeight: FontWeight.w800)),
+        Text(context.t.familyAllChallenges, style: const TextStyle(color: _kGreenPrimary, fontSize: 16, fontWeight: FontWeight.w800)),
         const SizedBox(height: 10),
         ...kFamilyChallenges.map((d) => _DefiCard(defi: d)),
       ],
@@ -2144,14 +2150,14 @@ class _DefiCardState extends State<_DefiCard> {
             Text(d.emoji, style: const TextStyle(fontSize: 26)),
             const SizedBox(width: 12),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(d.title, style: const TextStyle(color: _kTextDark, fontSize: 14, fontWeight: FontWeight.w700)),
+              Text(d.getTitle(), style: const TextStyle(color: _kTextDark, fontSize: 14, fontWeight: FontWeight.w700)),
               Row(children: [
-                Text('⏱️ ${d.duration}', style: const TextStyle(color: _kTextLight, fontSize: 10)),
+                Text('⏱️ ${d.getDuration()}', style: const TextStyle(color: _kTextLight, fontSize: 10)),
                 const SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(color: _kGreenMedium.withOpacity(0.1), borderRadius: BorderRadius.circular(6)),
-                  child: Text(d.category, style: const TextStyle(color: _kGreenMedium, fontSize: 9, fontWeight: FontWeight.w700)),
+                  decoration: BoxDecoration(color: _kGreenMedium.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(6)),
+                  child: Text(d.getCategory(), style: const TextStyle(color: _kGreenMedium, fontSize: 9, fontWeight: FontWeight.w700)),
                 ),
               ]),
             ])),
@@ -2159,9 +2165,9 @@ class _DefiCardState extends State<_DefiCard> {
           ]),
           if (_expanded) ...[
             const SizedBox(height: 10),
-            Text(d.description, style: const TextStyle(color: _kTextMid, fontSize: 13, height: 1.4)),
+            Text(d.getDescription(), style: const TextStyle(color: _kTextMid, fontSize: 13, height: 1.4)),
             const SizedBox(height: 10),
-            ...d.steps.asMap().entries.map((e) => Padding(
+            ...d.getSteps().asMap().entries.map((e) => Padding(
               padding: const EdgeInsets.only(bottom: 4),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text('${e.key + 1}. ', style: const TextStyle(color: _kGreenMedium, fontSize: 12, fontWeight: FontWeight.w800)),
@@ -2213,7 +2219,7 @@ class _ConseilsTabState extends State<_ConseilsTab> {
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: sel ? _kGreenPrimary : _kBeigeBorder),
                   ),
-                  child: Text(e.value, style: TextStyle(color: sel ? Colors.white : _kTextMid, fontSize: 12, fontWeight: sel ? FontWeight.w800 : FontWeight.w500)),
+                  child: Text(AppLocale().isFrench ? e.value : (kAdviceCategoriesEn[e.key] ?? e.value), style: TextStyle(color: sel ? Colors.white : _kTextMid, fontSize: 12, fontWeight: sel ? FontWeight.w800 : FontWeight.w500)),
                 ),
               ),
             );
@@ -2234,10 +2240,10 @@ class _ConseilsTabState extends State<_ConseilsTab> {
                 Row(children: [
                   Text(a.emoji, style: const TextStyle(fontSize: 24)),
                   const SizedBox(width: 10),
-                  Expanded(child: Text(a.title, style: const TextStyle(color: _kTextDark, fontSize: 15, fontWeight: FontWeight.w800))),
+                  Expanded(child: Text(a.getTitle(), style: const TextStyle(color: _kTextDark, fontSize: 15, fontWeight: FontWeight.w800))),
                 ]),
                 const SizedBox(height: 10),
-                Text(a.content, style: const TextStyle(color: _kTextMid, fontSize: 14, height: 1.55)),
+                Text(a.getContent(), style: const TextStyle(color: _kTextMid, fontSize: 14, height: 1.55)),
                 if (a.hadithRef != null) ...[
                   const SizedBox(height: 10),
                   Container(

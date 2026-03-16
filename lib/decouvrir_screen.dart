@@ -6,12 +6,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'decouvrir_data.dart';
 import 'assistant_data.dart';
+import 'translations.dart';
+import 'app_locale.dart';
+
+String _s(String fr, String en) => AppLocale().isFrench ? fr : en;
 
 // ── Palette Découvrir (bleu profond) ──────────────────────────────
 const _kDeep    = Color(0xFF0A1628);
 const _kPrimary = Color(0xFF1A3A5C);
 const _kMedium  = Color(0xFF2D6A9F);
-const _kLight   = Color(0xFF4A9FD9);
 const _kGold    = Color(0xFFC8933A);
 const _kGoldLt  = Color(0xFFFFF4DC);
 const _kBeige   = Color(0xFFF6F0E3);
@@ -30,7 +33,6 @@ class DecouvrirScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final dayIndex = DateTime.now().difference(DateTime(2025, 1, 1)).inDays;
     final questionDuJour = kQuestionsDuJour[dayIndex % kQuestionsDuJour.length];
-    final faitDuJour = kFaitsMarquants[dayIndex % kFaitsMarquants.length];
     final sagesseDuJour = kSagesses[dayIndex % kSagesses.length];
 
     return Scaffold(
@@ -48,7 +50,7 @@ class DecouvrirScreen extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.12),
+                    color: Colors.white.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(Icons.arrow_back_ios_new_rounded,
@@ -72,14 +74,14 @@ class DecouvrirScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        const Text('Découvrir',
-                            style: TextStyle(
+                        Text(context.t.discoverTitle,
+                            style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 24,
                                 fontWeight: FontWeight.w900)),
-                        Text('Explore les trésors de l\'Islam',
+                        Text(context.t.discoverSubtitle,
                             style: TextStyle(
-                                color: Colors.white.withOpacity(0.55),
+                                color: Colors.white.withValues(alpha: 0.55),
                                 fontSize: 12)),
                       ],
                     ),
@@ -106,7 +108,7 @@ class DecouvrirScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                            color: _kPrimary.withOpacity(0.3),
+                            color: _kPrimary.withValues(alpha: 0.3),
                             blurRadius: 16,
                             offset: const Offset(0, 6)),
                       ],
@@ -119,11 +121,11 @@ class DecouvrirScreen extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
-                              color: _kGold.withOpacity(0.2),
+                              color: _kGold.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: const Text('Question du jour',
-                                style: TextStyle(
+                            child: Text(context.t.discoverQuestionOfDay,
+                                style: const TextStyle(
                                     color: _kGold,
                                     fontSize: 10,
                                     fontWeight: FontWeight.w800)),
@@ -140,9 +142,9 @@ class DecouvrirScreen extends StatelessWidget {
                                 fontWeight: FontWeight.w800,
                                 height: 1.3)),
                         const SizedBox(height: 8),
-                        Text('Appuyer pour voir la réponse →',
+                        Text(context.t.discoverTapToReveal,
                             style: TextStyle(
-                                color: Colors.white.withOpacity(0.5),
+                                color: Colors.white.withValues(alpha: 0.5),
                                 fontSize: 11)),
                       ],
                     ),
@@ -156,7 +158,7 @@ class DecouvrirScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: _kGoldLt,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: _kGold.withOpacity(0.3)),
+                    border: Border.all(color: _kGold.withValues(alpha: 0.3)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -165,8 +167,8 @@ class DecouvrirScreen extends StatelessWidget {
                         Text(sagesseDuJour.emoji,
                             style: const TextStyle(fontSize: 20)),
                         const SizedBox(width: 8),
-                        const Text('Sagesse du jour',
-                            style: TextStyle(
+                        Text(context.t.discoverWisdom,
+                            style: const TextStyle(
                                 color: _kGold,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w800)),
@@ -202,7 +204,7 @@ class DecouvrirScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                            color: const Color(0xFF1A6B4A).withOpacity(0.3),
+                            color: const Color(0xFF1A6B4A).withValues(alpha: 0.3),
                             blurRadius: 16,
                             offset: const Offset(0, 6)),
                       ],
@@ -211,7 +213,7 @@ class DecouvrirScreen extends StatelessWidget {
                       Container(
                         width: 52, height: 52,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.15),
+                          color: Colors.white.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: const Center(
@@ -224,22 +226,22 @@ class DecouvrirScreen extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Pose ta Question',
-                                style: TextStyle(
+                            Text(_s('Pose ta Question', 'Ask Your Question'),
+                                style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 17,
                                     fontWeight: FontWeight.w900)),
                             const SizedBox(height: 3),
                             Text(
-                                '${kAssistantTopics.length} thèmes · Ramadan, Hajj, Mariage...',
+                                "${kAssistantTopics.length} ${_s('thèmes', 'topics')} · Ramadan, Hajj, ${_s('Mariage', 'Marriage')}...",
                                 style: TextStyle(
-                                    color: Colors.white.withOpacity(0.6),
+                                    color: Colors.white.withValues(alpha: 0.6),
                                     fontSize: 11)),
                           ],
                         ),
                       ),
                       Icon(Icons.arrow_forward_ios_rounded,
-                          color: Colors.white.withOpacity(0.5), size: 18),
+                          color: Colors.white.withValues(alpha: 0.5), size: 18),
                     ]),
                   ),
                 ),
@@ -248,40 +250,40 @@ class DecouvrirScreen extends StatelessWidget {
                 // Section cards
                 _HubSection(
                   emoji: '\u2753',
-                  title: 'Questions du Jour',
-                  subtitle: '${kQuestionsDuJour.length} questions pour apprendre',
+                  title: _s('Questions du Jour', 'Questions of the Day'),
+                  subtitle: "${kQuestionsDuJour.length} ${_s('questions pour apprendre', 'questions to learn')}",
                   color: _kMedium,
                   onTap: () => Navigator.push(context, MaterialPageRoute(
                       builder: (_) => const _QuestionsListScreen())),
                 ),
                 _HubSection(
                   emoji: '💡',
-                  title: 'Le Saviez-Vous ?',
-                  subtitle: 'Faits fascinants sur l\'Islam et la science',
+                  title: _s('Le Saviez-Vous ?', 'Did You Know?'),
+                  subtitle: _s('Faits fascinants sur l\'Islam et la science', 'Fascinating facts about Islam and science'),
                   color: const Color(0xFF8A6A3A),
                   onTap: () => Navigator.push(context, MaterialPageRoute(
                       builder: (_) => const _FaitsScreen())),
                 ),
                 _HubSection(
                   emoji: '🌟',
-                  title: 'Histoires des Prophètes',
-                  subtitle: '${kProphetStories.length} prophètes et leurs leçons',
+                  title: context.t.discoverProphetStories,
+                  subtitle: "${kProphetStories.length} ${_s('prophètes et leurs leçons', 'prophets and their lessons')}",
                   color: const Color(0xFF2A7A52),
                   onTap: () => Navigator.push(context, MaterialPageRoute(
                       builder: (_) => const _ProphetesScreen())),
                 ),
                 _HubSection(
                   emoji: '📜',
-                  title: 'Sagesses & Citations',
-                  subtitle: '${kSagesses.length} paroles de sagesse',
+                  title: _s('Sagesses & Citations', 'Wisdom & Quotes'),
+                  subtitle: "${kSagesses.length} ${_s('paroles de sagesse', 'words of wisdom')}",
                   color: const Color(0xFF6A3FAA),
                   onTap: () => Navigator.push(context, MaterialPageRoute(
                       builder: (_) => const _SagessesScreen())),
                 ),
                 _HubSection(
                   emoji: '🧠',
-                  title: 'Quiz Islamique',
-                  subtitle: 'Teste tes connaissances !',
+                  title: _s('Quiz Islamique', 'Islamic Quiz'),
+                  subtitle: _s('Teste tes connaissances !', 'Test your knowledge!'),
                   color: const Color(0xFFB85C3A),
                   onTap: () => Navigator.push(context, MaterialPageRoute(
                       builder: (_) => const _QuizScreen())),
@@ -328,7 +330,7 @@ class _HubSection extends StatelessWidget {
           Container(
             width: 48, height: 48,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.12),
+              color: color.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(14),
             ),
             child: Center(
@@ -371,8 +373,8 @@ class _QuestionDetailScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: _kPrimary,
         foregroundColor: Colors.white,
-        title: const Text('Question du Jour',
-            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+        title: Text(_s('Question du Jour', 'Question of the Day'),
+            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -411,8 +413,8 @@ class _QuestionDetailScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Réponse',
-                      style: TextStyle(
+                  Text(context.t.discoverAnswer,
+                      style: const TextStyle(
                           color: _kPrimary,
                           fontSize: 14,
                           fontWeight: FontWeight.w800)),
@@ -462,8 +464,8 @@ class _QuestionsListScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: _kPrimary,
         foregroundColor: Colors.white,
-        title: const Text('Questions du Jour',
-            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+        title: Text(_s('Questions du Jour', 'Questions of the Day'),
+            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
@@ -516,8 +518,8 @@ class _FaitsScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: _kPrimary,
         foregroundColor: Colors.white,
-        title: const Text('Le Saviez-Vous ?',
-            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+        title: Text(_s('Le Saviez-Vous ?', 'Did You Know?'),
+            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
@@ -599,8 +601,8 @@ class _ProphetesScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: _kPrimary,
         foregroundColor: Colors.white,
-        title: const Text('Histoires des Prophètes',
-            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+        title: Text(context.t.discoverProphetStories,
+            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
@@ -622,7 +624,7 @@ class _ProphetesScreen extends StatelessWidget {
                 Container(
                   width: 50, height: 50,
                   decoration: BoxDecoration(
-                    color: _kPrimary.withOpacity(0.08),
+                    color: _kPrimary.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Center(
@@ -635,7 +637,7 @@ class _ProphetesScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(children: [
-                        Text(p.nom,
+                        Text(p.displayNom,
                             style: const TextStyle(
                                 color: _kTxtDk,
                                 fontSize: 15,
@@ -675,7 +677,7 @@ class _ProphetDetailScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: _kPrimary,
         foregroundColor: Colors.white,
-        title: Text(prophet.nom,
+        title: Text(prophet.displayNom,
             style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
       ),
       body: SingleChildScrollView(
@@ -698,20 +700,20 @@ class _ProphetDetailScreen extends StatelessWidget {
                         color: _kGold, fontSize: 28, fontWeight: FontWeight.w800)),
                 Text(prophet.titre,
                     style: TextStyle(
-                        color: Colors.white.withOpacity(0.7), fontSize: 13)),
+                        color: Colors.white.withValues(alpha: 0.7), fontSize: 13)),
               ]),
             ),
             const SizedBox(height: 16),
 
             // Résumé
-            _DetailCard(title: 'L\'histoire', child: Text(prophet.resume,
+            _DetailCard(title: _s('L\'histoire', 'The Story'), child: Text(prophet.resume,
                 style: const TextStyle(
                     color: _kTxtMid, fontSize: 15, height: 1.6))),
             const SizedBox(height: 12),
 
             // Leçons
             _DetailCard(
-              title: 'Leçons à retenir',
+              title: _s('Leçons à retenir', 'Lessons to Remember'),
               child: Column(
                 children: prophet.lecons.map((l) => Padding(
                   padding: const EdgeInsets.only(bottom: 8),
@@ -739,13 +741,13 @@ class _ProphetDetailScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: _kGoldLt,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: _kGold.withOpacity(0.3)),
+                border: Border.all(color: _kGold.withValues(alpha: 0.3)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Verset clé',
-                      style: TextStyle(
+                  Text(context.t.discoverVerseKey,
+                      style: const TextStyle(
                           color: _kGold,
                           fontSize: 12,
                           fontWeight: FontWeight.w800)),
@@ -797,8 +799,8 @@ class _SagessesScreenState extends State<_SagessesScreen> {
       appBar: AppBar(
         backgroundColor: _kPrimary,
         foregroundColor: Colors.white,
-        title: const Text('Sagesses & Citations',
-            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+        title: Text(_s('Sagesses & Citations', 'Wisdom & Quotes'),
+            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
       ),
       body: Column(
         children: [
@@ -943,7 +945,7 @@ class _QuizScreenState extends State<_QuizScreen> {
         backgroundColor: _kPrimary,
         foregroundColor: Colors.white,
         title: Text(_finished
-            ? 'Résultats'
+            ? _s('Résultats', 'Results')
             : 'Question ${_current + 1}/${_questions.length}',
             style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
       ),
@@ -1041,7 +1043,7 @@ class _QuizScreenState extends State<_QuizScreen> {
                           : _answered && i == _selectedAnswer && i != q.correctIndex
                               ? const Icon(Icons.close_rounded,
                                   color: Colors.white, size: 18)
-                              : Text('${String.fromCharCode(65 + i)}',
+                              : Text(String.fromCharCode(65 + i),
                                   style: const TextStyle(
                                       color: _kTxtMid,
                                       fontSize: 13,
@@ -1073,8 +1075,8 @@ class _QuizScreenState extends State<_QuizScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Explication',
-                      style: TextStyle(
+                  Text(_s('Explication', 'Explanation'),
+                      style: const TextStyle(
                           color: _kGold,
                           fontSize: 12,
                           fontWeight: FontWeight.w800)),
@@ -1099,8 +1101,8 @@ class _QuizScreenState extends State<_QuizScreen> {
                 onPressed: _next,
                 child: Text(
                     _current < _questions.length - 1
-                        ? 'Question suivante'
-                        : 'Voir les résultats',
+                        ? _s('Question suivante', 'Next question')
+                        : _s('Voir les résultats', 'See results'),
                     style: const TextStyle(
                         fontSize: 15, fontWeight: FontWeight.w800)),
               ),
@@ -1118,16 +1120,16 @@ class _QuizScreenState extends State<_QuizScreen> {
 
     if (percent >= 80) {
       emoji = '🏆';
-      message = 'ماشاءالله ! Excellente performance !';
+      message = _s('ماشاءالله ! Excellente performance !', 'MashaAllah! Excellent performance!');
     } else if (percent >= 60) {
       emoji = '⭐';
-      message = 'Très bien ! Continue d\'apprendre !';
+      message = _s('Très bien ! Continue d\'apprendre !', 'Very good! Keep learning!');
     } else if (percent >= 40) {
       emoji = '📚';
-      message = 'Pas mal ! Chaque apprentissage est une bénédiction.';
+      message = _s('Pas mal ! Chaque apprentissage est une bénédiction.', 'Not bad! Every learning is a blessing.');
     } else {
       emoji = '🌱';
-      message = 'C\'est le début du chemin. La recherche du savoir est une adoration !';
+      message = _s('C\'est le début du chemin. La recherche du savoir est une adoration !', 'This is the beginning of the path. Seeking knowledge is an act of worship!');
     }
 
     return SingleChildScrollView(
@@ -1142,7 +1144,7 @@ class _QuizScreenState extends State<_QuizScreen> {
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                    color: _kPrimary.withOpacity(0.3),
+                    color: _kPrimary.withValues(alpha: 0.3),
                     blurRadius: 20,
                     offset: const Offset(0, 8)),
               ],
@@ -1155,9 +1157,9 @@ class _QuizScreenState extends State<_QuizScreen> {
                       color: _kGold,
                       fontSize: 48,
                       fontWeight: FontWeight.w900)),
-              Text('$percent% de bonnes réponses',
+              Text(context.t.discoverCorrectAnswersPercent(percent),
                   style: TextStyle(
-                      color: Colors.white.withOpacity(0.7), fontSize: 14)),
+                      color: Colors.white.withValues(alpha: 0.7), fontSize: 14)),
               const SizedBox(height: 14),
               Text(message,
                   textAlign: TextAlign.center,
@@ -1179,8 +1181,8 @@ class _QuizScreenState extends State<_QuizScreen> {
                     borderRadius: BorderRadius.circular(14)),
               ),
               onPressed: () => setState(() => _startQuiz()),
-              child: const Text('Rejouer',
-                  style: TextStyle(
+              child: Text(_s('Rejouer', 'Play Again'),
+                  style: const TextStyle(
                       fontSize: 15, fontWeight: FontWeight.w800)),
             ),
           ),
@@ -1196,8 +1198,8 @@ class _QuizScreenState extends State<_QuizScreen> {
                 side: const BorderSide(color: _kPrimary, width: 2),
               ),
               onPressed: () => Navigator.pop(context),
-              child: const Text('Retour',
-                  style: TextStyle(
+              child: Text(_s('Retour', 'Back'),
+                  style: const TextStyle(
                       fontSize: 15, fontWeight: FontWeight.w800)),
             ),
           ),
@@ -1274,14 +1276,24 @@ class _AssistantScreenState extends State<_AssistantScreen> {
       setState(() {
         if (results.isEmpty) {
           _messages.add(_ChatMsg(
-            text: 'Je n\'ai pas de réponse précise pour cette question.\n\n'
-                'L\'Imam Malik ibn Anas — le grand savant de Médine — fut un jour interrogé '
-                'sur 48 questions. Il répondit à 36 d\'entre elles par « لا أدري » (je ne sais pas). '
-                'Ses élèves, surpris, lui demandèrent : « Que dirons-nous aux gens ? » '
-                'Il répondit : « Dites-leur que Malik ne sait pas. »\n\n'
-                'Si le plus grand savant de son époque n\'avait pas honte de dire '
-                '« je ne sais pas », alors moi non plus. 😊\n\n'
-                'Essaie de reformuler ta question ou choisis un thème ci-dessous.',
+            text: _s(
+              'Je n\'ai pas de réponse précise pour cette question.\n\n'
+              'L\'Imam Malik ibn Anas — le grand savant de Médine — fut un jour interrogé '
+              'sur 48 questions. Il répondit à 36 d\'entre elles par « لا أدري » (je ne sais pas). '
+              'Ses élèves, surpris, lui demandèrent : « Que dirons-nous aux gens ? » '
+              'Il répondit : « Dites-leur que Malik ne sait pas. »\n\n'
+              'Si le plus grand savant de son époque n\'avait pas honte de dire '
+              '« je ne sais pas », alors moi non plus. 😊\n\n'
+              'Essaie de reformuler ta question ou choisis un thème ci-dessous.',
+              'I don\'t have a precise answer for this question.\n\n'
+              'Imam Malik ibn Anas — the great scholar of Medina — was once asked '
+              '48 questions. He answered 36 of them with « لا أدري » (I don\'t know). '
+              'His students, surprised, asked him: "What shall we tell the people?" '
+              'He replied: "Tell them that Malik does not know."\n\n'
+              'If the greatest scholar of his time was not ashamed to say '
+              '"I don\'t know", then neither am I. 😊\n\n'
+              'Try rephrasing your question or choose a topic below.',
+            ),
             isUser: false,
             source: 'Tartib al-Madarik — Qadi Iyad',
           ));
@@ -1331,7 +1343,7 @@ class _AssistantScreenState extends State<_AssistantScreen> {
     Future.delayed(const Duration(milliseconds: 300), () {
       setState(() {
         _messages.add(_ChatMsg(
-          text: '${topic.description}\n\nVoici les questions disponibles :',
+          text: "${topic.description}\n\n${_s('Voici les questions disponibles :', 'Here are the available questions:')}",
           isUser: false,
           relatedQuestions: topic.questions.map((q) => q.question).toList(),
         ));
@@ -1364,7 +1376,7 @@ class _AssistantScreenState extends State<_AssistantScreen> {
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.12),
+                color: Colors.white.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(Icons.arrow_back_ios_new_rounded,
@@ -1383,9 +1395,14 @@ class _AssistantScreenState extends State<_AssistantScreen> {
               // Welcome message
               if (_messages.isEmpty) ...[
                 _BotBubble(
-                  text: 'Assalamu alaykum ! Je suis l\'assistant UpYourDeen. '
-                      'Pose-moi une question sur l\'Islam et je ferai de mon '
-                      'mieux pour te répondre avec des sources fiables.',
+                  text: _s(
+                    'Assalamu alaykum ! Je suis l\'assistant UpYourDeen. '
+                    'Pose-moi une question sur l\'Islam et je ferai de mon '
+                    'mieux pour te répondre avec des sources fiables.',
+                    'Assalamu alaykum! I am the UpYourDeen assistant. '
+                    'Ask me a question about Islam and I will do my '
+                    'best to answer you with reliable sources.',
+                  ),
                 ),
                 const SizedBox(height: 12),
                 // Quick suggestions
@@ -1398,10 +1415,10 @@ class _AssistantScreenState extends State<_AssistantScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1A6B4A).withOpacity(0.08),
+                        color: const Color(0xFF1A6B4A).withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                            color: const Color(0xFF1A6B4A).withOpacity(0.2)),
+                            color: const Color(0xFF1A6B4A).withValues(alpha: 0.2)),
                       ),
                       child: Text(s,
                           style: const TextStyle(
@@ -1437,7 +1454,7 @@ class _AssistantScreenState extends State<_AssistantScreen> {
                               boxShadow: [
                                 BoxShadow(
                                   color: const Color(0xFF1A6B4A)
-                                      .withOpacity(0.2),
+                                      .withValues(alpha: 0.2),
                                   blurRadius: 6,
                                   offset: const Offset(0, 2),
                                 ),
@@ -1464,10 +1481,10 @@ class _AssistantScreenState extends State<_AssistantScreen> {
                         if (m.relatedQuestions != null &&
                             m.relatedQuestions!.isNotEmpty) ...[
                           const SizedBox(height: 8),
-                          const Padding(
-                            padding: EdgeInsets.only(left: 4),
-                            child: Text('Questions liées :',
-                                style: TextStyle(
+                          Padding(
+                            padding: const EdgeInsets.only(left: 4),
+                            child: Text(context.t.discoverRelatedQuestions,
+                                style: const TextStyle(
                                     color: _kTxtLt,
                                     fontSize: 11,
                                     fontWeight: FontWeight.w700)),
@@ -1485,7 +1502,7 @@ class _AssistantScreenState extends State<_AssistantScreen> {
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
                                       color: const Color(0xFF1A6B4A)
-                                          .withOpacity(0.2)),
+                                          .withValues(alpha: 0.2)),
                                 ),
                                 child: Row(children: [
                                   const Icon(Icons.touch_app_rounded,
@@ -1513,8 +1530,8 @@ class _AssistantScreenState extends State<_AssistantScreen> {
               // Topic grid
               if (_showTopics && _messages.isNotEmpty) ...[
                 const SizedBox(height: 8),
-                const Text('Choisis un thème :',
-                    style: TextStyle(
+                Text(context.t.discoverChooseTheme,
+                    style: const TextStyle(
                         color: _kTxtMid,
                         fontSize: 13,
                         fontWeight: FontWeight.w800)),
@@ -1552,8 +1569,8 @@ class _AssistantScreenState extends State<_AssistantScreen> {
 
               // Topic grid for empty state
               if (_messages.isEmpty) ...[
-                const Text('Ou choisis un thème :',
-                    style: TextStyle(
+                Text(context.t.discoverOrChooseTheme,
+                    style: const TextStyle(
                         color: _kTxtMid,
                         fontSize: 13,
                         fontWeight: FontWeight.w800)),
@@ -1597,7 +1614,7 @@ class _AssistantScreenState extends State<_AssistantScreen> {
           padding: const EdgeInsets.fromLTRB(12, 8, 8, 12),
           decoration: BoxDecoration(
             color: _kCard,
-            border: Border(top: BorderSide(color: _kBorder.withOpacity(0.5))),
+            border: Border(top: BorderSide(color: _kBorder.withValues(alpha: 0.5))),
           ),
           child: SafeArea(
             top: false,
@@ -1613,11 +1630,11 @@ class _AssistantScreenState extends State<_AssistantScreen> {
                   ),
                   child: TextField(
                     controller: _ctrl,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       border: InputBorder.none,
-                      hintText: 'Pose ta question...',
+                      hintText: _s('Pose ta question...', 'Ask your question...'),
                       hintStyle:
-                          TextStyle(color: _kTxtLt, fontSize: 14),
+                          const TextStyle(color: _kTxtLt, fontSize: 14),
                     ),
                     style:
                         const TextStyle(color: _kTxtDk, fontSize: 14),
@@ -1635,7 +1652,7 @@ class _AssistantScreenState extends State<_AssistantScreen> {
                     borderRadius: BorderRadius.circular(22),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF1A6B4A).withOpacity(0.3),
+                        color: const Color(0xFF1A6B4A).withValues(alpha: 0.3),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -1701,7 +1718,7 @@ class _BotBubbleState extends State<_BotBubble> {
           width: 32, height: 32,
           margin: const EdgeInsets.only(top: 4),
           decoration: BoxDecoration(
-            color: const Color(0xFF1A6B4A).withOpacity(0.12),
+            color: const Color(0xFF1A6B4A).withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(10),
           ),
           child: const Center(
@@ -1745,7 +1762,7 @@ class _BotBubbleState extends State<_BotBubble> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF1A6B4A).withOpacity(0.06),
+                            color: const Color(0xFF1A6B4A).withValues(alpha: 0.06),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
@@ -1774,7 +1791,7 @@ class _BotBubbleState extends State<_BotBubble> {
                             horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: _copied
-                              ? const Color(0xFF1A6B4A).withOpacity(0.10)
+                              ? const Color(0xFF1A6B4A).withValues(alpha: 0.10)
                               : Colors.transparent,
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -1784,13 +1801,13 @@ class _BotBubbleState extends State<_BotBubble> {
                             Icon(
                               _copied ? Icons.check_rounded : Icons.copy_rounded,
                               size: 12,
-                              color: const Color(0xFF1A6B4A).withOpacity(0.6),
+                              color: const Color(0xFF1A6B4A).withValues(alpha: 0.6),
                             ),
                             const SizedBox(width: 3),
                             Text(
-                              _copied ? 'Copié' : 'Copier',
+                              _copied ? _s('Copié', 'Copied') : _s('Copier', 'Copy'),
                               style: TextStyle(
-                                color: const Color(0xFF1A6B4A).withOpacity(0.6),
+                                color: const Color(0xFF1A6B4A).withValues(alpha: 0.6),
                                 fontSize: 10,
                                 fontWeight: FontWeight.w600,
                               ),

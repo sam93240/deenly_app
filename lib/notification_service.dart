@@ -8,7 +8,6 @@ import 'user_profile.dart';
 
 class NotificationService {
   static const _kLastVisitKey = 'deenly_last_visit';
-  static const _kLastNotifIdKey = 'deenly_last_notif_id';
   static const _kNotifCountKey = 'deenly_notif_count';
   static const _kDismissedTodayKey = 'deenly_notif_dismissed_date';
 
@@ -233,30 +232,44 @@ extension _NotifTemplate on DeenlyNotif {
   }) {
     var msg = message;
     var tit = titre;
+    var msgEn = messageEn;
+    var titEn = titreEn;
 
     if (streak != null) {
       msg = msg.replaceAll('{streak}', '$streak');
       tit = tit.replaceAll('{streak}', '$streak');
+      if (msgEn != null) msgEn = msgEn.replaceAll('{streak}', '$streak');
+      if (titEn != null) titEn = titEn.replaceAll('{streak}', '$streak');
     }
     if (jours != null) {
       msg = msg.replaceAll('{jours}', '$jours');
       tit = tit.replaceAll('{jours}', '$jours');
+      if (msgEn != null) msgEn = msgEn.replaceAll('{jours}', '$jours');
+      if (titEn != null) titEn = titEn.replaceAll('{jours}', '$jours');
     }
     if (xp != null) {
       msg = msg.replaceAll('{xp}', '$xp');
       tit = tit.replaceAll('{xp}', '$xp');
+      if (msgEn != null) msgEn = msgEn.replaceAll('{xp}', '$xp');
+      if (titEn != null) titEn = titEn.replaceAll('{xp}', '$xp');
     }
     if (versets != null) {
       msg = msg.replaceAll('{versets}', '$versets');
       tit = tit.replaceAll('{versets}', '$versets');
+      if (msgEn != null) msgEn = msgEn.replaceAll('{versets}', '$versets');
+      if (titEn != null) titEn = titEn.replaceAll('{versets}', '$versets');
     }
     if (badge != null) {
       msg = msg.replaceAll('{badge}', badge);
       tit = tit.replaceAll('{badge}', badge);
+      if (msgEn != null) msgEn = msgEn.replaceAll('{badge}', badge);
+      if (titEn != null) titEn = titEn.replaceAll('{badge}', badge);
     }
     if (profile != null) {
       msg = msg.replaceAll('{prenom}', profile.prenom);
       tit = tit.replaceAll('{prenom}', profile.prenom);
+      if (msgEn != null) msgEn = msgEn.replaceAll('{prenom}', profile.prenom);
+      if (titEn != null) titEn = titEn.replaceAll('{prenom}', profile.prenom);
     }
 
     return DeenlyNotif(
@@ -266,6 +279,9 @@ extension _NotifTemplate on DeenlyNotif {
       message: msg,
       actionLabel: actionLabel,
       actionRoute: actionRoute,
+      titreEn: titEn,
+      messageEn: msgEn,
+      actionLabelEn: actionLabelEn,
     );
   }
 }

@@ -1,4 +1,6 @@
 import '../sourates_data.dart';
+import '../sourate_repository.dart';
+import '../app_locale.dart';
 import 'learning_models.dart';
 
 // ─── Path Types ───────────────────────────────────────────────────
@@ -78,6 +80,7 @@ class LessonGenerator {
           surahName:     sourate.nomArabe,
           surahNameFr:   sourate.nomFrancais,
           signification: sourate.signification,
+          significationEn: _significationEn(sourate.numero),
           icon:          _icons[sourate.numero] ?? '📖',
           xpReward:      15,
           isUnlocked:    isUnlocked,
@@ -89,6 +92,7 @@ class LessonGenerator {
               arabe:       v.arabe,
               phonetique:  v.phonetique,
               francais:    v.francais,
+              anglais:     v.anglais,
               mastery:     MasteryLevel.notSeen,
             )
           ],
@@ -103,7 +107,7 @@ class LessonGenerator {
   // ── Mode libre : toutes les sourates, 1 verset = 1 leçon ─────
   static List<LearningLesson> buildAllSurahs() {
     final lessons = <LearningLesson>[];
-    for (final s in sourates) {
+    for (final s in SourateRepository.instance.data) {
       for (final v in s.versets) {
         lessons.add(LearningLesson(
           surahNumber:   s.numero,
@@ -111,6 +115,7 @@ class LessonGenerator {
           surahName:     s.nomArabe,
           surahNameFr:   s.nomFrancais,
           signification: s.signification,
+          significationEn: _significationEn(s.numero),
           icon:          _icons[s.numero] ?? '📖',
           xpReward:      15,
           isUnlocked:    true,
@@ -122,6 +127,7 @@ class LessonGenerator {
               arabe:       v.arabe,
               phonetique:  v.phonetique,
               francais:    v.francais,
+              anglais:     v.anglais,
               mastery:     MasteryLevel.notSeen,
             )
           ],
@@ -153,8 +159,9 @@ class LessonGenerator {
     final exercises  = <Exercise>[];
 
     // Pool de distracteurs : autres versets du Coran (fallbacks intégrés)
-    final poolFr = [
-      verset.francais,
+    final isFr = AppLocale().isFrench;
+    final poolTranslations = isFr ? [
+      verset.traduction,
       'Au nom d\'Allah, le Tout Miséricordieux',
       'Louange à Allah, Seigneur des univers',
       'Maître du Jour du Jugement',
@@ -164,6 +171,17 @@ class LessonGenerator {
       'Allah, l\'Absolu',
       'Il n\'a pas engendré et n\'a pas été engendré',
       'En vérité, l\'homme est en grande perte',
+    ] : [
+      verset.traduction, // fallback: keep French version as base
+      'In the name of Allah, the Most Merciful',
+      'Praise be to Allah, Lord of all worlds',
+      'Master of the Day of Judgment',
+      'It is You we worship',
+      'Guide us to the straight path',
+      'Say: He is Allah, One',
+      'Allah, the Absolute',
+      'He has not begotten, and has not been begotten',
+      'Indeed, mankind is in loss',
     ];
     final poolPhonetique = [
       verset.phonetique,
@@ -182,8 +200,8 @@ class LessonGenerator {
     exercises.add(Exercise(
       type:          ExerciseType.listenChoose,
       verset:        verset,
-      correctAnswer: verset.francais,
-      options:       _buildOptions(verset.francais, poolFr),
+      correctAnswer: verset.traduction,
+      options:       _buildOptions(verset.traduction, poolTranslations),
     ));
 
     // Exercice 2 : voir l'arabe → compléter la phonétique
@@ -221,7 +239,7 @@ class LessonGenerator {
     LearningVerset verset,
     List<LearningVerset> pool,
   ) {
-    final allFr         = pool.map((v) => v.francais).toList();
+    final allTranslations   = pool.map((v) => v.traduction).toList();
     final allPhonetique = pool.map((v) => v.phonetique).toList();
 
     // Choisir le type selon le niveau de maîtrise
@@ -231,8 +249,8 @@ class LessonGenerator {
         return Exercise(
           type:          ExerciseType.listenChoose,
           verset:        verset,
-          correctAnswer: verset.francais,
-          options:       _buildOptions(verset.francais, allFr),
+          correctAnswer: verset.traduction,
+          options:       _buildOptions(verset.traduction, allTranslations),
         );
       case 1:
         return Exercise(
@@ -254,20 +272,27 @@ class LessonGenerator {
         return Exercise(
           type:          ExerciseType.listenChoose,
           verset:        verset,
-          correctAnswer: verset.francais,
-          options:       _buildOptions(verset.francais, allFr),
+          correctAnswer: verset.traduction,
+          options:       _buildOptions(verset.traduction, allTranslations),
         );
     }
   }
 
   // ─── Helpers ──────────────────────────────────────────────────
   static List<String> _buildOptions(String correct, List<String> pool) {
-    final fallbacks = [
+    final isFr = AppLocale().isFrench;
+    final fallbacks = isFr ? [
       'Au nom d\'Allah, le Tout Miséricordieux',
       'Louange à Allah, Seigneur des univers',
       'Dis : Il est Allah, Unique',
       'Seigneur de l\'aube',
       'Maître du Jour du Jugement',
+    ] : [
+      'In the name of Allah, the Most Merciful',
+      'Praise be to Allah, Lord of all worlds',
+      'Say: He is Allah, One',
+      'Lord of the dawn',
+      'Master of the Day of Judgment',
     ];
     final wrong = pool.where((o) => o != correct).toList()..shuffle();
     final opts  = <String>[correct];
@@ -280,7 +305,7 @@ class LessonGenerator {
 
   static Sourate? _findSourate(int num) {
     try {
-      return sourates.firstWhere((s) => s.numero == num);
+      return SourateRepository.instance.data.firstWhere((s) => s.numero == num);
     } catch (_) {
       return null;
     }
@@ -294,14 +319,127 @@ class LessonGenerator {
       case LearningPathType.importantes: return _importantesNums;
       case LearningPathType.juzAmma:     return _juzAmmaNums;
       case LearningPathType.libre:
-        return sourates.map((s) => s.numero).toList();
+        return SourateRepository.instance.data.map((s) => s.numero).toList();
     }
   }
 
-  static int _calcXP(Sourate s) {
-    if (s.nombreVersets <= 5)  return 15;
-    if (s.nombreVersets <= 15) return 25;
-    if (s.nombreVersets <= 50) return 40;
-    return 60;
-  }
+  static const _sigEnMap = <int, String>{
+    1: 'The Opener',
+    2: 'The Cow',
+    3: 'Family of Imran',
+    4: 'The Women',
+    5: 'The Table Spread',
+    6: 'The Cattle',
+    7: 'The Heights',
+    8: 'The Spoils of War',
+    9: 'The Repentance',
+    10: 'Jonah',
+    11: 'Hud',
+    12: 'Joseph',
+    13: 'The Thunder',
+    14: 'Abraham',
+    15: 'The Rocky Tract',
+    16: 'The Bee',
+    17: 'The Night Journey',
+    18: 'The Cave',
+    19: 'Mary',
+    20: 'Ta-Ha',
+    21: 'The Prophets',
+    22: 'The Pilgrimage',
+    23: 'The Believers',
+    24: 'The Light',
+    25: 'The Criterion',
+    26: 'The Poets',
+    27: 'The Ant',
+    28: 'The Stories',
+    29: 'The Spider',
+    30: 'The Romans',
+    31: 'Luqman',
+    32: 'The Prostration',
+    33: 'The Combined Forces',
+    34: 'Sheba',
+    35: 'Originator',
+    36: 'Ya Sin',
+    37: 'Those who set the Ranks',
+    38: 'The Letter "Saad"',
+    39: 'The Troops',
+    40: 'The Forgiver',
+    41: 'Explained in Detail',
+    42: 'The Consultation',
+    43: 'The Ornaments of Gold',
+    44: 'The Smoke',
+    45: 'The Crouching',
+    46: 'The Wind-Curved Sandhills',
+    47: 'Muhammad',
+    48: 'The Victory',
+    49: 'The Rooms',
+    50: 'The Letter "Qaf"',
+    51: 'The Winnowing Winds',
+    52: 'The Mount',
+    53: 'The Star',
+    54: 'The Moon',
+    55: 'The Beneficent',
+    56: 'The Inevitable',
+    57: 'The Iron',
+    58: 'The Pleading Woman',
+    59: 'The Exile',
+    60: 'She that is to be examined',
+    61: 'The Ranks',
+    62: 'The Congregation, Friday',
+    63: 'The Hypocrites',
+    64: 'The Mutual Disillusion',
+    65: 'The Divorce',
+    66: 'The Prohibition',
+    67: 'The Sovereignty',
+    68: 'The Pen',
+    69: 'The Reality',
+    70: 'The Ascending Stairways',
+    71: 'Noah',
+    72: 'The Jinn',
+    73: 'The Enshrouded One',
+    74: 'The Cloaked One',
+    75: 'The Resurrection',
+    76: 'The Man',
+    77: 'The Emissaries',
+    78: 'The Tidings',
+    79: 'Those who drag forth',
+    80: 'He Frowned',
+    81: 'The Overthrowing',
+    82: 'The Cleaving',
+    83: 'The Defrauding',
+    84: 'The Sundering',
+    85: 'The Mansions of the Stars',
+    86: 'The Nightcommer',
+    87: 'The Most High',
+    88: 'The Overwhelming',
+    89: 'The Dawn',
+    90: 'The City',
+    91: 'The Sun',
+    92: 'The Night',
+    93: 'The Morning Hours',
+    94: 'The Relief',
+    95: 'The Fig',
+    96: 'The Clot',
+    97: 'The Power',
+    98: 'The Clear Proof',
+    99: 'The Earthquake',
+    100: 'The Courser',
+    101: 'The Calamity',
+    102: 'The Rivalry in world increase',
+    103: 'The Declining Day',
+    104: 'The Traducer',
+    105: 'The Elephant',
+    106: 'Quraysh',
+    107: 'The Small kindnesses',
+    108: 'The Abundance',
+    109: 'The Disbelievers',
+    110: 'The Divine Support',
+    111: 'The Palm Fiber',
+    112: 'The Sincerity',
+    113: 'The Daybreak',
+    114: 'Mankind',
+  };
+
+  static String _significationEn(int num) => _sigEnMap[num] ?? '';
+
 }

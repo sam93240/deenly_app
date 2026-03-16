@@ -4,6 +4,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'journal_data.dart';
+import 'translations.dart';
+import 'app_locale.dart';
 
 // ── Palette UpYourDeen ──────────────────────────────────────────────────
 const _kDeep    = Color(0xFF0A2018);
@@ -17,6 +19,8 @@ const _kBorder  = Color(0xFFD6C9AF);
 const _kTxtDk   = Color(0xFF1A130A);
 const _kTxtMid  = Color(0xFF5A4833);
 const _kTxtLt   = Color(0xFF8A7863);
+
+String _s(String fr, String en) => AppLocale().isFrench ? fr : en;
 
 // ── Modèles locaux ────────────────────────────────────────────────
 
@@ -50,18 +54,16 @@ class _PersonalGoal {
   final String title;
   final String emoji;
   final DateTime created;
-  int currentDay;
+  int currentDay = 0;
   int targetDays;
-  bool completed;
+  bool completed = false;
 
   _PersonalGoal({
     required this.id,
     required this.title,
     required this.emoji,
     required this.created,
-    this.currentDay = 0,
     this.targetDays = 30,
-    this.completed = false,
   });
 }
 
@@ -71,7 +73,7 @@ class _ZakatRecord {
   final double amount;
   final double zakatDue;
   final DateTime date;
-  bool paid;
+  bool paid = false;
 
   _ZakatRecord({
     required this.id,
@@ -79,7 +81,6 @@ class _ZakatRecord {
     required this.amount,
     required this.zakatDue,
     required this.date,
-    this.paid = false,
   });
 }
 
@@ -124,18 +125,24 @@ class _JournalScreenState extends State<JournalScreen>
   final Map<String, bool> _doneActions = {};
 
   // -- State : Journal --
-  final List<_JournalEntry> _entries = [
+  late final List<_JournalEntry> _entries = [
     _JournalEntry(
       id: '1',
       date: DateTime.now().subtract(const Duration(days: 1)),
-      texte: 'Alhamdulillah, j\'ai pu prier Fajr à l\'heure et lire une page du Coran.',
+      texte: _s(
+        'Alhamdulillah, j\'ai pu prier Fajr à l\'heure et lire une page du Coran.',
+        'Alhamdulillah, I was able to pray Fajr on time and read a page of the Quran.',
+      ),
       type: 'gratitude',
       points: 10,
     ),
     _JournalEntry(
       id: 'lettre_demo',
       date: DateTime.now().subtract(const Duration(days: 31)),
-      texte: 'Cher moi du futur, j\'espère que tu continues à lire le Coran chaque jour. Rappelle-toi pourquoi tu as commencé ce chemin.',
+      texte: _s(
+        'Cher moi du futur, j\'espère que tu continues à lire le Coran chaque jour. Rappelle-toi pourquoi tu as commencé ce chemin.',
+        'Dear future me, I hope you continue to read the Quran every day. Remember why you started this path.',
+      ),
       type: 'lettre',
       points: 10,
     ),
@@ -288,7 +295,7 @@ class _JournalScreenState extends State<JournalScreen>
     setState(() {
       _goals.add(_PersonalGoal(
         id: '${tpl.id}_${DateTime.now().millisecondsSinceEpoch}',
-        title: tpl.title,
+        title: tpl.displayTitle,
         emoji: tpl.emoji,
         created: DateTime.now(),
         targetDays: targetDays,
@@ -404,10 +411,10 @@ class _JournalScreenState extends State<JournalScreen>
                     child: Container(
                       padding: const EdgeInsets.all(9),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.12),
+                        color: Colors.white.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                            color: Colors.white.withOpacity(0.2), width: 1),
+                            color: Colors.white.withValues(alpha: 0.2), width: 1),
                       ),
                       child: const Icon(Icons.arrow_back_ios_new_rounded,
                           color: Colors.white, size: 15),
@@ -418,14 +425,14 @@ class _JournalScreenState extends State<JournalScreen>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Journal Spirituel',
-                            style: TextStyle(
+                        Text(_s('Journal Spirituel', 'Spiritual Journal'),
+                            style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 20,
                                 fontWeight: FontWeight.w900)),
-                        Text('Réflexions, suivi & générosité',
+                        Text(context.t.journalReflectionsTracking,
                             style: TextStyle(
-                                color: Colors.white.withOpacity(0.55),
+                                color: Colors.white.withValues(alpha: 0.55),
                                 fontSize: 11)),
                       ],
                     ),
@@ -434,10 +441,10 @@ class _JournalScreenState extends State<JournalScreen>
                     padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
-                      color: _kGold.withOpacity(0.2),
+                      color: _kGold.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(20),
                       border:
-                          Border.all(color: _kGold.withOpacity(0.4), width: 1),
+                          Border.all(color: _kGold.withValues(alpha: 0.4), width: 1),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -449,7 +456,7 @@ class _JournalScreenState extends State<JournalScreen>
                                 fontWeight: FontWeight.w900)),
                         Text(' / $_scoreMax',
                             style: TextStyle(
-                                color: _kGold.withOpacity(0.6), fontSize: 10)),
+                                color: _kGold.withValues(alpha: 0.6), fontSize: 10)),
                       ],
                     ),
                   ),
@@ -463,16 +470,16 @@ class _JournalScreenState extends State<JournalScreen>
               indicatorColor: _kGold,
               indicatorWeight: 3,
               labelColor: Colors.white,
-              unselectedLabelColor: Colors.white.withOpacity(0.45),
+              unselectedLabelColor: Colors.white.withValues(alpha: 0.45),
               labelStyle:
                   const TextStyle(fontWeight: FontWeight.w700, fontSize: 11),
               tabAlignment: TabAlignment.start,
-              tabs: const [
-                Tab(text: 'Prières', icon: Icon(Icons.checklist_rounded, size: 15)),
-                Tab(text: 'Journal', icon: Icon(Icons.book_rounded, size: 15)),
-                Tab(text: 'Objectifs', icon: Icon(Icons.flag_rounded, size: 15)),
-                Tab(text: 'Générosité', icon: Icon(Icons.volunteer_activism_rounded, size: 15)),
-                Tab(text: 'Tableau', icon: Icon(Icons.dashboard_rounded, size: 15)),
+              tabs: [
+                Tab(text: _s('Prières', 'Prayers'), icon: const Icon(Icons.checklist_rounded, size: 15)),
+                Tab(text: _s('Journal', 'Journal'), icon: const Icon(Icons.book_rounded, size: 15)),
+                Tab(text: _s('Objectifs', 'Goals'), icon: const Icon(Icons.flag_rounded, size: 15)),
+                Tab(text: _s('Générosité', 'Generosity'), icon: const Icon(Icons.volunteer_activism_rounded, size: 15)),
+                Tab(text: _s('Tableau', 'Dashboard'), icon: const Icon(Icons.dashboard_rounded, size: 15)),
               ],
             ),
           ],
@@ -515,8 +522,8 @@ class _PrieresTab extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Score du jour',
-                    style: TextStyle(
+                Text(_s('Score du jour', 'Daily Score'),
+                    style: const TextStyle(
                         color: _kTxtMid,
                         fontWeight: FontWeight.w700,
                         fontSize: 13)),
@@ -547,8 +554,8 @@ class _PrieresTab extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Comment te sens-tu aujourd\'hui ?',
-                  style: TextStyle(
+              Text(_s('Comment te sens-tu aujourd\'hui ?', 'How do you feel today?'),
+                  style: const TextStyle(
                       color: _kTxtMid,
                       fontWeight: FontWeight.w700,
                       fontSize: 13)),
@@ -566,7 +573,7 @@ class _PrieresTab extends StatelessWidget {
                           horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
                         color: selected
-                            ? _kPrimary.withOpacity(0.12)
+                            ? _kPrimary.withValues(alpha: 0.12)
                             : _kBeige,
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
@@ -579,7 +586,7 @@ class _PrieresTab extends StatelessWidget {
                         children: [
                           Text(m.emoji, style: const TextStyle(fontSize: 18)),
                           const SizedBox(width: 6),
-                          Text(m.label,
+                          Text(m.displayLabel,
                               style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: selected
@@ -604,7 +611,7 @@ class _PrieresTab extends StatelessWidget {
             child: Row(children: [
               Text(cat.emoji, style: const TextStyle(fontSize: 18)),
               const SizedBox(width: 8),
-              Text(cat.title,
+              Text(cat.displayTitle,
                   style: const TextStyle(
                       color: _kTxtDk,
                       fontWeight: FontWeight.w800,
@@ -637,7 +644,7 @@ class _PrieresTab extends StatelessWidget {
                 leading: Text(action.emoji,
                     style: const TextStyle(fontSize: 20)),
                 title: Text(
-                  action.titre,
+                  action.displayTitre,
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -649,8 +656,8 @@ class _PrieresTab extends StatelessWidget {
                         : _kTxtDk,
                   ),
                 ),
-                subtitle: action.detail != null
-                    ? Text(action.detail!,
+                subtitle: action.displayDetail != null
+                    ? Text(action.displayDetail!,
                         style: const TextStyle(fontSize: 10, color: _kTxtLt),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis)
@@ -756,7 +763,7 @@ class _JournalTab extends StatelessWidget {
                 borderRadius: BorderRadius.circular(18),
                 boxShadow: [
                   BoxShadow(
-                      color: _kPrimary.withOpacity(0.3),
+                      color: _kPrimary.withValues(alpha: 0.3),
                       blurRadius: 12,
                       offset: const Offset(0, 4)),
                 ],
@@ -769,11 +776,11 @@ class _JournalTab extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: _kGold.withOpacity(0.2),
+                        color: _kGold.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Text('Réflexion du jour',
-                          style: TextStyle(
+                      child: Text(context.t.journalDailyReflection,
+                          style: const TextStyle(
                               color: _kGold,
                               fontSize: 10,
                               fontWeight: FontWeight.w800)),
@@ -784,7 +791,7 @@ class _JournalTab extends StatelessWidget {
                   ]),
                   const SizedBox(height: 10),
                   Text(
-                    promptDuJour.question,
+                    promptDuJour.displayQuestion,
                     style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
@@ -792,9 +799,9 @@ class _JournalTab extends StatelessWidget {
                         height: 1.4),
                   ),
                   const SizedBox(height: 8),
-                  Text('Appuyer pour répondre →',
+                  Text(context.t.journalTapToAnswer,
                       style: TextStyle(
-                          color: Colors.white.withOpacity(0.5), fontSize: 11)),
+                          color: Colors.white.withValues(alpha: 0.5), fontSize: 11)),
                 ],
               ),
             ),
@@ -806,7 +813,7 @@ class _JournalTab extends StatelessWidget {
             Expanded(
               child: _QuickAddBtn(
                 emoji: '📝',
-                label: 'Note privée',
+                label: _s('Note privée', 'Private Note'),
                 onTap: () => _showAddSheet(context, forceType: 'note'),
               ),
             ),
@@ -814,7 +821,7 @@ class _JournalTab extends StatelessWidget {
             Expanded(
               child: _QuickAddBtn(
                 emoji: '✉️',
-                label: 'Lettre à moi',
+                label: _s('Lettre à moi', 'Letter to Me'),
                 onTap: () => _showAddSheet(context, forceType: 'lettre'),
               ),
             ),
@@ -824,7 +831,7 @@ class _JournalTab extends StatelessWidget {
           // Entry list
           Padding(
             padding: const EdgeInsets.only(left: 4, bottom: 8),
-            child: Text('Vos entrées (${entries.length})',
+            child: Text(context.t.journalEntriesCount(entries.length),
                 style: const TextStyle(
                     color: _kTxtDk,
                     fontWeight: FontWeight.w800,
@@ -883,7 +890,7 @@ class _LetterReminderCardState extends State<_LetterReminderCard> {
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-              color: const Color(0xFF6A3FAA).withOpacity(0.3),
+              color: const Color(0xFF6A3FAA).withValues(alpha: 0.3),
               blurRadius: 12,
               offset: const Offset(0, 4)),
         ],
@@ -895,7 +902,7 @@ class _LetterReminderCardState extends State<_LetterReminderCard> {
             const Text('✉️', style: TextStyle(fontSize: 22)),
             const SizedBox(width: 8),
             Expanded(
-              child: Text(kLetterReminders[idx],
+              child: Text(kLetterReminders[idx].displayMessage,
                   style: const TextStyle(
                       color: Colors.white,
                       fontSize: 13,
@@ -910,11 +917,11 @@ class _LetterReminderCardState extends State<_LetterReminderCard> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Text('Ouvrir ma lettre',
-                    style: TextStyle(
+                child: Text(_s('Ouvrir ma lettre', 'Open My Letter'),
+                    style: const TextStyle(
                         color: Colors.white,
                         fontSize: 12,
                         fontWeight: FontWeight.w700)),
@@ -924,7 +931,7 @@ class _LetterReminderCardState extends State<_LetterReminderCard> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.15),
+                color: Colors.white.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(widget.entry.texte,
@@ -953,7 +960,7 @@ class _ThirtyDaysAgoCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: _kGoldLt,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _kGold.withOpacity(0.3)),
+        border: Border.all(color: _kGold.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -961,7 +968,7 @@ class _ThirtyDaysAgoCard extends StatelessWidget {
           Row(children: [
             const Text('🔮', style: TextStyle(fontSize: 18)),
             const SizedBox(width: 8),
-            Text('Il y a $days jours, tu écrivais...',
+            Text(context.t.journalDaysAgo(days),
                 style: const TextStyle(
                     color: _kGold,
                     fontSize: 12,
@@ -1029,7 +1036,7 @@ class _EmptyJournalMessage extends StatelessWidget {
           const SizedBox(height: 12),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Text(kWelcomeBackMessages[idx],
+            child: Text(kWelcomeBackMessages[idx].displayMessage,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                     color: _kTxtMid, fontSize: 14, height: 1.5)),
@@ -1044,10 +1051,9 @@ class _EntryCard extends StatelessWidget {
   final _JournalEntry entry;
   const _EntryCard({required this.entry});
 
-  static const _months = [
-    '', 'Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun',
-    'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'
-  ];
+  List<String> get _months => AppLocale().isFrench
+      ? ['', 'Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc']
+      : ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
   Color _typeColor() {
     switch (entry.type) {
@@ -1076,11 +1082,11 @@ class _EntryCard extends StatelessWidget {
   String _typeLabel() {
     switch (entry.type) {
       case 'gratitude': return '💚 Gratitude';
-      case 'action': return '✅ Bonne action';
+      case 'action': return _s('✅ Bonne action', '✅ Good Deed');
       case 'dua': return '🤲 Du\'a';
-      case 'reflexion': return '💭 Réflexion';
-      case 'note': return '📝 Note privée';
-      case 'lettre': return '✉️ Lettre à moi';
+      case 'reflexion': return _s('💭 Réflexion', '💭 Reflection');
+      case 'note': return _s('📝 Note privée', '📝 Private Note');
+      case 'lettre': return _s('✉️ Lettre à moi', '✉️ Letter to Me');
       default: return entry.type;
     }
   }
@@ -1173,7 +1179,7 @@ class _ObjectifsTab extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                  color: _kPrimary.withOpacity(0.3),
+                  color: _kPrimary.withValues(alpha: 0.3),
                   blurRadius: 16,
                   offset: const Offset(0, 6)),
             ],
@@ -1181,21 +1187,21 @@ class _ObjectifsTab extends StatelessWidget {
           child: Column(children: [
             const Text('🔥', style: TextStyle(fontSize: 36)),
             const SizedBox(height: 6),
-            Text('$streak jour${streak > 1 ? 's' : ''} de suite',
+            Text(_s('$streak jour${streak > 1 ? 's' : ''} de suite', '$streak day${streak > 1 ? 's' : ''} in a row'),
                 style: const TextStyle(
                     color: Colors.white,
                     fontSize: 24,
                     fontWeight: FontWeight.w900)),
             const SizedBox(height: 4),
-            Text('Meilleur : $bestStreak jours',
+            Text(_s('Meilleur : $bestStreak jours', 'Best: $bestStreak days'),
                 style: TextStyle(
-                    color: Colors.white.withOpacity(0.6), fontSize: 12)),
+                    color: Colors.white.withValues(alpha: 0.6), fontSize: 12)),
             if (nextMilestone != null) ...[
               const SizedBox(height: 14),
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
+                  color: Colors.white.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Row(children: [
@@ -1207,15 +1213,15 @@ class _ObjectifsTab extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                            'Prochain palier : ${nextMilestone!.title} (${nextMilestone!.days}j)',
+                            _s('Prochain palier : ${nextMilestone!.displayTitle} (${nextMilestone!.days}j)', 'Next milestone: ${nextMilestone!.displayTitle} (${nextMilestone!.days}d)'),
                             style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700)),
                         const SizedBox(height: 3),
-                        Text(nextMilestone!.hadith,
+                        Text(nextMilestone!.displayHadith,
                             style: TextStyle(
-                                color: Colors.white.withOpacity(0.6),
+                                color: Colors.white.withValues(alpha: 0.6),
                                 fontSize: 10,
                                 fontStyle: FontStyle.italic),
                             maxLines: 2,
@@ -1232,8 +1238,8 @@ class _ObjectifsTab extends StatelessWidget {
 
         // Current goals
         Row(children: [
-          const Text('Mes objectifs',
-              style: TextStyle(
+          Text(_s('Mes objectifs', 'My Goals'),
+              style: const TextStyle(
                   color: _kTxtDk,
                   fontWeight: FontWeight.w800,
                   fontSize: 15)),
@@ -1247,8 +1253,8 @@ class _ObjectifsTab extends StatelessWidget {
                 color: _kPrimary,
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: const Text('+ Ajouter',
-                  style: TextStyle(
+              child: Text(_s('+ Ajouter', '+ Add'),
+                  style: const TextStyle(
                       color: Colors.white,
                       fontSize: 12,
                       fontWeight: FontWeight.w700)),
@@ -1262,11 +1268,11 @@ class _ObjectifsTab extends StatelessWidget {
             child: Column(children: [
               const Text('🎯', style: TextStyle(fontSize: 36)),
               const SizedBox(height: 8),
-              const Text('Aucun objectif pour l\'instant',
-                  style: TextStyle(color: _kTxtMid, fontSize: 14)),
+              Text(_s('Aucun objectif pour l\'instant', 'No goals yet'),
+                  style: const TextStyle(color: _kTxtMid, fontSize: 14)),
               const SizedBox(height: 4),
-              const Text('Appuyez sur + pour en ajouter un',
-                  style: TextStyle(color: _kTxtLt, fontSize: 12)),
+              Text(_s('Appuyez sur + pour en ajouter un', 'Tap + to add one'),
+                  style: const TextStyle(color: _kTxtLt, fontSize: 12)),
             ]),
           )
         else
@@ -1275,8 +1281,8 @@ class _ObjectifsTab extends StatelessWidget {
 
         // Milestones overview
         const SizedBox(height: 20),
-        const Text('Paliers de régularité',
-            style: TextStyle(
+        Text(context.t.journalRegularityMilestones,
+            style: const TextStyle(
                 color: _kTxtDk,
                 fontWeight: FontWeight.w800,
                 fontSize: 15)),
@@ -1298,7 +1304,7 @@ class _ObjectifsTab extends StatelessWidget {
               Text(m.emoji, style: const TextStyle(fontSize: 20)),
               const SizedBox(width: 10),
               Expanded(
-                child: Text('${m.days} jours — ${m.title}',
+                child: Text(_s('${m.days} jours — ${m.displayTitle}', '${m.days} days — ${m.displayTitle}'),
                     style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
@@ -1371,8 +1377,8 @@ class _GoalCard extends StatelessWidget {
                     color: _kPrimary,
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: const Text('+1 jour',
-                      style: TextStyle(
+                  child: Text(_s('+1 jour', '+1 day'),
+                      style: const TextStyle(
                           color: Colors.white,
                           fontSize: 11,
                           fontWeight: FontWeight.w700)),
@@ -1397,7 +1403,7 @@ class _GoalCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 10),
-            Text('${goal.currentDay}/${goal.targetDays}j',
+            Text('${goal.currentDay}/${goal.targetDays}${_s('j', 'd')}',
                 style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -1453,7 +1459,7 @@ class _GenerositeTab extends StatelessWidget {
             borderRadius: BorderRadius.circular(18),
             boxShadow: [
               BoxShadow(
-                  color: _kPrimary.withOpacity(0.3),
+                  color: _kPrimary.withValues(alpha: 0.3),
                   blurRadius: 12,
                   offset: const Offset(0, 4)),
             ],
@@ -1461,7 +1467,7 @@ class _GenerositeTab extends StatelessWidget {
           child: Column(children: [
             const Text('🤲', style: TextStyle(fontSize: 28)),
             const SizedBox(height: 8),
-            Text(kGenerosityHadiths[hadithIdx],
+            Text(kGenerosityHadiths[hadithIdx].displayText,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                     color: Colors.white,
@@ -1478,7 +1484,7 @@ class _GenerositeTab extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: _kMedium.withOpacity(0.12),
+                color: _kMedium.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Text('💚', style: TextStyle(fontSize: 24)),
@@ -1488,8 +1494,8 @@ class _GenerositeTab extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Total donné cette année',
-                      style: TextStyle(
+                  Text(context.t.journalTotalGivenYear,
+                      style: const TextStyle(
                           color: _kTxtMid,
                           fontSize: 12,
                           fontWeight: FontWeight.w600)),
@@ -1506,8 +1512,8 @@ class _GenerositeTab extends StatelessWidget {
         const SizedBox(height: 16),
 
         // ── SECTION ZAKAT ──
-        const Text('Zakat',
-            style: TextStyle(
+        Text(_s('Zakat', 'Zakat'),
+            style: const TextStyle(
                 color: _kTxtDk,
                 fontWeight: FontWeight.w800,
                 fontSize: 16)),
@@ -1534,9 +1540,9 @@ class _GenerositeTab extends StatelessWidget {
             child: Row(children: [
               const Text('🧮', style: TextStyle(fontSize: 22)),
               const SizedBox(width: 12),
-              const Expanded(
-                child: Text('Calculer ma Zakat',
-                    style: TextStyle(
+              Expanded(
+                child: Text(_s('Calculer ma Zakat', 'Calculate my Zakat'),
+                    style: const TextStyle(
                         color: _kTxtDk,
                         fontWeight: FontWeight.w800,
                         fontSize: 14)),
@@ -1557,14 +1563,14 @@ class _GenerositeTab extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Les 8 catégories de bénéficiaires',
-                  style: TextStyle(
+              Text(context.t.journal8Categories,
+                  style: const TextStyle(
                       color: _kTxtDk,
                       fontWeight: FontWeight.w800,
                       fontSize: 14)),
               const SizedBox(height: 4),
-              const Text('Sourate At-Tawba, verset 60',
-                  style: TextStyle(color: _kTxtLt, fontSize: 11)),
+              Text(_s('Sourate At-Tawba, verset 60', 'Surah At-Tawba, verse 60'),
+                  style: const TextStyle(color: _kTxtLt, fontSize: 11)),
               const SizedBox(height: 12),
               for (int i = 0; i < kZakatBeneficiaries.length; i++)
                 Padding(
@@ -1576,7 +1582,7 @@ class _GenerositeTab extends StatelessWidget {
                         width: 22,
                         height: 22,
                         decoration: BoxDecoration(
-                          color: _kPrimary.withOpacity(0.1),
+                          color: _kPrimary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(11),
                         ),
                         child: Center(
@@ -1589,7 +1595,7 @@ class _GenerositeTab extends StatelessWidget {
                       ),
                       const SizedBox(width: 10),
                       Expanded(
-                        child: Text(kZakatBeneficiaries[i],
+                        child: Text(kZakatBeneficiaries[i].displayName,
                             style: const TextStyle(
                                 color: _kTxtMid,
                                 fontSize: 13,
@@ -1616,8 +1622,8 @@ class _GenerositeTab extends StatelessWidget {
 
         // ── SECTION DONS / SADAQA ──
         Row(children: [
-          const Text('Mes Dons & Sadaqa',
-              style: TextStyle(
+          Text(_s('Mes Dons & Sadaqa', 'My Donations & Sadaqa'),
+              style: const TextStyle(
                   color: _kTxtDk,
                   fontWeight: FontWeight.w800,
                   fontSize: 16)),
@@ -1631,8 +1637,8 @@ class _GenerositeTab extends StatelessWidget {
                 color: _kPrimary,
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: const Text('+ Nouveau don',
-                  style: TextStyle(
+              child: Text(_s('+ Nouveau don', '+ New Donation'),
+                  style: const TextStyle(
                       color: Colors.white,
                       fontSize: 12,
                       fontWeight: FontWeight.w700)),
@@ -1642,8 +1648,8 @@ class _GenerositeTab extends StatelessWidget {
         const SizedBox(height: 12),
 
         // Causes suggestions
-        const Text('Suggestions de causes',
-            style: TextStyle(
+        Text(_s('Suggestions de causes', 'Cause Suggestions'),
+            style: const TextStyle(
                 color: _kTxtMid,
                 fontSize: 13,
                 fontWeight: FontWeight.w600)),
@@ -1669,12 +1675,12 @@ class _GenerositeTab extends StatelessWidget {
                   children: [
                     Text(cause.emoji, style: const TextStyle(fontSize: 22)),
                     const SizedBox(height: 6),
-                    Text(cause.title,
+                    Text(cause.displayTitle,
                         style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                             color: _kTxtDk)),
-                    Text(cause.description,
+                    Text(cause.displayDescription,
                         style:
                             const TextStyle(fontSize: 9, color: _kTxtLt),
                         maxLines: 2,
@@ -1693,12 +1699,12 @@ class _GenerositeTab extends StatelessWidget {
             child: Column(children: [
               const Text('💰', style: TextStyle(fontSize: 32)),
               const SizedBox(height: 8),
-              const Text('Aucun don enregistré',
-                  style: TextStyle(color: _kTxtMid, fontSize: 14)),
+              Text(context.t.journalNoDonationRecord,
+                  style: const TextStyle(color: _kTxtMid, fontSize: 14)),
               const SizedBox(height: 4),
-              const Text(
-                  'Enregistrez vos dons pour suivre votre générosité',
-                  style: TextStyle(color: _kTxtLt, fontSize: 12)),
+              Text(
+                  _s('Enregistrez vos dons pour suivre votre générosité', 'Record your donations to track your generosity'),
+                  style: const TextStyle(color: _kTxtLt, fontSize: 12)),
             ]),
           )
         else
@@ -1771,14 +1777,13 @@ class _DonRecordCard extends StatelessWidget {
   final _DonRecord don;
   const _DonRecordCard({required this.don});
 
-  static const _months = [
-    '', 'Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun',
-    'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'
-  ];
+  List<String> get _months => AppLocale().isFrench
+      ? ['', 'Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc']
+      : ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
   String _causeName() {
     for (final c in kDonCauses) {
-      if (c.id == don.causeId) return '${c.emoji} ${c.title}';
+      if (c.id == don.causeId) return '${c.emoji} ${c.displayTitle}';
     }
     return don.causeId;
   }
@@ -1861,13 +1866,13 @@ class _TableauTab extends StatelessWidget {
     final String motivMessage;
     if (percent >= 70) {
       final idx = DateTime.now().hour % kHighScoreMessages.length;
-      motivMessage = kHighScoreMessages[idx];
+      motivMessage = kHighScoreMessages[idx].displayMessage;
     } else if (percent >= 20) {
       final idx = DateTime.now().hour % kLowScoreMessages.length;
-      motivMessage = kLowScoreMessages[idx];
+      motivMessage = kLowScoreMessages[idx].displayMessage;
     } else {
       final idx = DateTime.now().hour % kWelcomeBackMessages.length;
-      motivMessage = kWelcomeBackMessages[idx];
+      motivMessage = kWelcomeBackMessages[idx].displayMessage;
     }
 
     return SingleChildScrollView(
@@ -1886,38 +1891,38 @@ class _TableauTab extends StatelessWidget {
               borderRadius: BorderRadius.circular(22),
               boxShadow: [
                 BoxShadow(
-                    color: _kPrimary.withOpacity(0.35),
+                    color: _kPrimary.withValues(alpha: 0.35),
                     blurRadius: 20,
                     offset: const Offset(0, 8)),
               ],
             ),
             child: Column(children: [
-              Text('⭐ Score Spirituel',
+              Text(_s('⭐ Score Spirituel', '⭐ Spiritual Score'),
                   style: TextStyle(
-                      color: Colors.white.withOpacity(0.7), fontSize: 14)),
+                      color: Colors.white.withValues(alpha: 0.7), fontSize: 14)),
               const SizedBox(height: 12),
               Text('$score',
                   style: const TextStyle(
                       color: _kGold,
                       fontSize: 56,
                       fontWeight: FontWeight.w900)),
-              Text('sur $scoreMax points',
+              Text(_s('sur $scoreMax points', 'out of $scoreMax points'),
                   style: TextStyle(
-                      color: Colors.white.withOpacity(0.6), fontSize: 13)),
+                      color: Colors.white.withValues(alpha: 0.6), fontSize: 13)),
               const SizedBox(height: 14),
               ClipRRect(
                 borderRadius: BorderRadius.circular(99),
                 child: LinearProgressIndicator(
                   value: progress,
                   minHeight: 10,
-                  backgroundColor: Colors.white.withOpacity(0.2),
+                  backgroundColor: Colors.white.withValues(alpha: 0.2),
                   valueColor: const AlwaysStoppedAnimation(_kGold),
                 ),
               ),
               const SizedBox(height: 8),
-              Text('$percent% accompli aujourd\'hui',
+              Text(_s('$percent% accompli aujourd\'hui', '$percent% accomplished today'),
                   style: TextStyle(
-                      color: Colors.white.withOpacity(0.85), fontSize: 13)),
+                      color: Colors.white.withValues(alpha: 0.85), fontSize: 13)),
             ]),
           ),
           const SizedBox(height: 16),
@@ -1930,13 +1935,13 @@ class _TableauTab extends StatelessWidget {
           Row(children: [
             Expanded(
               child: _StatBox(
-                  icon: '🔥', label: 'Streak actuel',
+                  icon: '🔥', label: _s('Streak actuel', 'Current Streak'),
                   value: '$streak j', color: const Color(0xFFE8713A)),
             ),
             const SizedBox(width: 10),
             Expanded(
               child: _StatBox(
-                  icon: '🏆', label: 'Meilleur streak',
+                  icon: '🏆', label: _s('Meilleur streak', 'Best Streak'),
                   value: '$bestStreak j', color: _kGold),
             ),
           ]),
@@ -1944,13 +1949,13 @@ class _TableauTab extends StatelessWidget {
           Row(children: [
             Expanded(
               child: _StatBox(
-                  icon: '📝', label: 'Entrées journal',
-                  value: '${entries.length}', color: _kPrimary),
+                  icon: '📝', label: _s('Entrées journal', 'Journal Entries'),
+                  value: entries.length.toString(), color: _kPrimary),
             ),
             const SizedBox(width: 10),
             Expanded(
               child: _StatBox(
-                  icon: '✅', label: 'Actions du jour',
+                  icon: '✅', label: _s('Actions du jour', 'Daily Actions'),
                   value: '$doneCount/$totalActions', color: _kMedium),
             ),
           ]),
@@ -1958,14 +1963,14 @@ class _TableauTab extends StatelessWidget {
           Row(children: [
             Expanded(
               child: _StatBox(
-                  icon: '🎯', label: 'Objectifs',
+                  icon: '🎯', label: _s('Objectifs', 'Goals'),
                   value: '$goalsCompleted/${goals.length}',
                   color: const Color(0xFF6A3FAA)),
             ),
             const SizedBox(width: 10),
             Expanded(
               child: _StatBox(
-                  icon: '💚', label: 'Dons cette année',
+                  icon: '💚', label: _s('Dons cette année', 'Donations this year'),
                   value: '${totalDonsAnnee.toStringAsFixed(0)} €',
                   color: _kMedium),
             ),
@@ -1978,8 +1983,8 @@ class _TableauTab extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Humeurs récentes',
-                      style: TextStyle(
+                  Text(context.t.journalRecentMoods,
+                      style: const TextStyle(
                           color: _kTxtDk,
                           fontWeight: FontWeight.w800,
                           fontSize: 14)),
@@ -1993,7 +1998,7 @@ class _TableauTab extends StatelessWidget {
                           orElse: () => kMoodOptions.first);
                       return Tooltip(
                         message:
-                            '${m.date.day}/${m.date.month} — ${mood.label}',
+                            '${m.date.day}/${m.date.month} — ${mood.displayLabel}',
                         child: Container(
                           width: 36,
                           height: 36,
@@ -2049,10 +2054,9 @@ class _MonthCalendar extends StatelessWidget {
     final firstOfMonth = DateTime(now.year, now.month, 1);
     final daysInMonth = DateTime(now.year, now.month + 1, 0).day;
     final startWeekday = firstOfMonth.weekday; // 1=Mon
-    final months = [
-      '', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-      'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
-    ];
+    final months = AppLocale().isFrench
+        ? ['', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre']
+        : ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
     return _CardBox(
       child: Column(
@@ -2066,7 +2070,7 @@ class _MonthCalendar extends StatelessWidget {
           const SizedBox(height: 10),
           // Weekday headers
           Row(
-            children: ['L', 'M', 'M', 'J', 'V', 'S', 'D']
+            children: (AppLocale().isFrench ? ['L', 'M', 'M', 'J', 'V', 'S', 'D'] : ['M', 'T', 'W', 'T', 'F', 'S', 'S'])
                 .map((d) => Expanded(
                       child: Center(
                         child: Text(d,
@@ -2098,11 +2102,11 @@ class _MonthCalendar extends StatelessWidget {
                 } else if (isToday) {
                   final pct = todayMax > 0 ? todayScore / todayMax : 0.0;
                   cellColor = pct > 0.7
-                      ? _kMedium.withOpacity(0.3)
+                      ? _kMedium.withValues(alpha: 0.3)
                       : pct > 0.3
-                          ? _kGold.withOpacity(0.3)
+                          ? _kGold.withValues(alpha: 0.3)
                           : pct > 0
-                              ? _kGold.withOpacity(0.15)
+                              ? _kGold.withValues(alpha: 0.15)
                               : Colors.transparent;
                 } else {
                   // Check dayScores
@@ -2115,10 +2119,10 @@ class _MonthCalendar extends StatelessWidget {
                         ? ds.first.score / ds.first.scoreMax
                         : 0.0;
                     cellColor = pct > 0.7
-                        ? _kMedium.withOpacity(0.3)
+                        ? _kMedium.withValues(alpha: 0.3)
                         : pct > 0.3
-                            ? _kGold.withOpacity(0.3)
-                            : _kGold.withOpacity(0.15);
+                            ? _kGold.withValues(alpha: 0.3)
+                            : _kGold.withValues(alpha: 0.15);
                   } else {
                     cellColor = const Color(0xFFE8E0D4);
                   }
@@ -2143,7 +2147,7 @@ class _MonthCalendar extends StatelessWidget {
                                   ? FontWeight.w800
                                   : FontWeight.w500,
                               color: isInFuture
-                                  ? _kTxtLt.withOpacity(0.4)
+                                  ? _kTxtLt.withValues(alpha: 0.4)
                                   : isToday
                                       ? _kPrimary
                                       : _kTxtMid)),
@@ -2156,9 +2160,9 @@ class _MonthCalendar extends StatelessWidget {
           const SizedBox(height: 8),
           // Legend
           Row(children: [
-            _CalLegend(color: _kMedium.withOpacity(0.3), label: '>70%'),
+            _CalLegend(color: _kMedium.withValues(alpha: 0.3), label: '>70%'),
             const SizedBox(width: 10),
-            _CalLegend(color: _kGold.withOpacity(0.3), label: '30-70%'),
+            _CalLegend(color: _kGold.withValues(alpha: 0.3), label: '30-70%'),
             const SizedBox(width: 10),
             _CalLegend(color: const Color(0xFFE8E0D4), label: '0%'),
           ]),
@@ -2310,24 +2314,24 @@ class _AddEntrySheetState extends State<_AddEntrySheet> {
   }
 
   String get _sheetTitle {
-    if (widget.prompt != null) return 'Réflexion du jour';
+    if (widget.prompt != null) return _s('Réflexion du jour', 'Daily Reflection');
     switch (_type) {
-      case 'note': return 'Note privée';
-      case 'lettre': return 'Lettre à moi-même';
-      default: return 'Nouvelle entrée';
+      case 'note': return _s('Note privée', 'Private Note');
+      case 'lettre': return _s('Lettre à moi-même', 'Letter to Myself');
+      default: return _s('Nouvelle entrée', 'New Entry');
     }
   }
 
   String get _hintText {
     switch (_type) {
       case 'note':
-        return 'Écris ce qui te passe par l\'esprit, en toute liberté...';
+        return _s('Écris ce qui te passe par l\'esprit, en toute liberté...', 'Write what comes to mind, freely...');
       case 'lettre':
-        return 'Cher moi du futur, ...\n\n(Tu recevras un rappel pour relire cette lettre dans 30 jours)';
+        return _s('Cher moi du futur, ...\n\n(Tu recevras un rappel pour relire cette lettre dans 30 jours)', 'Dear future me, ...\n\n(You will receive a reminder to reread this letter in 30 days)');
       case 'reflexion':
-        return 'Votre réflexion...';
+        return _s('Votre réflexion...', 'Your reflection...');
       default:
-        return 'Écrivez votre réflexion spirituelle...';
+        return _s('Écrivez votre réflexion spirituelle...', 'Write your spiritual reflection...');
     }
   }
 
@@ -2396,13 +2400,13 @@ class _AddEntrySheetState extends State<_AddEntrySheet> {
                 color: const Color(0xFFF8E8F3),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Row(children: [
-                Text('✉️', style: TextStyle(fontSize: 16)),
-                SizedBox(width: 8),
+              child: Row(children: [
+                const Text('✉️', style: TextStyle(fontSize: 16)),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                      'Cette lettre sera scellée. Tu recevras un rappel pour la relire dans 30 jours.',
-                      style: TextStyle(
+                      _s('Cette lettre sera scellée. Tu recevras un rappel pour la relire dans 30 jours.', 'This letter will be sealed. You will receive a reminder to reread it in 30 days.'),
+                      style: const TextStyle(
                           color: Color(0xFF8A3F6A),
                           fontSize: 11,
                           fontWeight: FontWeight.w600)),
@@ -2419,16 +2423,16 @@ class _AddEntrySheetState extends State<_AddEntrySheet> {
                 _ChipBtn(label: '💚 Gratitude', selected: _type == 'gratitude',
                     onTap: () => setState(() => _type = 'gratitude')),
                 const SizedBox(width: 6),
-                _ChipBtn(label: '✅ Action', selected: _type == 'action',
+                _ChipBtn(label: _s('✅ Action', '✅ Action'), selected: _type == 'action',
                     onTap: () => setState(() => _type = 'action')),
                 const SizedBox(width: 6),
                 _ChipBtn(label: '🤲 Du\'a', selected: _type == 'dua',
                     onTap: () => setState(() => _type = 'dua')),
                 const SizedBox(width: 6),
-                _ChipBtn(label: '📝 Note', selected: _type == 'note',
+                _ChipBtn(label: _s('📝 Note', '📝 Note'), selected: _type == 'note',
                     onTap: () => setState(() => _type = 'note')),
                 const SizedBox(width: 6),
-                _ChipBtn(label: '✉️ Lettre', selected: _type == 'lettre',
+                _ChipBtn(label: _s('✉️ Lettre', '✉️ Letter'), selected: _type == 'lettre',
                     onTap: () => setState(() => _type = 'lettre')),
               ]),
             ),
@@ -2473,7 +2477,7 @@ class _AddEntrySheetState extends State<_AddEntrySheet> {
                 }
               },
               child: Text(
-                  _type == 'lettre' ? 'Sceller ma lettre' : 'Sauvegarder',
+                  _type == 'lettre' ? _s('Sceller ma lettre', 'Seal My Letter') : _s('Sauvegarder', 'Save'),
                   style: const TextStyle(
                       fontSize: 15, fontWeight: FontWeight.w800)),
             ),
@@ -2526,8 +2530,8 @@ class _GoalPickerSheetState extends State<_GoalPickerSheet> {
               ),
             ),
           ),
-          const Text('Choisir un objectif',
-              style: TextStyle(
+          Text(_s('Choisir un objectif', 'Choose a Goal'),
+              style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w900,
                   color: _kTxtDk)),
@@ -2535,20 +2539,20 @@ class _GoalPickerSheetState extends State<_GoalPickerSheet> {
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(children: [
-              _ChipBtn(label: 'Tous', selected: _filterCat == 'all',
+              _ChipBtn(label: _s('Tous', 'All'), selected: _filterCat == 'all',
                   onTap: () => setState(() => _filterCat = 'all')),
               const SizedBox(width: 6),
-              _ChipBtn(label: '📖 Coran', selected: _filterCat == 'coran',
+              _ChipBtn(label: _s('📖 Coran', '📖 Quran'), selected: _filterCat == 'coran',
                   onTap: () => setState(() => _filterCat = 'coran')),
               const SizedBox(width: 6),
-              _ChipBtn(label: '🕌 Prière', selected: _filterCat == 'priere',
+              _ChipBtn(label: _s('🕌 Prière', '🕌 Prayer'), selected: _filterCat == 'priere',
                   onTap: () => setState(() => _filterCat = 'priere')),
               const SizedBox(width: 6),
-              _ChipBtn(label: '🤝 Comportement',
+              _ChipBtn(label: _s('🤝 Comportement', '🤝 Behavior'),
                   selected: _filterCat == 'comportement',
                   onTap: () => setState(() => _filterCat = 'comportement')),
               const SizedBox(width: 6),
-              _ChipBtn(label: '📚 Science', selected: _filterCat == 'science',
+              _ChipBtn(label: _s('📚 Science', '📚 Knowledge'), selected: _filterCat == 'science',
                   onTap: () => setState(() => _filterCat = 'science')),
             ]),
           ),
@@ -2573,7 +2577,7 @@ class _GoalPickerSheetState extends State<_GoalPickerSheet> {
                           style: const TextStyle(fontSize: 24)),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: Text(tpl.title,
+                        child: Text(tpl.displayTitle,
                             style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
@@ -2659,15 +2663,15 @@ class _ZakatCalculatorSheetState extends State<_ZakatCalculatorSheet> {
                 ),
               ),
             ),
-            const Text('Calculateur de Zakat',
-                style: TextStyle(
+            Text(_s('Calculateur de Zakat', 'Zakat Calculator'),
+                style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
                     color: _kTxtDk)),
             const SizedBox(height: 14),
 
-            const Text('Type de Zakat',
-                style: TextStyle(
+            Text(_s('Type de Zakat', 'Zakat Type'),
+                style: const TextStyle(
                     color: _kTxtMid,
                     fontSize: 12,
                     fontWeight: FontWeight.w700)),
@@ -2697,7 +2701,7 @@ class _ZakatCalculatorSheetState extends State<_ZakatCalculatorSheet> {
                 const Text('ℹ️ ', style: TextStyle(fontSize: 16)),
                 Expanded(
                   child: Text(
-                      'Nisâb estimé : ${nisabValue.toStringAsFixed(0)} € (${selectedZakat.nisabOr.toStringAsFixed(0)}g × ${_goldPrice.toStringAsFixed(0)} €/g)',
+                      _s('Nisâb estimé : ${nisabValue.toStringAsFixed(0)} € (${selectedZakat.nisabOr.toStringAsFixed(0)}g × ${_goldPrice.toStringAsFixed(0)} €/g)', 'Estimated Nisab: ${nisabValue.toStringAsFixed(0)} € (${selectedZakat.nisabOr.toStringAsFixed(0)}g × ${_goldPrice.toStringAsFixed(0)} €/g)'),
                       style: const TextStyle(
                           color: _kTxtMid, fontSize: 11)),
                 ),
@@ -2705,8 +2709,8 @@ class _ZakatCalculatorSheetState extends State<_ZakatCalculatorSheet> {
             ),
             const SizedBox(height: 14),
 
-            const Text('Montant total de vos biens (€)',
-                style: TextStyle(
+            Text(_s('Montant total de vos biens (€)', 'Total value of your assets (€)'),
+                style: const TextStyle(
                     color: _kTxtMid,
                     fontSize: 12,
                     fontWeight: FontWeight.w700)),
@@ -2747,8 +2751,8 @@ class _ZakatCalculatorSheetState extends State<_ZakatCalculatorSheet> {
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Column(children: [
-                  const Text('Zakat à verser',
-                      style: TextStyle(color: Colors.white70, fontSize: 12)),
+                  Text(context.t.journalZakatToPay,
+                      style: const TextStyle(color: Colors.white70, fontSize: 12)),
                   const SizedBox(height: 6),
                   Text('${_zakatDue.toStringAsFixed(2)} €',
                       style: const TextStyle(
@@ -2797,8 +2801,8 @@ class _ZakatCalculatorSheetState extends State<_ZakatCalculatorSheet> {
                       date: DateTime.now(),
                     ));
                   },
-                  child: const Text('Enregistrer ce calcul',
-                      style: TextStyle(
+                  child: Text(_s('Enregistrer ce calcul', 'Save this calculation'),
+                      style: const TextStyle(
                           fontSize: 15, fontWeight: FontWeight.w800)),
                 ),
               ),
@@ -2847,12 +2851,12 @@ class _ZakatTypeCardState extends State<_ZakatTypeCard> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(z.title,
+                    Text(z.displayTitle,
                         style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
                             color: _kTxtDk)),
-                    Text(z.description,
+                    Text(z.displayDescription,
                         style:
                             const TextStyle(fontSize: 11, color: _kTxtLt)),
                   ],
@@ -2867,13 +2871,13 @@ class _ZakatTypeCardState extends State<_ZakatTypeCard> {
             if (_expanded) ...[
               const Divider(height: 20),
               if (z.tauxPercent > 0) ...[
-                _InfoRow(label: 'Taux', value: '${z.tauxPercent}%'),
+                _InfoRow(label: _s('Taux', 'Rate'), value: '${z.tauxPercent}%'),
                 _InfoRow(
-                    label: 'Nisâb',
-                    value: '${z.nisabOr.toStringAsFixed(0)}g d\'or'),
+                    label: 'Nisab',
+                    value: '${z.nisabOr.toStringAsFixed(0)}g ${_s("d\'or", "of gold")}'),
                 const SizedBox(height: 8),
               ],
-              for (final d in z.details)
+              for (final d in z.displayDetails)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 4),
                   child: Row(
@@ -2908,14 +2912,13 @@ class _ZakatRecordCard extends StatelessWidget {
 
   const _ZakatRecordCard({required this.record, required this.onToggle});
 
-  static const _months = [
-    '', 'Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun',
-    'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'
-  ];
+  List<String> get _months => AppLocale().isFrench
+      ? ['', 'Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc']
+      : ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
   String _typeName() {
     for (final z in kZakatTypes) {
-      if (z.id == record.type) return z.title;
+      if (z.id == record.type) return z.displayTitle;
     }
     return record.type;
   }
@@ -2942,7 +2945,7 @@ class _ZakatRecordCard extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                       color: _kTxtDk)),
               Text(
-                  'Base : ${record.amount.toStringAsFixed(0)} € → ${record.zakatDue.toStringAsFixed(2)} €',
+                  '${_s("Base", "Base")} : ${record.amount.toStringAsFixed(0)} € → ${record.zakatDue.toStringAsFixed(2)} €',
                   style: const TextStyle(fontSize: 11, color: _kTxtLt)),
               Text(
                   '${record.date.day} ${_months[record.date.month]} ${record.date.year}',
@@ -2956,11 +2959,11 @@ class _ZakatRecordCard extends StatelessWidget {
             padding:
                 const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: record.paid ? _kMedium : _kGold.withOpacity(0.15),
+              color: record.paid ? _kMedium : _kGold.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Text(
-              record.paid ? '✓ Versé' : 'Marquer versé',
+              record.paid ? _s('✓ Versé', '✓ Paid') : _s('Marquer versé', 'Mark as paid'),
               style: TextStyle(
                   color: record.paid ? Colors.white : _kGold,
                   fontSize: 11,
@@ -3023,15 +3026,15 @@ class _AddDonSheetState extends State<_AddDonSheet> {
                 ),
               ),
             ),
-            const Text('Enregistrer un don',
-                style: TextStyle(
+            Text(_s('Enregistrer un don', 'Record a Donation'),
+                style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
                     color: _kTxtDk)),
             const SizedBox(height: 14),
 
-            const Text('Cause',
-                style: TextStyle(
+            Text(_s('Cause', 'Cause'),
+                style: const TextStyle(
                     color: _kTxtMid,
                     fontSize: 12,
                     fontWeight: FontWeight.w700)),
@@ -3041,7 +3044,7 @@ class _AddDonSheetState extends State<_AddDonSheet> {
               runSpacing: 6,
               children: kDonCauses
                   .map((c) => _ChipBtn(
-                        label: '${c.emoji} ${c.title}',
+                        label: '${c.emoji} ${c.displayTitle}',
                         selected: _selectedCause == c.id,
                         onTap: () =>
                             setState(() => _selectedCause = c.id),
@@ -3057,7 +3060,7 @@ class _AddDonSheetState extends State<_AddDonSheet> {
                 color: _kGoldLt,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Text(cause.hadith,
+              child: Text(cause.displayHadith,
                   style: const TextStyle(
                       color: _kTxtMid,
                       fontSize: 11,
@@ -3065,8 +3068,8 @@ class _AddDonSheetState extends State<_AddDonSheet> {
             ),
             const SizedBox(height: 14),
 
-            const Text('Montant (€)',
-                style: TextStyle(
+            Text(_s('Montant (€)', 'Amount (€)'),
+                style: const TextStyle(
                     color: _kTxtMid,
                     fontSize: 12,
                     fontWeight: FontWeight.w700)),
@@ -3100,7 +3103,7 @@ class _AddDonSheetState extends State<_AddDonSheet> {
               controller: _noteCtrl,
               style: const TextStyle(color: _kTxtDk, fontSize: 13),
               decoration: InputDecoration(
-                hintText: 'Note (optionnel)',
+                hintText: _s('Note (optionnel)', 'Note (optional)'),
                 hintStyle: const TextStyle(color: _kTxtLt),
                 border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
@@ -3143,8 +3146,8 @@ class _AddDonSheetState extends State<_AddDonSheet> {
                     ));
                   }
                 },
-                child: const Text('Enregistrer mon don',
-                    style: TextStyle(
+                child: Text(_s('Enregistrer mon don', 'Save my donation'),
+                    style: const TextStyle(
                         fontSize: 15, fontWeight: FontWeight.w800)),
               ),
             ),

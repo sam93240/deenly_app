@@ -7,6 +7,8 @@ import 'about_screen.dart';
 import 'main.dart';
 import 'user_profile.dart';
 import 'onboarding_screen.dart';
+import 'app_locale.dart';
+import 'translations.dart';
 
 // ── Palette ──────────────────────────────────────────────────────────
 const _kGreen = Color(0xFF1B4D38);
@@ -47,6 +49,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _toggleDarkMode(bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('deenly_dark_mode', value);
+    if (!mounted) return;
     setState(() => _darkMode = value);
     // Notifier l'app du changement de thème
     DeenlyApp.of(context)?.setDarkMode(value);
@@ -64,7 +67,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final bgColor = isDark ? const Color(0xFF121212) : _kBeige;
     final cardColor = isDark ? const Color(0xFF1E1E1E) : _kCard;
     final txtDk = isDark ? Colors.white : _kTxtDk;
-    final txtMd = isDark ? Colors.white70 : _kTxtMd;
     final txtLt = isDark ? Colors.white54 : _kTxtLt;
     final divColor = isDark ? Colors.white12 : const Color(0xFFE8DFD0);
 
@@ -78,7 +80,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
       backgroundColor: bgColor,
       appBar: AppBar(
-        title: const Text('Paramètres'),
+        title: Text(context.t.settingsTitle),
         backgroundColor: _kGreen,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -87,7 +89,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           // ── Apparence ──
-          _SectionHeader(title: 'Apparence', icon: Icons.palette_rounded, color: txtDk),
+          _SectionHeader(title: context.t.settingsAppearance, icon: Icons.palette_rounded, color: txtDk),
           const SizedBox(height: 8),
           _SettingsCard(
             cardColor: cardColor,
@@ -95,14 +97,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _SettingsTile(
                 icon: Icons.dark_mode_rounded,
                 iconColor: const Color(0xFF5C5CFF),
-                title: 'Mode sombre',
-                subtitle: 'Repose tes yeux la nuit',
+                title: context.t.settingsDarkMode,
+                subtitle: context.t.settingsDarkModeSub,
                 titleColor: txtDk,
                 subtitleColor: txtLt,
                 trailing: Switch(
                   value: _darkMode,
                   onChanged: _toggleDarkMode,
-                  activeColor: _kGreen,
+                  activeThumbColor: _kGreen,
                 ),
               ),
             ],
@@ -110,8 +112,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           const SizedBox(height: 24),
 
+          // ── Langue ──
+          _SectionHeader(title: context.t.settingsLanguage, icon: Icons.language_rounded, color: txtDk),
+          const SizedBox(height: 8),
+          _SettingsCard(
+            cardColor: cardColor,
+            children: [
+              _SettingsTile(
+                icon: Icons.language_rounded,
+                iconColor: const Color(0xFF2196F3),
+                title: context.t.settingsLanguage,
+                subtitle: AppLocaleScope.of(context).isFrench ? context.t.settingsFrench : 'English',
+                titleColor: txtDk,
+                subtitleColor: txtLt,
+                trailing: Icon(Icons.chevron_right_rounded, color: txtLt),
+                onTap: () => _showLanguagePicker(context, isDark),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+
           // ── Confidentialité ──
-          _SectionHeader(title: 'Confidentialité', icon: Icons.shield_rounded, color: txtDk),
+          _SectionHeader(title: context.t.settingsPrivacy, icon: Icons.shield_rounded, color: txtDk),
           const SizedBox(height: 8),
           _SettingsCard(
             cardColor: cardColor,
@@ -119,22 +142,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _SettingsTile(
                 icon: Icons.analytics_rounded,
                 iconColor: const Color(0xFF4CAF50),
-                title: 'Données d\'usage anonymes',
-                subtitle: 'Aide-nous à améliorer UpYourDeen',
+                title: context.t.settingsAnalytics,
+                subtitle: context.t.settingsAnalyticsSub,
                 titleColor: txtDk,
                 subtitleColor: txtLt,
                 trailing: Switch(
                   value: _analyticsConsent,
                   onChanged: _toggleAnalytics,
-                  activeColor: _kGreen,
+                  activeThumbColor: _kGreen,
                 ),
               ),
               Divider(height: 1, color: divColor, indent: 56),
               _SettingsTile(
                 icon: Icons.description_rounded,
                 iconColor: _kGold,
-                title: 'Politique de confidentialité',
-                subtitle: 'Tes données te sont privées',
+                title: context.t.settingsPrivacyPolicy,
+                subtitle: context.t.settingsPrivacyPolicySub,
                 titleColor: txtDk,
                 subtitleColor: txtLt,
                 trailing: Icon(Icons.chevron_right_rounded, color: txtLt),
@@ -146,7 +169,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 24),
 
           // ── Compte ──
-          _SectionHeader(title: 'Compte', icon: Icons.person_rounded, color: txtDk),
+          _SectionHeader(title: context.t.settingsAccount, icon: Icons.person_rounded, color: txtDk),
           const SizedBox(height: 8),
           _SettingsCard(
             cardColor: cardColor,
@@ -154,8 +177,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _SettingsTile(
                 icon: Icons.edit_rounded,
                 iconColor: _kGold,
-                title: 'Modifier mon profil',
-                subtitle: 'Changer prénom, objectifs, niveau',
+                title: context.t.settingsEditProfile,
+                subtitle: context.t.settingsEditProfileSub,
                 titleColor: txtDk,
                 subtitleColor: txtLt,
                 trailing: Icon(Icons.chevron_right_rounded, color: txtLt),
@@ -168,8 +191,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _SettingsTile(
                 icon: Icons.delete_outline_rounded,
                 iconColor: const Color(0xFFE57373),
-                title: 'Réinitialiser le profil',
-                subtitle: 'Tout effacer et recommencer',
+                title: context.t.settingsResetProfile,
+                subtitle: context.t.settingsResetProfileSub,
                 titleColor: txtDk,
                 subtitleColor: txtLt,
                 trailing: Icon(Icons.chevron_right_rounded, color: txtLt),
@@ -181,7 +204,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 24),
 
           // ── À propos ──
-          _SectionHeader(title: 'À propos', icon: Icons.info_rounded, color: txtDk),
+          _SectionHeader(title: context.t.settingsAbout, icon: Icons.info_rounded, color: txtDk),
           const SizedBox(height: 8),
           _SettingsCard(
             cardColor: cardColor,
@@ -189,8 +212,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _SettingsTile(
                 icon: Icons.mosque_rounded,
                 iconColor: _kGreen,
-                title: 'À propos de UpYourDeen',
-                subtitle: 'Version, crédits et remerciements',
+                title: context.t.settingsAboutApp,
+                subtitle: context.t.settingsAboutAppSub,
                 titleColor: txtDk,
                 subtitleColor: txtLt,
                 trailing: Icon(Icons.chevron_right_rounded, color: txtLt),
@@ -214,7 +237,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 4),
           Center(
             child: Text(
-              '© 2026 UpYourDeen. Tous droits réservés.',
+              context.t.settingsCopyright,
               style: TextStyle(fontSize: 11, color: txtLt),
             ),
           ),
@@ -230,16 +253,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
       builder: (ctx) => AlertDialog(
         backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text('Réinitialiser le profil ?',
+        title: Text(context.t.settingsResetConfirmTitle,
           style: TextStyle(color: isDark ? Colors.white : _kTxtDk, fontSize: 17, fontWeight: FontWeight.w700)),
         content: Text(
-          'Tu vas revenir à l\'écran de bienvenue. Ta progression (XP, série, badges) sera perdue.',
+          context.t.settingsResetConfirmMsg,
           style: TextStyle(color: isDark ? Colors.white70 : _kTxtMd, fontSize: 13),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('Annuler', style: TextStyle(color: isDark ? Colors.white54 : _kTxtLt)),
+            child: Text(context.t.cancel, style: TextStyle(color: isDark ? Colors.white54 : _kTxtLt)),
           ),
           TextButton(
             onPressed: () async {
@@ -254,9 +277,68 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 );
               }
             },
-            child: const Text('Réinitialiser', style: TextStyle(color: Color(0xFFE57373), fontWeight: FontWeight.w600)),
+            child: Text(context.t.reset, style: const TextStyle(color: Color(0xFFE57373), fontWeight: FontWeight.w600)),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showLanguagePicker(BuildContext context, bool isDark) {
+    final locale = AppLocaleScope.of(context);
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40, height: 4,
+              decoration: BoxDecoration(
+                color: isDark ? Colors.white24 : Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              context.t.settingsLanguage,
+              style: TextStyle(
+                fontSize: 20, fontWeight: FontWeight.w700,
+                color: isDark ? Colors.white : _kTxtDk,
+              ),
+            ),
+            const SizedBox(height: 20),
+            _LanguageOption(
+              flag: '🇫🇷',
+              label: context.t.settingsFrench,
+              selected: locale.isFrench,
+              onTap: () {
+                locale.setLanguage(AppLanguage.fr);
+                Navigator.pop(context);
+                setState(() {});
+              },
+              isDark: isDark,
+            ),
+            const SizedBox(height: 8),
+            _LanguageOption(
+              flag: '🇬🇧',
+              label: 'English',
+              selected: locale.isEnglish,
+              onTap: () {
+                locale.setLanguage(AppLanguage.en);
+                Navigator.pop(context);
+                setState(() {});
+              },
+              isDark: isDark,
+            ),
+            const SizedBox(height: 24),
+          ],
+        ),
       ),
     );
   }
@@ -292,12 +374,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             const SizedBox(height: 20),
             Text(
-              'Politique de confidentialité',
+              context.t.settingsPrivacyPolicy,
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: txtColor),
             ),
             const SizedBox(height: 16),
             Text(
-              'Dernière mise à jour : Mars 2026',
+              context.t.settingsLastUpdated,
               style: TextStyle(fontSize: 12, color: txtLtColor),
             ),
             const SizedBox(height: 16),
@@ -380,7 +462,7 @@ class _SettingsCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -424,7 +506,7 @@ class _SettingsTile extends StatelessWidget {
             Container(
               width: 36, height: 36,
               decoration: BoxDecoration(
-                color: iconColor.withOpacity(0.12),
+                color: iconColor.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, size: 18, color: iconColor),
@@ -480,6 +562,54 @@ class _PolicySection extends StatelessWidget {
             fontSize: 13, color: contentColor, height: 1.5,
           )),
         ],
+      ),
+    );
+  }
+}
+
+class _LanguageOption extends StatelessWidget {
+  final String flag;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  final bool isDark;
+
+  const _LanguageOption({
+    required this.flag,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: selected
+              ? _kGreen.withValues(alpha: isDark ? 0.3 : 0.1)
+              : (isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.withValues(alpha: 0.05)),
+          borderRadius: BorderRadius.circular(12),
+          border: selected ? Border.all(color: _kGreen, width: 1.5) : null,
+        ),
+        child: Row(
+          children: [
+            Text(flag, style: const TextStyle(fontSize: 24)),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(label, style: TextStyle(
+                fontSize: 16, fontWeight: FontWeight.w600,
+                color: isDark ? Colors.white : _kTxtDk,
+              )),
+            ),
+            if (selected)
+              const Icon(Icons.check_circle_rounded, color: _kGreen, size: 22),
+          ],
+        ),
       ),
     );
   }

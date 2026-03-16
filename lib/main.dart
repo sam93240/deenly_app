@@ -2,14 +2,40 @@
 // Application UpYourDeen : Lumière sur ta foi
 // Framework : Flutter | Langage : Dart
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'main_nav_screen.dart';
 import 'user_profile.dart';
 import 'onboarding_screen.dart';
 import 'splash_screen.dart';
+import 'app_locale.dart';
+import 'language_selection_screen.dart';
+import 'sourate_repository.dart';
+import 'hadith_repository.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // ── Tout en arrière-plan — runApp() démarre IMMÉDIATEMENT ────────────
+  // Firebase et les assets JSON (3.7 Mo) se chargent pendant le splash.
+  // Sur web : Firebase n'est pas configuré → on évite complètement l'init.
+  if (!kIsWeb) {
+    () async {
+      try {
+        await Firebase.initializeApp(
+            options: DefaultFirebaseOptions.currentPlatform);
+      } catch (e) {
+        debugPrint('⚠️ Firebase: $e');
+      }
+    }();
+  }
+
+  SourateRepository.instance.initialize();
+  HadithRepository.instance.initialize();
+
   runApp(const DeenlyApp());
 }
 
@@ -27,13 +53,14 @@ class DeenlyApp extends StatefulWidget {
 
 class _DeenlyAppState extends State<DeenlyApp> {
   final _profileProvider = UserProfileProvider();
+  final _locale = AppLocale();
   bool _isDarkMode = false;
-  bool _themeLoaded = false;
 
   @override
   void initState() {
     super.initState();
     _profileProvider.load();
+    _locale.load();
     _loadTheme();
   }
 
@@ -41,7 +68,6 @@ class _DeenlyAppState extends State<DeenlyApp> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _isDarkMode = prefs.getBool('deenly_dark_mode') ?? false;
-      _themeLoaded = true;
     });
   }
 
@@ -145,37 +171,38 @@ class _DeenlyAppState extends State<DeenlyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return DeenlyProfileScope(
-      provider: _profileProvider,
-      child: ListenableBuilder(
-        listenable: _profileProvider,
-        builder: (context, _) {
-          return MaterialApp(
-            title: 'UpYourDeen – Élève ta foi',
-            debugShowCheckedModeBanner: false,
-            theme: _lightTheme,
-            darkTheme: _darkTheme,
-            themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
-            home: _buildHome(),
-          );
-        },
+    return AppLocaleScope(
+      locale: _locale,
+      child: DeenlyProfileScope(
+        provider: _profileProvider,
+        child: ListenableBuilder(
+          listenable: Listenable.merge([_profileProvider, _locale]),
+          builder: (context, _) {
+            return MaterialApp(
+              title: _locale.tr('UpYourDeen – Élève ta foi', 'UpYourDeen – Elevate your faith'),
+              debugShowCheckedModeBanner: false,
+              theme: _lightTheme,
+              darkTheme: _darkTheme,
+              themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
+              home: _buildHome(),
+            );
+          },
+        ),
       ),
     );
   }
 
   Widget _buildHome() {
-    if (!_profileProvider.loaded) {
-      return SplashScreen(
-        nextScreen: _profileProvider.hasProfile
-            ? const MainNavScreen()
-            : const OnboardingScreen(),
-      );
-    }
+    // Destination finale selon le profil
+    final destination = _profileProvider.hasProfile
+        ? const MainNavScreen()
+        : const OnboardingScreen();
 
-    if (!_profileProvider.hasProfile) {
-      return SplashScreen(nextScreen: const OnboardingScreen());
-    }
+    // Si la langue n'a pas encore été choisie → on insère l'écran de sélection
+    final nextAfterSplash = _locale.languageSelected
+        ? destination
+        : LanguageSelectionScreen(nextScreen: destination);
 
-    return SplashScreen(nextScreen: const MainNavScreen());
+    return SplashScreen(nextScreen: nextAfterSplash);
   }
 }

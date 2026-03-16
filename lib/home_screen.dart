@@ -2,6 +2,8 @@
 
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'app_locale.dart';
+import 'translations.dart';
 import 'quran_screen.dart';
 import 'hadith_screen.dart';
 import 'journal_screen.dart';
@@ -16,6 +18,9 @@ import 'notification_data.dart';
 import 'notification_service.dart';
 import 'settings_screen.dart';
 import 'consent_dialog.dart';
+import 'widgets/save_progress_banner.dart';
+import 'widgets/save_progress_popup.dart';
+import 'services/engagement_service.dart';
 
 // ── Palette ────────────────────────────────────────────────────────────────
 const _kGreenDeep    = Color(0xFF0A2018);
@@ -29,60 +34,6 @@ const _kTextDark     = Color(0xFF1A130A);
 const _kTextMid      = Color(0xFF5A4833);
 const _kTextLight    = Color(0xFF8A7863);
 const _kWhite        = Color(0xFFFDFAF4);
-
-// ── Données défi du jour ────────────────────────────────────────────────
-const _kDailyDefis = <Map<String, String>>[
-  {'emoji': '📖', 'defi': 'Lis 5 versets du Coran', 'xp': '+15 XP'},
-  {'emoji': '🤲', 'defi': 'Fais 33 Subhanallah après la prière', 'xp': '+10 XP'},
-  {'emoji': '😊', 'defi': 'Souris à 3 personnes aujourd\'hui', 'xp': '+10 XP'},
-  {'emoji': '💧', 'defi': 'Fais tes ablutions avec soin', 'xp': '+10 XP'},
-  {'emoji': '🕌', 'defi': 'Prie une prière à la mosquée', 'xp': '+20 XP'},
-  {'emoji': '📿', 'defi': 'Récite Ayat al-Kursi 3 fois', 'xp': '+15 XP'},
-  {'emoji': '🤝', 'defi': 'Rends service à quelqu\'un', 'xp': '+15 XP'},
-  {'emoji': '🌙', 'defi': 'Lis les adhkar du soir', 'xp': '+10 XP'},
-  {'emoji': '💝', 'defi': 'Fais une Sadaqa, même petite', 'xp': '+20 XP'},
-  {'emoji': '📚', 'defi': 'Apprends un nouveau hadith', 'xp': '+15 XP'},
-  {'emoji': '🤲', 'defi': 'Fais une du\'a pour tes parents', 'xp': '+10 XP'},
-  {'emoji': '🌿', 'defi': 'Dis Astaghfirullah 100 fois', 'xp': '+15 XP'},
-];
-
-const _kVersets = <Map<String, String>>[
-  {
-    'arabe': 'إِنَّ مَعَ الْعُسْرِ يُسْرًا',
-    'traduction': '« Certes, avec la difficulté vient la facilité. »',
-    'reference': 'Ash-Sharh · 94:6',
-  },
-  {
-    'arabe': 'وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ',
-    'traduction': '« Quiconque place sa confiance en Allah, Il lui suffit. »',
-    'reference': 'At-Talaq · 65:3',
-  },
-  {
-    'arabe': 'فَاذْكُرُونِي أَذْكُرْكُمْ',
-    'traduction': '« Souvenez-vous de Moi, Je Me souviendrai de vous. »',
-    'reference': 'Al-Baqara · 2:152',
-  },
-  {
-    'arabe': 'وَلَسَوْفَ يُعْطِيكَ رَبُّكَ فَتَرْضَىٰ',
-    'traduction': '« Ton Seigneur t\'accordera tant que tu seras satisfait. »',
-    'reference': 'Ad-Duha · 93:5',
-  },
-  {
-    'arabe': 'إِنَّ اللَّهَ مَعَ الصَّابِرِينَ',
-    'traduction': '« Allah est avec les patients. »',
-    'reference': 'Al-Baqara · 2:153',
-  },
-  {
-    'arabe': 'وَهُوَ مَعَكُمْ أَيْنَ مَا كُنتُمْ',
-    'traduction': '« Il est avec vous où que vous soyez. »',
-    'reference': 'Al-Hadid · 57:4',
-  },
-  {
-    'arabe': 'رَبِّ اشْرَحْ لِي صَدْرِي',
-    'traduction': '« Seigneur, ouvre-moi ma poitrine. »',
-    'reference': 'Ta-Ha · 20:25',
-  },
-];
 
 // ══════════════════════════════════════════════════════════════════════════
 // ÉCRAN D'ACCUEIL
@@ -120,6 +71,7 @@ class _HomeScreenState extends State<HomeScreen>
     // Popup consentement analytics au premier lancement
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) showConsentIfNeeded(context);
+      if (mounted) _checkEngagementPopup();
     });
   }
 
@@ -127,6 +79,22 @@ class _HomeScreenState extends State<HomeScreen>
   void didChangeDependencies() {
     super.didChangeDependencies();
     _loadNotification();
+  }
+
+  // ── Popup Firebase après engagement significatif ───────────────────────
+  Future<void> _checkEngagementPopup() async {
+    final provider = DeenlyProfileScope.maybeOf(context);
+    final should   = await EngagementService.instance.shouldShowPopup(
+      profile: provider?.profile,
+    );
+    if (!should || !mounted) return;
+
+    // Petit délai pour laisser l'écran se charger complètement
+    await Future.delayed(const Duration(seconds: 2));
+    if (!mounted) return;
+
+    await EngagementService.instance.markPopupShown();
+    await showSaveProgressPopup(context);
   }
 
   Future<void> _loadNotification() async {
@@ -174,10 +142,13 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
     final dayOfYear =
         DateTime.now().difference(DateTime(2025, 1, 1)).inDays;
-    final verset = _kVersets[dayOfYear % _kVersets.length];
-    final defi = _kDailyDefis[dayOfYear % _kDailyDefis.length];
+    final verses = t.dailyVerses;
+    final challenges = t.dailyChallenges;
+    final verset = verses[dayOfYear % verses.length];
+    final defi = challenges[dayOfYear % challenges.length];
 
     return Scaffold(
       backgroundColor: _kBeige,
@@ -194,6 +165,9 @@ class _HomeScreenState extends State<HomeScreen>
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
+                // ── Bannière sauvegarde Firebase ──
+                const SaveProgressBanner(),
+
                 // ── Notification ami ──
                 if (_currentNotif != null && !_notifDismissed)
                   _NotifCard(
@@ -223,15 +197,15 @@ class _HomeScreenState extends State<HomeScreen>
                 const SizedBox(height: 24),
 
                 // ── Accès rapide ──
-                const _SectionTitle(
-                    title: 'Accès rapide', subtitle: 'Tes outils du quotidien'),
+                _SectionTitle(
+                    title: context.t.homeQuickAccess, subtitle: context.t.homeQuickAccessSub),
                 const SizedBox(height: 12),
                 _QuickAccess(context: context),
                 const SizedBox(height: 24),
 
                 // ── Tous les modules ──
-                const _SectionTitle(
-                    title: 'Explorer', subtitle: 'Tous les modules'),
+                _SectionTitle(
+                    title: context.t.homeExplore, subtitle: context.t.homeAllModules),
                 const SizedBox(height: 12),
                 _buildModulesGrid(context),
               ]),
@@ -278,23 +252,23 @@ class _HomeScreenState extends State<HomeScreen>
                                   : 'السلام عليكم',
                               style: TextStyle(
                                 color: Colors.white
-                                    .withOpacity(profile != null ? 0.92 : 0.5),
+                                    .withValues(alpha: profile != null ? 0.92 : 0.5),
                                 fontSize: profile != null ? 18 : 13,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
                             const SizedBox(height: 2),
                             if (profile != null)
-                              Text(profile.titreNiveau,
+                              Text(context.t.levelTitle(profile.xpTotal),
                                   style: TextStyle(
-                                    color: _kGoldLight.withOpacity(0.55),
+                                    color: _kGoldLight.withValues(alpha: 0.55),
                                     fontSize: 11,
                                     fontWeight: FontWeight.w500,
                                   ))
                             else
-                              Text('Élève ta foi',
+                              Text(context.t.homeSlogan,
                                   style: TextStyle(
-                                    color: Colors.white.withOpacity(0.3),
+                                    color: Colors.white.withValues(alpha: 0.3),
                                     fontSize: 11,
                                     fontStyle: FontStyle.italic,
                                   )),
@@ -306,7 +280,7 @@ class _HomeScreenState extends State<HomeScreen>
                         children: [
                           Text('ديني',
                               style: TextStyle(
-                                color: _kGold.withOpacity(0.7),
+                                color: _kGold.withValues(alpha: 0.7),
                                 fontSize: 22,
                                 fontWeight: FontWeight.w300,
                               )),
@@ -323,10 +297,10 @@ class _HomeScreenState extends State<HomeScreen>
                           width: 38,
                           height: 38,
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.07),
+                            color: Colors.white.withValues(alpha: 0.07),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                                color: Colors.white.withOpacity(0.10)),
+                                color: Colors.white.withValues(alpha: 0.10)),
                           ),
                           child: const Icon(Icons.settings_rounded,
                               color: Colors.white60, size: 18),
@@ -345,12 +319,12 @@ class _HomeScreenState extends State<HomeScreen>
                             height: 42,
                             decoration: BoxDecoration(
                               gradient: LinearGradient(colors: [
-                                _kGold.withOpacity(0.35),
-                                _kGold.withOpacity(0.15),
+                                _kGold.withValues(alpha: 0.35),
+                                _kGold.withValues(alpha: 0.15),
                               ]),
                               borderRadius: BorderRadius.circular(14),
                               border: Border.all(
-                                  color: _kGold.withOpacity(0.3)),
+                                  color: _kGold.withValues(alpha: 0.3)),
                             ),
                             child: Center(
                                 child: Text(profile.avatar,
@@ -362,10 +336,10 @@ class _HomeScreenState extends State<HomeScreen>
                           width: 38,
                           height: 38,
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.07),
+                            color: Colors.white.withValues(alpha: 0.07),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                                color: Colors.white.withOpacity(0.10)),
+                                color: Colors.white.withValues(alpha: 0.10)),
                           ),
                           child: const Icon(Icons.person_outline_rounded,
                               color: Colors.white38, size: 18),
@@ -378,23 +352,23 @@ class _HomeScreenState extends State<HomeScreen>
                   Row(children: [
                     _StatChip(
                         icon: '🔥',
-                        value: '${profile?.streak ?? 0}',
-                        label: 'Série'),
+                        value: (profile?.streak ?? 0).toString(),
+                        label: context.t.statStreak),
                     const SizedBox(width: 8),
                     _StatChip(
                         icon: '⭐',
-                        value: '${profile?.xpTotal ?? 0}',
-                        label: 'XP'),
+                        value: (profile?.xpTotal ?? 0).toString(),
+                        label: context.t.statXP),
                     const SizedBox(width: 8),
                     _StatChip(
                         icon: '📖',
-                        value: '${profile?.versetsLus ?? 0}',
-                        label: 'Versets'),
+                        value: (profile?.versetsLus ?? 0).toString(),
+                        label: context.t.statVerses),
                     const SizedBox(width: 8),
                     _StatChip(
                         icon: '🏆',
-                        value: '${profile?.badges.length ?? 0}',
-                        label: 'Badges'),
+                        value: (profile?.badges.length ?? 0).toString(),
+                        label: context.t.statBadges),
                   ]),
                 ],
               );
@@ -407,9 +381,10 @@ class _HomeScreenState extends State<HomeScreen>
 
   // ── Grille des modules (3 colonnes, compact) ───────────────────────────
   Widget _buildModulesGrid(BuildContext context) {
+    final t = context.t;
     final modules = [
       _ModuleData(
-        title: 'Coran',
+        title: t.moduleCoran,
         assetPath: 'assets/modules/module_coran.jpg',
         colors: [const Color(0xFF0D2820), _kGreenPrimary],
         glow: _kGreenPrimary,
@@ -417,7 +392,7 @@ class _HomeScreenState extends State<HomeScreen>
             MaterialPageRoute(builder: (_) => const QuranScreen())),
       ),
       _ModuleData(
-        title: 'Apprentissage',
+        title: t.moduleLearning,
         assetPath: 'assets/modules/module_learning.jpg',
         colors: [const Color(0xFF4A2006), const Color(0xFFB06028)],
         glow: const Color(0xFFB06028),
@@ -425,7 +400,7 @@ class _HomeScreenState extends State<HomeScreen>
             MaterialPageRoute(builder: (_) => const LearningHomeScreen())),
       ),
       _ModuleData(
-        title: 'Hadiths',
+        title: t.moduleHadith,
         assetPath: 'assets/modules/module_hadith.jpg',
         colors: [const Color(0xFF0D1C30), const Color(0xFF1A3C6A)],
         glow: const Color(0xFF1A3C6A),
@@ -433,7 +408,7 @@ class _HomeScreenState extends State<HomeScreen>
             MaterialPageRoute(builder: (_) => const HadithScreen())),
       ),
       _ModuleData(
-        title: 'Journal',
+        title: t.moduleJournal,
         assetPath: 'assets/modules/module_journal.jpg',
         colors: [const Color(0xFF281040), const Color(0xFF5A3A8A)],
         glow: const Color(0xFF5A3A8A),
@@ -441,7 +416,7 @@ class _HomeScreenState extends State<HomeScreen>
             MaterialPageRoute(builder: (_) => const JournalScreen())),
       ),
       _ModuleData(
-        title: 'Spiritualité',
+        title: t.moduleSpirituality,
         assetPath: 'assets/modules/module_dhikr.jpg',
         colors: [const Color(0xFF0A1E1E), const Color(0xFF145454)],
         glow: const Color(0xFF145454),
@@ -449,7 +424,7 @@ class _HomeScreenState extends State<HomeScreen>
             MaterialPageRoute(builder: (_) => const SpiritualiteScreen())),
       ),
       _ModuleData(
-        title: 'Protection',
+        title: t.moduleProtection,
         assetPath: 'assets/modules/module_protection.jpg',
         colors: [const Color(0xFF1A0A2E), const Color(0xFF2D1B4E)],
         glow: const Color(0xFF5A3A8A),
@@ -457,7 +432,7 @@ class _HomeScreenState extends State<HomeScreen>
             MaterialPageRoute(builder: (_) => const ProtectionScreen())),
       ),
       _ModuleData(
-        title: 'Famille',
+        title: t.moduleFamily,
         assetPath: 'assets/modules/module_children.jpg',
         colors: [const Color(0xFF0A1830), const Color(0xFF1B2D60)],
         glow: const Color(0xFF1B2D60),
@@ -465,7 +440,7 @@ class _HomeScreenState extends State<HomeScreen>
             MaterialPageRoute(builder: (_) => const FamilleScreen())),
       ),
       _ModuleData(
-        title: 'Découvrir',
+        title: t.moduleDiscover,
         assetPath: 'assets/modules/module_decouvrir.jpg',
         colors: [const Color(0xFF0A1628), const Color(0xFF1A3A5C)],
         glow: const Color(0xFF2D6A9F),
@@ -473,11 +448,11 @@ class _HomeScreenState extends State<HomeScreen>
             MaterialPageRoute(builder: (_) => const DecouvrirScreen())),
       ),
       _ModuleData(
-        title: 'Boutique',
+        title: t.moduleShop,
         assetPath: 'assets/modules/module_boutique.jpg',
         colors: [const Color(0xFF2A1A0A), const Color(0xFF8B6914)],
         glow: const Color(0xFFC8933A),
-        onTap: () => _showComingSoon(context, 'Boutique'),
+        onTap: () => _showComingSoon(context, t.moduleShop),
       ),
     ];
 
@@ -496,8 +471,12 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   void _showComingSoon(BuildContext context, String module) {
+    final locale = AppLocaleScope.of(context);
+    final msg = locale.isFrench
+        ? 'Le module "$module" arrive bientôt, إن شاء الله !'
+        : 'The "$module" module is coming soon, إن شاء الله!';
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text('Le module "$module" arrive bientôt, إن شاء الله !'),
+      content: Text(msg),
       backgroundColor: _kGreenPrimary,
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -519,9 +498,9 @@ class _StatChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.07),
+          color: Colors.white.withValues(alpha: 0.07),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.white.withOpacity(0.08)),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
         ),
         child: Column(children: [
           Text(icon, style: const TextStyle(fontSize: 14)),
@@ -533,7 +512,7 @@ class _StatChip extends StatelessWidget {
                   fontWeight: FontWeight.w900)),
           Text(label,
               style: TextStyle(
-                  color: Colors.white.withOpacity(0.35),
+                  color: Colors.white.withValues(alpha: 0.35),
                   fontSize: 8,
                   fontWeight: FontWeight.w500)),
         ]),
@@ -623,10 +602,10 @@ class _NotifCardState extends State<_NotifCard>
           decoration: BoxDecoration(
             color: _kWhite,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: accent.withOpacity(0.20)),
+            border: Border.all(color: accent.withValues(alpha: 0.20)),
             boxShadow: [
               BoxShadow(
-                color: accent.withOpacity(0.08),
+                color: accent.withValues(alpha: 0.08),
                 blurRadius: 16,
                 offset: const Offset(0, 4),
               ),
@@ -643,7 +622,7 @@ class _NotifCardState extends State<_NotifCard>
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: accent.withOpacity(0.10),
+                      color: accent.withValues(alpha: 0.10),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Center(
@@ -656,7 +635,7 @@ class _NotifCardState extends State<_NotifCard>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(n.titre,
+                        Text(n.localTitre,
                             style: TextStyle(
                               color: _kTextDark,
                               fontSize: 14,
@@ -679,7 +658,7 @@ class _NotifCardState extends State<_NotifCard>
                       width: 28,
                       height: 28,
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.04),
+                        color: Colors.black.withValues(alpha: 0.04),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(Icons.close_rounded,
@@ -691,7 +670,7 @@ class _NotifCardState extends State<_NotifCard>
               const SizedBox(height: 12),
 
               // ── Message ──
-              Text(n.message,
+              Text(n.localMessage,
                   style: const TextStyle(
                     color: _kTextMid,
                     fontSize: 12.5,
@@ -699,7 +678,7 @@ class _NotifCardState extends State<_NotifCard>
                   )),
 
               // ── Bouton action ──
-              if (n.actionLabel != null) ...[
+              if (n.localActionLabel != null) ...[
                 const SizedBox(height: 14),
                 GestureDetector(
                   onTap: () {
@@ -712,18 +691,18 @@ class _NotifCardState extends State<_NotifCard>
                     decoration: BoxDecoration(
                       gradient: LinearGradient(colors: [
                         accent,
-                        accent.withOpacity(0.8),
+                        accent.withValues(alpha: 0.8),
                       ]),
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: accent.withOpacity(0.25),
+                          color: accent.withValues(alpha: 0.25),
                           blurRadius: 8,
                           offset: const Offset(0, 3),
                         ),
                       ],
                     ),
-                    child: Text(n.actionLabel!,
+                    child: Text(n.localActionLabel!,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
@@ -740,23 +719,24 @@ class _NotifCardState extends State<_NotifCard>
   }
 
   String _typeLabel(NotifType type) {
+    final t = context.t;
     switch (type) {
       case NotifType.motivation:
-        return 'MOTIVATION';
+        return t.notifMotivation;
       case NotifType.streak:
-        return 'SÉRIE';
+        return t.notifStreak;
       case NotifType.bienEtre:
-        return 'BIEN-ÊTRE';
+        return t.notifWellbeing;
       case NotifType.comeback:
-        return 'BON RETOUR';
+        return t.notifComeback;
       case NotifType.defiJour:
-        return 'DÉFI';
+        return t.notifChallenge;
       case NotifType.rappelPriere:
-        return 'RAPPEL';
+        return t.notifReminder;
       case NotifType.sadaqaJariya:
-        return 'SADAQA JARIYA';
+        return t.notifSadaqa;
       case NotifType.celebration:
-        return 'FÉLICITATIONS';
+        return t.notifCongrats;
     }
   }
 }
@@ -775,7 +755,7 @@ class _VersetMini extends StatelessWidget {
       decoration: BoxDecoration(
         color: _kWhite,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: _kBeigeBorder.withOpacity(0.5)),
+        border: Border.all(color: _kBeigeBorder.withValues(alpha: 0.5)),
         boxShadow: const [
           BoxShadow(
               color: Color(0x0A000000), blurRadius: 12, offset: Offset(0, 4)),
@@ -797,8 +777,8 @@ class _VersetMini extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 6),
-              const Text('VERSET DU JOUR',
-                  style: TextStyle(
+              Text(context.t.dailyVerseTag,
+                  style: const TextStyle(
                       color: _kGold,
                       fontSize: 9,
                       fontWeight: FontWeight.w700,
@@ -876,12 +856,12 @@ class _DefiCardState extends State<_DefiCard>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            _kGold.withOpacity(glow),
-            _kGold.withOpacity(glow * 0.4),
+            _kGold.withValues(alpha: glow),
+            _kGold.withValues(alpha: glow * 0.4),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _kGold.withOpacity(0.15)),
+        border: Border.all(color: _kGold.withValues(alpha: 0.15)),
       ),
       child: Row(
         children: [
@@ -889,7 +869,7 @@ class _DefiCardState extends State<_DefiCard>
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: _kGold.withOpacity(0.12),
+              color: _kGold.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Center(
@@ -901,8 +881,8 @@ class _DefiCardState extends State<_DefiCard>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('DÉFI DU JOUR',
-                    style: TextStyle(
+                Text(context.t.dailyChallengeTag,
+                    style: const TextStyle(
                         color: _kGold,
                         fontSize: 9,
                         fontWeight: FontWeight.w700,
@@ -919,7 +899,7 @@ class _DefiCardState extends State<_DefiCard>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
-              color: _kGold.withOpacity(0.12),
+              color: _kGold.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(data['xp'] ?? '',
@@ -995,7 +975,7 @@ class _ContinueCardState extends State<_ContinueCard>
           borderRadius: BorderRadius.circular(18),
           boxShadow: [
             BoxShadow(
-                color: _kGreenPrimary.withOpacity(0.30),
+                color: _kGreenPrimary.withValues(alpha: 0.30),
                 blurRadius: 16,
                 offset: const Offset(0, 6)),
           ],
@@ -1005,15 +985,15 @@ class _ContinueCardState extends State<_ContinueCard>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('CONTINUER',
+                Text(context.t.continueTag,
                     style: TextStyle(
-                        color: Colors.white.withOpacity(0.50),
+                        color: Colors.white.withValues(alpha: 0.50),
                         fontSize: 9,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 1)),
                 const SizedBox(height: 4),
-                const Text('Commencer votre lecture',
-                    style: TextStyle(
+                Text(context.t.continueReading,
+                    style: const TextStyle(
                         color: Colors.white,
                         fontSize: 14,
                         fontWeight: FontWeight.w800)),
@@ -1025,7 +1005,7 @@ class _ContinueCardState extends State<_ContinueCard>
                               height: 4,
                               width: c.maxWidth,
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.15),
+                                color: Colors.white.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(99),
                               )),
                           Container(
@@ -1039,7 +1019,7 @@ class _ContinueCardState extends State<_ContinueCard>
                 const SizedBox(height: 4),
                 Text('0 %',
                     style: TextStyle(
-                        color: Colors.white.withOpacity(0.45), fontSize: 10)),
+                        color: Colors.white.withValues(alpha: 0.45), fontSize: 10)),
               ],
             ),
           ),
@@ -1047,9 +1027,9 @@ class _ContinueCardState extends State<_ContinueCard>
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.14),
+              color: Colors.white.withValues(alpha: 0.14),
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: Colors.white.withOpacity(0.20)),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.20)),
             ),
             child: const Icon(Icons.play_arrow_rounded,
                 color: Colors.white, size: 20),
@@ -1070,8 +1050,9 @@ class _QuickAccess extends StatelessWidget {
 
   @override
   Widget build(BuildContext _) {
+    final t = context.t;
     final items = <_QuickItem>[
-      _QuickItem('📖', 'Coran', const Color(0xFF1B4D38),
+      _QuickItem('📖', t.quickCoran, const Color(0xFF1B4D38),
           () => Navigator.push(context, MaterialPageRoute(builder: (_) => const QuranScreen()))),
       _QuickItem('🤲', 'Dhikr', const Color(0xFF145454),
           () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SpiritualiteScreen()))),
@@ -1079,9 +1060,9 @@ class _QuickAccess extends StatelessWidget {
           () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProtectionScreen()))),
       _QuickItem('💬', 'Assistant', const Color(0xFF1A6B4A),
           () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DecouvrirScreen()))),
-      _QuickItem('✍️', 'Journal', const Color(0xFF5A3A8A),
+      _QuickItem('✍️', t.moduleJournal, const Color(0xFF5A3A8A),
           () => Navigator.push(context, MaterialPageRoute(builder: (_) => const JournalScreen()))),
-      _QuickItem('📜', 'Hadiths', const Color(0xFF1A3C6A),
+      _QuickItem('📜', t.quickHadith, const Color(0xFF1A3C6A),
           () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HadithScreen()))),
     ];
 
@@ -1090,7 +1071,7 @@ class _QuickAccess extends StatelessWidget {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: items.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 14),
+        separatorBuilder: (_, _) => const SizedBox(width: 14),
         itemBuilder: (_, i) {
           final it = items[i];
           return _QuickAccessItem(item: it);
@@ -1164,9 +1145,9 @@ class _QuickAccessItemState extends State<_QuickAccessItem>
                 width: 52,
                 height: 52,
                 decoration: BoxDecoration(
-                  color: it.color.withOpacity(0.08),
+                  color: it.color.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: it.color.withOpacity(0.12)),
+                  border: Border.all(color: it.color.withValues(alpha: 0.12)),
                 ),
                 child: Center(
                     child: Text(it.emoji,
@@ -1231,7 +1212,7 @@ class _ModuleData {
 // ══════════════════════════════════════════════════════════════════════════
 class _ModuleCard extends StatefulWidget {
   final _ModuleData data;
-  const _ModuleCard({super.key, required this.data});
+  const _ModuleCard({required this.data});
 
   @override
   State<_ModuleCard> createState() => _ModuleCardState();
@@ -1287,7 +1268,7 @@ class _ModuleCardState extends State<_ModuleCard>
             borderRadius: BorderRadius.circular(18),
             boxShadow: [
               BoxShadow(
-                  color: widget.data.glow.withOpacity(0.25),
+                  color: widget.data.glow.withValues(alpha: 0.25),
                   blurRadius: 14,
                   offset: const Offset(0, 5)),
             ],
@@ -1300,7 +1281,7 @@ class _ModuleCardState extends State<_ModuleCard>
                 child: Image.asset(
                   widget.data.assetPath,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
+                  errorBuilder: (_, _, _) => Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: widget.data.colors,
@@ -1319,8 +1300,8 @@ class _ModuleCardState extends State<_ModuleCard>
                       begin: Alignment.bottomCenter,
                       end: Alignment.topCenter,
                       colors: [
-                        Colors.black.withOpacity(0.75),
-                        Colors.black.withOpacity(0.15),
+                        Colors.black.withValues(alpha: 0.75),
+                        Colors.black.withValues(alpha: 0.15),
                         Colors.transparent,
                       ],
                       stops: const [0.0, 0.5, 1.0],
@@ -1370,7 +1351,7 @@ class _HeaderBgPainter extends CustomPainter {
           r,
           Paint()
             ..color = Colors.white
-                .withOpacity(rng.nextDouble() * 0.06 + 0.01));
+                .withValues(alpha: rng.nextDouble() * 0.06 + 0.01));
     }
 
     // Croissant doré petit (haut-droite)
@@ -1384,11 +1365,11 @@ class _HeaderBgPainter extends CustomPainter {
             center: Offset(mc.dx + mr * 0.40, mc.dy - mr * 0.08),
             radius: mr * 0.82)),
     );
-    canvas.drawPath(crescent, Paint()..color = _kGold.withOpacity(0.20));
+    canvas.drawPath(crescent, Paint()..color = _kGold.withValues(alpha: 0.20));
 
     // Arc discret
     final arcP = Paint()
-      ..color = Colors.white.withOpacity(0.02)
+      ..color = Colors.white.withValues(alpha: 0.02)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.8;
     canvas.drawArc(

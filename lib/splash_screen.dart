@@ -3,12 +3,12 @@
 
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'app_locale.dart';
+import 'translations.dart';
 
 // ── Palette ──────────────────────────────────────────────────────────
 const _kGreenDeep = Color(0xFF0A2018);
-const _kGreen = Color(0xFF1B4D38);
 const _kGold = Color(0xFFC8933A);
-const _kGoldLt = Color(0xFFE8BF6A);
 
 class SplashScreen extends StatefulWidget {
   final Widget nextScreen;
@@ -37,7 +37,7 @@ class _SplashScreenState extends State<SplashScreen>
     // Logo : scale + opacity
     _logoCtrl = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1800),
+      duration: const Duration(milliseconds: 1600),
     );
     _logoScale = Tween<double>(begin: 0.5, end: 1.0).animate(
       CurvedAnimation(parent: _logoCtrl, curve: Curves.elasticOut),
@@ -78,16 +78,16 @@ class _SplashScreenState extends State<SplashScreen>
 
     // Séquence
     _logoCtrl.forward();
-    Future.delayed(const Duration(milliseconds: 2800), () {
+    Future.delayed(const Duration(milliseconds: 2400), () {
       if (!mounted) return;
       _fadeCtrl.forward().then((_) {
         if (!mounted) return;
         Navigator.pushReplacement(
           context,
           PageRouteBuilder(
-            pageBuilder: (_, __, ___) => widget.nextScreen,
-            transitionDuration: const Duration(milliseconds: 600),
-            transitionsBuilder: (_, anim, __, child) {
+            pageBuilder: (_, _, _) => widget.nextScreen,
+            transitionDuration: const Duration(milliseconds: 400),
+            transitionsBuilder: (_, anim, _, child) {
               return FadeTransition(opacity: anim, child: child);
             },
           ),
@@ -135,7 +135,7 @@ class _SplashScreenState extends State<SplashScreen>
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: _kGold.withOpacity(0.15),
+                            color: _kGold.withValues(alpha: 0.15),
                             blurRadius: 80,
                             spreadRadius: 40,
                           ),
@@ -189,9 +189,9 @@ class _SplashScreenState extends State<SplashScreen>
                       // Slogan
                       Opacity(
                         opacity: _subtitleOpacity.value,
-                        child: Text('Élève ta foi',
+                        child: Text(AppLocale().tr('Élève ta foi', 'Elevate your faith'),
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.4),
+                              color: Colors.white.withValues(alpha: 0.4),
                               fontSize: 12,
                               fontStyle: FontStyle.italic,
                               letterSpacing: 0.5,
@@ -213,7 +213,7 @@ class _SplashScreenState extends State<SplashScreen>
                         child: Text(
                           'بسم الله الرحمن الرحيم',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.25),
+                            color: Colors.white.withValues(alpha: 0.25),
                             fontSize: 16,
                           ),
                         ),
@@ -239,7 +239,7 @@ class _SplashScreenState extends State<SplashScreen>
           decoration: BoxDecoration(
             gradient: LinearGradient(colors: [
               Colors.transparent,
-              _kGold.withOpacity(0.5),
+              _kGold.withValues(alpha: 0.5),
             ]),
           ),
         ),
@@ -248,7 +248,7 @@ class _SplashScreenState extends State<SplashScreen>
           height: 6,
           margin: const EdgeInsets.symmetric(horizontal: 10),
           decoration: BoxDecoration(
-            color: _kGold.withOpacity(0.6),
+            color: _kGold.withValues(alpha: 0.6),
             shape: BoxShape.circle,
           ),
         ),
@@ -257,7 +257,7 @@ class _SplashScreenState extends State<SplashScreen>
           height: 1,
           decoration: BoxDecoration(
             gradient: LinearGradient(colors: [
-              _kGold.withOpacity(0.5),
+              _kGold.withValues(alpha: 0.5),
               Colors.transparent,
             ]),
           ),
@@ -288,7 +288,7 @@ class _StarsPainter extends CustomPainter {
       final r = baseR * twinkle;
       final o = opacity * (rng.nextDouble() * 0.06 + 0.02) * twinkle;
       canvas.drawCircle(
-          Offset(x, y), r, Paint()..color = Colors.white.withOpacity(o));
+          Offset(x, y), r, Paint()..color = Colors.white.withValues(alpha: o));
     }
   }
 

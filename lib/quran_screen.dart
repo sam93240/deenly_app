@@ -5,6 +5,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'sourates_data.dart';
+import 'sourate_repository.dart';
+import 'translations.dart';
+import 'learning/audio_verse_widget.dart';
+import 'learning/audio_verse_service.dart';
 
 // ── Palette ────────────────────────────────────────────────────────────────
 const _kGreenDeep    = Color(0xFF0A2018);
@@ -142,7 +146,7 @@ class QuranScreen extends StatefulWidget {
 
 class _QuranScreenState extends State<QuranScreen> {
   final TextEditingController _searchController = TextEditingController();
-  List<Sourate> _filteredSourates = sourates;
+  List<Sourate> _filteredSourates = SourateRepository.instance.data;
   String _searchQuery = '';
 
   // Dernière position lue
@@ -156,7 +160,7 @@ class _QuranScreenState extends State<QuranScreen> {
   @override
   void initState() {
     super.initState();
-    _filteredSourates = List.from(sourates);
+    _filteredSourates = List.from(SourateRepository.instance.data);
     _loadLastPosition();
     _loadBookmarks();
   }
@@ -186,9 +190,10 @@ class _QuranScreenState extends State<QuranScreen> {
   void _onSearch(String query) {
     setState(() {
       _searchQuery = query.toLowerCase().trim();
+      final _all = SourateRepository.instance.data;
       _filteredSourates = _searchQuery.isEmpty
-          ? List.from(sourates)
-          : sourates.where((s) {
+          ? List.from(_all)
+          : _all.where((s) {
               return s.nomFrancais.toLowerCase().contains(_searchQuery) ||
                   s.nomArabe.contains(_searchQuery) ||
                   s.numero.toString() == _searchQuery;
@@ -237,9 +242,10 @@ class _QuranScreenState extends State<QuranScreen> {
                   surahName:  _lastSurahName ?? '',
                   versetNum:  _lastVersetNum!,
                   onTap: () {
-                    final s = sourates.firstWhere(
+                    final _all = SourateRepository.instance.data;
+                    final s = _all.firstWhere(
                       (s) => s.numero == _lastSurahNum,
-                      orElse: () => sourates.first,
+                      orElse: () => _all.first,
                     );
                     _openSourate(s, initialVersetNum: _lastVersetNum!);
                   },
@@ -266,9 +272,10 @@ class _QuranScreenState extends State<QuranScreen> {
                 child: _BookmarksSection(
                   bookmarks: _bookmarks,
                   onTap: (bm) {
-                    final s = sourates.firstWhere(
+                    final _all = SourateRepository.instance.data;
+                    final s = _all.firstWhere(
                       (s) => s.numero == bm.surah,
-                      orElse: () => sourates.first,
+                      orElse: () => _all.first,
                     );
                     _openSourate(s, initialVersetNum: bm.verset);
                   },
@@ -327,9 +334,9 @@ class _QuranScreenState extends State<QuranScreen> {
               child: Container(
                 width: 36, height: 36,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.12),
+                  color: Colors.white.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(11),
-                  border: Border.all(color: Colors.white.withOpacity(0.18)),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
                 ),
                 child: const Icon(Icons.arrow_back_ios_new_rounded,
                   color: Colors.white, size: 15),
@@ -349,9 +356,9 @@ class _QuranScreenState extends State<QuranScreen> {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Le Saint Coran · 114 sourates',
+                    context.t.quranSubtitle,
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.55),
+                      color: Colors.white.withValues(alpha: 0.55),
                       fontSize: 12,
                     ),
                   ),
@@ -361,14 +368,14 @@ class _QuranScreenState extends State<QuranScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.white.withOpacity(0.15)),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
               ),
               child: Text(
-                '${sourates.length} sourates',
+                '${SourateRepository.instance.data.length} sourates',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.8),
+                  color: Colors.white.withValues(alpha: 0.8),
                   fontSize: 11, fontWeight: FontWeight.w600,
                 ),
               ),
@@ -394,7 +401,7 @@ class _QuranScreenState extends State<QuranScreen> {
         onChanged: _onSearch,
         style: const TextStyle(color: _kTextDark, fontSize: 14),
         decoration: InputDecoration(
-          hintText: 'Rechercher une sourate...',
+          hintText: context.t.quranSearch,
           hintStyle: const TextStyle(color: _kTextLight, fontSize: 13),
           prefixIcon: const Icon(Icons.search_rounded, color: _kTextLight, size: 20),
           suffixIcon: _searchQuery.isNotEmpty
@@ -442,7 +449,7 @@ class _ReprendreCard extends StatelessWidget {
           ),
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
-            BoxShadow(color: _kGreenPrimary.withOpacity(0.25),
+            BoxShadow(color: _kGreenPrimary.withValues(alpha: 0.25),
                 blurRadius: 12, offset: const Offset(0, 3)),
           ],
         ),
@@ -450,7 +457,7 @@ class _ReprendreCard extends StatelessWidget {
           Container(
             width: 38, height: 38,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.12),
+              color: Colors.white.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(11),
             ),
             child: const Center(child: Text('📖', style: TextStyle(fontSize: 18))),
@@ -459,12 +466,12 @@ class _ReprendreCard extends StatelessWidget {
           Expanded(child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Reprendre la lecture',
-                  style: TextStyle(color: Colors.white, fontSize: 12,
+              Text(context.t.quranResumeReading,
+                  style: const TextStyle(color: Colors.white, fontSize: 12,
                       fontWeight: FontWeight.w800)),
               const SizedBox(height: 2),
               Text('$surahName · Verset $versetNum',
-                  style: TextStyle(color: Colors.white.withOpacity(0.65), fontSize: 11)),
+                  style: TextStyle(color: Colors.white.withValues(alpha: 0.65), fontSize: 11)),
             ],
           )),
           Icon(Icons.arrow_forward_ios_rounded, color: _kGoldLight, size: 14),
@@ -474,7 +481,7 @@ class _ReprendreCard extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.only(left: 8),
               child: Icon(Icons.close_rounded,
-                  color: Colors.white.withOpacity(0.45), size: 16),
+                  color: Colors.white.withValues(alpha: 0.45), size: 16),
             ),
           ),
         ]),
@@ -517,7 +524,7 @@ class _SourateListTile extends StatelessWidget {
               color: hasContent ? null : _kBeigeCard,
               borderRadius: BorderRadius.circular(13),
               boxShadow: hasContent
-                  ? [BoxShadow(color: _kGreenPrimary.withOpacity(0.25),
+                  ? [BoxShadow(color: _kGreenPrimary.withValues(alpha: 0.25),
                       blurRadius: 8, offset: const Offset(0, 3))]
                   : null,
             ),
@@ -561,8 +568,8 @@ class _SourateListTile extends StatelessWidget {
                         color: _kBeigeCard,
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: const Text('Bientôt',
-                        style: TextStyle(
+                      child: Text(context.t.quranComingSoon,
+                        style: const TextStyle(
                           fontSize: 9, color: _kGold,
                           fontWeight: FontWeight.w700,
                         )),
@@ -601,7 +608,7 @@ class _SourateListTile extends StatelessWidget {
 
   void _showComingSoon(BuildContext context, String nom) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text('Le contenu de "$nom" arrive bientôt, إن شاء الله !'),
+      content: Text('${context.t.quranContentComing} "$nom" ${context.t.quranArrivingSoon}'),
       backgroundColor: _kGreenPrimary,
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -627,14 +634,14 @@ class _EmptySearchResult extends StatelessWidget {
           child: const Center(child: Text('🔍', style: TextStyle(fontSize: 36))),
         ),
         const SizedBox(height: 16),
-        const Text(
-          'Aucune sourate trouvée',
-          style: TextStyle(color: _kTextMid, fontSize: 16, fontWeight: FontWeight.w600),
+        Text(
+          context.t.quranNoResults,
+          style: const TextStyle(color: _kTextMid, fontSize: 16, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 6),
-        const Text(
-          'Essaie un autre mot-clé',
-          style: TextStyle(color: _kTextLight, fontSize: 13),
+        Text(
+          context.t.quranTryOtherKeyword,
+          style: const TextStyle(color: _kTextLight, fontSize: 13),
         ),
       ],
     );
@@ -829,6 +836,7 @@ class _SourateDetailScreenState extends State<SourateDetailScreen> {
                 padding: const EdgeInsets.only(bottom: 10),
                 child: _VersetCard(
                   verset:            verset,
+                  surahNumber:       sourate.numero,
                   showArabe:         _showArabe,
                   showTraduction:    _showTraduction,
                   showPhonetique:    _showPhonetique,
@@ -865,9 +873,9 @@ class _SourateDetailScreenState extends State<SourateDetailScreen> {
                 child: Container(
                   width: 36, height: 36,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.12),
+                    color: Colors.white.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(11),
-                    border: Border.all(color: Colors.white.withOpacity(0.18)),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
                   ),
                   child: const Icon(Icons.arrow_back_ios_new_rounded,
                     color: Colors.white, size: 15),
@@ -886,7 +894,7 @@ class _SourateDetailScreenState extends State<SourateDetailScreen> {
                     const SizedBox(height: 2),
                     Text(sourate.nomFrancais.split('–').first.trim(),
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.55), fontSize: 12,
+                        color: Colors.white.withValues(alpha: 0.55), fontSize: 12,
                       )),
                   ],
                 ),
@@ -896,9 +904,9 @@ class _SourateDetailScreenState extends State<SourateDetailScreen> {
                 child: Container(
                   width: 36, height: 36,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.12),
+                    color: Colors.white.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(11),
-                    border: Border.all(color: Colors.white.withOpacity(0.18)),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
                   ),
                   child: const Icon(Icons.tune_rounded, color: Colors.white, size: 17),
                 ),
@@ -907,11 +915,11 @@ class _SourateDetailScreenState extends State<SourateDetailScreen> {
             const SizedBox(height: 14),
             // Info chips + indicateur de position
             Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              _DetailChip(label: 'Sourate', value: '${sourate.numero}'),
+              _DetailChip(label: context.t.quranSurahLabel, value: sourate.numero.toString()),
               const SizedBox(width: 10),
-              _DetailChip(label: 'Versets', value: '${sourate.nombreVersets}'),
+              _DetailChip(label: context.t.quranVersetsLabel, value: sourate.nombreVersets.toString()),
               const SizedBox(width: 10),
-              _DetailChip(label: 'lu', value: '$_currentVersetNum'),
+              _DetailChip(label: context.t.quranReadingLabel, value: '$_currentVersetNum'),
             ]),
           ]),
         ),
@@ -954,8 +962,8 @@ class _SourateDetailScreenState extends State<SourateDetailScreen> {
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-                const Text('Options d\'affichage',
-                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: _kTextDark)),
+                Text(context.t.quranDisplayOptions,
+                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: _kTextDark)),
                 const SizedBox(height: 20),
 
                 // ── Taille du texte arabe ────────────────────────────
@@ -972,9 +980,9 @@ class _SourateDetailScreenState extends State<SourateDetailScreen> {
                       Row(children: [
                         const Text('أ', style: TextStyle(fontSize: 16, color: _kTextMid)),
                         const SizedBox(width: 8),
-                        const Expanded(
-                          child: Text('Taille du texte arabe',
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700,
+                        Expanded(
+                          child: Text(context.t.quranArabicTextSize,
+                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700,
                                 color: _kTextDark)),
                         ),
                         Container(
@@ -1009,7 +1017,7 @@ class _SourateDetailScreenState extends State<SourateDetailScreen> {
                           activeTrackColor:   _kGreenPrimary,
                           inactiveTrackColor: _kBeigeBorder,
                           thumbColor:         _kGreenPrimary,
-                          overlayColor:       _kGreenPrimary.withOpacity(0.15),
+                          overlayColor:       _kGreenPrimary.withValues(alpha: 0.15),
                           trackHeight:        3,
                         ),
                         child: Slider(
@@ -1027,9 +1035,9 @@ class _SourateDetailScreenState extends State<SourateDetailScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('Petit', style: TextStyle(fontSize: 10, color: _kTextLight)),
-                          Text('Normal', style: TextStyle(fontSize: 10, color: _kTextLight)),
-                          Text('Grand', style: TextStyle(fontSize: 10, color: _kTextLight)),
+                          Text(context.t.quranSmallSize, style: const TextStyle(fontSize: 10, color: _kTextLight)),
+                          Text(context.t.quranNormalSize, style: const TextStyle(fontSize: 10, color: _kTextLight)),
+                          Text(context.t.quranLargeSize, style: const TextStyle(fontSize: 10, color: _kTextLight)),
                         ],
                       ),
                     ],
@@ -1050,7 +1058,7 @@ class _SourateDetailScreenState extends State<SourateDetailScreen> {
 
                 // ── Toggles d'affichage ──────────────────────────────
                 _ToggleRow(
-                  label: 'Texte arabe', icon: '🔤',
+                  label: context.t.quranArabicText, icon: '🔤',
                   value: _showArabe,
                   onChanged: (v) {
                     setModalState(() => _showArabe = v);
@@ -1059,7 +1067,7 @@ class _SourateDetailScreenState extends State<SourateDetailScreen> {
                   },
                 ),
                 _ToggleRow(
-                  label: 'Phonétique', icon: '🔊',
+                  label: context.t.quranPhonetic, icon: '🔊',
                   value: _showPhonetique,
                   onChanged: (v) {
                     setModalState(() => _showPhonetique = v);
@@ -1068,7 +1076,7 @@ class _SourateDetailScreenState extends State<SourateDetailScreen> {
                   },
                 ),
                 _ToggleRow(
-                  label: 'Traduction française', icon: '🌍',
+                  label: context.t.quranFrenchTranslation, icon: '🌍',
                   value: _showTraduction,
                   onChanged: (v) {
                     setModalState(() => _showTraduction = v);
@@ -1095,9 +1103,9 @@ class _DetailChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
+        color: Colors.white.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.15)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
       ),
       child: Row(children: [
         Text(value,
@@ -1107,7 +1115,7 @@ class _DetailChip extends StatelessWidget {
         const SizedBox(width: 5),
         Text(label,
           style: TextStyle(
-            color: Colors.white.withOpacity(0.55), fontSize: 10,
+            color: Colors.white.withValues(alpha: 0.55), fontSize: 10,
           )),
       ]),
     );
@@ -1133,7 +1141,7 @@ class _ToggleRow extends StatelessWidget {
       decoration: BoxDecoration(
         color: value ? const Color(0xFFF0F8F3) : _kBeige,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: value ? _kGreenMedium.withOpacity(0.3) : _kBeigeBorder),
+        border: Border.all(color: value ? _kGreenMedium.withValues(alpha: 0.3) : _kBeigeBorder),
       ),
       child: Row(children: [
         Text(icon, style: const TextStyle(fontSize: 16)),
@@ -1148,8 +1156,8 @@ class _ToggleRow extends StatelessWidget {
         Switch(
           value: value,
           onChanged: onChanged,
-          activeColor: _kGreenPrimary,
-          activeTrackColor: _kGreenMedium.withOpacity(0.3),
+          activeThumbColor: _kGreenPrimary,
+          activeTrackColor: _kGreenMedium.withValues(alpha: 0.3),
         ),
       ]),
     );
@@ -1178,7 +1186,7 @@ class _BismillahBanner extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          'Au nom d\'Allah, le Tout Miséricordieux',
+          context.t.quranBismillah,
           style: const TextStyle(
             fontSize: 11, color: _kTextLight,
             fontStyle: FontStyle.italic,
@@ -1193,6 +1201,7 @@ class _BismillahBanner extends StatelessWidget {
 // ── Widget : Carte d'un verset ────────────────────────────────────────────────
 class _VersetCard extends StatelessWidget {
   final Verset        verset;
+  final int           surahNumber;
   final bool          showArabe, showTraduction, showPhonetique;
   final double        arabicFontSize;
   final bool          isBookmarked;
@@ -1200,6 +1209,7 @@ class _VersetCard extends StatelessWidget {
 
   const _VersetCard({
     required this.verset,
+    required this.surahNumber,
     required this.showArabe,
     required this.showTraduction,
     required this.showPhonetique,
@@ -1298,6 +1308,14 @@ class _VersetCard extends StatelessWidget {
             ),
           ],
 
+          // Audio
+          const SizedBox(height: 10),
+          AudioVerseWidget(
+            surahNumber: surahNumber,
+            ayahNumber:  verset.numero,
+            config:      AudioConfig.quran(),
+          ),
+
           // Traduction
           if (showTraduction) ...[
             if (showArabe || showPhonetique) ...[
@@ -1306,7 +1324,7 @@ class _VersetCard extends StatelessWidget {
             ],
             const SizedBox(height: 10),
             Text(
-              verset.francais,
+              verset.traductionLocale,
               style: TextStyle(
                 fontSize: translationSize, color: _kTextMid, height: 1.6,
               ),
@@ -1346,7 +1364,7 @@ class _BookmarksSection extends StatelessWidget {
             const Icon(Icons.bookmark_rounded, color: _kGold, size: 16),
             const SizedBox(width: 6),
             Text(
-              'Mes signets (${bookmarks.length})',
+              '${context.t.quranMyBookmarks} (${bookmarks.length})',
               style: const TextStyle(
                 color: _kGreenDeep, fontSize: 12, fontWeight: FontWeight.w800,
               ),
@@ -1403,8 +1421,8 @@ class _ModeToggle extends StatelessWidget {
         border: Border.all(color: _kBeigeBorder),
       ),
       child: Row(children: [
-        _ModeBtn(icon: '▦', label: 'Cartes',   selected: !modeContinue, onTap: () => onChanged(false)),
-        _ModeBtn(icon: '☷', label: 'Continu', selected:  modeContinue, onTap: () => onChanged(true)),
+        _ModeBtn(icon: '▦', label: context.t.quranCardsMode,   selected: !modeContinue, onTap: () => onChanged(false)),
+        _ModeBtn(icon: '☷', label: context.t.quranContinuousMode, selected:  modeContinue, onTap: () => onChanged(true)),
       ]),
     );
   }
@@ -1483,7 +1501,7 @@ class _VersetContinu extends StatelessWidget {
               Container(
                 width: 26, height: 26,
                 decoration: BoxDecoration(
-                  color: _kGreenPrimary.withOpacity(0.08),
+                  color: _kGreenPrimary.withValues(alpha: 0.08),
                   shape: BoxShape.circle,
                 ),
                 child: Center(
@@ -1535,7 +1553,7 @@ class _VersetContinu extends StatelessWidget {
           if (showTraduction) ...[
             const SizedBox(height: 6),
             Text(
-              verset.francais,
+              verset.traductionLocale,
               style: TextStyle(fontSize: translationSize, color: _kTextMid, height: 1.6),
             ),
           ],
@@ -1544,11 +1562,11 @@ class _VersetContinu extends StatelessWidget {
           if (!isLast) ...[
             const SizedBox(height: 14),
             Row(children: [
-              Expanded(child: Divider(height: 1, color: _kBeigeBorder.withOpacity(0.6))),
+              Expanded(child: Divider(height: 1, color: _kBeigeBorder.withValues(alpha: 0.6))),
               const SizedBox(width: 10),
-              Text('✦', style: TextStyle(color: _kGold.withOpacity(0.4), fontSize: 10)),
+              Text('✦', style: TextStyle(color: _kGold.withValues(alpha: 0.4), fontSize: 10)),
               const SizedBox(width: 10),
-              Expanded(child: Divider(height: 1, color: _kBeigeBorder.withOpacity(0.6))),
+              Expanded(child: Divider(height: 1, color: _kBeigeBorder.withValues(alpha: 0.6))),
             ]),
             const SizedBox(height: 8),
           ],

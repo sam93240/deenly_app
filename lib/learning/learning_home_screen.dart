@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../translations.dart';
+import '../app_locale.dart';
 import 'learning_models.dart';
 import 'learning_path_screen.dart';
 import 'review_screen.dart';
@@ -21,9 +23,12 @@ const _kTextDark     = Color(0xFF1A130A);
 const _kTextMid      = Color(0xFF5A4833);
 const _kTextLight    = Color(0xFF8A7863);
 
+// Inline translation helper
+String _s(String fr, String en) => AppLocale().isFrench ? fr : en;
+
 // ─── Learning Home Screen ─────────────────────────────────────────
 class LearningHomeScreen extends StatefulWidget {
-  const LearningHomeScreen({Key? key}) : super(key: key);
+  const LearningHomeScreen({super.key});
 
   @override
   State<LearningHomeScreen> createState() => _LearningHomeScreenState();
@@ -34,7 +39,6 @@ class _LearningHomeScreenState extends State<LearningHomeScreen>
 
   bool                 _loading          = true;
   UserStats            _stats            = UserStats();
-  List<LearningLesson> _currentPath      = [];
   LearningLesson?      _nextLesson;
   List<LearningVerset> _reviewDue        = [];
   LearningPathType     _currentPathType  = LearningPathType.debutant;
@@ -85,7 +89,6 @@ class _LearningHomeScreenState extends State<LearningHomeScreen>
     if (mounted) {
       setState(() {
         _stats           = stats;
-        _currentPath     = path;
         _nextLesson      = next;
         _reviewDue       = due;
         _currentPathType = pathType;
@@ -143,13 +146,13 @@ class _LearningHomeScreenState extends State<LearningHomeScreen>
                     ],
 
                     // Section parcours
-                    _sectionTitle('✦  Parcours d\'apprentissage'),
+                    _sectionTitle(context.t.learningLearningPath),
                     const SizedBox(height: 12),
                     _buildPathList(),
                     const SizedBox(height: 20),
 
                     // Stats semaine
-                    _sectionTitle('✦  Ma semaine'),
+                    _sectionTitle(context.t.learningWeek),
                     const SizedBox(height: 12),
                     _StatsCard(stats: _stats),
                     const SizedBox(height: 32),
@@ -189,9 +192,9 @@ class _LearningHomeScreenState extends State<LearningHomeScreen>
                     child: Container(
                       padding: const EdgeInsets.all(9),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.12),
+                        color: Colors.white.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1),
                       ),
                       child: const Icon(Icons.arrow_back_ios_new_rounded,
                           color: Colors.white, size: 15),
@@ -203,16 +206,16 @@ class _LearningHomeScreenState extends State<LearningHomeScreen>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Apprentissage',
-                            style: TextStyle(
+                        Text(context.t.learningTitle,
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 22,
                               fontWeight: FontWeight.w900,
                               letterSpacing: 0.3,
                             )),
-                        Text('Apprends le Coran, verset par verset',
+                        Text(context.t.learningSubtitle,
                             style: TextStyle(
-                                color: Colors.white.withOpacity(0.55),
+                                color: Colors.white.withValues(alpha: 0.55),
                                 fontSize: 11)),
                       ],
                     ),
@@ -227,9 +230,9 @@ class _LearningHomeScreenState extends State<LearningHomeScreen>
                     child: Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.12),
+                        color: Colors.white.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1),
                       ),
                       child: const Text('📊', style: TextStyle(fontSize: 18)),
                     ),
@@ -243,10 +246,10 @@ class _LearningHomeScreenState extends State<LearningHomeScreen>
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(children: [
-                _StatChip(icon: '🔥', value: '${_stats.streak}', label: 'jours',
+                _StatChip(icon: '🔥', value: _stats.streak.toString(), label: context.t.learningDaysStreak,
                     color: const Color(0xFFFF8C42)),
                 const SizedBox(width: 8),
-                _StatChip(icon: '⚡', value: '${_stats.xp}', label: 'XP',
+                _StatChip(icon: '⚡', value: _stats.xp.toString(), label: 'XP',
                     color: _kGoldLight),
                 const SizedBox(width: 8),
                 _StatChip(icon: '🏆', value: 'Nv.${_stats.level}',
@@ -261,17 +264,17 @@ class _LearningHomeScreenState extends State<LearningHomeScreen>
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.09),
+                  color: Colors.white.withValues(alpha: 0.09),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.white.withOpacity(0.15), width: 1),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.15), width: 1),
                 ),
                 child: Column(children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Niveau ${_stats.level} · ${_stats.levelTitle}',
+                      Text('${context.t.learningLevel} ${_stats.level} · ${_stats.levelTitle}',
                           style: TextStyle(
-                              color: Colors.white.withOpacity(0.6), fontSize: 11)),
+                              color: Colors.white.withValues(alpha: 0.6), fontSize: 11)),
                       Text('${_stats.xp} / ${_stats.xpForNextLevel} XP',
                           style: const TextStyle(
                               color: _kGoldLight, fontSize: 11, fontWeight: FontWeight.w800)),
@@ -283,7 +286,7 @@ class _LearningHomeScreenState extends State<LearningHomeScreen>
                     child: LinearProgressIndicator(
                       value:           _stats.levelProgress.clamp(0.0, 1.0),
                       minHeight:       7,
-                      backgroundColor: Colors.white.withOpacity(0.15),
+                      backgroundColor: Colors.white.withValues(alpha: 0.15),
                       valueColor:      const AlwaysStoppedAnimation(_kGold),
                     ),
                   ),
@@ -327,25 +330,25 @@ class _LearningHomeScreenState extends State<LearningHomeScreen>
                 ),
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
-                  BoxShadow(color: _kGreenPrimary.withOpacity(0.35),
+                  BoxShadow(color: _kGreenPrimary.withValues(alpha: 0.35),
                       blurRadius: 16, offset: const Offset(0, 5)),
                 ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('▶', style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 12)),
+                  Text('▶', style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 12)),
                   const SizedBox(height: 8),
                   Text(_nextLesson?.icon ?? '📖',
                       style: const TextStyle(fontSize: 26)),
                   const SizedBox(height: 6),
-                  const Text('Continuer',
-                      style: TextStyle(color: Colors.white,
+                  Text(context.t.learningContinue,
+                      style: const TextStyle(color: Colors.white,
                           fontSize: 14, fontWeight: FontWeight.w900)),
-                  Text(_nextLesson?.surahNameFr ?? 'Débutant',
+                  Text(_nextLesson?.surahNameFr ?? context.t.learningPathBeginner,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 11)),
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 11)),
                 ],
               ),
             ),
@@ -372,18 +375,18 @@ class _LearningHomeScreenState extends State<LearningHomeScreen>
                     blurRadius: 16, offset: Offset(0, 5)),
               ],
             ),
-            child: const Column(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('🔓', style: TextStyle(color: Colors.white70, fontSize: 12)),
-                SizedBox(height: 8),
-                Text('📚', style: TextStyle(fontSize: 26)),
-                SizedBox(height: 6),
-                Text('Explorer',
-                    style: TextStyle(color: Colors.white,
+                const Text('🔓', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                const SizedBox(height: 8),
+                const Text('📚', style: TextStyle(fontSize: 26)),
+                const SizedBox(height: 6),
+                Text(context.t.learningExplore,
+                    style: const TextStyle(color: Colors.white,
                         fontSize: 14, fontWeight: FontWeight.w900)),
-                Text('114 sourates',
-                    style: TextStyle(color: Colors.white70, fontSize: 11)),
+                Text(context.t.learning114Surahs,
+                    style: const TextStyle(color: Colors.white70, fontSize: 11)),
               ],
             ),
           ),
@@ -395,17 +398,17 @@ class _LearningHomeScreenState extends State<LearningHomeScreen>
   // ── Liste verticale des parcours ──────────────────────────────
   Widget _buildPathList() {
     final paths = [
-      _PathData('🌱', 'Débutant',    'Courtes sourates pour commencer',  '20 leçons',
+      _PathData('🌱', context.t.learningPathBeginner,    context.t.learningPathBeginnerSub,  context.t.learning20Lessons,
           _kGreenPrimary, const Color(0xFFE8F4EE), LearningPathType.debutant),
-      _PathData('🕌', 'Prière',      'Sourates récitées en prière',      '9 leçons',
+      _PathData('🕌', context.t.learningPathPrayer,      context.t.learningPathPrayerSub,      context.t.learning9Lessons,
           const Color(0xFF1A5C8A), const Color(0xFFE3EDF7), LearningPathType.priere),
-      _PathData('🛡️', 'Protection',  'Sourates de protection & refuge',  '4 leçons',
+      _PathData('🛡️', context.t.learningPathProtection,  context.t.learningPathProtectionSub,  context.t.learning4Lessons,
           const Color(0xFFA85C00), const Color(0xFFFAEBD7), LearningPathType.protection),
-      _PathData('⭐', 'Importantes', 'Les grandes sourates du Coran',    '9 leçons',
+      _PathData('⭐', context.t.learningPathImportant, context.t.learningPathImportantSub,    context.t.learning9Lessons,
           _kGold, const Color(0xFFFFF4DC), LearningPathType.importantes),
-      _PathData('📖', 'Juz Amma',    '30e juz complet (sourates 78–114)','37 leçons',
+      _PathData('📖', context.t.learningPathJuzAmma,    context.t.learningPathJuzAmmaSub, context.t.learning37Lessons,
           const Color(0xFF6A3FAA), const Color(0xFFF3ECFA), LearningPathType.juzAmma),
-      _PathData('🔓', 'Mode Libre',  'Toutes les 114 sourates',          '114 sourates',
+      _PathData('🔓', context.t.learningPathFree,  context.t.learningPathFreeSub,          context.t.learning114Surahs,
           _kTextMid, const Color(0xFFEDE7D9), LearningPathType.libre),
     ];
 
@@ -472,9 +475,9 @@ class _StatChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 9),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.10),
+          color: Colors.white.withValues(alpha: 0.10),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.white.withOpacity(0.15), width: 1),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.15), width: 1),
         ),
         child: Column(children: [
           Text(icon,  style: const TextStyle(fontSize: 18)),
@@ -482,7 +485,7 @@ class _StatChip extends StatelessWidget {
           Text(value, style: TextStyle(
               color: color, fontSize: 14, fontWeight: FontWeight.w900)),
           Text(label, style: TextStyle(
-              color: Colors.white.withOpacity(0.45), fontSize: 9)),
+              color: Colors.white.withValues(alpha: 0.45), fontSize: 9)),
         ]),
       ),
     );
@@ -530,7 +533,7 @@ class _DailyGoalCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  reached ? 'Objectif atteint !' : 'Objectif du jour',
+                  reached ? context.t.learningDailyGoalReached : context.t.learningDailyGoal,
                   style: TextStyle(
                     color: reached ? _kGreenPrimary : _kTextDark,
                     fontSize: 13, fontWeight: FontWeight.w800,
@@ -600,12 +603,12 @@ class _ReviewBanner extends StatelessWidget {
           Expanded(child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('$count versets à réviser',
+              Text('$count ${context.t.learningReviewVersets}',
                   style: const TextStyle(
                       color: _kTextDark, fontSize: 14, fontWeight: FontWeight.w800)),
               const SizedBox(height: 3),
-              const Text('Consolide ta mémoire maintenant',
-                  style: TextStyle(color: _kTextMid, fontSize: 11)),
+              Text(context.t.learningConsolidateMemory,
+                  style: const TextStyle(color: _kTextMid, fontSize: 11)),
             ],
           )),
           Container(
@@ -614,12 +617,12 @@ class _ReviewBanner extends StatelessWidget {
               color: _kGreenPrimary,
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
-                BoxShadow(color: _kGreenPrimary.withOpacity(0.35),
+                BoxShadow(color: _kGreenPrimary.withValues(alpha: 0.35),
                     blurRadius: 8, offset: const Offset(0, 3)),
               ],
             ),
-            child: const Text('Réviser',
-                style: TextStyle(
+            child: Text(context.t.learningReview,
+                style: const TextStyle(
                     color: Colors.white, fontSize: 12, fontWeight: FontWeight.w800)),
           ),
         ]),
@@ -653,7 +656,7 @@ class _PriereGuideCard extends StatelessWidget {
           Container(
             width: 52, height: 52,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
+              color: Colors.white.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(16),
             ),
             child: const Center(
@@ -665,16 +668,16 @@ class _PriereGuideCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Guide de la Prière',
-                    style: TextStyle(
+                Text(context.t.learningPrayerGuide,
+                    style: const TextStyle(
                       color: Colors.white, fontSize: 15,
                       fontWeight: FontWeight.w900,
                     )),
                 const SizedBox(height: 3),
                 Text(
-                  'Ablution · Positions · Rak\'ahs · Sunnah',
+                  context.t.learningPrayerGuideSub,
                   style: TextStyle(
-                      color: Colors.white.withOpacity(0.65), fontSize: 11),
+                      color: Colors.white.withValues(alpha: 0.65), fontSize: 11),
                 ),
               ],
             ),
@@ -682,17 +685,17 @@ class _PriereGuideCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: const Text('Nouveau',
-                style: TextStyle(
+            child: Text(context.t.learningNew,
+                style: const TextStyle(
                     color: Colors.white, fontSize: 10,
                     fontWeight: FontWeight.w800)),
           ),
           const SizedBox(width: 6),
           Icon(Icons.chevron_right_rounded,
-              color: Colors.white.withOpacity(0.7), size: 20),
+              color: Colors.white.withValues(alpha: 0.7), size: 20),
         ]),
       ),
     );
@@ -744,7 +747,7 @@ class _PathRow extends StatelessWidget {
                 color: data.bg,
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                    color: data.primary.withOpacity(0.2), width: 1),
+                    color: data.primary.withValues(alpha: 0.2), width: 1),
               ),
               child: Center(child: Text(data.icon,
                   style: const TextStyle(fontSize: 22))),
@@ -780,7 +783,7 @@ class _PathRow extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Icon(Icons.chevron_right_rounded,
-                    color: data.primary.withOpacity(0.6), size: 20),
+                    color: data.primary.withValues(alpha: 0.6), size: 20),
               ],
             ),
           ]),
@@ -814,8 +817,8 @@ class _StatsCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Ma semaine',
-                  style: TextStyle(
+              Text(context.t.learningMyWeek,
+                  style: const TextStyle(
                       color: _kTextDark, fontWeight: FontWeight.w800, fontSize: 14)),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -823,7 +826,7 @@ class _StatsCard extends StatelessWidget {
                   color: const Color(0xFFFFF4DC),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: Text('🔥 ${stats.streak} jours',
+                child: Text('🔥 ${stats.streak} ${context.t.learningDaysStreak}',
                     style: const TextStyle(
                         color: Color(0xFFA85C00),
                         fontSize: 11, fontWeight: FontWeight.w800)),
@@ -837,10 +840,10 @@ class _StatsCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _MiniStat('📖', '${stats.masteredVersets}', 'Maîtrisés',  _kGreenPrimary),
-              _MiniStat('✅', '${stats.totalExercises}',  'Exercices',  const Color(0xFF1A5C8A)),
-              _MiniStat('🎯', '${(stats.accuracy * 100).round()}%', 'Précision', const Color(0xFF6A3FAA)),
-              _MiniStat('⚡', '${stats.xp}',             'XP total',   _kGold),
+              _MiniStat('📖', '${stats.masteredVersets}', context.t.learningVersesMastered,  _kGreenPrimary),
+              _MiniStat('✅', '${stats.totalExercises}',  context.t.learningExercises,  const Color(0xFF1A5C8A)),
+              _MiniStat('🎯', '${(stats.accuracy * 100).round()}%', context.t.learningAccuracy, const Color(0xFF6A3FAA)),
+              _MiniStat('⚡', '${stats.xp}',             _s('XP total', 'Total XP'),   _kGold),
             ],
           ),
           const SizedBox(height: 14),
@@ -854,8 +857,8 @@ class _StatsCard extends StatelessWidget {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 padding: const EdgeInsets.symmetric(vertical: 10),
               ),
-              child: const Text('Voir ma progression →',
-                  style: TextStyle(
+              child: Text(context.t.learningViewProgress,
+                  style: const TextStyle(
                       color: _kTextMid, fontWeight: FontWeight.w700, fontSize: 13)),
             ),
           ),

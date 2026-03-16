@@ -3,9 +3,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'translations.dart';
 
 const _kGreen = Color(0xFF1B4D38);
-const _kGold = Color(0xFFC8933A);
 
 /// Vérifie si le consentement a déjà été demandé.
 /// Si non, affiche le popup. Appelé une seule fois au premier lancement.
@@ -42,7 +42,7 @@ class _ConsentDialog extends StatelessWidget {
             Container(
               width: 60, height: 60,
               decoration: BoxDecoration(
-                color: _kGreen.withOpacity(0.1),
+                color: _kGreen.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: const Icon(Icons.shield_rounded, color: _kGreen, size: 28),
@@ -51,7 +51,7 @@ class _ConsentDialog extends StatelessWidget {
 
             // Titre
             Text(
-              'Ta vie privée compte',
+              context.t.consentTitle,
               style: TextStyle(
                 fontSize: 18, fontWeight: FontWeight.w700, color: txtDk,
               ),
@@ -61,12 +61,7 @@ class _ConsentDialog extends StatelessWidget {
 
             // Explication
             Text(
-              'As-salamu alaykum !\n\n'
-              'Pour améliorer UpYourDeen, on aimerait collecter '
-              'des données d\'utilisation anonymes (écrans visités, '
-              'fonctionnalités utilisées). Aucune donnée personnelle '
-              'n\'est collectée.\n\n'
-              'Tu peux changer d\'avis à tout moment dans les Paramètres.',
+              context.t.consentMessage,
               style: TextStyle(
                 fontSize: 13, color: txtMd, height: 1.5,
               ),
@@ -87,8 +82,8 @@ class _ConsentDialog extends StatelessWidget {
                     borderRadius: BorderRadius.circular(14),
                   ),
                 ),
-                child: const Text('J\'accepte',
-                    style: TextStyle(fontWeight: FontWeight.w600)),
+                child: Text(context.t.consentAccept,
+                    style: const TextStyle(fontWeight: FontWeight.w600)),
               ),
             ),
             const SizedBox(height: 10),
@@ -105,8 +100,8 @@ class _ConsentDialog extends StatelessWidget {
                     borderRadius: BorderRadius.circular(14),
                   ),
                 ),
-                child: const Text('Non merci',
-                    style: TextStyle(fontWeight: FontWeight.w500)),
+                child: Text(context.t.consentDecline,
+                    style: const TextStyle(fontWeight: FontWeight.w500)),
               ),
             ),
           ],
