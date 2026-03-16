@@ -2,7 +2,6 @@
 // Implémentation NATIVE — just_audio (Android / iOS / macOS…)
 
 import 'dart:async';
-import 'package:flutter/services.dart';
 import 'package:just_audio/just_audio.dart';
 
 import 'abstract_audio_player.dart';
@@ -11,6 +10,7 @@ import 'audio_player_state.dart';
 class NativeAudioPlayerImpl extends AbstractAudioPlayer {
   final AudioPlayer _player = AudioPlayer();
   StreamSubscription<PlayerState>? _completionSub;
+  bool _disposed = false;
 
   AudioPlayerState  _state = AudioPlayerState.idle;
   AudioPlayerError? _error;
@@ -18,7 +18,9 @@ class NativeAudioPlayerImpl extends AbstractAudioPlayer {
   @override AudioPlayerState  get playerState => _state;
   @override AudioPlayerError? get error        => _error;
 
+  // Guard _disposed : empêche notifyListeners() après dispose().
   void _setState(AudioPlayerState s, {AudioPlayerError? err}) {
+    if (_disposed) return;
     _state = s;
     _error = err;
     notifyListeners();
@@ -30,35 +32,49 @@ class NativeAudioPlayerImpl extends AbstractAudioPlayer {
     await stop();
     _setState(AudioPlayerState.loading);
 
-    // Vérifier que l'asset existe avant de lancer just_audio
     try {
-      final data = await rootBundle.load(assetPath);
-      if (data.lengthInBytes == 0) throw Exception('Asset vide');
-    } catch (_) {
-      _setState(
-        AudioPlayerState.error,
-        err: AudioPlayerError(message: 'Fichier audio introuvable : $assetPath'),
-      );
-      return;
-    }
+      // Timeout sur setAsset() — évite le spinner bloqué si just_audio
+      // ne répond pas (asset corrompu, décodeur absent…).
+      await _player
+          .setAsset(assetPath)
+          .timeout(const Duration(seconds: 10));
 
-    try {
-      await _player.setAsset(assetPath);
       await _player.setLoopMode(repeat ? LoopMode.one : LoopMode.off);
       await _player.setSpeed(speed);
 
+      // Listener de complétion + erreurs stream.
       if (!repeat) {
-        _completionSub = _player.playerStateStream.listen((s) {
-          if (s.processingState == ProcessingState.completed) {
+        _completionSub = _player.playerStateStream.listen(
+          (s) {
+            if (s.processingState == ProcessingState.completed) {
+              _cancelSub();
+              _setState(AudioPlayerState.completed);
+              onCompleted?.call();
+            }
+          },
+          onError: (e) {
             _cancelSub();
-            _setState(AudioPlayerState.completed);
-            onCompleted?.call();
-          }
-        });
+            _setState(
+              AudioPlayerState.error,
+              err: AudioPlayerError(message: 'Erreur pendant la lecture', cause: e),
+            );
+          },
+        );
       }
 
+      // Optimistic : passe à "playing" avant le await — l'UI doit
+      // afficher la lecture dès que just_audio accepte la commande.
       _setState(AudioPlayerState.playing);
+
+      // play() bloque jusqu'à fin naturelle ou stop()/pause() :
+      // la complétion est gérée par le stream listener ci-dessus.
       await _player.play();
+    } on TimeoutException {
+      _cancelSub();
+      _setState(
+        AudioPlayerState.error,
+        err: const AudioPlayerError(message: 'Délai dépassé (10s) — audio introuvable ?'),
+      );
     } catch (e) {
       _cancelSub();
       _setState(
@@ -68,6 +84,7 @@ class NativeAudioPlayerImpl extends AbstractAudioPlayer {
     }
   }
 
+  // ── pause() ───────────────────────────────────────────────────
   @override
   Future<void> pause() async {
     if (_state == AudioPlayerState.playing) {
@@ -76,6 +93,7 @@ class NativeAudioPlayerImpl extends AbstractAudioPlayer {
     }
   }
 
+  // ── resume() ─────────────────────────────────────────────────
   @override
   Future<void> resume() async {
     if (_state == AudioPlayerState.paused) {
@@ -91,28 +109,33 @@ class NativeAudioPlayerImpl extends AbstractAudioPlayer {
     }
   }
 
+  // ── stop() ────────────────────────────────────────────────────
   @override
   Future<void> stop() async {
     _cancelSub();
-    await _player.stop();
+    try { await _player.stop(); } catch (_) {}
     _setState(AudioPlayerState.idle);
   }
 
+  // ── setSpeed() / setRepeat() ──────────────────────────────────
   @override
-  void setSpeed(double speed)  { _player.setSpeed(speed); }
+  void setSpeed(double speed) { _player.setSpeed(speed); }
 
   @override
-  void setRepeat(bool repeat)  {
+  void setRepeat(bool repeat) {
     _player.setLoopMode(repeat ? LoopMode.one : LoopMode.off);
   }
 
+  // ── Privé ─────────────────────────────────────────────────────
   void _cancelSub() {
     _completionSub?.cancel();
     _completionSub = null;
   }
 
+  // ── dispose() ────────────────────────────────────────────────
   @override
   void dispose() {
+    _disposed = true;
     _cancelSub();
     _player.dispose();
     super.dispose();
