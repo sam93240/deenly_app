@@ -7,6 +7,9 @@
 //   (et certains CDN), cet événement ne se déclenche jamais → spinner bloqué
 //   indéfiniment. dart:html AudioElement.play() déclenche "onPlay" dès que la
 //   lecture commence, ce qui est fiable et immédiat.
+//
+// Note : dart:html est un correctif rapide. Migration future :
+//   package:web + dart:js_interop (Dart 3.x recommandé).
 
 import 'dart:async';
 import 'dart:html' as html;
@@ -15,11 +18,12 @@ import 'abstract_audio_player.dart';
 import 'audio_player_state.dart';
 
 class WebAudioPlayerImpl extends AbstractAudioPlayer {
-  html.AudioElement?    _audio;
-  StreamSubscription?   _endedSub;
-  StreamSubscription?   _errorSub;
-  StreamSubscription?   _playSub;
-  Timer?                _timeoutTimer;
+  html.AudioElement?  _audio;
+  StreamSubscription? _endedSub;
+  StreamSubscription? _errorSub;
+  StreamSubscription? _playSub;
+  Timer?              _timeoutTimer;
+  bool                _disposed = false;
 
   AudioPlayerState  _state = AudioPlayerState.idle;
   AudioPlayerError? _error;
@@ -28,7 +32,9 @@ class WebAudioPlayerImpl extends AbstractAudioPlayer {
   @override AudioPlayerError? get error        => _error;
 
   // ── Transition d'état ─────────────────────────────────────────
+  // Guard _disposed : empêche notifyListeners() après dispose().
   void _setState(AudioPlayerState s, {AudioPlayerError? err}) {
+    if (_disposed) return;
     _state = s;
     _error = err;
     notifyListeners();
@@ -37,34 +43,43 @@ class WebAudioPlayerImpl extends AbstractAudioPlayer {
   // ── play() ────────────────────────────────────────────────────
   @override
   Future<void> play(String url, double speed, {bool repeat = false}) async {
-    // 1. Nettoyer le player précédent (pas d'await lourd ici)
+    // Nettoie le player précédent SANS await lourd — synchrone.
     _cleanup();
     _setState(AudioPlayerState.loading);
 
-    // 2. Créer l'élément audio
     _audio = html.AudioElement(url)
-      ..loop           = repeat
-      ..playbackRate   = speed
-      ..preload        = 'auto';
+      ..loop         = repeat
+      ..playbackRate = speed
+      ..preload      = 'auto';
 
-    // 3. Completer qui se résout sur "play started" ou rejette sur erreur
+    // Completer résolu sur "lecture démarrée" ou rejeté sur erreur/timeout.
     final completer = Completer<void>();
 
-    // Écoute "lecture démarrée"
+    // ── Écoute "lecture démarrée" ─────────────────────────────
     _playSub = _audio!.onPlay.listen((_) {
       if (!completer.isCompleted) completer.complete();
     });
 
-    // Écoute erreur de chargement/décodage
+    // ── Écoute erreur HTML audio ──────────────────────────────
+    // Deux phases :
+    //   • Pendant le chargement (completer ouvert)  → rejette le completer.
+    //   • Pendant la lecture (completer déjà résolu) → set état error direct.
     _errorSub = _audio!.onError.listen((_) {
       if (!completer.isCompleted) {
         completer.completeError(
-          AudioPlayerError(message: 'Fichier audio introuvable ou corrompu'),
+          const AudioPlayerError(message: 'Fichier audio introuvable ou corrompu'),
+        );
+      } else if (_state == AudioPlayerState.playing ||
+                 _state == AudioPlayerState.paused) {
+        _cleanup();
+        _setState(
+          AudioPlayerState.error,
+          err: const AudioPlayerError(message: 'Erreur audio pendant la lecture'),
         );
       }
     });
 
-    // Écoute fin naturelle (si pas repeat)
+    // ── Écoute fin naturelle ──────────────────────────────────
     if (!repeat) {
       _endedSub = _audio!.onEnded.listen((_) {
         _cleanup();
@@ -73,42 +88,39 @@ class WebAudioPlayerImpl extends AbstractAudioPlayer {
       });
     }
 
-    // 4. Timeout 5 s — le spinner ne restera JAMAIS bloqué
+    // ── Timeout 5 s — garantit la sortie du spinner ───────────
     _timeoutTimer = Timer(const Duration(seconds: 5), () {
       if (!completer.isCompleted) {
         completer.completeError(
-          AudioPlayerError(message: 'Délai dépassé — connexion lente ?'),
+          const AudioPlayerError(message: 'Délai dépassé — connexion lente ?'),
         );
       }
     });
 
-    // 5. Appel play() — pas d'await entre le geste utilisateur et ici
+    // ── Appel play() ─────────────────────────────────────────
+    // Aucun await entre ici et le geste utilisateur → contexte autoplay conservé.
     try {
       _audio!.play();
     } catch (e) {
       _cleanup();
       _setState(
         AudioPlayerState.error,
-        err: AudioPlayerError(
-          message: 'Lecture bloquée par le navigateur',
-          cause: e,
-        ),
+        err: AudioPlayerError(message: 'Lecture bloquée par le navigateur', cause: e),
       );
       return;
     }
 
-    // 6. Attendre que la lecture démarre (ou erreur/timeout)
+    // ── Attendre démarrage (ou erreur / timeout) ──────────────
     try {
       await completer.future;
-      _timeoutTimer?.cancel();
-      _timeoutTimer = null;
-      _playSub?.cancel();
-      _playSub = null;
+      // Succès : annuler uniquement les subs de démarrage.
+      // _errorSub et _endedSub restent actifs pendant la lecture.
+      _timeoutTimer?.cancel(); _timeoutTimer = null;
+      _playSub?.cancel();      _playSub      = null;
       _setState(AudioPlayerState.playing);
     } catch (e) {
+      // Erreur ou timeout : nettoyage complet.
       _cleanup();
-      _audio?.pause();
-      _audio = null;
       final err = e is AudioPlayerError
           ? e
           : AudioPlayerError(message: 'Erreur de lecture', cause: e);
@@ -149,21 +161,27 @@ class WebAudioPlayerImpl extends AbstractAudioPlayer {
   }
 
   // ── setSpeed() / setRepeat() ──────────────────────────────────
-  @override void setSpeed(double speed)  { _audio?.playbackRate = speed; }
-  @override void setRepeat(bool repeat)  { _audio?.loop = repeat; }
+  @override void setSpeed(double speed) { _audio?.playbackRate = speed; }
+  @override void setRepeat(bool repeat) { _audio?.loop         = repeat; }
 
-  // ── Privé ─────────────────────────────────────────────────────
+  // ── Nettoyage complet de toutes les ressources ────────────────
+  // Annule : timer, tous les subs, pause et null l'AudioElement.
   void _cleanup() {
     _timeoutTimer?.cancel(); _timeoutTimer = null;
     _playSub?.cancel();      _playSub      = null;
     _endedSub?.cancel();     _endedSub     = null;
     _errorSub?.cancel();     _errorSub     = null;
     _audio?.pause();
+    _audio?.src = '';   // libère la ressource réseau (buffer + download)
     _audio = null;
   }
 
+  // ── dispose() ────────────────────────────────────────────────
+  // _disposed bloque tout setState() ultérieur (évite notifyListeners
+  // sur un ChangeNotifier déjà disposé).
   @override
   void dispose() {
+    _disposed = true;
     _cleanup();
     super.dispose();
   }
