@@ -1,22 +1,26 @@
 // audio_verse_service.dart
-// Service audio offline – lecture verset par verset
+// Service audio offline – lecture verset par verset.
 //
-// Architecture réutilisable :
-//   • Mode apprentissage  → AudioConfig.learning()
-//   • Mode Quran          → AudioConfig.quran(reciter: '...')
+// Architecture :
+//   AudioVerseService  (ChangeNotifier)
+//     └── AbstractAudioPlayer
+//           ├── WebAudioPlayerImpl   (dart:html)   ← web
+//           └── NativeAudioPlayerImpl (just_audio) ← iOS / Android
 //
-// Sur WEB    : utilise dart:html AudioElement directement (fiable, autoplay OK)
-// Sur NATIVE : utilise just_audio (meilleure gestion buffering hors-ligne)
+// L'UI écoute UNIQUEMENT AudioVerseService.
+// L'état du spinner provient de AbstractAudioPlayer.isLoading — jamais de
+// variables booléennes dispersées.
 
-import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
-import 'package:just_audio/just_audio.dart';
 
-import 'web_audio_helper.dart'; // conditional export web / stub
+import 'abstract_audio_player.dart';
+import 'audio_player_factory.dart';   // createAudioPlayer() — conditionnel
+import 'audio_player_state.dart';
+
+export 'audio_player_state.dart';     // re-export pour les widgets
 
 // ══════════════════════════════════════════════════════════════════
-// AudioConfig — décrit où chercher les fichiers audio
+// AudioConfig
 // ══════════════════════════════════════════════════════════════════
 
 class AudioConfig {
@@ -28,22 +32,24 @@ class AudioConfig {
     this.basePath = 'assets/audio',
   });
 
-  /// Mode apprentissage – Mishary Alafasy, sourates offline
   factory AudioConfig.learning() => const AudioConfig(reciter: 'alafasy');
-
-  /// Mode Quran (mêmes assets, même réciteur)
   factory AudioConfig.quran({String reciter = 'alafasy'}) =>
       AudioConfig(reciter: reciter);
 
-  /// Chemin asset : assets/audio/alafasy/001_001.mp3
+  /// Chemin relatif de l'asset : assets/audio/alafasy/001_001.mp3
   String pathFor(int surahNumber, int ayahNumber) =>
       '$basePath/$reciter/'
       '${surahNumber.toString().padLeft(3, '0')}_'
       '${ayahNumber.toString().padLeft(3, '0')}.mp3';
+
+  /// URL complète pour le web : /assets/assets/audio/alafasy/001_001.mp3
+  /// (Flutter web sert les assets sous /assets/<chemin-pubspec>)
+  String webUrlFor(int surahNumber, int ayahNumber) =>
+      '/assets/${pathFor(surahNumber, ayahNumber)}';
 }
 
 // ══════════════════════════════════════════════════════════════════
-// AudioSpeed — vitesses de lecture
+// AudioSpeed
 // ══════════════════════════════════════════════════════════════════
 
 enum AudioSpeed { half, threeQuarters, normal }
@@ -56,7 +62,6 @@ extension AudioSpeedExt on AudioSpeed {
       case AudioSpeed.normal:        return 1.0;
     }
   }
-
   String get label {
     switch (this) {
       case AudioSpeed.half:          return '0.5×';
@@ -67,169 +72,80 @@ extension AudioSpeedExt on AudioSpeed {
 }
 
 // ══════════════════════════════════════════════════════════════════
-// Utilitaire — vérifie si un fichier audio existe (native only)
-// ══════════════════════════════════════════════════════════════════
-
-Future<bool> audioFileExists(
-    AudioConfig config, int surahNumber, int ayahNumber) async {
-  try {
-    final data =
-        await rootBundle.load(config.pathFor(surahNumber, ayahNumber));
-    return data.lengthInBytes > 0;
-  } catch (_) {
-    return false;
-  }
-}
-
-// ══════════════════════════════════════════════════════════════════
-// AudioVerseService — singleton partagé Learning + Quran
+// AudioVerseService
 // ══════════════════════════════════════════════════════════════════
 
 class AudioVerseService extends ChangeNotifier {
-  AudioVerseService._();
+  AudioVerseService._() {
+    // Propagage les changements d'état du player vers les widgets.
+    _player.addListener(_onPlayerChanged);
+  }
+
   static final AudioVerseService instance = AudioVerseService._();
 
-  // ── Players selon plateforme ──────────────────────────────────
-  // Web   : WebAudioHelper (dart:html)
-  // Native: just_audio
-  final WebAudioHelper _webPlayer = WebAudioHelper();
-  final AudioPlayer    _nativePlayer = AudioPlayer();
+  // ── Player (web ou native, selon la plateforme) ───────────────
+  final AbstractAudioPlayer _player = createAudioPlayer();
 
-  bool         _isPlaying = false;
-  bool         _isLoading = false;
-  bool         _isPaused  = false;
+  // ── Contexte de lecture ───────────────────────────────────────
   int?         _currentSurah;
   int?         _currentAyah;
   AudioConfig? _currentConfig;
-  AudioSpeed   _speed     = AudioSpeed.normal;
-  bool         _repeat    = false;
+  AudioSpeed   _speed  = AudioSpeed.normal;
+  bool         _repeat = false;
 
-  StreamSubscription<PlayerState>? _nativeCompletionSub;
-  VoidCallback? _onAyahCompleted;
+  // ── API état (délèguent au player) ───────────────────────────
+  // L'UI n'accède jamais directement au player.
+  AudioPlayerState  get playerState   => _player.playerState;
+  bool              get isLoading     => _player.isLoading;
+  bool              get isPlaying     => _player.isPlaying;
+  bool              get isPaused      => _player.isPaused;
+  bool              get hasError      => _player.hasError;
+  /// Message d'erreur prêt à être affiché dans l'UI.
+  String?           get errorMessage  => _player.error?.message;
 
-  bool        get isPlaying    => _isPlaying;
-  bool        get isLoading    => _isLoading;
-  bool        get isPaused     => _isPaused;
-  int?        get currentSurah => _currentSurah;
-  int?        get currentAyah  => _currentAyah;
-  AudioSpeed  get speed        => _speed;
+  int?         get currentSurah  => _currentSurah;
+  int?         get currentAyah   => _currentAyah;
+  AudioSpeed   get speed         => _speed;
 
-  // ── Jouer un ayah ─────────────────────────────────────────────
+  // ── playAyah ─────────────────────────────────────────────────
   Future<void> playAyah({
-    required AudioConfig config,
-    required int surahNumber,
-    required int ayahNumber,
-    AudioSpeed   speed      = AudioSpeed.normal,
-    bool         repeat     = false,
-    VoidCallback? onCompleted,
+    required AudioConfig  config,
+    required int          surahNumber,
+    required int          ayahNumber,
+    AudioSpeed            speed       = AudioSpeed.normal,
+    bool                  repeat      = false,
+    VoidCallback?         onCompleted,
   }) async {
-    await _cancelAndStop();
-
     _currentConfig   = config;
     _currentSurah    = surahNumber;
     _currentAyah     = ayahNumber;
     _speed           = speed;
     _repeat          = repeat;
-    _onAyahCompleted = onCompleted;
-    _isLoading       = true;
-    _isPlaying       = false;
-    _isPaused        = false;
-    notifyListeners();
+    _player.onCompleted = onCompleted;
 
-    if (kIsWeb) {
-      // ── WEB : dart:html AudioElement ──────────────────────────
-      // play() est appelé directement sans await intermédiaires,
-      // ce qui maintient le contexte de geste utilisateur.
-      final url = '/assets/${config.pathFor(surahNumber, ayahNumber)}';
-      final ok  = await _webPlayer.playUrl(url, speed.value, repeat);
-      if (!ok) {
-        _isLoading = false;
-        notifyListeners();
-        return;
-      }
-      _isLoading = false;
-      _isPlaying = true;
-      notifyListeners();
-      if (!repeat) {
-        _webPlayer.listenEnd(() {
-          _isPlaying = false;
-          _isPaused  = false;
-          notifyListeners();
-          _onAyahCompleted?.call();
-        });
-      }
-    } else {
-      // ── NATIVE : just_audio ───────────────────────────────────
-      final exists = await audioFileExists(config, surahNumber, ayahNumber);
-      if (!exists) {
-        _isLoading = false;
-        notifyListeners();
-        return;
-      }
-      try {
-        await _nativePlayer.setAsset(config.pathFor(surahNumber, ayahNumber));
-        await _nativePlayer.setLoopMode(repeat ? LoopMode.one : LoopMode.off);
-        await _nativePlayer.setSpeed(speed.value);
+    final url = kIsWeb
+        ? config.webUrlFor(surahNumber, ayahNumber)
+        : config.pathFor(surahNumber, ayahNumber);
 
-        _isLoading = false;
-        _isPlaying = true;
-        notifyListeners();
-
-        if (!repeat) {
-          _nativeCompletionSub =
-              _nativePlayer.playerStateStream.listen((state) {
-            if (state.processingState == ProcessingState.completed) {
-              _isPlaying = false;
-              _isPaused  = false;
-              _cancelNativeCompletionSub();
-              notifyListeners();
-              _onAyahCompleted?.call();
-            }
-          });
-        }
-        await _nativePlayer.play();
-      } catch (_) {
-        _isLoading = false;
-        _isPlaying = false;
-        _isPaused  = false;
-        _cancelNativeCompletionSub();
-        notifyListeners();
-      }
-    }
+    await _player.play(url, speed.value, repeat: repeat);
   }
 
-  // ── Play / Pause intelligent ──────────────────────────────────
+  // ── togglePlayPause ──────────────────────────────────────────
   Future<void> togglePlayPause({
-    required AudioConfig config,
-    required int surahNumber,
-    required int ayahNumber,
-    AudioSpeed   speed      = AudioSpeed.normal,
-    bool         repeat     = false,
-    VoidCallback? onCompleted,
+    required AudioConfig  config,
+    required int          surahNumber,
+    required int          ayahNumber,
+    AudioSpeed            speed       = AudioSpeed.normal,
+    bool                  repeat      = false,
+    VoidCallback?         onCompleted,
   }) async {
-    final isSameAyah = _currentSurah == surahNumber &&
-        _currentAyah  == ayahNumber;
+    final isSame = _currentSurah == surahNumber && _currentAyah == ayahNumber;
 
-    if (isSameAyah && _isPlaying) {
+    if (isSame && _player.isPlaying) {
       await pause();
-    } else if (isSameAyah && _isPaused) {
-      if (_speed != speed) {
-        _speed = speed;
-        if (kIsWeb) {
-          _webPlayer.setSpeed(speed.value);
-        } else {
-          await _nativePlayer.setSpeed(speed.value);
-        }
-      }
-      if (repeat != _repeat) {
-        _repeat = repeat;
-        if (kIsWeb) {
-          _webPlayer.setLoop(repeat);
-        } else {
-          await _nativePlayer.setLoopMode(
-              repeat ? LoopMode.one : LoopMode.off);
-        }
-      }
+    } else if (isSame && _player.isPaused) {
+      if (_speed != speed) { _speed = speed; _player.setSpeed(speed.value); }
+      if (_repeat != repeat) { _repeat = repeat; _player.setRepeat(repeat); }
       await resume();
     } else {
       await playAyah(
@@ -243,85 +159,30 @@ class AudioVerseService extends ChangeNotifier {
     }
   }
 
-  // ── Changer la vitesse à la volée ────────────────────────────
+  // ── Contrôles ────────────────────────────────────────────────
+  Future<void> pause()  async => _player.pause();
+  Future<void> resume() async => _player.resume();
+  Future<void> stop()   async => _player.stop();
+
   Future<void> setSpeed(AudioSpeed speed) async {
     _speed = speed;
-    if (kIsWeb) {
-      _webPlayer.setSpeed(speed.value);
-    } else {
-      await _nativePlayer.setSpeed(speed.value);
-    }
+    _player.setSpeed(speed.value);
     notifyListeners();
   }
 
-  // ── Activer / désactiver le loop à la volée ──────────────────
   Future<void> setRepeat(bool repeat) async {
     _repeat = repeat;
-    if (kIsWeb) {
-      _webPlayer.setLoop(repeat);
-    } else {
-      await _nativePlayer.setLoopMode(repeat ? LoopMode.one : LoopMode.off);
-    }
+    _player.setRepeat(repeat);
     notifyListeners();
-  }
-
-  // ── Pause ─────────────────────────────────────────────────────
-  Future<void> pause() async {
-    if (_isPlaying) {
-      if (kIsWeb) {
-        await _webPlayer.pause();
-      } else {
-        await _nativePlayer.pause();
-      }
-      _isPlaying = false;
-      _isPaused  = true;
-      notifyListeners();
-    }
-  }
-
-  // ── Reprise ───────────────────────────────────────────────────
-  Future<void> resume() async {
-    if (_isPaused) {
-      _isPlaying = true;
-      _isPaused  = false;
-      notifyListeners();
-      if (kIsWeb) {
-        await _webPlayer.resume();
-      } else {
-        await _nativePlayer.play();
-      }
-    }
-  }
-
-  // ── Stop complet ──────────────────────────────────────────────
-  Future<void> stop() async {
-    await _cancelAndStop();
-    notifyListeners();
-  }
-
-  // ── Dispose ──────────────────────────────────────────────────
-  @override
-  Future<void> dispose() async {
-    await _cancelAndStop();
-    await _nativePlayer.dispose();
-    super.dispose();
   }
 
   // ── Privé ─────────────────────────────────────────────────────
-  Future<void> _cancelAndStop() async {
-    _cancelNativeCompletionSub();
-    _isPlaying = false;
-    _isPaused  = false;
-    _isLoading = false;
-    if (kIsWeb) {
-      await _webPlayer.stop();
-    } else {
-      await _nativePlayer.stop();
-    }
-  }
+  void _onPlayerChanged() => notifyListeners();
 
-  void _cancelNativeCompletionSub() {
-    _nativeCompletionSub?.cancel();
-    _nativeCompletionSub = null;
+  @override
+  void dispose() {
+    _player.removeListener(_onPlayerChanged);
+    _player.dispose();
+    super.dispose();
   }
 }
