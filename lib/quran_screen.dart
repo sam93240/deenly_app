@@ -754,6 +754,23 @@ class _SourateDetailScreenState extends State<SourateDetailScreen> {
     );
   }
 
+  // Lecture continue : joue automatiquement le verset suivant et scroll vers lui.
+  // Appelé récursivement via onCompleted → chaîne toute la sourate.
+  void _autoPlayNext(int currentAyahNumber) {
+    final versets = widget.sourate.versets;
+    final idx = versets.indexWhere((v) => v.numero == currentAyahNumber);
+    if (idx < 0 || idx >= versets.length - 1) return;   // dernier verset ou introuvable
+    final next = versets[idx + 1];
+    AudioVerseService.instance.playAyah(
+      config:      AudioConfig.quran(),
+      surahNumber: widget.sourate.numero,
+      ayahNumber:  next.numero,
+      speed:       AudioVerseService.instance.speed,
+      onCompleted: () => _autoPlayNext(next.numero),
+    );
+    _scrollToVerset(next.numero);
+  }
+
   void _onScroll() {
     // Estimer le verset visible
     final hasBismillah = widget.sourate.numero != 1 && widget.sourate.numero != 9;
@@ -832,6 +849,7 @@ class _SourateDetailScreenState extends State<SourateDetailScreen> {
                   isLast:           index == sourate.versets.length - 1,
                 );
               }
+              final isLast = index == sourate.versets.length - 1;
               return Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: _VersetCard(
@@ -843,6 +861,7 @@ class _SourateDetailScreenState extends State<SourateDetailScreen> {
                   arabicFontSize:    _arabicFontSize,
                   isBookmarked:      _bookmarkedVersets.contains(verset.numero),
                   onToggleBookmark:  () => _toggleBookmark(verset.numero),
+                  onCompleted: isLast ? null : () => _autoPlayNext(verset.numero),
                 ),
               );
             },
@@ -1206,6 +1225,7 @@ class _VersetCard extends StatelessWidget {
   final double        arabicFontSize;
   final bool          isBookmarked;
   final VoidCallback? onToggleBookmark;
+  final VoidCallback? onCompleted;
 
   const _VersetCard({
     required this.verset,
@@ -1216,6 +1236,7 @@ class _VersetCard extends StatelessWidget {
     this.arabicFontSize   = 22.0,
     this.isBookmarked     = false,
     this.onToggleBookmark,
+    this.onCompleted,
   });
 
   @override
@@ -1314,6 +1335,7 @@ class _VersetCard extends StatelessWidget {
             surahNumber: surahNumber,
             ayahNumber:  verset.numero,
             config:      AudioConfig.quran(),
+            onCompleted: onCompleted,
           ),
 
           // Traduction
