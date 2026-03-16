@@ -9,6 +9,7 @@ import 'sourate_repository.dart';
 import 'translations.dart';
 import 'learning/audio_verse_widget.dart';
 import 'learning/audio_verse_service.dart';
+import 'user_profile.dart';
 
 // ── Palette ────────────────────────────────────────────────────────────────
 const _kGreenDeep    = Color(0xFF0A2018);
@@ -766,9 +767,27 @@ class _SourateDetailScreenState extends State<SourateDetailScreen> {
       surahNumber: widget.sourate.numero,
       ayahNumber:  next.numero,
       speed:       AudioVerseService.instance.speed,
-      onCompleted: () => _autoPlayNext(next.numero),
+      onCompleted: () {
+        _trackVersetLu();
+        _autoPlayNext(next.numero);
+      },
     );
     _scrollToVerset(next.numero);
+  }
+
+  // Incrémente versetsLus + XP dans le profil utilisateur
+  Future<void> _trackVersetLu() async {
+    final provider = DeenlyProfileScope.maybeOf(context);
+    if (provider == null || !provider.hasProfile) return;
+    final p = provider.profile!;
+    final newVersetsLus = p.versetsLus + 1;
+    await provider.save(p.copyWith(
+      versetsLus: newVersetsLus,
+      xpTotal:    p.xpTotal + 2,  // +2 XP par verset écouté
+    ));
+    // Badges de lecture
+    if (newVersetsLus == 10)  await provider.addBadge('lecteur_10');
+    if (newVersetsLus == 100) await provider.addBadge('lecteur_100');
   }
 
   void _onScroll() {

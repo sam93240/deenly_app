@@ -21,6 +21,8 @@ import 'consent_dialog.dart';
 import 'widgets/save_progress_banner.dart';
 import 'widgets/save_progress_popup.dart';
 import 'services/engagement_service.dart';
+import 'services/daily_streak_service.dart';
+import 'services/local_notif_service.dart';
 
 // ── Palette ────────────────────────────────────────────────────────────────
 const _kGreenDeep    = Color(0xFF0A2018);
@@ -72,6 +74,7 @@ class _HomeScreenState extends State<HomeScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) showConsentIfNeeded(context);
       if (mounted) _checkEngagementPopup();
+      if (mounted) _checkDailyStreak();
     });
   }
 
@@ -79,6 +82,21 @@ class _HomeScreenState extends State<HomeScreen>
   void didChangeDependencies() {
     super.didChangeDependencies();
     _loadNotification();
+  }
+
+  // ── Streak quotidien ──────────────────────────────────────────────────
+  Future<void> _checkDailyStreak() async {
+    final provider = DeenlyProfileScope.maybeOf(context);
+    if (provider == null) return;
+    final isFirstOpenToday = await DailyStreakService.instance
+        .checkAndIncrementStreak(provider);
+    if (isFirstOpenToday && mounted) {
+      // Recharger la notif pour qu'elle tienne compte du nouveau streak
+      _loadNotification();
+      // Demander la permission notifications si pas encore fait
+      // (après engagement = moins intrusif)
+      await LocalNotifService.instance.requestPermission();
+    }
   }
 
   // ── Popup Firebase après engagement significatif ───────────────────────

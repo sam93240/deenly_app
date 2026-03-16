@@ -15,14 +15,18 @@ import 'app_locale.dart';
 import 'language_selection_screen.dart';
 import 'sourate_repository.dart';
 import 'hadith_repository.dart';
+import 'services/local_notif_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // ── Charger la locale AVANT runApp pour éviter la race condition ──────
-  // Sans ça, _locale.load() peut se terminer après le premier build du
-  // SplashScreen et changer widget.nextScreen, sautant l'écran de langue.
   await AppLocale().load();
+
+  // ── Notifications locales (Android / iOS uniquement) ─────────────────
+  if (!kIsWeb) {
+    await LocalNotifService.instance.init();
+  }
 
   // ── Firebase et assets JSON — chargement en arrière-plan ─────────────
   // Sur web : Firebase n'est pas configuré → on évite complètement l'init.
