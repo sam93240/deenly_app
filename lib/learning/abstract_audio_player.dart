@@ -32,10 +32,11 @@ abstract class AbstractAudioPlayer extends ChangeNotifier {
   //   • playerState passe à playing/error dans les 5 secondes
   //   • playerState ne reste JAMAIS bloqué à loading
   Future<void> play(String url, double speed, {bool repeat = false});
-
   Future<void> pause();
   Future<void> resume();
   Future<void> stop();
+
+  // Changements à la volée — pas besoin d'await, effet immédiat.
   void setSpeed(double speed);
   void setRepeat(bool repeat);
 

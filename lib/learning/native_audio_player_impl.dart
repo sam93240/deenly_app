@@ -99,11 +99,12 @@ class NativeAudioPlayerImpl extends AbstractAudioPlayer {
   }
 
   @override
-  Future<void> setSpeed(double speed) async => _player.setSpeed(speed);
+  void setSpeed(double speed)  { _player.setSpeed(speed); }
 
   @override
-  Future<void> setRepeat(bool repeat) async =>
-      _player.setLoopMode(repeat ? LoopMode.one : LoopMode.off);
+  void setRepeat(bool repeat)  {
+    _player.setLoopMode(repeat ? LoopMode.one : LoopMode.off);
+  }
 
   void _cancelSub() {
     _completionSub?.cancel();

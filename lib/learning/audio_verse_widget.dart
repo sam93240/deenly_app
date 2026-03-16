@@ -110,30 +110,38 @@ class _AudioVerseWidgetState extends State<AudioVerseWidget> {
       builder: (context, _) {
         final playing = _isThisAyah && _svc.isPlaying;
         final loading = _isThisAyah && _svc.isLoading;
+        final error   = _isThisAyah && _svc.hasError;
+        final errMsg  = error ? (_svc.errorMessage ?? _s('Erreur audio', 'Audio error')) : null;
 
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
-            color: _fileExists
-                ? LNColors.blueLight
-                : LNColors.border.withValues(alpha: 0.25),
+            color: error
+                ? Colors.red.shade50
+                : (_fileExists
+                    ? LNColors.blueLight
+                    : LNColors.border.withValues(alpha: 0.25)),
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: _fileExists
-                  ? LNColors.blue.withValues(alpha: 0.3)
-                  : LNColors.border,
+              color: error
+                  ? Colors.red.shade200
+                  : (_fileExists
+                      ? LNColors.blue.withValues(alpha: 0.3)
+                      : LNColors.border),
             ),
           ),
           child: Row(
             children: [
-              // ── Bouton play / pause ──────────────────────────
+              // ── Bouton play / pause / error ───────────────────
               GestureDetector(
                 // Désactivé si : pas de fichier OU chargement en cours
                 onTap: (_fileExists && !loading) ? _toggle : null,
                 child: Container(
                   width: 44, height: 44,
                   decoration: BoxDecoration(
-                    color: _fileExists ? LNColors.blue : LNColors.border,
+                    color: error
+                        ? Colors.red.shade400
+                        : (_fileExists ? LNColors.blue : LNColors.border),
                     shape: BoxShape.circle,
                   ),
                   child: loading
@@ -143,9 +151,11 @@ class _AudioVerseWidgetState extends State<AudioVerseWidget> {
                               color: Colors.white, strokeWidth: 2.5),
                         )
                       : Icon(
-                          playing
-                              ? Icons.pause_rounded
-                              : Icons.play_arrow_rounded,
+                          error
+                              ? Icons.refresh_rounded
+                              : (playing
+                                  ? Icons.pause_rounded
+                                  : Icons.play_arrow_rounded),
                           color: Colors.white,
                           size: 26,
                         ),
@@ -159,21 +169,31 @@ class _AudioVerseWidgetState extends State<AudioVerseWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      _fileExists
-                          ? (playing
-                              ? _s('Lecture en cours…', 'Playing…')
-                              : _s('Écouter', 'Listen'))
-                          : _s('Audio bientôt disponible', 'Audio coming soon'),
+                      error
+                          ? errMsg!
+                          : (_fileExists
+                              ? (playing
+                                  ? _s('Lecture en cours…', 'Playing…')
+                                  : _s('Écouter', 'Listen'))
+                              : _s('Audio bientôt disponible',
+                                  'Audio coming soon')),
                       style: TextStyle(
-                        color: _fileExists ? LNColors.blue : LNColors.textLight,
+                        color: error
+                            ? Colors.red.shade700
+                            : (_fileExists ? LNColors.blue : LNColors.textLight),
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const Text(
-                      'Mishary Alafasy',
+                    Text(
+                      error
+                          ? _s('Appuyer pour réessayer', 'Tap to retry')
+                          : 'Mishary Alafasy',
                       style: TextStyle(
-                          color: LNColors.textLight, fontSize: 11),
+                          color: error
+                              ? Colors.red.shade400
+                              : LNColors.textLight,
+                          fontSize: 11),
                     ),
                   ],
                 ),

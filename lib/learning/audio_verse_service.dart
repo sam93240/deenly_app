@@ -12,12 +12,28 @@
 // variables booléennes dispersées.
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 
 import 'abstract_audio_player.dart';
 import 'audio_player_factory.dart';   // createAudioPlayer() — conditionnel
 import 'audio_player_state.dart';
 
 export 'audio_player_state.dart';     // re-export pour les widgets
+
+// ── Utilitaire existence fichier ──────────────────────────────────
+// Sur web  : toujours true (les assets sont packagés dans le build web,
+//            vérifier via rootBundle téléchargerait tout le fichier audio).
+// Sur native: vérifie via rootBundle (lecture locale depuis les assets).
+Future<bool> audioFileExists(
+    AudioConfig config, int surahNumber, int ayahNumber) async {
+  if (kIsWeb) return true;
+  try {
+    final data = await rootBundle.load(config.pathFor(surahNumber, ayahNumber));
+    return data.lengthInBytes > 0;
+  } catch (_) {
+    return false;
+  }
+}
 
 // ══════════════════════════════════════════════════════════════════
 // AudioConfig
