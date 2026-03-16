@@ -144,7 +144,7 @@ class AudioVerseService extends ChangeNotifier {
       // contexte utilisateur liés à setAsset() + rootBundle.load().
       if (kIsWeb) {
         await _player
-            .setUrl('/assets/${config.pathFor(surahNumber, ayahNumber)}');
+            .setUrl('/${config.pathFor(surahNumber, ayahNumber)}');
       } else {
         await _player.setAsset(config.pathFor(surahNumber, ayahNumber));
       }
