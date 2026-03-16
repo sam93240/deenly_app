@@ -1,14 +1,19 @@
 // audio_verse_service.dart
-// Service audio offline – lecture verset par verset avec just_audio
+// Service audio offline – lecture verset par verset
 //
 // Architecture réutilisable :
 //   • Mode apprentissage  → AudioConfig.learning()
 //   • Mode Quran          → AudioConfig.quran(reciter: '...')
+//
+// Sur WEB    : utilise dart:html AudioElement directement (fiable, autoplay OK)
+// Sur NATIVE : utilise just_audio (meilleure gestion buffering hors-ligne)
 
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:just_audio/just_audio.dart';
+
+import 'web_audio_helper.dart'; // conditional export web / stub
 
 // ══════════════════════════════════════════════════════════════════
 // AudioConfig — décrit où chercher les fichiers audio
@@ -62,7 +67,7 @@ extension AudioSpeedExt on AudioSpeed {
 }
 
 // ══════════════════════════════════════════════════════════════════
-// Utilitaire — vérifie si un fichier audio existe et n'est pas vide
+// Utilitaire — vérifie si un fichier audio existe (native only)
 // ══════════════════════════════════════════════════════════════════
 
 Future<bool> audioFileExists(
@@ -78,21 +83,20 @@ Future<bool> audioFileExists(
 
 // ══════════════════════════════════════════════════════════════════
 // AudioVerseService — singleton partagé Learning + Quran
-//
-// Étend ChangeNotifier : les widgets reconstruisent automatiquement
-// à chaque changement d'état (play/pause/stop/speed/loading).
 // ══════════════════════════════════════════════════════════════════
 
 class AudioVerseService extends ChangeNotifier {
   AudioVerseService._();
   static final AudioVerseService instance = AudioVerseService._();
 
-  final AudioPlayer _player = AudioPlayer();
+  // ── Players selon plateforme ──────────────────────────────────
+  // Web   : WebAudioHelper (dart:html)
+  // Native: just_audio
+  final WebAudioHelper _webPlayer = WebAudioHelper();
+  final AudioPlayer    _nativePlayer = AudioPlayer();
 
   bool         _isPlaying = false;
   bool         _isLoading = false;
-  // _isPaused = true  → en pause mid-lecture (reprise possible)
-  // _isPaused = false → arrêté ou terminé (prochain tap = nouveau départ)
   bool         _isPaused  = false;
   int?         _currentSurah;
   int?         _currentAyah;
@@ -100,7 +104,7 @@ class AudioVerseService extends ChangeNotifier {
   AudioSpeed   _speed     = AudioSpeed.normal;
   bool         _repeat    = false;
 
-  StreamSubscription<PlayerState>? _completionSub;
+  StreamSubscription<PlayerState>? _nativeCompletionSub;
   VoidCallback? _onAyahCompleted;
 
   bool        get isPlaying    => _isPlaying;
@@ -121,13 +125,6 @@ class AudioVerseService extends ChangeNotifier {
   }) async {
     await _cancelAndStop();
 
-    // Sur web, pas besoin de vérifier via rootBundle (ajoute de la latence
-    // et peut faire expirer le contexte de geste utilisateur).
-    if (!kIsWeb) {
-      final exists = await audioFileExists(config, surahNumber, ayahNumber);
-      if (!exists) return;
-    }
-
     _currentConfig   = config;
     _currentSurah    = surahNumber;
     _currentAyah     = ayahNumber;
@@ -139,43 +136,65 @@ class AudioVerseService extends ChangeNotifier {
     _isPaused        = false;
     notifyListeners();
 
-    try {
-      // Sur web : setUrl() avec chemin direct évite les problèmes de
-      // contexte utilisateur liés à setAsset() + rootBundle.load().
-      if (kIsWeb) {
-        await _player
-            .setUrl('/${config.pathFor(surahNumber, ayahNumber)}');
-      } else {
-        await _player.setAsset(config.pathFor(surahNumber, ayahNumber));
+    if (kIsWeb) {
+      // ── WEB : dart:html AudioElement ──────────────────────────
+      // play() est appelé directement sans await intermédiaires,
+      // ce qui maintient le contexte de geste utilisateur.
+      final url = '/assets/${config.pathFor(surahNumber, ayahNumber)}';
+      final ok  = await _webPlayer.playUrl(url, speed.value, repeat);
+      if (!ok) {
+        _isLoading = false;
+        notifyListeners();
+        return;
       }
-      await _player.setLoopMode(repeat ? LoopMode.one : LoopMode.off);
-      await _player.setSpeed(speed.value);
-
       _isLoading = false;
       _isPlaying = true;
       notifyListeners();
-
-      // Écoute la fin AVANT play() pour éviter toute race condition
       if (!repeat) {
-        _completionSub = _player.playerStateStream.listen((state) {
-          if (state.processingState == ProcessingState.completed) {
-            _isPlaying = false;
-            _isPaused  = false;
-            _cancelCompletionSub();
-            notifyListeners();
-            _onAyahCompleted?.call();
-          }
+        _webPlayer.listenEnd(() {
+          _isPlaying = false;
+          _isPaused  = false;
+          notifyListeners();
+          _onAyahCompleted?.call();
         });
       }
+    } else {
+      // ── NATIVE : just_audio ───────────────────────────────────
+      final exists = await audioFileExists(config, surahNumber, ayahNumber);
+      if (!exists) {
+        _isLoading = false;
+        notifyListeners();
+        return;
+      }
+      try {
+        await _nativePlayer.setAsset(config.pathFor(surahNumber, ayahNumber));
+        await _nativePlayer.setLoopMode(repeat ? LoopMode.one : LoopMode.off);
+        await _nativePlayer.setSpeed(speed.value);
 
-      // await play() dans le try-catch pour capturer les erreurs web
-      await _player.play();
-    } catch (_) {
-      _isLoading = false;
-      _isPlaying = false;
-      _isPaused  = false;
-      _cancelCompletionSub();
-      notifyListeners();
+        _isLoading = false;
+        _isPlaying = true;
+        notifyListeners();
+
+        if (!repeat) {
+          _nativeCompletionSub =
+              _nativePlayer.playerStateStream.listen((state) {
+            if (state.processingState == ProcessingState.completed) {
+              _isPlaying = false;
+              _isPaused  = false;
+              _cancelNativeCompletionSub();
+              notifyListeners();
+              _onAyahCompleted?.call();
+            }
+          });
+        }
+        await _nativePlayer.play();
+      } catch (_) {
+        _isLoading = false;
+        _isPlaying = false;
+        _isPaused  = false;
+        _cancelNativeCompletionSub();
+        notifyListeners();
+      }
     }
   }
 
@@ -192,24 +211,27 @@ class AudioVerseService extends ChangeNotifier {
         _currentAyah  == ayahNumber;
 
     if (isSameAyah && _isPlaying) {
-      // → Mettre en pause
       await pause();
-
     } else if (isSameAyah && _isPaused) {
-      // → Reprendre depuis la pause (l'audio n'est pas terminé)
-      // Applique vitesse/repeat si changés pendant la pause
       if (_speed != speed) {
         _speed = speed;
-        await _player.setSpeed(speed.value);
+        if (kIsWeb) {
+          _webPlayer.setSpeed(speed.value);
+        } else {
+          await _nativePlayer.setSpeed(speed.value);
+        }
       }
       if (repeat != _repeat) {
         _repeat = repeat;
-        await _player.setLoopMode(repeat ? LoopMode.one : LoopMode.off);
+        if (kIsWeb) {
+          _webPlayer.setLoop(repeat);
+        } else {
+          await _nativePlayer.setLoopMode(
+              repeat ? LoopMode.one : LoopMode.off);
+        }
       }
       await resume();
-
     } else {
-      // → Démarrage fresh : autre verset OU audio terminé (_isPaused=false)
       await playAyah(
         config:      config,
         surahNumber: surahNumber,
@@ -224,21 +246,33 @@ class AudioVerseService extends ChangeNotifier {
   // ── Changer la vitesse à la volée ────────────────────────────
   Future<void> setSpeed(AudioSpeed speed) async {
     _speed = speed;
-    await _player.setSpeed(speed.value);
+    if (kIsWeb) {
+      _webPlayer.setSpeed(speed.value);
+    } else {
+      await _nativePlayer.setSpeed(speed.value);
+    }
     notifyListeners();
   }
 
   // ── Activer / désactiver le loop à la volée ──────────────────
   Future<void> setRepeat(bool repeat) async {
     _repeat = repeat;
-    await _player.setLoopMode(repeat ? LoopMode.one : LoopMode.off);
+    if (kIsWeb) {
+      _webPlayer.setLoop(repeat);
+    } else {
+      await _nativePlayer.setLoopMode(repeat ? LoopMode.one : LoopMode.off);
+    }
     notifyListeners();
   }
 
   // ── Pause ─────────────────────────────────────────────────────
   Future<void> pause() async {
     if (_isPlaying) {
-      await _player.pause();
+      if (kIsWeb) {
+        await _webPlayer.pause();
+      } else {
+        await _nativePlayer.pause();
+      }
       _isPlaying = false;
       _isPaused  = true;
       notifyListeners();
@@ -251,7 +285,11 @@ class AudioVerseService extends ChangeNotifier {
       _isPlaying = true;
       _isPaused  = false;
       notifyListeners();
-      unawaited(_player.play());
+      if (kIsWeb) {
+        await _webPlayer.resume();
+      } else {
+        await _nativePlayer.play();
+      }
     }
   }
 
@@ -265,21 +303,25 @@ class AudioVerseService extends ChangeNotifier {
   @override
   Future<void> dispose() async {
     await _cancelAndStop();
-    await _player.dispose();
+    await _nativePlayer.dispose();
     super.dispose();
   }
 
   // ── Privé ─────────────────────────────────────────────────────
   Future<void> _cancelAndStop() async {
-    _cancelCompletionSub();
+    _cancelNativeCompletionSub();
     _isPlaying = false;
     _isPaused  = false;
     _isLoading = false;
-    await _player.stop();
+    if (kIsWeb) {
+      await _webPlayer.stop();
+    } else {
+      await _nativePlayer.stop();
+    }
   }
 
-  void _cancelCompletionSub() {
-    _completionSub?.cancel();
-    _completionSub = null;
+  void _cancelNativeCompletionSub() {
+    _nativeCompletionSub?.cancel();
+    _nativeCompletionSub = null;
   }
 }
