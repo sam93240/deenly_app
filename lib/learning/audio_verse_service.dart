@@ -121,8 +121,12 @@ class AudioVerseService extends ChangeNotifier {
   }) async {
     await _cancelAndStop();
 
-    final exists = await audioFileExists(config, surahNumber, ayahNumber);
-    if (!exists) return;
+    // Sur web, pas besoin de vérifier via rootBundle (ajoute de la latence
+    // et peut faire expirer le contexte de geste utilisateur).
+    if (!kIsWeb) {
+      final exists = await audioFileExists(config, surahNumber, ayahNumber);
+      if (!exists) return;
+    }
 
     _currentConfig   = config;
     _currentSurah    = surahNumber;
@@ -136,20 +140,22 @@ class AudioVerseService extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _player.setAsset(config.pathFor(surahNumber, ayahNumber));
+      // Sur web : setUrl() avec chemin direct évite les problèmes de
+      // contexte utilisateur liés à setAsset() + rootBundle.load().
+      if (kIsWeb) {
+        await _player
+            .setUrl('/assets/${config.pathFor(surahNumber, ayahNumber)}');
+      } else {
+        await _player.setAsset(config.pathFor(surahNumber, ayahNumber));
+      }
       await _player.setLoopMode(repeat ? LoopMode.one : LoopMode.off);
+      await _player.setSpeed(speed.value);
 
       _isLoading = false;
       _isPlaying = true;
       notifyListeners();
 
-      // Lance la lecture puis applique la vitesse juste après.
-      // Certaines plateformes ignorent setSpeed() avant play(),
-      // donc cet ordre garantit que la vitesse est toujours respectée.
-      unawaited(_player.play());
-      await _player.setSpeed(speed.value);
-
-      // Écoute la fin en arrière-plan — ne bloque pas playAyah()
+      // Écoute la fin AVANT play() pour éviter toute race condition
       if (!repeat) {
         _completionSub = _player.playerStateStream.listen((state) {
           if (state.processingState == ProcessingState.completed) {
@@ -161,10 +167,14 @@ class AudioVerseService extends ChangeNotifier {
           }
         });
       }
+
+      // await play() dans le try-catch pour capturer les erreurs web
+      await _player.play();
     } catch (_) {
       _isLoading = false;
       _isPlaying = false;
       _isPaused  = false;
+      _cancelCompletionSub();
       notifyListeners();
     }
   }
