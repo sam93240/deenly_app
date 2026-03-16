@@ -1,0 +1,1067 @@
+// notification_data.dart
+// Messages de notification — Application UpYourDeen
+// Ton : meilleur ami bienveillant, chaleureux, musulman
+// 100+ messages uniques — BILINGUAL (FR + EN)
+
+import 'app_locale.dart';
+
+// ── Catégories de messages ───────────────────────────────────────────
+
+enum NotifType {
+  motivation,    // Encourager à continuer
+  streak,        // Féliciter / alerter sur la série
+  bienEtre,      // Prendre des nouvelles
+  comeback,      // Utilisateur absent depuis longtemps
+  defiJour,      // Petit défi quotidien
+  rappelPriere,  // Rappels spirituels doux
+  sadaqaJariya,  // Appel aux dons (rare, respectueux)
+  celebration,   // Félicitations pour un accomplissement
+}
+
+class DeenlyNotif {
+  final NotifType type;
+  final String emoji;
+  final String titre;
+  final String message;
+  final String? actionLabel;
+  final String? actionRoute;
+  final String? titreEn;
+  final String? messageEn;
+  final String? actionLabelEn;
+
+  const DeenlyNotif({
+    required this.type,
+    required this.emoji,
+    required this.titre,
+    required this.message,
+    this.actionLabel,
+    this.actionRoute,
+    this.titreEn,
+    this.messageEn,
+    this.actionLabelEn,
+  });
+
+  /// Retourne le titre dans la langue active
+  String get localTitre => AppLocale().isFrench ? titre : (titreEn ?? titre);
+
+  /// Retourne le message dans la langue active
+  String get localMessage => AppLocale().isFrench ? message : (messageEn ?? message);
+
+  /// Retourne le label action dans la langue active (null si pas d'action)
+  String? get localActionLabel {
+    if (actionLabel == null) return null;
+    return AppLocale().isFrench ? actionLabel : (actionLabelEn ?? actionLabel);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// MOTIVATION — Encourager à revenir et apprendre (20 messages)
+// ══════════════════════════════════════════════════════════════════════
+const kMotivationNotifs = <DeenlyNotif>[
+  DeenlyNotif(
+    type: NotifType.motivation,
+    emoji: '💪',
+    titre: 'Tu es sur la bonne voie !',
+    titreEn: 'You\'re on the right path!',
+    message: 'Chaque petit pas compte. Le Prophète ﷺ a dit : « Les actes les plus aimés d\'Allah sont les plus réguliers, même s\'ils sont peu nombreux. » Allez, on continue ensemble ?',
+    messageEn: 'Every little step counts. The Prophet ﷺ said: "The deeds most beloved to Allah are the most regular, even if they are small." Come on, let\'s keep going together?',
+    actionLabel: 'Continuer',
+    actionLabelEn: 'Continue',
+    actionRoute: 'learning',
+  ),
+  DeenlyNotif(
+    type: NotifType.motivation,
+    emoji: '🌟',
+    titre: 'Hey, ça fait plaisir de te voir !',
+    titreEn: 'Hey, nice to see you!',
+    message: 'Tu sais quoi ? Le simple fait d\'ouvrir UpYourDeen, c\'est déjà une intention de bien. Et Allah récompense les intentions. Tu veux lire un verset aujourd\'hui ?',
+    messageEn: 'You know what? Simply opening UpYourDeen is already a good intention. And Allah rewards intentions. Want to read a verse today?',
+    actionLabel: 'Lire le Coran',
+    actionLabelEn: 'Read the Quran',
+    actionRoute: 'quran',
+  ),
+  DeenlyNotif(
+    type: NotifType.motivation,
+    emoji: '📖',
+    titre: 'Un verset, ça change une journée',
+    titreEn: 'One verse can change your day',
+    message: 'Sérieusement, même un seul verset lu avec le cœur peut illuminer ta journée entière. Le Prophète ﷺ a dit que celui qui lit le Coran avec difficulté a une double récompense. Tu es doublement récompensé(e) !',
+    messageEn: 'Seriously, even a single verse read with intention can light up your entire day. The Prophet ﷺ said that whoever reads the Quran with difficulty gets a double reward. You\'re doubly rewarded!',
+    actionLabel: 'Lire un verset',
+    actionLabelEn: 'Read a verse',
+    actionRoute: 'quran',
+  ),
+  DeenlyNotif(
+    type: NotifType.motivation,
+    emoji: '🤲',
+    titre: 'Allah est fier de toi',
+    titreEn: 'Allah is proud of you',
+    message: 'Tu cherches à apprendre, à comprendre, à t\'améliorer. C\'est exactement ce qu\'Allah aime. « Et quiconque emprunte un chemin pour acquérir un savoir, Allah lui facilite un chemin vers le Paradis. »',
+    messageEn: 'You seek to learn, understand, and improve. That\'s exactly what Allah loves. "And whoever takes a path to seek knowledge, Allah will ease for them a path to Paradise."',
+    actionLabel: 'Apprendre',
+    actionLabelEn: 'Learn',
+    actionRoute: 'learning',
+  ),
+  DeenlyNotif(
+    type: NotifType.motivation,
+    emoji: '✨',
+    titre: 'Petit rappel entre amis',
+    titreEn: 'A little reminder between friends',
+    message: 'Même les Compagnons du Prophète ﷺ se rappelaient les uns les autres. Considère-moi comme ton compagnon de route. On avance ensemble, à ton rythme, sans pression.',
+    messageEn: 'Even the Prophet\'s ﷺ Companions reminded each other. Think of me as your companion on the journey. We\'re moving forward together, at your own pace, no pressure.',
+  ),
+  DeenlyNotif(
+    type: NotifType.motivation,
+    emoji: '🌙',
+    titre: 'La nuit porte conseil... et bénédictions',
+    titreEn: 'The night brings wisdom... and blessings',
+    message: 'Si tu lis ça le soir, sache que le dernier tiers de la nuit est le moment où Allah descend au ciel le plus proche et dit : « Y a-t-il quelqu\'un qui M\'invoque pour que Je lui réponde ? » Tu as une du\'a à faire ?',
+    messageEn: 'If you\'re reading this in the evening, know that the last third of the night is when Allah descends to the nearest heaven and says: "Is there anyone who calls upon Me so I may answer?" Do you have a du\'a to make?',
+  ),
+  DeenlyNotif(
+    type: NotifType.motivation,
+    emoji: '🕊️',
+    titre: 'Tu n\'es jamais seul(e)',
+    titreEn: 'You\'re never alone',
+    message: '« Il est avec vous où que vous soyez. » (Al-Hadid 57:4). Même dans les moments difficiles, Allah est là. Et moi aussi, je suis là dans ta poche. 😊',
+    messageEn: '"He is with you wherever you are." (Al-Hadid 57:4). Even in difficult moments, Allah is there. And I\'m here in your pocket too. 😊',
+  ),
+  DeenlyNotif(
+    type: NotifType.motivation,
+    emoji: '🌺',
+    titre: 'Chaque jour est un nouveau départ',
+    titreEn: 'Every day is a fresh start',
+    message: 'En Islam, chaque aube est une chance de recommencer. Tu n\'as pas lu hier ? Pas grave. Tu n\'as pas prié à l\'heure ? Recommence maintenant. Allah aime ceux qui se repentent et qui se purifient.',
+    messageEn: 'In Islam, every dawn is a chance to start again. Didn\'t read yesterday? No worries. Didn\'t pray on time? Start now. Allah loves those who repent and purify themselves.',
+    actionLabel: 'Reprendre',
+    actionLabelEn: 'Restart',
+    actionRoute: 'learning',
+  ),
+  DeenlyNotif(
+    type: NotifType.motivation,
+    emoji: '🏃',
+    titre: 'Pas besoin d\'être parfait',
+    titreEn: 'No need to be perfect',
+    message: 'Allah ne te demande pas la perfection. Il te demande l\'effort. Le Prophète ﷺ a dit : « Rapprochez-vous de la perfection, rectifiez, et réjouissez-vous. » L\'important c\'est d\'avancer.',
+    messageEn: 'Allah doesn\'t ask for perfection. He asks for effort. The Prophet ﷺ said: "Aim for perfection, rectify yourselves, and rejoice." What matters is moving forward.',
+    actionLabel: 'Avancer',
+    actionLabelEn: 'Move forward',
+    actionRoute: 'learning',
+  ),
+  DeenlyNotif(
+    type: NotifType.motivation,
+    emoji: '💎',
+    titre: 'Tu vaux plus que tu ne crois',
+    titreEn: 'You\'re worth more than you think',
+    message: 'Allah t\'a créé(e) avec un but. Tu n\'es pas là par hasard. Chaque seconde que tu passes à apprendre ta religion, c\'est un investissement éternel. Pas mal comme rendement, non ?',
+    messageEn: 'Allah created you with a purpose. You\'re not here by chance. Every second you spend learning your faith is an eternal investment. Not a bad return, right?',
+  ),
+  DeenlyNotif(
+    type: NotifType.motivation,
+    emoji: '🌤️',
+    titre: 'Le savoir est une lumière',
+    titreEn: 'Knowledge is light',
+    message: 'L\'Imam ash-Shafi\'i a dit : « Le savoir est une lumière, et la lumière d\'Allah n\'est pas donnée au pécheur. » En cherchant le savoir, tu allumes ta propre lumière.',
+    messageEn: 'Imam ash-Shafi\'i said: "Knowledge is light, and Allah\'s light is not given to the sinful." By seeking knowledge, you\'re lighting your own light.',
+    actionLabel: 'S\'illuminer',
+    actionLabelEn: 'Illuminate',
+    actionRoute: 'learning',
+  ),
+  DeenlyNotif(
+    type: NotifType.motivation,
+    emoji: '🦁',
+    titre: 'Tu es plus fort(e) que tu ne penses',
+    titreEn: 'You\'re stronger than you think',
+    message: 'Umar ibn al-Khattab est passé de persécuteur à pilier de l\'Islam. Le changement est toujours possible. Si lui a pu transformer sa vie, toi aussi tu peux apprendre et grandir.',
+    messageEn: 'Umar ibn al-Khattab went from persecutor to pillar of Islam. Change is always possible. If he could transform his life, so can you learn and grow.',
+  ),
+  DeenlyNotif(
+    type: NotifType.motivation,
+    emoji: '🎓',
+    titre: 'L\'encre du savant...',
+    titreEn: 'The ink of the scholar...',
+    message: '...est plus précieuse que le sang du martyr. Tu le savais ? En apprenant, tu accomplis un acte de dévotion immense. Continue, chaque connaissance est un trésor.',
+    messageEn: '...is more precious than the blood of the martyr. Did you know? By learning, you\'re performing an immense act of worship. Keep going, every piece of knowledge is a treasure.',
+    actionLabel: 'Apprendre',
+    actionLabelEn: 'Learn',
+    actionRoute: 'learning',
+  ),
+  DeenlyNotif(
+    type: NotifType.motivation,
+    emoji: '🌻',
+    titre: 'Le meilleur moment c\'est maintenant',
+    titreEn: 'The best time is now',
+    message: 'On reporte toujours à demain. Mais demain n\'est promis à personne. 5 minutes de Coran maintenant valent mieux que 2 heures que tu ne feras jamais. On y va ?',
+    messageEn: 'We always put it off until tomorrow. But tomorrow is promised to no one. 5 minutes of Quran now is worth more than 2 hours you\'ll never do. Let\'s go?',
+    actionLabel: '5 minutes',
+    actionLabelEn: '5 minutes',
+    actionRoute: 'quran',
+  ),
+  DeenlyNotif(
+    type: NotifType.motivation,
+    emoji: '🔑',
+    titre: 'La patience est la clé',
+    titreEn: 'Patience is the key',
+    message: 'Le Prophète ﷺ a dit : « Celui qui patiente, Allah lui donnera la patience. Et personne n\'a reçu de don meilleur et plus vaste que la patience. » Tu es en train de construire quelque chose de beau.',
+    messageEn: 'The Prophet ﷺ said: "Whoever has patience, Allah will give them patience. And no one has been given a better and greater gift than patience." You\'re building something beautiful.',
+  ),
+  DeenlyNotif(
+    type: NotifType.motivation,
+    emoji: '🌈',
+    titre: 'Après la pluie...',
+    titreEn: 'After the rain...',
+    message: '...le beau temps. Après la difficulté, la facilité. C\'est la promesse d\'Allah, répétée deux fois dans sourate Ash-Sharh. Si c\'est dur en ce moment, tiens bon. Le soulagement arrive.',
+    messageEn: '...comes the sun. After difficulty comes ease. This is Allah\'s promise, repeated twice in Surah Ash-Sharh. If things are hard right now, hold on. Relief is coming.',
+  ),
+  DeenlyNotif(
+    type: NotifType.motivation,
+    emoji: '📚',
+    titre: 'Les anges t\'accompagnent',
+    titreEn: 'The angels are with you',
+    message: 'Le Prophète ﷺ a dit : « Quand des gens se réunissent pour étudier le Livre d\'Allah, la sérénité descend sur eux, la miséricorde les enveloppe et les anges les entourent. » Tu n\'es pas seul(e) !',
+    messageEn: 'The Prophet ﷺ said: "When people gather to study Allah\'s Book, tranquility descends upon them, mercy envelops them, and the angels surround them." You\'re not alone!',
+    actionLabel: 'Étudier',
+    actionLabelEn: 'Study',
+    actionRoute: 'quran',
+  ),
+  DeenlyNotif(
+    type: NotifType.motivation,
+    emoji: '⛰️',
+    titre: 'Sommet après sommet',
+    titreEn: 'Peak after peak',
+    message: 'Le chemin de la connaissance, c\'est comme gravir une montagne. Parfois c\'est dur, parfois tu veux abandonner. Mais la vue d\'en haut... SubhanAllah. Continue à grimper.',
+    messageEn: 'The path to knowledge is like climbing a mountain. Sometimes it\'s hard, sometimes you want to give up. But the view from the top... SubhanAllah. Keep climbing.',
+  ),
+  DeenlyNotif(
+    type: NotifType.motivation,
+    emoji: '🕋',
+    titre: 'Chaque pas compte',
+    titreEn: 'Every step counts',
+    message: 'Le pèlerin qui marche vers la Ka\'ba ne la voit pas au début. Mais il sait qu\'elle est là. Chaque pas d\'apprentissage te rapproche d\'Allah, même si tu ne vois pas encore le résultat.',
+    messageEn: 'The pilgrim walking toward the Kaaba doesn\'t see it at first. But they know it\'s there. Every step of learning brings you closer to Allah, even if you don\'t see the result yet.',
+  ),
+  DeenlyNotif(
+    type: NotifType.motivation,
+    emoji: '🌴',
+    titre: 'Comme un palmier',
+    titreEn: 'Like a palm tree',
+    message: 'Le Prophète ﷺ a comparé le croyant à un palmier : utile en toute saison, résistant aux tempêtes, et dont chaque partie est bénéfique. En apprenant, tu deviens ce palmier.',
+    messageEn: 'The Prophet ﷺ compared the believer to a palm tree: useful in every season, resistant to storms, and every part is beneficial. By learning, you become that palm tree.',
+    actionLabel: 'Grandir',
+    actionLabelEn: 'Grow',
+    actionRoute: 'learning',
+  ),
+];
+
+// ══════════════════════════════════════════════════════════════════════
+// STREAK — Félicitations et alertes de série (8 messages)
+// ══════════════════════════════════════════════════════════════════════
+const kStreakNotifs = <DeenlyNotif>[
+  // Séries positives (index 0-3)
+  DeenlyNotif(
+    type: NotifType.streak,
+    emoji: '🔥',
+    titre: 'Série en feu !',
+    titreEn: 'Streak on fire!',
+    message: 'MashaAllah ! Tu es là depuis {streak} jours d\'affilée. Le Prophète ﷺ aimait la régularité. Tu es en train de construire une belle habitude, continue !',
+    messageEn: 'MashaAllah! You\'ve been here {streak} days straight. The Prophet ﷺ loved consistency. You\'re building a beautiful habit, keep going!',
+  ),
+  DeenlyNotif(
+    type: NotifType.streak,
+    emoji: '⚡',
+    titre: '{streak} jours, rien ne t\'arrête !',
+    titreEn: '{streak} days, nothing stops you!',
+    message: 'SubhanAllah, quelle constance ! À ce rythme, tu vas devenir un(e) vrai(e) hafiz/hafiza. Je suis tellement fier/fière de toi. Enfin, c\'est Allah qui doit être fier, mais moi aussi !',
+    messageEn: 'SubhanAllah, such consistency! At this rate, you\'re becoming a true hafiz/hafiza. I\'m so proud of you. Well, Allah should be proud, but me too!',
+  ),
+  DeenlyNotif(
+    type: NotifType.streak,
+    emoji: '🌟',
+    titre: '{streak} jours de lumière !',
+    titreEn: '{streak} days of light!',
+    message: 'Tu sais ce que ça veut dire, {streak} jours ? Ça veut dire que tu as choisi Allah {streak} fois de suite. C\'est magnifique. La régularité, c\'est la sunna.',
+    messageEn: 'You know what {streak} days means? It means you chose Allah {streak} times in a row. That\'s beautiful. Consistency is the sunna.',
+  ),
+  DeenlyNotif(
+    type: NotifType.streak,
+    emoji: '💫',
+    titre: 'Quelle discipline MashaAllah !',
+    titreEn: 'What discipline MashaAllah!',
+    message: '{streak} jours consécutifs ! Le Prophète ﷺ a dit : « L\'acte le plus aimé d\'Allah est le plus constant, même s\'il est modeste. » Tu incarnes ce hadith.',
+    messageEn: '{streak} consecutive days! The Prophet ﷺ said: "The deeds most beloved to Allah are the most consistent, even if modest." You embody this hadith.',
+  ),
+  // Alerte de perte (index 4)
+  DeenlyNotif(
+    type: NotifType.streak,
+    emoji: '😰',
+    titre: 'Ta série est en danger !',
+    titreEn: 'Your streak is in danger!',
+    message: 'Hé, ne perds pas ta série de {streak} jours ! Il te suffit de lire un seul verset ou de faire un seul dhikr. 30 secondes et c\'est sauvé. Tu le fais ?',
+    messageEn: 'Hey, don\'t lose your {streak}-day streak! All you need to do is read one verse or do one dhikr. 30 seconds and it\'s saved. Will you do it?',
+    actionLabel: 'Sauver ma série',
+    actionLabelEn: 'Save my streak',
+    actionRoute: 'quran',
+  ),
+  DeenlyNotif(
+    type: NotifType.streak,
+    emoji: '⏰',
+    titre: 'Vite, ta série !',
+    titreEn: 'Quick, your streak!',
+    message: 'Ta série de {streak} jours va s\'éteindre ! Ouvre juste le Coran, lis Bismillah, et c\'est sauvé. On ne lâche pas maintenant !',
+    messageEn: 'Your {streak}-day streak is about to end! Just open the Quran, read Bismillah, and it\'s saved. Don\'t let go now!',
+    actionLabel: 'Sauver',
+    actionLabelEn: 'Save',
+    actionRoute: 'quran',
+  ),
+  // Série perdue (index 6-7)
+  DeenlyNotif(
+    type: NotifType.streak,
+    emoji: '💚',
+    titre: 'C\'est pas grave, on recommence',
+    titreEn: 'It\'s okay, let\'s start again',
+    message: 'Ta série est retombée à zéro, mais tu sais quoi ? Le Prophète ﷺ a dit : « Celui qui se repent du péché est comme celui qui n\'a pas de péché. » On recommence aujourd\'hui, ensemble ?',
+    messageEn: 'Your streak is back to zero, but you know what? The Prophet ﷺ said: "Whoever repents from sin is like one who has no sin." Let\'s start again today, together?',
+    actionLabel: 'Nouvelle série',
+    actionLabelEn: 'New streak',
+    actionRoute: 'learning',
+  ),
+  DeenlyNotif(
+    type: NotifType.streak,
+    emoji: '🌅',
+    titre: 'Un nouveau matin, une nouvelle chance',
+    titreEn: 'A new morning, a new chance',
+    message: 'Ta série est repartie de zéro. Et alors ? Ibrahim a été jeté dans le feu et il s\'est relevé. Yunus est sorti du ventre de la baleine. Toi, tu peux bien relancer une série !',
+    messageEn: 'Your streak is back to zero. So what? Ibrahim was thrown in the fire and rose again. Yunus came out of the whale\'s belly. You can definitely start a new streak!',
+    actionLabel: 'On repart',
+    actionLabelEn: 'Let\'s go',
+    actionRoute: 'learning',
+  ),
+];
+
+// ══════════════════════════════════════════════════════════════════════
+// BIEN-ÊTRE — Prendre des nouvelles sincèrement (18 messages)
+// ══════════════════════════════════════════════════════════════════════
+const kBienEtreNotifs = <DeenlyNotif>[
+  DeenlyNotif(
+    type: NotifType.bienEtre,
+    emoji: '💛',
+    titre: 'Comment tu vas aujourd\'hui ?',
+    titreEn: 'How are you today?',
+    message: 'Sincèrement, pas de façade. Si tu vas bien, alhamdulillah. Si ça ne va pas trop, sache que « Certes, avec la difficulté vient la facilité » (94:6). Et n\'oublie pas de parler à quelqu\'un de confiance si tu en as besoin.',
+    messageEn: 'Seriously, no facades. If you\'re good, alhamdulillah. If things aren\'t great, know that "With difficulty comes ease" (94:6). And don\'t forget to talk to someone you trust if you need to.',
+  ),
+  DeenlyNotif(
+    type: NotifType.bienEtre,
+    emoji: '🤗',
+    titre: 'Juste un petit coucou',
+    titreEn: 'Just a quick hello',
+    message: 'As-salamu alaykum ! Je passais juste te dire que tu comptes. Pour Allah, tu es unique parmi des milliards de créatures. Prends soin de toi aujourd\'hui, c\'est aussi une ibadah.',
+    messageEn: 'As-salamu alaykum! I\'m just here to say you matter. To Allah, you\'re unique among billions of creatures. Take care of yourself today, it\'s also an act of worship.',
+  ),
+  DeenlyNotif(
+    type: NotifType.bienEtre,
+    emoji: '☀️',
+    titre: 'N\'oublie pas de sourire',
+    titreEn: 'Don\'t forget to smile',
+    message: 'Le Prophète ﷺ a dit : « Sourire à ton frère est une aumône. » Alors souris — à toi-même dans le miroir, à un inconnu dans la rue, à tes proches. Ça change tout.',
+    messageEn: 'The Prophet ﷺ said: "Smiling at your brother is charity." So smile—at yourself in the mirror, at a stranger on the street, at those close to you. It changes everything.',
+  ),
+  DeenlyNotif(
+    type: NotifType.bienEtre,
+    emoji: '🍃',
+    titre: 'Respire un peu',
+    titreEn: 'Take a breath',
+    message: 'Si ta journée est chargée, prends 2 minutes. Ferme les yeux. Dis « SubhanAllah » 33 fois. Sens la paix. Le dhikr est le repos du cœur. « C\'est par le rappel d\'Allah que les cœurs se tranquillisent. » (13:28)',
+    messageEn: 'If your day is busy, take 2 minutes. Close your eyes. Say "SubhanAllah" 33 times. Feel the peace. Dhikr is the rest of the heart. "It is by the remembrance of Allah that hearts find peace." (13:28)',
+    actionLabel: 'Faire du dhikr',
+    actionLabelEn: 'Do dhikr',
+    actionRoute: 'spiritualite',
+  ),
+  DeenlyNotif(
+    type: NotifType.bienEtre,
+    emoji: '🌊',
+    titre: 'Les épreuves passent toujours',
+    titreEn: 'Trials always pass',
+    message: 'Si tu traverses un moment dur, rappelle-toi : après la pluie vient le soleil. Le Prophète ﷺ a dit : « L\'affaire du croyant est étonnante, car tout est un bien pour lui. » Tiens bon, je suis avec toi.',
+    messageEn: 'If you\'re going through a tough time, remember: the sun comes after the rain. The Prophet ﷺ said: "The believer\'s case is amazing—everything is good for them." Hold on, I\'m with you.',
+  ),
+  DeenlyNotif(
+    type: NotifType.bienEtre,
+    emoji: '🌸',
+    titre: 'Tu as mangé aujourd\'hui ?',
+    titreEn: 'Did you eat today?',
+    message: 'Oui, je te demande ça parce que prendre soin de son corps, c\'est aussi une amana (un dépôt d\'Allah). Mange bien, bois de l\'eau, dors suffisamment. Ton corps a des droits sur toi !',
+    messageEn: 'Yes, I\'m asking because taking care of your body is also an amanah (a trust from Allah). Eat well, drink water, get enough sleep. Your body has rights over you!',
+  ),
+  DeenlyNotif(
+    type: NotifType.bienEtre,
+    emoji: '🫂',
+    titre: 'Appelle tes parents',
+    titreEn: 'Call your parents',
+    message: 'Si tes parents sont encore là, appelle-les. Même 2 minutes. Le Coran dit : « Et dis-leur des paroles respectueuses. » (17:23) Un simple « comment tu vas ? » peut illuminer leur journée.',
+    messageEn: 'If your parents are still here, call them. Even 2 minutes. The Quran says: "Speak to them with kindness." (17:23) A simple "How are you?" can light up their day.',
+  ),
+  DeenlyNotif(
+    type: NotifType.bienEtre,
+    emoji: '💧',
+    titre: 'Tu as bu assez d\'eau ?',
+    titreEn: 'Have you drunk enough water?',
+    message: 'Le Prophète ﷺ buvait en 3 gorgées et disait Bismillah. L\'hydratation c\'est la base ! Ton cerveau et ton corps en ont besoin pour fonctionner. Va chercher un verre d\'eau, je t\'attends.',
+    messageEn: 'The Prophet ﷺ drank in 3 sips saying Bismillah. Hydration is the foundation! Your brain and body need it to function. Go get a glass of water, I\'ll wait.',
+  ),
+  DeenlyNotif(
+    type: NotifType.bienEtre,
+    emoji: '😴',
+    titre: 'Tu dors assez ?',
+    titreEn: 'Are you sleeping enough?',
+    message: 'Le sommeil, c\'est sacré en Islam. Le Prophète ﷺ dormait tôt et se levait pour le tahajjud. Si tu es fatigué(e), repose-toi. Allah ne te demande pas de t\'épuiser.',
+    messageEn: 'Sleep is sacred in Islam. The Prophet ﷺ slept early and woke for tahajjud. If you\'re tired, rest. Allah doesn\'t ask you to exhaust yourself.',
+  ),
+  DeenlyNotif(
+    type: NotifType.bienEtre,
+    emoji: '🌿',
+    titre: 'Prends l\'air',
+    titreEn: 'Get some air',
+    message: 'Sors marcher, même 10 minutes. Regarde le ciel, les arbres, la création d\'Allah. « C\'est Lui qui a étendu la terre... » (13:3). La nature est un rappel vivant.',
+    messageEn: 'Go take a walk, even 10 minutes. Look at the sky, the trees, Allah\'s creation. "It is He who spread out the earth..." (13:3). Nature is a living reminder.',
+  ),
+  DeenlyNotif(
+    type: NotifType.bienEtre,
+    emoji: '❤️',
+    titre: 'Tu es aimé(e)',
+    titreEn: 'You are loved',
+    message: 'Même si parfois tu te sens seul(e), sache que ton Créateur t\'aime. Il t\'a donné la vie, les yeux pour voir, les oreilles pour entendre, un cœur pour aimer. Alhamdulillah pour tout ça.',
+    messageEn: 'Even if you sometimes feel alone, know that your Creator loves you. He gave you life, eyes to see, ears to hear, a heart to love. Alhamdulillah for all of it.',
+  ),
+  DeenlyNotif(
+    type: NotifType.bienEtre,
+    emoji: '🎵',
+    titre: 'Écoute du Coran',
+    titreEn: 'Listen to the Quran',
+    message: 'Si tu te sens stressé(e) ou anxieux/anxieuse, écoute une récitation du Coran. Pas besoin de comprendre chaque mot — le son seul apaise le cœur. C\'est prouvé même scientifiquement.',
+    messageEn: 'If you feel stressed or anxious, listen to a Quran recitation. No need to understand every word—the sound alone soothes the heart. It\'s even scientifically proven.',
+    actionLabel: 'Lire le Coran',
+    actionLabelEn: 'Read the Quran',
+    actionRoute: 'quran',
+  ),
+  DeenlyNotif(
+    type: NotifType.bienEtre,
+    emoji: '🤲',
+    titre: 'Parle à Allah',
+    titreEn: 'Talk to Allah',
+    message: 'Si quelque chose te pèse, fais une du\'a. Pas besoin de formules. Dis juste ce que tu as sur le cœur, en français, en arabe, peu importe. Allah est Al-Sami\' — Celui qui entend tout.',
+    messageEn: 'If something weighs on you, make a du\'a. No need for formal words. Just say what\'s in your heart, in French, in Arabic, it doesn\'t matter. Allah is As-Sami\'—the One who hears all.',
+  ),
+  DeenlyNotif(
+    type: NotifType.bienEtre,
+    emoji: '🧘',
+    titre: 'Le stress n\'est pas ta nature',
+    titreEn: 'Stress is not your nature',
+    message: 'Allah t\'a créé(e) dans la fitrah — la nature pure et paisible. Le stress est un symptôme, pas ton identité. Reviens à ta fitrah avec le dhikr et la prière.',
+    messageEn: 'Allah created you in fitrah—the pure and peaceful nature. Stress is a symptom, not your identity. Return to your fitrah with dhikr and prayer.',
+    actionLabel: 'Dhikr apaisant',
+    actionLabelEn: 'Soothing dhikr',
+    actionRoute: 'spiritualite',
+  ),
+  DeenlyNotif(
+    type: NotifType.bienEtre,
+    emoji: '🍵',
+    titre: 'Pause thé et rappel',
+    titreEn: 'Tea break and remembrance',
+    message: 'Fais-toi un thé (ou un café, on ne juge pas 😄). Et pendant qu\'il refroidit, lis un petit hadith. Ce genre de petits moments de paix, c\'est précieux.',
+    messageEn: 'Make yourself a tea (or coffee, no judgment 😄). And while it cools, read a little hadith. These little moments of peace are precious.',
+    actionLabel: 'Lire un hadith',
+    actionLabelEn: 'Read a hadith',
+    actionRoute: 'hadith',
+  ),
+  DeenlyNotif(
+    type: NotifType.bienEtre,
+    emoji: '🌻',
+    titre: 'Cite 3 bienfaits d\'Allah',
+    titreEn: 'Name 3 of Allah\'s blessings',
+    message: 'Petit exercice : cite 3 choses pour lesquelles tu es reconnaissant(e) en ce moment. La vue, la santé, un toit, un repas... « Si vous comptez les bienfaits d\'Allah, vous ne saurez pas les dénombrer. » (14:34)',
+    messageEn: 'Small exercise: name 3 things you\'re grateful for right now. Sight, health, shelter, a meal... "If you count Allah\'s blessings, you will not be able to enumerate them." (14:34)',
+  ),
+  DeenlyNotif(
+    type: NotifType.bienEtre,
+    emoji: '🤝',
+    titre: 'Tu as pris des nouvelles de quelqu\'un ?',
+    titreEn: 'Have you checked on someone?',
+    message: 'Le Prophète ﷺ visitait les malades, saluait tout le monde, demandait des nouvelles. Envoie un message à un ami, un frère, une sœur. Un simple salam peut tout changer.',
+    messageEn: 'The Prophet ﷺ visited the sick, greeted everyone, asked how they were doing. Send a message to a friend, brother, or sister. A simple salam can change everything.',
+  ),
+  DeenlyNotif(
+    type: NotifType.bienEtre,
+    emoji: '🌙',
+    titre: 'La nuit est un cadeau',
+    titreEn: 'The night is a gift',
+    message: 'Si tout le monde dort et que tu es éveillé(e), c\'est peut-être un signe. Le Prophète ﷺ priait la nuit quand la ville dormait. Même 2 rak\'at à cette heure valent des montagnes.',
+    messageEn: 'If everyone is sleeping and you\'re awake, maybe it\'s a sign. The Prophet ﷺ prayed at night when the city slept. Even 2 rak\'at at this hour are worth mountains.',
+  ),
+];
+
+// ══════════════════════════════════════════════════════════════════════
+// COMEBACK — Utilisateur absent depuis plusieurs jours (8 messages)
+// ══════════════════════════════════════════════════════════════════════
+const kComebackNotifs = <DeenlyNotif>[
+  DeenlyNotif(
+    type: NotifType.comeback,
+    emoji: '👋',
+    titre: 'Tu m\'as manqué !',
+    titreEn: 'I missed you!',
+    message: 'Ça fait {jours} jours qu\'on ne s\'est pas vus. Je ne te juge pas du tout — la vie, c\'est comme ça. Mais je suis content(e) que tu sois de retour. On reprend doucement ?',
+    messageEn: 'It\'s been {jours} days since we last saw each other. I\'m not judging you at all—life\'s like that. But I\'m happy you\'re back. Ready to ease back in?',
+    actionLabel: 'Reprendre',
+    actionLabelEn: 'Resume',
+    actionRoute: 'learning',
+  ),
+  DeenlyNotif(
+    type: NotifType.comeback,
+    emoji: '🏠',
+    titre: 'De retour à la maison !',
+    titreEn: 'Welcome home!',
+    message: 'UpYourDeen, c\'est un peu ta maison spirituelle. Tu peux partir, voyager, t\'absenter... mais tu seras toujours le/la bienvenu(e) ici. Alhamdulillah pour ton retour !',
+    messageEn: 'UpYourDeen is your spiritual home. You can leave, travel, be away... but you\'re always welcome here. Alhamdulillah for your return!',
+  ),
+  DeenlyNotif(
+    type: NotifType.comeback,
+    emoji: '🌱',
+    titre: 'La graine est toujours là',
+    titreEn: 'The seed is still there',
+    message: 'Même si tu n\'as pas ouvert l\'app depuis un moment, la graine de foi que tu as plantée est toujours là. Elle attend juste un peu d\'eau. Un verset, un dhikr, et elle repousse.',
+    messageEn: 'Even if you haven\'t opened the app in a while, the seed of faith you planted is still there. It just needs a little water. One verse, one dhikr, and it grows back.',
+    actionLabel: 'Arroser la graine',
+    actionLabelEn: 'Water the seed',
+    actionRoute: 'quran',
+  ),
+  DeenlyNotif(
+    type: NotifType.comeback,
+    emoji: '🤝',
+    titre: 'Zéro jugement, que de l\'amour',
+    titreEn: 'No judgment, only love',
+    message: 'Le Prophète ﷺ n\'a jamais abandonné personne. Et moi non plus. Que tu reviennes après 2 jours ou 2 mois, l\'accueil est le même. Bismillah, on repart !',
+    messageEn: 'The Prophet ﷺ never abandoned anyone. Neither do I. Whether you return after 2 days or 2 months, the welcome is the same. Bismillah, let\'s go!',
+    actionLabel: 'Bismillah',
+    actionLabelEn: 'Bismillah',
+    actionRoute: 'learning',
+  ),
+  DeenlyNotif(
+    type: NotifType.comeback,
+    emoji: '🕊️',
+    titre: 'Content de te revoir',
+    titreEn: 'Happy to see you',
+    message: 'Younus (Jonas) est resté dans le ventre de la baleine, puis Allah l\'a ramené. Parfois on s\'éloigne, puis on revient. C\'est le retour qui compte. Et te voilà.',
+    messageEn: 'Yunus (Jonah) stayed in the whale\'s belly, then Allah brought him back. Sometimes we drift away, then return. It\'s the return that matters. And here you are.',
+    actionLabel: 'Revenir',
+    actionLabelEn: 'Return',
+    actionRoute: 'learning',
+  ),
+  DeenlyNotif(
+    type: NotifType.comeback,
+    emoji: '🌅',
+    titre: '{jours} jours, mais tu es là',
+    titreEn: '{jours} days, but here you are',
+    message: 'Ça fait {jours} jours. Mais tu sais quoi ? Le fils prodigue est toujours accueilli. Allah dit : « Revenez vers votre Seigneur » (39:54). Le retour est toujours beau.',
+    messageEn: 'It\'s been {jours} days. But you know what? The prodigal son is always welcomed. Allah says: "Return to your Lord" (39:54). The return is always beautiful.',
+  ),
+  DeenlyNotif(
+    type: NotifType.comeback,
+    emoji: '💪',
+    titre: 'L\'important c\'est de revenir',
+    titreEn: 'What matters is coming back',
+    message: 'Abu Bakr ne jugeait jamais ceux qui trébuchaient. Il les relevait. UpYourDeen aussi. Tu es tombé(e) ? Relève-toi. Tu as oublié ? Rappelle-toi. Tu es parti(e) ? Reviens. On t\'attend.',
+    messageEn: 'Abu Bakr never judged those who stumbled. He lifted them up. UpYourDeen does too. Did you fall? Get up. Did you forget? Remember. Did you leave? Come back. We\'re waiting.',
+    actionLabel: 'Se relever',
+    actionLabelEn: 'Get up',
+    actionRoute: 'learning',
+  ),
+  DeenlyNotif(
+    type: NotifType.comeback,
+    emoji: '🌟',
+    titre: 'La porte est toujours ouverte',
+    titreEn: 'The door is always open',
+    message: 'Allah dit : « Ma miséricorde embrasse toute chose » (7:156). Il n\'y a pas de deadline pour revenir vers le bien. Tu es là maintenant, et c\'est tout ce qui compte.',
+    messageEn: 'Allah says: "My mercy encompasses all things" (7:156). There\'s no deadline to return to good. You\'re here now, and that\'s all that matters.',
+    actionLabel: 'Entrer',
+    actionLabelEn: 'Enter',
+    actionRoute: 'quran',
+  ),
+];
+
+// ══════════════════════════════════════════════════════════════════════
+// RAPPELS SPIRITUELS — Doux rappels (15 messages)
+// ══════════════════════════════════════════════════════════════════════
+const kRappelNotifs = <DeenlyNotif>[
+  DeenlyNotif(
+    type: NotifType.rappelPriere,
+    emoji: '🕌',
+    titre: 'As-tu prié aujourd\'hui ?',
+    titreEn: 'Did you pray today?',
+    message: 'Pas de pression, juste un rappel entre amis. La salat est le premier acte sur lequel on sera interrogé. Si tu l\'as faite, alhamdulillah ! Sinon, il est encore temps.',
+    messageEn: 'No pressure, just a friendly reminder. Salat is the first deed we\'ll be asked about. If you did, alhamdulillah! If not, there\'s still time.',
+  ),
+  DeenlyNotif(
+    type: NotifType.rappelPriere,
+    emoji: '📿',
+    titre: 'Adhkar du matin',
+    titreEn: 'Morning adhkar',
+    message: 'Le Prophète ﷺ ne commençait jamais sa journée sans les adhkar du matin. C\'est comme une armure invisible. Tu veux les lire ensemble ?',
+    messageEn: 'The Prophet ﷺ never started his day without morning adhkar. It\'s like an invisible armor. Want to read them together?',
+    actionLabel: 'Lire les adhkar',
+    actionLabelEn: 'Read adhkar',
+    actionRoute: 'spiritualite',
+  ),
+  DeenlyNotif(
+    type: NotifType.rappelPriere,
+    emoji: '🌙',
+    titre: 'Adhkar du soir',
+    titreEn: 'Evening adhkar',
+    message: 'Avant de dormir, protège-toi avec les adhkar du soir. Ayat al-Kursi, les 3 dernières sourates... C\'est le bouclier de la nuit.',
+    messageEn: 'Before sleep, protect yourself with evening adhkar. Ayat al-Kursi, the last 3 surahs... It\'s the shield of the night.',
+    actionLabel: 'Adhkar du soir',
+    actionLabelEn: 'Evening adhkar',
+    actionRoute: 'spiritualite',
+  ),
+  DeenlyNotif(
+    type: NotifType.rappelPriere,
+    emoji: '✨',
+    titre: 'Petit dhikr, grande récompense',
+    titreEn: 'Small dhikr, great reward',
+    message: '« SubhanAllahi wa bihamdihi, SubhanAllahi al-Azim. » Deux mots légers sur la langue, lourds sur la balance, aimés du Tout Miséricordieux. Dis-les maintenant. 💛',
+    messageEn: '"SubhanAllahi wa bihamdihi, SubhanAllahi al-Azim." Light on the tongue, heavy on the scale, beloved by the Most Merciful. Say them now. 💛',
+  ),
+  DeenlyNotif(
+    type: NotifType.rappelPriere,
+    emoji: '🤲',
+    titre: 'N\'oublie pas tes du\'as',
+    titreEn: 'Don\'t forget your du\'as',
+    message: 'La du\'a, c\'est parler directement à Allah. Pas besoin de mots parfaits, pas besoin d\'arabe. Parle-Lui avec ton cœur, dans ta langue. Il comprend tout.',
+    messageEn: 'Du\'a is talking directly to Allah. No need for perfect words, no need for Arabic. Speak to Him from your heart, in your language. He understands everything.',
+  ),
+  DeenlyNotif(
+    type: NotifType.rappelPriere,
+    emoji: '🕋',
+    titre: 'La qibla du cœur',
+    titreEn: 'The qibla of the heart',
+    message: 'Quand tu pries, imagine que tu es devant la Ka\'ba. Que rien ne te sépare d\'Allah. La salat n\'est pas une corvée — c\'est un rendez-vous intime avec ton Créateur.',
+    messageEn: 'When you pray, imagine you\'re standing before the Kaaba. Nothing separates you from Allah. Salat is not a chore—it\'s an intimate appointment with your Creator.',
+  ),
+  DeenlyNotif(
+    type: NotifType.rappelPriere,
+    emoji: '🌅',
+    titre: 'Salat al-Fajr',
+    titreEn: 'Salat al-Fajr',
+    message: 'Le Prophète ﷺ a dit : « Celui qui prie le Fajr est sous la protection d\'Allah. » Si tu l\'as priée ce matin, bravo. Si tu l\'as ratée, fais-la maintenant en rattrapage.',
+    messageEn: 'The Prophet ﷺ said: "Whoever prays Fajr is under Allah\'s protection." If you prayed it this morning, great! If you missed it, make it up now.',
+  ),
+  DeenlyNotif(
+    type: NotifType.rappelPriere,
+    emoji: '💫',
+    titre: 'Istighfar : la clé de tout',
+    titreEn: 'Istighfar: the key to everything',
+    message: 'L\'istighfar (demander pardon) ouvre les portes de la subsistance, de la paix et de la réussite. « Astaghfirullah » — 3 secondes, des récompenses infinies.',
+    messageEn: 'Istighfar (seeking forgiveness) opens doors to provision, peace, and success. "Astaghfirullah"—3 seconds, infinite rewards.',
+  ),
+  DeenlyNotif(
+    type: NotifType.rappelPriere,
+    emoji: '📖',
+    titre: 'Sourate Al-Mulk avant de dormir',
+    titreEn: 'Surah Al-Mulk before sleep',
+    message: 'Le Prophète ﷺ ne dormait jamais sans lire Al-Mulk. Elle protège de la punition de la tombe. 67 versets entre toi et la tranquillité. Tu la lis ce soir ?',
+    messageEn: 'The Prophet ﷺ never slept without reading Al-Mulk. It protects from the punishment of the grave. 67 verses between you and peace. Will you read it tonight?',
+    actionLabel: 'Lire Al-Mulk',
+    actionLabelEn: 'Read Al-Mulk',
+    actionRoute: 'quran',
+  ),
+  DeenlyNotif(
+    type: NotifType.rappelPriere,
+    emoji: '🌟',
+    titre: 'Salawat sur le Prophète ﷺ',
+    titreEn: 'Salawat on the Prophet ﷺ',
+    message: 'Dis « Allahumma salli \'ala Muhammad » 10 fois maintenant. Le Prophète ﷺ a dit : « Celui qui prie sur moi une fois, Allah prie sur lui 10 fois. » Facile et immense.',
+    messageEn: 'Say "Allahumma salli \'ala Muhammad" 10 times now. The Prophet ﷺ said: "Whoever sends blessings upon me once, Allah sends blessings upon him 10 times." Easy and immense.',
+  ),
+  DeenlyNotif(
+    type: NotifType.rappelPriere,
+    emoji: '🌙',
+    titre: 'Les 2 rak\'at de Duha',
+    titreEn: 'The 2 rak\'at of Duha',
+    message: 'Entre le lever du soleil et le dhuhr, il y a la prière de Duha. Même 2 rak\'at suffisent. Le Prophète ﷺ la recommandait vivement. C\'est un cadeau du milieu de matinée.',
+    messageEn: 'Between sunrise and dhuhr, there\'s the prayer of Duha. Even 2 rak\'at are enough. The Prophet ﷺ recommended it strongly. It\'s a mid-morning gift.',
+  ),
+  DeenlyNotif(
+    type: NotifType.rappelPriere,
+    emoji: '📿',
+    titre: '33-33-34',
+    titreEn: '33-33-34',
+    message: 'Après chaque prière : 33 SubhanAllah, 33 Alhamdulillah, 34 Allahu Akbar. Ça prend 2 minutes. Le Prophète ﷺ a dit que celui qui fait ça verra ses péchés pardonnés, même s\'ils étaient comme l\'écume de la mer.',
+    messageEn: 'After each prayer: 33 SubhanAllah, 33 Alhamdulillah, 34 Allahu Akbar. Takes 2 minutes. The Prophet ﷺ said whoever does this will see their sins forgiven, even if they were like sea foam.',
+    actionLabel: 'Compter',
+    actionLabelEn: 'Count',
+    actionRoute: 'spiritualite',
+  ),
+  DeenlyNotif(
+    type: NotifType.rappelPriere,
+    emoji: '🕊️',
+    titre: 'Le vendredi, c\'est spécial',
+    titreEn: 'Friday is special',
+    message: 'Si c\'est vendredi : lis sourate Al-Kahf, fais beaucoup de salawat sur le Prophète ﷺ, et multiplie les du\'as. Il y a une heure ce jour-là où toute du\'a est exaucée.',
+    messageEn: 'If it\'s Friday: read Surah Al-Kahf, send many blessings upon the Prophet ﷺ, and multiply your du\'as. There\'s an hour on that day when all du\'as are answered.',
+    actionLabel: 'Al-Kahf',
+    actionLabelEn: 'Al-Kahf',
+    actionRoute: 'quran',
+  ),
+  DeenlyNotif(
+    type: NotifType.rappelPriere,
+    emoji: '🛡️',
+    titre: 'Ta protection quotidienne',
+    titreEn: 'Your daily protection',
+    message: 'Ayat al-Kursi le matin, Ayat al-Kursi le soir, Ayat al-Kursi après chaque prière. C\'est le verset le plus puissant du Coran. Tu le connais par cœur ?',
+    messageEn: 'Ayat al-Kursi in the morning, Ayat al-Kursi in the evening, Ayat al-Kursi after each prayer. It\'s the most powerful verse in the Quran. Do you know it by heart?',
+    actionLabel: 'Roqya',
+    actionLabelEn: 'Roqya',
+    actionRoute: 'spiritualite',
+  ),
+  DeenlyNotif(
+    type: NotifType.rappelPriere,
+    emoji: '🤲',
+    titre: 'Du\'a pour tes proches',
+    titreEn: 'Du\'a for your loved ones',
+    message: 'Fais une du\'a pour quelqu\'un sans qu\'il le sache. Le Prophète ﷺ a dit : « La du\'a du musulman pour son frère en son absence est exaucée. Un ange dit : et pour toi de même. »',
+    messageEn: 'Make du\'a for someone without them knowing. The Prophet ﷺ said: "The du\'a of a Muslim for their brother in their absence is answered. An angel says: and for you likewise."',
+  ),
+];
+
+// ══════════════════════════════════════════════════════════════════════
+// DÉFIS DU JOUR — Petits challenges quotidiens (15 messages)
+// ══════════════════════════════════════════════════════════════════════
+const kDefiNotifs = <DeenlyNotif>[
+  DeenlyNotif(
+    type: NotifType.defiJour,
+    emoji: '🎯',
+    titre: 'Défi du jour',
+    titreEn: 'Today\'s challenge',
+    message: 'Aujourd\'hui, essaie de lire 5 versets du Coran avec leur traduction. Pas de vitesse, juste de la compréhension. Tu acceptes le défi ?',
+    messageEn: 'Today, try to read 5 verses of the Quran with their translation. No rush, just understanding. Will you accept the challenge?',
+    actionLabel: 'Accepter',
+    actionLabelEn: 'Accept',
+    actionRoute: 'quran',
+  ),
+  DeenlyNotif(
+    type: NotifType.defiJour,
+    emoji: '🎯',
+    titre: 'Défi du jour',
+    titreEn: 'Today\'s challenge',
+    message: 'Apprends un nouveau nom d\'Allah aujourd\'hui. Comprends son sens, médite dessus. Il y en a 99, chacun est un trésor.',
+    messageEn: 'Learn a new name of Allah today. Understand its meaning, meditate on it. There are 99, each one is a treasure.',
+    actionLabel: 'Découvrir',
+    actionLabelEn: 'Discover',
+    actionRoute: 'spiritualite',
+  ),
+  DeenlyNotif(
+    type: NotifType.defiJour,
+    emoji: '🎯',
+    titre: 'Défi du jour',
+    titreEn: 'Today\'s challenge',
+    message: 'Lis un hadith et essaie de l\'appliquer aujourd\'hui. Juste un seul. La sunna se vit au quotidien, pas seulement dans les livres.',
+    messageEn: 'Read a hadith and try to apply it today. Just one. The Sunnah is lived daily, not just in books.',
+    actionLabel: 'Lire un hadith',
+    actionLabelEn: 'Read a hadith',
+    actionRoute: 'hadith',
+  ),
+  DeenlyNotif(
+    type: NotifType.defiJour,
+    emoji: '🎯',
+    titre: 'Défi du jour',
+    titreEn: 'Today\'s challenge',
+    message: 'Dis « Astaghfirullah » 100 fois aujourd\'hui. Ça prend 3 minutes. Le Prophète ﷺ le faisait plus de 70 fois par jour alors qu\'il était déjà pardonné.',
+    messageEn: 'Say "Astaghfirullah" 100 times today. Takes 3 minutes. The Prophet ﷺ did it more than 70 times a day even though he was already forgiven.',
+  ),
+  DeenlyNotif(
+    type: NotifType.defiJour,
+    emoji: '🎯',
+    titre: 'Défi famille',
+    titreEn: 'Family challenge',
+    message: 'Raconte une histoire de prophète à un enfant de ta famille aujourd\'hui. Tu seras récompensé(e) pour chaque mot de bien que tu transmets.',
+    messageEn: 'Tell a prophet\'s story to a child in your family today. You\'ll be rewarded for every word of good you pass on.',
+    actionLabel: 'Histoires',
+    actionLabelEn: 'Stories',
+    actionRoute: 'famille',
+  ),
+  DeenlyNotif(
+    type: NotifType.defiJour,
+    emoji: '🎯',
+    titre: 'Défi gentillesse',
+    titreEn: 'Kindness challenge',
+    message: 'Fais une bonne action pour quelqu\'un sans qu\'il le sache. Paye un café, laisse passer quelqu\'un, offre un compliment sincère. La sadaqa secrète éteint la colère du Seigneur.',
+    messageEn: 'Do a good deed for someone without them knowing. Buy them coffee, let someone go first, give a sincere compliment. Secret charity extinguishes the Lord\'s anger.',
+  ),
+  DeenlyNotif(
+    type: NotifType.defiJour,
+    emoji: '🎯',
+    titre: 'Défi mémorisation',
+    titreEn: 'Memorization challenge',
+    message: 'Apprends un nouveau verset par cœur aujourd\'hui. Juste un. Répète-le 10 fois. Demain, tu t\'en souviendras. Dans un an, tu auras appris 365 versets.',
+    messageEn: 'Memorize a new verse today. Just one. Repeat it 10 times. Tomorrow you\'ll remember it. In a year, you\'ll have memorized 365 verses.',
+    actionLabel: 'Mémoriser',
+    actionLabelEn: 'Memorize',
+    actionRoute: 'quran',
+  ),
+  DeenlyNotif(
+    type: NotifType.defiJour,
+    emoji: '🎯',
+    titre: 'Défi silence',
+    titreEn: 'Silence challenge',
+    message: 'Le Prophète ﷺ a dit : « Que celui qui croit en Allah et au Jour Dernier dise du bien ou se taise. » Aujourd\'hui, essaie de ne dire que du bien. Pas de médisance, pas de plainte.',
+    messageEn: 'The Prophet ﷺ said: "Whoever believes in Allah and the Last Day, let them speak good or be silent." Today, try to speak only good. No backbiting, no complaining.',
+  ),
+  DeenlyNotif(
+    type: NotifType.defiJour,
+    emoji: '🎯',
+    titre: 'Défi gratitude',
+    titreEn: 'Gratitude challenge',
+    message: 'Ce soir, avant de dormir, écris 5 choses pour lesquelles tu es reconnaissant(e) envers Allah. La gratitude multiplie les bienfaits. « Si vous êtes reconnaissants, Je vous donnerai davantage. » (14:7)',
+    messageEn: 'Tonight before sleep, write 5 things you\'re grateful for to Allah. Gratitude multiplies blessings. "If you are grateful, I will give you more." (14:7)',
+    actionLabel: 'Journal',
+    actionLabelEn: 'Journal',
+    actionRoute: 'learning',
+  ),
+  DeenlyNotif(
+    type: NotifType.defiJour,
+    emoji: '🎯',
+    titre: 'Défi pardon',
+    titreEn: 'Forgiveness challenge',
+    message: 'Y a-t-il quelqu\'un à qui tu dois pardonner ? Le Prophète ﷺ a pardonné aux gens de Quraysh après des années de persécution. Si lui a pu, on peut essayer nous aussi.',
+    messageEn: 'Is there someone you need to forgive? The Prophet ﷺ forgave the Quraysh after years of persecution. If he could, so can we.',
+  ),
+  DeenlyNotif(
+    type: NotifType.defiJour,
+    emoji: '🎯',
+    titre: 'Défi sadaqa',
+    titreEn: 'Sadaqa challenge',
+    message: 'Donne quelque chose aujourd\'hui. Même 1€. Même un sourire. Même un bon conseil. « La main qui donne est meilleure que celle qui reçoit. »',
+    messageEn: 'Give something today. Even 1 euro. Even a smile. Even good advice. "The hand that gives is better than the one that takes."',
+  ),
+  DeenlyNotif(
+    type: NotifType.defiJour,
+    emoji: '🎯',
+    titre: 'Défi Coran',
+    titreEn: 'Quran challenge',
+    message: 'Lis une page entière du Coran aujourd\'hui. Chaque lettre = 10 hassanat. Une page = des milliers de récompenses. Le calcul est vite fait !',
+    messageEn: 'Read one full page of the Quran today. Each letter = 10 hasanah. One page = thousands of rewards. The math is quick!',
+    actionLabel: 'Lire une page',
+    actionLabelEn: 'Read a page',
+    actionRoute: 'quran',
+  ),
+  DeenlyNotif(
+    type: NotifType.defiJour,
+    emoji: '🎯',
+    titre: 'Défi salam',
+    titreEn: 'Salam challenge',
+    message: 'Dis salam à 5 personnes aujourd\'hui. Le Prophète ﷺ a dit : « Répandez le salam entre vous. » C\'est la manière la plus simple de gagner des hassanat et de créer du lien.',
+    messageEn: 'Greet 5 people with salam today. The Prophet ﷺ said: "Spread salam among you." It\'s the easiest way to earn hasanah and create connection.',
+  ),
+  DeenlyNotif(
+    type: NotifType.defiJour,
+    emoji: '🎯',
+    titre: 'Défi tahajjud',
+    titreEn: 'Tahajjud challenge',
+    message: 'Ce soir, essaie de te lever 15 minutes avant le fajr pour prier 2 rak\'at. Le tahajjud est la prière des élites. Tu es capable.',
+    messageEn: 'Tonight, try to wake up 15 minutes before Fajr to pray 2 rak\'at. Tahajjud is the prayer of the elite. You\'re capable.',
+  ),
+  DeenlyNotif(
+    type: NotifType.defiJour,
+    emoji: '🎯',
+    titre: 'Défi du\'a',
+    titreEn: 'Du\'a challenge',
+    message: 'Fais une longue du\'a aujourd\'hui. Pas juste « Allah aide-moi ». Vraiment parler à Allah de tout : tes rêves, tes peurs, tes espoirs. Il écoute chaque mot.',
+    messageEn: 'Make a long du\'a today. Not just "Allah help me." Really talk to Allah about everything: your dreams, fears, hopes. He listens to every word.',
+  ),
+];
+
+// ══════════════════════════════════════════════════════════════════════
+// CÉLÉBRATIONS — Félicitations pour accomplissements (8 messages)
+// ══════════════════════════════════════════════════════════════════════
+const kCelebrationNotifs = <DeenlyNotif>[
+  DeenlyNotif(
+    type: NotifType.celebration,
+    emoji: '🎉',
+    titre: 'Félicitations !',
+    titreEn: 'Congratulations!',
+    message: 'Tu viens d\'atteindre {xp} XP ! MashaAllah, tu es un(e) vrai(e) chercheur/chercheuse de lumière. Continue sur cette lancée.',
+    messageEn: 'You just reached {xp} XP! MashaAllah, you\'re a true seeker of light. Keep it up!',
+  ),
+  DeenlyNotif(
+    type: NotifType.celebration,
+    emoji: '🏆',
+    titre: 'Nouveau badge débloqué !',
+    titreEn: 'New badge unlocked!',
+    message: 'Tu as obtenu le badge « {badge} » ! Chaque badge représente un pas de plus sur le chemin de la connaissance. Fier/fière de toi !',
+    messageEn: 'You unlocked the "{badge}" badge! Each badge is another step on the path to knowledge. Proud of you!',
+  ),
+  DeenlyNotif(
+    type: NotifType.celebration,
+    emoji: '📖',
+    titre: 'MashaAllah, {versets} versets lus !',
+    titreEn: 'MashaAllah, {versets} verses read!',
+    message: 'Le Prophète ﷺ a dit : « Lisez le Coran, car il viendra le Jour de la Résurrection comme intercesseur pour ceux qui le lisaient. » Tu es sur le bon chemin.',
+    messageEn: 'The Prophet ﷺ said: "Read the Quran, for it will come on the Day of Judgment as an intercessor for those who read it." You\'re on the right path.',
+  ),
+  DeenlyNotif(
+    type: NotifType.celebration,
+    emoji: '⭐',
+    titre: 'Tu brilles !',
+    titreEn: 'You\'re shining!',
+    message: '{xp} XP accumulés ! Le savoir que tu acquiers aujourd\'hui sera ta lumière demain. Le Prophète ﷺ a dit que les savants sont les héritiers des prophètes.',
+    messageEn: '{xp} XP earned! The knowledge you gain today will be your light tomorrow. The Prophet ﷺ said scholars are the heirs of the prophets.',
+  ),
+  DeenlyNotif(
+    type: NotifType.celebration,
+    emoji: '🌟',
+    titre: 'MashaAllah, quel parcours !',
+    titreEn: 'MashaAllah, what a journey!',
+    message: 'Regarde tout le chemin que tu as parcouru. Tu as commencé et tu n\'as pas lâché. C\'est exactement l\'istiqama (la constance) que l\'Islam encourage.',
+    messageEn: 'Look at how far you\'ve come. You started and didn\'t give up. That\'s exactly the istiqamah (steadfastness) Islam encourages.',
+  ),
+  DeenlyNotif(
+    type: NotifType.celebration,
+    emoji: '💫',
+    titre: 'Les anges sont témoins',
+    titreEn: 'The angels are witnesses',
+    message: 'Chaque lettre du Coran que tu as lue, chaque hadith appris, chaque dhikr récité — tout est enregistré. Les anges sont témoins de ton effort. Continue !',
+    messageEn: 'Every letter of the Quran you\'ve read, every hadith you\'ve learned, every dhikr you\'ve made—it\'s all recorded. The angels witness your effort. Keep going!',
+  ),
+  DeenlyNotif(
+    type: NotifType.celebration,
+    emoji: '🎊',
+    titre: 'Record battu !',
+    titreEn: 'Record broken!',
+    message: 'Tu n\'as jamais été aussi loin ! {xp} XP, c\'est énorme. Si le Prophète ﷺ était là, il te tapoter sur l\'épaule et te dirait : « Ahsant ! » (Bien joué !)',
+    messageEn: 'You\'ve never gone this far! {xp} XP, that\'s huge. If the Prophet ﷺ were here, he\'d tap your shoulder and say: "Ahsan!" (Well done!)',
+  ),
+  DeenlyNotif(
+    type: NotifType.celebration,
+    emoji: '🏅',
+    titre: '{versets} versets, ça se fête !',
+    titreEn: '{versets} verses deserve celebration!',
+    message: 'Ibn Mas\'ud a dit : « Le Coran est le festin d\'Allah sur terre. » Et toi, tu as goûté à {versets} de ses plats. Continue de te régaler spirituellement !',
+    messageEn: 'Ibn Mas\'ud said: "The Quran is Allah\'s feast on earth." And you\'ve tasted {versets} of its dishes. Keep feasting spiritually!',
+  ),
+];
+
+// ══════════════════════════════════════════════════════════════════════
+// SADAQA JARIYA — Appels aux dons (respectueux, 8 messages)
+// ══════════════════════════════════════════════════════════════════════
+const kSadaqaNotifs = <DeenlyNotif>[
+  DeenlyNotif(
+    type: NotifType.sadaqaJariya,
+    emoji: '💝',
+    titre: 'Sadaqa Jariya',
+    titreEn: 'Sadaqa Jariya',
+    message: 'UpYourDeen est gratuite et le restera toujours, insha\'Allah. Mais si tu veux soutenir le projet, chaque don est une sadaqa jariya : tant que quelqu\'un apprend grâce à UpYourDeen, tu en récoltes les récompenses. Même après ta mort.',
+    messageEn: 'UpYourDeen is free and will always be, insha\'Allah. But if you want to support the project, every donation is a sadaqa jariya: as long as someone learns through UpYourDeen, you reap the rewards. Even after your death.',
+    actionLabel: 'Soutenir UpYourDeen',
+    actionLabelEn: 'Support UpYourDeen',
+  ),
+  DeenlyNotif(
+    type: NotifType.sadaqaJariya,
+    emoji: '🌍',
+    titre: 'Aide-nous à grandir',
+    titreEn: 'Help us grow',
+    message: 'Chaque verset lu sur UpYourDeen, chaque histoire apprise par un enfant, chaque dhikr récité... tout ça grâce à des gens comme toi. Un don, même de 1€, aide à maintenir cette lumière allumée.',
+    messageEn: 'Every verse read on UpYourDeen, every story learned by a child, every dhikr recited... it\'s all thanks to people like you. Even 1€ helps keep this light on.',
+    actionLabel: 'Contribuer',
+    actionLabelEn: 'Contribute',
+  ),
+  DeenlyNotif(
+    type: NotifType.sadaqaJariya,
+    emoji: '📢',
+    titre: 'Partage UpYourDeen autour de toi',
+    titreEn: 'Share UpYourDeen with others',
+    message: 'Le Prophète ﷺ a dit : « Celui qui guide vers un bien a la même récompense que celui qui le fait. » Partage UpYourDeen avec un ami, un cousin, un voisin. C\'est une sadaqa gratuite !',
+    messageEn: 'The Prophet ﷺ said: "Whoever guides someone to good has the same reward as the one who does it." Share UpYourDeen with a friend, cousin, neighbor. It\'s free sadaqa!',
+    actionLabel: 'Partager',
+    actionLabelEn: 'Share',
+  ),
+  DeenlyNotif(
+    type: NotifType.sadaqaJariya,
+    emoji: '🤲',
+    titre: 'Une du\'a pour UpYourDeen',
+    titreEn: 'Make du\'a for UpYourDeen',
+    message: 'Si tu ne peux pas donner d\'argent, fais une du\'a pour que UpYourDeen aide le plus de musulmans possible. La du\'a est la plus belle des aumônes.',
+    messageEn: 'If you can\'t give money, make du\'a for UpYourDeen to help as many Muslims as possible. Du\'a is the most beautiful form of charity.',
+  ),
+  DeenlyNotif(
+    type: NotifType.sadaqaJariya,
+    emoji: '👨‍👩‍👧‍👦',
+    titre: 'Offre UpYourDeen à une famille',
+    titreEn: 'Give UpYourDeen to a family',
+    message: 'Tu connais une famille qui cherche à éduquer ses enfants dans l\'Islam ? Parle-leur de UpYourDeen. Les histoires des prophètes, le Coran, les hadiths... tout est là, gratuit.',
+    messageEn: 'Do you know a family wanting to educate their children in Islam? Tell them about UpYourDeen. Prophet stories, Quran, hadiths... it\'s all here, free.',
+    actionLabel: 'Partager',
+    actionLabelEn: 'Share',
+  ),
+  DeenlyNotif(
+    type: NotifType.sadaqaJariya,
+    emoji: '💎',
+    titre: 'L\'investissement éternel',
+    titreEn: 'The eternal investment',
+    message: 'Le Prophète ﷺ a dit que 3 choses profitent au croyant après sa mort : un enfant pieux, un savoir utile, et une sadaqa jariya. En soutenant UpYourDeen, tu cumules les 3.',
+    messageEn: 'The Prophet ﷺ said 3 things benefit a believer after death: a righteous child, beneficial knowledge, and sadaqa jariya. By supporting UpYourDeen, you get all 3.',
+    actionLabel: 'Investir',
+    actionLabelEn: 'Invest',
+  ),
+  DeenlyNotif(
+    type: NotifType.sadaqaJariya,
+    emoji: '⭐',
+    titre: 'Laisse un avis',
+    titreEn: 'Leave a review',
+    message: 'Tu aimes UpYourDeen ? Laisse un avis 5 étoiles sur l\'App Store ou Google Play. Chaque avis aide d\'autres musulmans à découvrir l\'app. C\'est gratuit et c\'est une sadaqa !',
+    messageEn: 'Love UpYourDeen? Leave a 5-star review on the App Store or Google Play. Every review helps other Muslims discover the app. It\'s free and it\'s sadaqa!',
+  ),
+  DeenlyNotif(
+    type: NotifType.sadaqaJariya,
+    emoji: '🌙',
+    titre: 'Ramadan approche',
+    titreEn: 'Ramadan is coming',
+    message: 'Les récompenses sont multipliées pendant le Ramadan. Si tu veux soutenir UpYourDeen, c\'est le meilleur moment. Chaque centime donné pendant le Ramadan a une valeur décuplée.',
+    messageEn: 'Rewards are multiplied in Ramadan. If you want to support UpYourDeen, now\'s the best time. Every cent given in Ramadan is worth ten times more.',
+    actionLabel: 'Soutenir',
+    actionLabelEn: 'Support',
+  ),
+];
+
+// ══════════════════════════════════════════════════════════════════════
+// SALUTATIONS selon le moment de la journée
+// ══════════════════════════════════════════════════════════════════════
+const kMorningGreetings = <String>[
+  'Sabah al-khayr ! ☀️ Prêt(e) pour une belle journée ?',
+  'Bonjour ! Qu\'Allah bénisse ta journée.',
+  'Le fajr est passé, la journée commence. Bismillah !',
+  'Sabah an-nour ! Que cette journée soit remplie de bien.',
+  'Bonjour ! Le Prophète ﷺ aimait commencer tôt. Tu as de l\'avance !',
+];
+
+const kAfternoonGreetings = <String>[
+  'As-salamu alaykum ! Comment se passe ta journée ?',
+  'Coucou ! Une pause spirituelle, ça te dit ?',
+  'Mi-journée ! Un petit verset pour recharger ?',
+  'Hey ! Tu as déjà fait du bien aujourd\'hui, continue !',
+  'As-salamu alaykum ! Petit rappel : Allah t\'aime.',
+];
+
+const kEveningGreetings = <String>[
+  'Masa\' al-khayr ! Bientôt les adhkar du soir.',
+  'Bonsoir ! Tu as pensé à remercier Allah pour cette journée ?',
+  'La journée touche à sa fin. Qu\'as-tu appris aujourd\'hui ?',
+  'Masa\' an-nour ! Une journée de plus, une bénédiction de plus.',
+  'Le soleil se couche, mais ta lumière intérieure ne s\'éteint jamais.',
+];
+
+const kNightGreetings = <String>[
+  'Bonne nuit ! N\'oublie pas Ayat al-Kursi avant de dormir.',
+  'Que ta nuit soit paisible. « C\'est Lui qui a fait la nuit pour que vous vous y reposiez. »',
+  'Dors en paix. Les anges veillent sur les croyants.',
+  'Tisbah \'ala khayr ! Qu\'Allah te protège cette nuit.',
+  'Le dernier tiers de la nuit est le plus précieux. Mais d\'abord, repose-toi.',
+];
