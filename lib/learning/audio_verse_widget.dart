@@ -40,11 +40,16 @@ class AudioVerseWidget extends StatefulWidget {
 }
 
 class _AudioVerseWidgetState extends State<AudioVerseWidget> {
-  final _svc       = AudioVerseService.instance;
+  final _svc        = AudioVerseService.instance;
   AudioSpeed _speed = AudioSpeed.normal;
   bool _repeat      = false;
   bool _fileExists  = false;
   bool _checked     = false;
+  // Sur web, audioFileExists() retourne toujours true.
+  // On utilise _errorCount pour détecter les fichiers réellement manquants :
+  //   • 1er essai → on affiche quand même le bouton retry
+  //   • 2e erreur → on bascule _fileExists = false (audio non disponible)
+  int _errorCount   = 0;
 
   @override
   void initState() {
@@ -57,7 +62,8 @@ class _AudioVerseWidgetState extends State<AudioVerseWidget> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.surahNumber != widget.surahNumber ||
         oldWidget.ayahNumber  != widget.ayahNumber) {
-      _checked = false;
+      _checked    = false;
+      _errorCount = 0;
       _checkFile();
     }
   }
@@ -82,6 +88,16 @@ class _AudioVerseWidgetState extends State<AudioVerseWidget> {
       repeat:      _repeat,
       onCompleted: widget.onCompleted,
     );
+  }
+
+  // Appelé quand une erreur est détectée pour CE verset.
+  // Au 2e échec consécutif, on marque le fichier comme indisponible.
+  void _onError() {
+    if (!mounted) return;
+    setState(() {
+      _errorCount++;
+      if (_errorCount >= 2) _fileExists = false; // plus de retry
+    });
   }
 
   Future<void> _changeSpeed(AudioSpeed speed) async {
@@ -112,6 +128,11 @@ class _AudioVerseWidgetState extends State<AudioVerseWidget> {
         final loading = _isThisAyah && _svc.isLoading;
         final error   = _isThisAyah && _svc.hasError;
         final errMsg  = error ? (_svc.errorMessage ?? _s('Erreur audio', 'Audio error')) : null;
+
+        // Détecte les fichiers manquants sur web après 2 échecs
+        if (error && _errorCount < 2) {
+          WidgetsBinding.instance.addPostFrameCallback((_) => _onError());
+        }
 
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),

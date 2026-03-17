@@ -21,7 +21,6 @@ class WebAudioPlayerImpl extends AbstractAudioPlayer {
   html.AudioElement?  _audio;
   StreamSubscription? _endedSub;
   StreamSubscription? _errorSub;
-  StreamSubscription? _playSub;
   Timer?              _timeoutTimer;
   bool                _disposed = false;
 
@@ -41,10 +40,15 @@ class WebAudioPlayerImpl extends AbstractAudioPlayer {
   }
 
   // ── play() ────────────────────────────────────────────────────
+  //
+  // Refactorisé : on await _audio!.play() directement.
+  //   • La Promise JS est bien catchée → plus de rejets silencieux.
+  //   • _errorSub couvre uniquement les erreurs PENDANT la lecture.
+  //   • Le timeout couvre les cas où play() ne résout jamais (réseau lent).
   @override
   Future<void> play(String url, double speed, {bool repeat = false}) async {
-    // Nettoie le player précédent SANS await lourd — synchrone.
     _cleanup();
+    if (_disposed) return;
     _setState(AudioPlayerState.loading);
 
     _audio = html.AudioElement(url)
@@ -52,25 +56,12 @@ class WebAudioPlayerImpl extends AbstractAudioPlayer {
       ..playbackRate = speed
       ..preload      = 'auto';
 
-    // Completer résolu sur "lecture démarrée" ou rejeté sur erreur/timeout.
-    final completer = Completer<void>();
-
-    // ── Écoute "lecture démarrée" ─────────────────────────────
-    _playSub = _audio!.onPlay.listen((_) {
-      if (!completer.isCompleted) completer.complete();
-    });
-
-    // ── Écoute erreur HTML audio ──────────────────────────────
-    // Deux phases :
-    //   • Pendant le chargement (completer ouvert)  → rejette le completer.
-    //   • Pendant la lecture (completer déjà résolu) → set état error direct.
+    // ── Écoute erreur PENDANT la lecture ──────────────────────
+    // Ce listener ne s'active qu'après que play() a résolu (état playing).
     _errorSub = _audio!.onError.listen((_) {
-      if (!completer.isCompleted) {
-        completer.completeError(
-          const AudioPlayerError(message: 'Fichier audio introuvable ou corrompu'),
-        );
-      } else if (_state == AudioPlayerState.playing ||
-                 _state == AudioPlayerState.paused) {
+      if (_disposed) return;
+      if (_state == AudioPlayerState.playing ||
+          _state == AudioPlayerState.paused) {
         _cleanup();
         _setState(
           AudioPlayerState.error,
@@ -82,49 +73,41 @@ class WebAudioPlayerImpl extends AbstractAudioPlayer {
     // ── Écoute fin naturelle ──────────────────────────────────
     if (!repeat) {
       _endedSub = _audio!.onEnded.listen((_) {
+        if (_disposed) return;
         _cleanup();
         _setState(AudioPlayerState.completed);
         onCompleted?.call();
       });
     }
 
-    // ── Timeout 5 s — garantit la sortie du spinner ───────────
-    _timeoutTimer = Timer(const Duration(seconds: 5), () {
-      if (!completer.isCompleted) {
-        completer.completeError(
-          const AudioPlayerError(message: 'Délai dépassé — connexion lente ?'),
+    // ── Timeout 8 s — garantit la sortie du spinner ───────────
+    _timeoutTimer = Timer(const Duration(seconds: 8), () {
+      if (_disposed) return;
+      if (_state == AudioPlayerState.loading) {
+        _cleanup();
+        _setState(
+          AudioPlayerState.error,
+          err: const AudioPlayerError(message: 'Délai dépassé — connexion lente ?'),
         );
       }
     });
 
-    // ── Appel play() ─────────────────────────────────────────
-    // Aucun await entre ici et le geste utilisateur → contexte autoplay conservé.
+    // ── Appel play() avec await ───────────────────────────────
+    // IMPORTANT : await intercepte les rejets de la Promise JS.
+    // Sans await, un rejet (404, autoplay bloqué) disparaît silencieusement
+    // et l'état reste bloqué sur "error" indéfiniment.
     try {
-      _audio!.play();
+      await _audio!.play();
+      // La Promise a résolu → la lecture a démarré.
+      _timeoutTimer?.cancel(); _timeoutTimer = null;
+      if (!_disposed) _setState(AudioPlayerState.playing);
     } catch (e) {
+      // Rejet Promise : 404, autoplay bloqué, erreur réseau, etc.
       _cleanup();
       _setState(
         AudioPlayerState.error,
         err: AudioPlayerError(message: 'Lecture bloquée par le navigateur', cause: e),
       );
-      return;
-    }
-
-    // ── Attendre démarrage (ou erreur / timeout) ──────────────
-    try {
-      await completer.future;
-      // Succès : annuler uniquement les subs de démarrage.
-      // _errorSub et _endedSub restent actifs pendant la lecture.
-      _timeoutTimer?.cancel(); _timeoutTimer = null;
-      _playSub?.cancel();      _playSub      = null;
-      _setState(AudioPlayerState.playing);
-    } catch (e) {
-      // Erreur ou timeout : nettoyage complet.
-      _cleanup();
-      final err = e is AudioPlayerError
-          ? e
-          : AudioPlayerError(message: 'Erreur de lecture', cause: e);
-      _setState(AudioPlayerState.error, err: err);
     }
   }
 
@@ -168,7 +151,6 @@ class WebAudioPlayerImpl extends AbstractAudioPlayer {
   // Annule : timer, tous les subs, pause et null l'AudioElement.
   void _cleanup() {
     _timeoutTimer?.cancel(); _timeoutTimer = null;
-    _playSub?.cancel();      _playSub      = null;
     _endedSub?.cancel();     _endedSub     = null;
     _errorSub?.cancel();     _errorSub     = null;
     _audio?.pause();
