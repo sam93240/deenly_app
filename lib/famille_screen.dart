@@ -49,7 +49,7 @@ class _FamilleScreenState extends State<FamilleScreen>
   @override
   void initState() {
     super.initState();
-    _tab = TabController(length: 7, vsync: this);
+    _tab = TabController(length: 8, vsync: this);
   }
 
   @override
@@ -125,6 +125,7 @@ class _FamilleScreenState extends State<FamilleScreen>
                 Tab(text: context.t.familyTracking),
                 Tab(text: context.t.familyChallenges),
                 Tab(text: context.t.familyTips),
+                Tab(text: context.t.familyHadithStories),
               ],
             ),
           ),
@@ -139,6 +140,7 @@ class _FamilleScreenState extends State<FamilleScreen>
             _SuiviTab(),
             _DefisTab(),
             _ConseilsTab(),
+            _HadithStoriesTab(),
           ],
         ),
       ),
@@ -2337,5 +2339,258 @@ class _ConseilsTabState extends State<_ConseilsTab> {
         ),
       ),
     ]);
+  }
+}
+
+
+// ══════════════════════════════════════════════════════════════════════════
+// ONGLET HISTOIRES DU PROPHÈTE ﷺ (HADITHS NARRATIFS)
+// ══════════════════════════════════════════════════════════════════════════
+
+class _HadithStoriesTab extends StatelessWidget {
+  const _HadithStoriesTab();
+
+  @override
+  Widget build(BuildContext context) {
+    final stories = FamilleJsonLoader.hadithStories;
+    if (stories.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('📜', style: TextStyle(fontSize: 48)),
+            const SizedBox(height: 12),
+            Text(_s('Chargement en cours…', 'Loading…'),
+                style: const TextStyle(color: _kTextMid)),
+          ],
+        ),
+      );
+    }
+    return ListView.separated(
+      padding: const EdgeInsets.all(14),
+      itemCount: stories.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 10),
+      itemBuilder: (ctx, i) => _HadithStoryCard(story: stories[i]),
+    );
+  }
+}
+
+// ── Carte ──────────────────────────────────────────────────────────────────
+class _HadithStoryCard extends StatelessWidget {
+  final HadithStory story;
+  const _HadithStoryCard({required this.story});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => _HadithStoryDetail(story: story)),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: _kBeigeCard,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: _kBeigeBorder),
+          boxShadow: const [
+            BoxShadow(color: Color(0x10000000), blurRadius: 5, offset: Offset(0, 2)),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 60, height: 60,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF2C1A00), Color(0xFF7A4A00)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Center(
+                child: Text(story.emoji.isNotEmpty ? story.emoji : '📜',
+                    style: const TextStyle(fontSize: 28)),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(story.getTitle(),
+                      style: const TextStyle(
+                        color: _kTextDark,
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.bold,
+                      )),
+                  const SizedBox(height: 3),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: _kGoldLight,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(story.source,
+                        style: const TextStyle(
+                            color: _kGold, fontSize: 10.5, fontWeight: FontWeight.w600)),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(story.getSummary(),
+                      style: const TextStyle(color: _kTextMid, fontSize: 12.5),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: _kTextLight),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Écran de détail ─────────────────────────────────────────────────────────
+class _HadithStoryDetail extends StatefulWidget {
+  final HadithStory story;
+  const _HadithStoryDetail({required this.story});
+
+  @override
+  State<_HadithStoryDetail> createState() => _HadithStoryDetailState();
+}
+
+class _HadithStoryDetailState extends State<_HadithStoryDetail> {
+  @override
+  void initState() {
+    super.initState();
+    ReadingPrefs.instance.addListener(_onFontChanged);
+  }
+
+  @override
+  void dispose() {
+    ReadingPrefs.instance.removeListener(_onFontChanged);
+    super.dispose();
+  }
+
+  void _onFontChanged() => setState(() {});
+
+  @override
+  Widget build(BuildContext context) {
+    final s  = widget.story;
+    final fs = ReadingPrefs.instance.fontSize;
+
+    return Scaffold(
+      backgroundColor: _kBeige,
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF2C1A00),
+        foregroundColor: Colors.white,
+        title: Text('${s.emoji.isNotEmpty ? s.emoji : "📜"} ${s.getTitle()}',
+            style: const TextStyle(fontSize: 15)),
+        elevation: 0,
+        actions: [
+          // Bouton taille de police
+          PopupMenuButton<double>(
+            icon: const Icon(Icons.text_fields, color: Colors.white),
+            onSelected: (v) => ReadingPrefs.instance.setFontSize(v),
+            itemBuilder: (_) => [14.0, 16.0, 18.0, 20.0, 22.0]
+                .map((v) => PopupMenuItem(
+                      value: v,
+                      child: Text('${v.toInt()} pt',
+                          style: TextStyle(
+                              fontWeight: fs == v ? FontWeight.bold : FontWeight.normal)),
+                    ))
+                .toList(),
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Source badge ──
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: _kGoldLight,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: _kGold.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('📚 ', style: TextStyle(fontSize: 13)),
+                  Text(s.source,
+                      style: const TextStyle(
+                          color: _kGold, fontSize: 12, fontWeight: FontWeight.w700)),
+                ],
+              ),
+            ),
+            const SizedBox(height: 14),
+
+            // ── Résumé ──
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF8ED),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: _kGold.withValues(alpha: 0.25)),
+              ),
+              child: Text(s.getSummary(),
+                  style: TextStyle(
+                      color: _kTextMid,
+                      fontSize: fs - 1,
+                      fontStyle: FontStyle.italic,
+                      height: 1.5)),
+            ),
+            const SizedBox(height: 20),
+
+            // ── Histoire complète ──
+            Text(_s('Histoire complète', 'Full Story'),
+                style: const TextStyle(
+                    color: Color(0xFF2C1A00),
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold)),
+            const Divider(height: 16),
+            Text(s.getFullStory(),
+                style: TextStyle(
+                    color: _kTextDark, fontSize: fs, height: 1.7)),
+            const SizedBox(height: 24),
+
+            // ── Morale ──
+            if (s.getMoral().isNotEmpty) ...[
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF2C1A00), Color(0xFF5C3800)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(_s('Leçon', 'Lesson'),
+                        style: const TextStyle(
+                            color: _kGold,
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    Text(s.getMoral(),
+                        style: TextStyle(
+                            color: Colors.white, fontSize: fs - 1, height: 1.5)),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 30),
+            ],
+          ],
+        ),
+      ),
+    );
   }
 }
