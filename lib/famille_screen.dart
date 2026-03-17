@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'famille_data.dart';
+import 'famille_json_loader.dart';
 import 'translations.dart';
 import 'app_locale.dart';
 import 'reading_prefs.dart';
@@ -153,11 +154,12 @@ class _ProphetsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final prophets = FamilleJsonLoader.prophets;
     return ListView.separated(
       padding: const EdgeInsets.all(14),
-      itemCount: kProphets.length,
+      itemCount: prophets.length,
       separatorBuilder: (_, _) => const SizedBox(height: 10),
-      itemBuilder: (ctx, i) => _ProphetCard(prophet: kProphets[i]),
+      itemBuilder: (ctx, i) => _ProphetCard(prophet: prophets[i]),
     );
   }
 }
@@ -423,7 +425,7 @@ class _ProphetDetailScreenState extends State<_ProphetDetailScreen> {
                 spacing: 8,
                 runSpacing: 8,
                 children: p.familyLinks.map((link) {
-                  final linked = kProphets.where((pr) => pr.number == link.prophetNumber).toList();
+                  final linked = FamilleJsonLoader.prophets.where((pr) => pr.number == link.prophetNumber).toList();
                   final linkedName = linked.isNotEmpty ? linked.first.getName() : '?';
                   final linkedEmoji = linked.isNotEmpty ? linked.first.emoji : '';
                   return GestureDetector(
@@ -1098,11 +1100,12 @@ class _CoranicTab extends StatelessWidget {
   const _CoranicTab();
   @override
   Widget build(BuildContext context) {
+    final stories = FamilleJsonLoader.coranicStories;
     return ListView.separated(
       padding: const EdgeInsets.all(14),
-      itemCount: kCoranicStories.length,
+      itemCount: stories.length,
       separatorBuilder: (_, _) => const SizedBox(height: 10),
-      itemBuilder: (ctx, i) => _CoranicCard(story: kCoranicStories[i]),
+      itemBuilder: (ctx, i) => _CoranicCard(story: stories[i]),
     );
   }
 }
@@ -1429,7 +1432,7 @@ class _TimelineTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Tri par ordre chronologique
-    final sorted = List<Prophet>.from(kProphets)
+    final sorted = List<Prophet>.from(FamilleJsonLoader.prophets)
       ..sort((a, b) => a.timeline.order.compareTo(b.timeline.order));
 
     return ListView.builder(
@@ -1549,7 +1552,7 @@ class _TimelineItem extends StatelessWidget {
                             Wrap(
                               spacing: 4,
                               children: prophet.familyLinks.map((link) {
-                                final linked = kProphets.where((pr) => pr.number == link.prophetNumber).toList();
+                                final linked = FamilleJsonLoader.prophets.where((pr) => pr.number == link.prophetNumber).toList();
                                 final name = linked.isNotEmpty ? linked.first.getName() : '?';
                                 return Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -1590,9 +1593,10 @@ class _BedtimeTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final today = DateTime.now().weekday;
-    final todayStory = kBedtimeStories.firstWhere(
+    final bedtime = FamilleJsonLoader.bedtimeStories;
+    final todayStory = bedtime.firstWhere(
       (s) => s.dayIndex == today,
-      orElse: () => kBedtimeStories.first,
+      orElse: () => bedtime.first,
     );
 
     return ListView(
@@ -1662,7 +1666,7 @@ class _BedtimeTab extends StatelessWidget {
               fontWeight: FontWeight.bold,
             )),
         const SizedBox(height: 10),
-        ...kBedtimeStories.map((s) => _BedtimeCard(
+        ...bedtime.map((s) => _BedtimeCard(
               story: s,
               isToday: s.dayIndex == today,
               dayName: _dayName(s.dayIndex),

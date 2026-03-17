@@ -17,6 +17,7 @@ import 'sourate_repository.dart';
 import 'hadith_repository.dart';
 import 'services/local_notif_service.dart';
 import 'reading_prefs.dart';
+import 'famille_json_loader.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -47,6 +48,9 @@ Future<void> main() async {
 
   SourateRepository.instance.initialize();
   HadithRepository.instance.initialize();
+
+  // ── Précharger les histoires depuis les assets JSON ───────────────────
+  await FamilleJsonLoader.preloadAll();
 
   runApp(const DeenlyApp());
 }

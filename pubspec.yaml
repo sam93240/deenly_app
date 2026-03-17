@@ -77,6 +77,7 @@ flutter:
   assets:
     - assets/quran.json
     - assets/hadiths.json
+    - assets/data/
     - assets/modules/
     - assets/wudu/
     - assets/salah/

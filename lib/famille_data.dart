@@ -33,6 +33,13 @@ class StoryChapter {
 
   // Get content in the appropriate language
   String getContent() => AppLocale().isFrench ? content : (englishContent.isNotEmpty ? englishContent : content);
+
+  factory StoryChapter.fromJson(Map<String, dynamic> j) => StoryChapter(
+    title: j['title'] as String? ?? '',
+    content: j['content'] as String? ?? '',
+    englishTitle: j['englishTitle'] as String? ?? '',
+    englishContent: j['englishContent'] as String? ?? '',
+  );
 }
 
 /// Family link between two prophets
@@ -49,6 +56,12 @@ class ProphetLink {
   });
 
   String getRelation() => AppLocale().isFrench ? relation : englishRelation;
+
+  factory ProphetLink.fromJson(Map<String, dynamic> j) => ProphetLink(
+    prophetNumber: j['prophetNumber'] as int? ?? 0,
+    relation: j['relation'] as String? ?? '',
+    englishRelation: j['englishRelation'] as String? ?? '',
+  );
 }
 
 /// Data for the timeline
@@ -75,6 +88,16 @@ class TimelineData {
   String getEra() => AppLocale().isFrench ? era : englishEra;
   String getApproxDate() => AppLocale().isFrench ? approxDate : englishApproxDate;
   String getRegion() => AppLocale().isFrench ? region : englishRegion;
+
+  factory TimelineData.fromJson(Map<String, dynamic> j) => TimelineData(
+    order: j['order'] as int? ?? 0,
+    era: j['era'] as String? ?? '',
+    approxDate: j['approxDate'] as String? ?? '',
+    region: j['region'] as String? ?? '',
+    englishEra: j['englishEra'] as String? ?? '',
+    englishApproxDate: j['englishApproxDate'] as String? ?? '',
+    englishRegion: j['englishRegion'] as String? ?? '',
+  );
 }
 
 /// Badge/reward for quizzes
@@ -159,6 +182,38 @@ class Prophet {
   String getFullStory() => AppLocale().isFrench ? fullStory : (englishFullStory.isNotEmpty ? englishFullStory : fullStory);
   List<String> getKeyFacts() => AppLocale().isFrench ? keyFacts : englishKeyFacts;
   String getMoral() => AppLocale().isFrench ? moral : englishMoral;
+
+  factory Prophet.fromJson(Map<String, dynamic> j) => Prophet(
+    number: j['number'] as int? ?? 0,
+    arabicName: j['arabicName'] as String? ?? '',
+    frenchName: j['frenchName'] as String? ?? '',
+    englishName: j['englishName'] as String? ?? '',
+    emoji: j['emoji'] as String? ?? '',
+    period: j['period'] as String? ?? '',
+    englishPeriod: j['englishPeriod'] as String? ?? '',
+    shortDesc: j['shortDesc'] as String? ?? '',
+    englishShortDesc: j['englishShortDesc'] as String? ?? '',
+    summary: j['summary'] as String? ?? '',
+    englishSummary: j['englishSummary'] as String? ?? '',
+    fullStory: j['fullStory'] as String? ?? '',
+    englishFullStory: j['englishFullStory'] as String? ?? '',
+    chapters: (j['chapters'] as List? ?? [])
+        .map((c) => StoryChapter.fromJson(c as Map<String, dynamic>))
+        .toList(),
+    keyFacts: List<String>.from(j['keyFacts'] as List? ?? []),
+    englishKeyFacts: List<String>.from(j['englishKeyFacts'] as List? ?? []),
+    moral: j['moral'] as String? ?? '',
+    englishMoral: j['englishMoral'] as String? ?? '',
+    quiz: (j['quiz'] as List? ?? [])
+        .map((q) => QuizQ.fromJson(q as Map<String, dynamic>))
+        .toList(),
+    familyLinks: (j['familyLinks'] as List? ?? [])
+        .map((l) => ProphetLink.fromJson(l as Map<String, dynamic>))
+        .toList(),
+    timeline: j['timeline'] != null
+        ? TimelineData.fromJson(j['timeline'] as Map<String, dynamic>)
+        : const TimelineData(order: 0, era: '', approxDate: '', region: ''),
+  );
 }
 
 class QuizQ {
@@ -185,6 +240,25 @@ class QuizQ {
   String getQuestion() => AppLocale().isFrench ? question : englishQuestion;
   List<String> getOptions() => AppLocale().isFrench ? options : englishOptions;
   String getExplanation() => AppLocale().isFrench ? explanation : englishExplanation;
+
+  factory QuizQ.fromJson(Map<String, dynamic> j) => QuizQ(
+    question: j['question'] as String? ?? '',
+    englishQuestion: j['englishQuestion'] as String? ?? '',
+    options: List<String>.from(j['options'] as List? ?? []),
+    englishOptions: List<String>.from(j['englishOptions'] as List? ?? []),
+    correctIndex: j['correctIndex'] as int? ?? 0,
+    explanation: j['explanation'] as String? ?? '',
+    englishExplanation: j['englishExplanation'] as String? ?? '',
+    difficulty: _difficultyFromString(j['difficulty'] as String? ?? 'medium'),
+  );
+
+  static QuizDifficulty _difficultyFromString(String s) {
+    switch (s) {
+      case 'easy':   return QuizDifficulty.easy;
+      case 'hard':   return QuizDifficulty.hard;
+      default:       return QuizDifficulty.medium;
+    }
+  }
 }
 
 class CoranicStory {
@@ -220,6 +294,23 @@ class CoranicStory {
   String getSummary() => AppLocale().isFrench ? summary : englishSummary;
   String getFullStory() => AppLocale().isFrench ? fullStory : (englishFullStory.isNotEmpty ? englishFullStory : fullStory);
   String getMoral() => AppLocale().isFrench ? moral : englishMoral;
+
+  factory CoranicStory.fromJson(Map<String, dynamic> j) => CoranicStory(
+    title: j['title'] as String? ?? '',
+    englishTitle: j['englishTitle'] as String? ?? '',
+    arabicTitle: j['arabicTitle'] as String? ?? '',
+    emoji: j['emoji'] as String? ?? '',
+    surahRef: j['surahRef'] as String? ?? '',
+    summary: j['summary'] as String? ?? '',
+    englishSummary: j['englishSummary'] as String? ?? '',
+    fullStory: j['fullStory'] as String? ?? '',
+    englishFullStory: j['englishFullStory'] as String? ?? '',
+    chapters: (j['chapters'] as List? ?? [])
+        .map((c) => StoryChapter.fromJson(c as Map<String, dynamic>))
+        .toList(),
+    moral: j['moral'] as String? ?? '',
+    englishMoral: j['englishMoral'] as String? ?? '',
+  );
 }
 
 class BedtimeStory {
@@ -251,6 +342,69 @@ class BedtimeStory {
   String getSummary() => AppLocale().isFrench ? summary : englishSummary;
   String getStory() => AppLocale().isFrench ? story : (englishStory.isNotEmpty ? englishStory : story);
   String getMoral() => AppLocale().isFrench ? moral : englishMoral;
+
+  factory BedtimeStory.fromJson(Map<String, dynamic> j) => BedtimeStory(
+    title: j['title'] as String? ?? '',
+    englishTitle: j['englishTitle'] as String? ?? '',
+    emoji: j['emoji'] as String? ?? '',
+    summary: j['summary'] as String? ?? '',
+    englishSummary: j['englishSummary'] as String? ?? '',
+    story: j['story'] as String? ?? '',
+    englishStory: j['englishStory'] as String? ?? '',
+    moral: j['moral'] as String? ?? '',
+    englishMoral: j['englishMoral'] as String? ?? '',
+    dayIndex: j['dayIndex'] as int? ?? 1,
+  );
+}
+
+// ── HadithStory — Histoires du Prophète ﷺ (hadiths authentifiés) ─────────────────────────
+class HadithStory {
+  final String title;
+  final String englishTitle;
+  final String emoji;
+  final String source;        // ex: 'Sahih Bukhari · 3470', 'Sahih Muslim · 2766'
+  final String summary;
+  final String englishSummary;
+  final String fullStory;
+  final String englishFullStory;
+  final List<StoryChapter> chapters;
+  final String moral;
+  final String englishMoral;
+
+  const HadithStory({
+    required this.title,
+    this.englishTitle = '',
+    required this.emoji,
+    required this.source,
+    required this.summary,
+    this.englishSummary = '',
+    required this.fullStory,
+    this.englishFullStory = '',
+    this.chapters = const [],
+    required this.moral,
+    this.englishMoral = '',
+  });
+
+  String getTitle()     => AppLocale().isFrench ? title     : englishTitle;
+  String getSummary()   => AppLocale().isFrench ? summary   : englishSummary;
+  String getFullStory() => AppLocale().isFrench ? fullStory : (englishFullStory.isNotEmpty ? englishFullStory : fullStory);
+  String getMoral()     => AppLocale().isFrench ? moral     : englishMoral;
+
+  factory HadithStory.fromJson(Map<String, dynamic> j) => HadithStory(
+    title: j['title'] as String? ?? '',
+    englishTitle: j['englishTitle'] as String? ?? '',
+    emoji: j['emoji'] as String? ?? '',
+    source: j['source'] as String? ?? '',
+    summary: j['summary'] as String? ?? '',
+    englishSummary: j['englishSummary'] as String? ?? '',
+    fullStory: j['fullStory'] as String? ?? '',
+    englishFullStory: j['englishFullStory'] as String? ?? '',
+    chapters: (j['chapters'] as List? ?? [])
+        .map((c) => StoryChapter.fromJson(c as Map<String, dynamic>))
+        .toList(),
+    moral: j['moral'] as String? ?? '',
+    englishMoral: j['englishMoral'] as String? ?? '',
+  );
 }
 
 // ── Available Badges / Badges disponibles ───────────────────────────────────────────────────
