@@ -24,10 +24,12 @@ export 'audio_player_state.dart';     // re-export pour les widgets
 // Liste des sourates dont les fichiers .mp3 sont présents dans les assets.
 // À mettre à jour quand de nouvelles sourates sont ajoutées.
 const _kSurahsWithAudio = <int>{
-  1, 2, 18, 36, 55, 67,
-  95, 96, 97, 98, 99, 100,
-  101, 102, 103, 104, 105, 106,
-  107, 108, 109, 110, 112, 113, 114,
+  // Sourates longues
+  1, 2, 18, 36, 55, 56, 67,
+  // Juz Amma complet (78 → 114)
+  78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94,
+  95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106,
+  107, 108, 109, 110, 111, 112, 113, 114,
 };
 
 // ── Utilitaire existence fichier ──────────────────────────────────
