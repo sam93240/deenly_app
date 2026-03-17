@@ -30,6 +30,9 @@ jobs:
       - name: Copy CNAME into build output
         run: echo "upyourdeen.com" > build/web/CNAME
 
+      - name: Copy preview image into build output
+        run: cp preview.jpg build/web/preview.jpg
+
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4
         with:
