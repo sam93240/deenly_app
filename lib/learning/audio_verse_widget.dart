@@ -117,7 +117,10 @@ class _AudioVerseWidgetState extends State<AudioVerseWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_checked) return const SizedBox(height: 52);
+    // Pas encore vérifié → rien (évite un flash)
+    if (!_checked) return const SizedBox.shrink();
+    // Pas de fichier audio pour cette sourate → on n'affiche rien du tout
+    if (!_fileExists) return const SizedBox.shrink();
 
     // ListenableBuilder reconstruit automatiquement quand le service
     // notifie un changement (play, pause, stop, loading, speed…)
