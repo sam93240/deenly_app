@@ -595,7 +595,7 @@ class _HadithDetailScreenState extends State<HadithDetailScreen> {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (_) => _ShareBottomSheet(hadith: widget.hadith),
+      builder: (_) => _ShareBottomSheet(hadith: widget.hadith, hadithIndex: widget.hadithIndex),
     );
   }
 
@@ -1154,7 +1154,8 @@ class _IslamicPatternPainter extends CustomPainter {
 // ══════════════════════════════════════════════════════════════════════════════
 class _ShareBottomSheet extends StatefulWidget {
   final HadithModel hadith;
-  const _ShareBottomSheet({required this.hadith});
+  final int         hadithIndex;
+  const _ShareBottomSheet({required this.hadith, required this.hadithIndex});
 
   @override
   State<_ShareBottomSheet> createState() => _ShareBottomSheetState();
