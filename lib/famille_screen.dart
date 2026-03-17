@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'famille_data.dart';
 import 'translations.dart';
 import 'app_locale.dart';
+import 'reading_prefs.dart';
 
 String _s(String fr, String en) => AppLocale().isFrench ? fr : en;
 
@@ -282,6 +283,18 @@ class _ProphetDetailScreenState extends State<_ProphetDetailScreen> {
   int _currentChapter = 0;
   QuizDifficulty _selectedDifficulty = QuizDifficulty.easy;
 
+  @override
+  void initState() {
+    super.initState();
+    ReadingPrefs.instance.addListener(_onFontChanged);
+  }
+  @override
+  void dispose() {
+    ReadingPrefs.instance.removeListener(_onFontChanged);
+    super.dispose();
+  }
+  void _onFontChanged() => setState(() {});
+
   List<QuizQ> get _filteredQuiz =>
       widget.prophet.quiz.where((q) => q.difficulty == _selectedDifficulty).toList();
 
@@ -323,7 +336,8 @@ class _ProphetDetailScreenState extends State<_ProphetDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final p = widget.prophet;
+    final p  = widget.prophet;
+    final fs = ReadingPrefs.instance.fontSize;
     final hasChapters = p.chapters.isNotEmpty;
     return Scaffold(
       backgroundColor: _kBeige,
@@ -332,6 +346,15 @@ class _ProphetDetailScreenState extends State<_ProphetDetailScreen> {
         foregroundColor: Colors.white,
         title: Text('${p.emoji} ${p.getName()}'),
         elevation: 0,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: ReadingToolbar(
+              buttonColor: Colors.white.withValues(alpha: 0.15),
+              iconColor: Colors.white,
+            ),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -489,9 +512,9 @@ class _ProphetDetailScreenState extends State<_ProphetDetailScreen> {
                   border: Border.all(color: _kBeigeBorder),
                 ),
                 child: Text(p.getSummary(),
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: _kTextDark,
-                      fontSize: 15,
+                      fontSize: fs,
                       height: 1.7,
                     )),
               ),
@@ -592,9 +615,9 @@ class _ProphetDetailScreenState extends State<_ProphetDetailScreen> {
                     ),
                     const SizedBox(height: 14),
                     Text(p.chapters[_currentChapter].getContent(),
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: _kTextDark,
-                          fontSize: 14.5,
+                          fontSize: fs,
                           height: 1.7,
                         )),
                     const SizedBox(height: 16),
@@ -636,9 +659,9 @@ class _ProphetDetailScreenState extends State<_ProphetDetailScreen> {
                   border: Border.all(color: _kBeigeBorder),
                 ),
                 child: Text(p.getFullStory(),
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: _kTextDark,
-                      fontSize: 14.5,
+                      fontSize: fs,
                       height: 1.7,
                     )),
               ),
@@ -1166,8 +1189,21 @@ class _CoranicDetailScreenState extends State<_CoranicDetailScreen> {
   int _currentChapter = 0;
 
   @override
+  void initState() {
+    super.initState();
+    ReadingPrefs.instance.addListener(_onFontChanged);
+  }
+  @override
+  void dispose() {
+    ReadingPrefs.instance.removeListener(_onFontChanged);
+    super.dispose();
+  }
+  void _onFontChanged() => setState(() {});
+
+  @override
   Widget build(BuildContext context) {
-    final s = widget.story;
+    final s  = widget.story;
+    final fs = ReadingPrefs.instance.fontSize;
     final hasChapters = s.chapters.isNotEmpty;
     return Scaffold(
       backgroundColor: _kBeige,
@@ -1176,6 +1212,15 @@ class _CoranicDetailScreenState extends State<_CoranicDetailScreen> {
         foregroundColor: Colors.white,
         title: Text('${s.emoji} ${s.getTitle()}'),
         elevation: 0,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: ReadingToolbar(
+              buttonColor: Colors.white.withValues(alpha: 0.15),
+              iconColor: Colors.white,
+            ),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -1272,8 +1317,8 @@ class _CoranicDetailScreenState extends State<_CoranicDetailScreen> {
                   border: Border.all(color: _kBeigeBorder),
                 ),
                 child: Text(s.getSummary(),
-                    style: const TextStyle(
-                        color: _kTextDark, fontSize: 15, height: 1.7)),
+                    style: TextStyle(
+                        color: _kTextDark, fontSize: fs, height: 1.7)),
               ),
             ] else ...[
               // Chapitres avec navigation
@@ -1330,9 +1375,9 @@ class _CoranicDetailScreenState extends State<_CoranicDetailScreen> {
                           Padding(
                             padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
                             child: Text(s.chapters[i].getContent(),
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: _kTextDark,
-                                  fontSize: 14.5,
+                                  fontSize: fs,
                                   height: 1.7,
                                 )),
                           ),
@@ -1358,9 +1403,9 @@ class _CoranicDetailScreenState extends State<_CoranicDetailScreen> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(s.getMoral(),
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: _kTextDark,
-                            fontSize: 14,
+                            fontSize: fs - 1,
                             fontStyle: FontStyle.italic,
                             height: 1.5)),
                   ),
@@ -1706,19 +1751,46 @@ class _BedtimeCard extends StatelessWidget {
 }
 
 // ── Détail Histoire du Soir ───────────────────────────────────────────────
-class _BedtimeDetailScreen extends StatelessWidget {
+class _BedtimeDetailScreen extends StatefulWidget {
   final BedtimeStory story;
   const _BedtimeDetailScreen({required this.story});
 
   @override
+  State<_BedtimeDetailScreen> createState() => _BedtimeDetailScreenState();
+}
+
+class _BedtimeDetailScreenState extends State<_BedtimeDetailScreen> {
+  @override
+  void initState() {
+    super.initState();
+    ReadingPrefs.instance.addListener(_onFontChanged);
+  }
+  @override
+  void dispose() {
+    ReadingPrefs.instance.removeListener(_onFontChanged);
+    super.dispose();
+  }
+  void _onFontChanged() => setState(() {});
+
+  @override
   Widget build(BuildContext context) {
+    final fs = ReadingPrefs.instance.fontSize;
     return Scaffold(
       backgroundColor: const Color(0xFF060E1E),
       appBar: AppBar(
         backgroundColor: const Color(0xFF0A1430),
         foregroundColor: Colors.white,
-        title: Text('${story.emoji} ${story.getTitle()}'),
+        title: Text('${widget.story.emoji} ${widget.story.getTitle()}'),
         elevation: 0,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: ReadingToolbar(
+              buttonColor: Colors.white.withValues(alpha: 0.12),
+              iconColor: Colors.white70,
+            ),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -1729,19 +1801,19 @@ class _BedtimeDetailScreen extends StatelessWidget {
               child: Column(
                 children: [
                   const SizedBox(height: 8),
-                  Text(story.emoji, style: const TextStyle(fontSize: 64)),
+                  Text(widget.story.emoji, style: const TextStyle(fontSize: 64)),
                   const SizedBox(height: 8),
-                  Text(story.getTitle(),
+                  Text(widget.story.getTitle(),
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
                       )),
                   const SizedBox(height: 4),
-                  Text("${_s('Histoire du', 'Story of the')} ${_dayName(story.dayIndex)}",
+                  Text("${_s('Histoire du', 'Story of the')} ${_dayName(widget.story.dayIndex)}",
                       style: const TextStyle(color: Color(0xFF8AB8E0), fontSize: 13)),
                   const SizedBox(height: 4),
-                  Text(story.getSummary(),
+                  Text(widget.story.getSummary(),
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                           color: Color(0xFFB0C8E0), fontSize: 13.5)),
@@ -1756,10 +1828,10 @@ class _BedtimeDetailScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: const Color(0xFF1E3060)),
               ),
-              child: Text(story.getStory(),
-                  style: const TextStyle(
-                    color: Color(0xFFD8E8FF),
-                    fontSize: 15,
+              child: Text(widget.story.getStory(),
+                  style: TextStyle(
+                    color: const Color(0xFFD8E8FF),
+                    fontSize: fs,
                     height: 1.8,
                   )),
             ),
@@ -1777,10 +1849,10 @@ class _BedtimeDetailScreen extends StatelessWidget {
                   const Text('🌟', style: TextStyle(fontSize: 20)),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: Text(story.getMoral(),
-                        style: const TextStyle(
-                          color: Color(0xFFD0D8FF),
-                          fontSize: 14,
+                    child: Text(widget.story.getMoral(),
+                        style: TextStyle(
+                          color: const Color(0xFFD0D8FF),
+                          fontSize: fs - 1,
                           fontStyle: FontStyle.italic,
                           height: 1.5,
                         )),

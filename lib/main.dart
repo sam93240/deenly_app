@@ -16,12 +16,16 @@ import 'language_selection_screen.dart';
 import 'sourate_repository.dart';
 import 'hadith_repository.dart';
 import 'services/local_notif_service.dart';
+import 'reading_prefs.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // ── Charger la locale AVANT runApp pour éviter la race condition ──────
   await AppLocale().load();
+
+  // ── Préférences de lecture (taille de texte) ──────────────────────────
+  await ReadingPrefs.instance.load();
 
   // ── Notifications locales (Android / iOS uniquement) ─────────────────
   if (!kIsWeb) {

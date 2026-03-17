@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'translations.dart';
+import 'reading_prefs.dart';
 
 // ── Palette UpYourDeen ──────────────────────────────────────────────────
 const _kGreenDeep    = Color(0xFF0A2018);
@@ -362,102 +363,175 @@ class _HistoireCard extends StatelessWidget {
 }
 
 // ── Écran Détail d'une Histoire ────────────────────────────────────
-class HistoireDetailScreen extends StatelessWidget {
+class HistoireDetailScreen extends StatefulWidget {
   final Histoire histoire;
   const HistoireDetailScreen({super.key, required this.histoire});
 
   @override
+  State<HistoireDetailScreen> createState() => _HistoireDetailScreenState();
+}
+
+class _HistoireDetailScreenState extends State<HistoireDetailScreen> {
+  bool _fullscreen = false;
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: _kBeige,
-      body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [_kGreenDeep, _kGreenPrimary],
-                  begin: Alignment.topLeft, end: Alignment.bottomRight,
+    return ListenableBuilder(
+      listenable: ReadingPrefs.instance,
+      builder: (context, _) {
+        final fs = ReadingPrefs.instance.fontSize;
+        return Scaffold(
+          backgroundColor: _fullscreen ? const Color(0xFF1A130A) : _kBeige,
+          body: CustomScrollView(
+            slivers: [
+              // ── Header (masqué en plein écran) ───────────────────
+              if (!_fullscreen)
+                SliverToBoxAdapter(
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [_kGreenDeep, _kGreenPrimary],
+                        begin: Alignment.topLeft, end: Alignment.bottomRight,
+                      ),
+                    ),
+                    child: SafeArea(
+                      bottom: false,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+                        child: Column(children: [
+                          Row(children: [
+                            GestureDetector(
+                              onTap: () => Navigator.maybePop(context),
+                              child: Container(
+                                padding: const EdgeInsets.all(9),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1),
+                                ),
+                                child: const Icon(Icons.arrow_back_ios_new_rounded,
+                                    color: Colors.white, size: 15),
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Text(widget.histoire.titre,
+                                  style: const TextStyle(
+                                      color: Colors.white, fontSize: 18,
+                                      fontWeight: FontWeight.w900)),
+                            ),
+                            ReadingToolbar(
+                              onToggleFullscreen: () => setState(() => _fullscreen = !_fullscreen),
+                              isFullscreen: _fullscreen,
+                              buttonColor: Colors.white.withValues(alpha: 0.15),
+                              iconColor: Colors.white,
+                            ),
+                          ]),
+                          const SizedBox(height: 20),
+                          Text(widget.histoire.emoji, style: const TextStyle(fontSize: 64)),
+                          const SizedBox(height: 8),
+                          Text(widget.histoire.prophete,
+                              style: const TextStyle(
+                                  color: _kGold, fontSize: 14, fontWeight: FontWeight.w700)),
+                        ]),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-              child: SafeArea(
-                bottom: false,
+
+              // ── Contenu ──────────────────────────────────────────
+              SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+                  padding: EdgeInsets.all(_fullscreen ? 24 : 20),
                   child: Column(children: [
-                    Row(children: [
-                      GestureDetector(
-                        onTap: () => Navigator.maybePop(context),
-                        child: Container(
-                          padding: const EdgeInsets.all(9),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1),
-                          ),
-                          child: const Icon(Icons.arrow_back_ios_new_rounded,
-                              color: Colors.white, size: 15),
+                    // Barre A−/A+ en plein écran (flottante en haut)
+                    if (_fullscreen) ...[
+                      SafeArea(
+                        bottom: false,
+                        child: Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () => Navigator.maybePop(context),
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: const Icon(Icons.arrow_back_ios_new_rounded,
+                                    color: Colors.white54, size: 14),
+                              ),
+                            ),
+                            const Spacer(),
+                            ReadingToolbar(
+                              onToggleFullscreen: () => setState(() => _fullscreen = !_fullscreen),
+                              isFullscreen: _fullscreen,
+                              buttonColor: Colors.white.withValues(alpha: 0.12),
+                              iconColor: Colors.white70,
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Text(histoire.titre,
-                            style: const TextStyle(
-                                color: Colors.white, fontSize: 18,
-                                fontWeight: FontWeight.w900)),
+                      const SizedBox(height: 20),
+                    ],
+
+                    // Texte principal
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: _fullscreen
+                            ? Colors.white.withValues(alpha: 0.05)
+                            : _kBeigeCard,
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: _fullscreen
+                              ? Colors.white.withValues(alpha: 0.08)
+                              : _kBeigeBorder,
+                          width: 1.2,
+                        ),
+                        boxShadow: _fullscreen ? null : const [
+                          BoxShadow(color: Color(0x08000000), blurRadius: 10, offset: Offset(0, 3)),
+                        ],
                       ),
-                    ]),
-                    const SizedBox(height: 20),
-                    Text(histoire.emoji, style: const TextStyle(fontSize: 64)),
-                    const SizedBox(height: 8),
-                    Text(histoire.prophete,
-                        style: const TextStyle(
-                            color: _kGold, fontSize: 14, fontWeight: FontWeight.w700)),
+                      child: Text(
+                        widget.histoire.contenu.trim(),
+                        style: TextStyle(
+                          fontSize: fs,
+                          height: 1.85,
+                          color: _fullscreen ? Colors.white.withValues(alpha: 0.9) : _kTextMid,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Morale
+                    Container(
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        color: _fullscreen
+                            ? _kGold.withValues(alpha: 0.12)
+                            : _kGoldLight,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: _kGold.withValues(alpha: 0.4), width: 1.5),
+                      ),
+                      child: Text(
+                        widget.histoire.morale,
+                        style: TextStyle(
+                          fontSize: fs - 1,
+                          color: _fullscreen ? _kGold : _kTextMid,
+                          fontWeight: FontWeight.w600,
+                          height: 1.5,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 32),
                   ]),
                 ),
               ),
-            ),
+            ],
           ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(children: [
-                // Contenu
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: _kBeigeCard,
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: _kBeigeBorder, width: 1.2),
-                    boxShadow: const [
-                      BoxShadow(color: Color(0x08000000), blurRadius: 10, offset: Offset(0, 3)),
-                    ],
-                  ),
-                  child: Text(histoire.contenu.trim(),
-                      style: const TextStyle(
-                          fontSize: 15, height: 1.8, color: _kTextMid)),
-                ),
-                const SizedBox(height: 16),
-
-                // Morale
-                Container(
-                  padding: const EdgeInsets.all(18),
-                  decoration: BoxDecoration(
-                    color: _kGoldLight,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: _kGold.withValues(alpha: 0.4), width: 1.5),
-                  ),
-                  child: Text(histoire.morale,
-                      style: const TextStyle(
-                          fontSize: 14, color: _kTextMid,
-                          fontWeight: FontWeight.w600, height: 1.5)),
-                ),
-                const SizedBox(height: 24),
-              ]),
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
