@@ -905,11 +905,13 @@ class _SimilarCard extends StatelessWidget {
 // ══════════════════════════════════════════════════════════════════════════════
 class _HadithShareCard extends StatelessWidget {
   final HadithModel  hadith;
+  final int          hadithIndex;
   final _ShareFormat format;
 
   const _HadithShareCard({
     super.key,
     required this.hadith,
+    required this.hadithIndex,
     this.format = _ShareFormat.square,
   });
 
@@ -931,7 +933,7 @@ class _HadithShareCard extends StatelessWidget {
       'assets/hadith_cards/bg_coran_ouvert.jpg',
       'assets/hadith_cards/bg_misbaha_or.jpg',
     ];
-    final bgAsset = _kBackgrounds[hadith.id % _kBackgrounds.length];
+    final bgAsset = _kBackgrounds[hadithIndex % _kBackgrounds.length];
 
     return SizedBox(
       width: w, height: h,
@@ -1171,7 +1173,7 @@ class _ShareBottomSheetState extends State<_ShareBottomSheet> {
         debugShowCheckedModeBanner: false,
         home: Directionality(
           textDirection: TextDirection.ltr,
-          child: _HadithShareCard(hadith: widget.hadith, format: _format),
+          child: _HadithShareCard(hadith: widget.hadith, hadithIndex: widget.hadithIndex, format: _format),
         ),
       ),
       pixelRatio: 3.0,
@@ -1313,7 +1315,7 @@ class _ShareBottomSheetState extends State<_ShareBottomSheet> {
                 child: SizedBox(
                   width: 360,
                   height: isStory ? 640 : 360,
-                  child: _HadithShareCard(hadith: widget.hadith, format: _format),
+                  child: _HadithShareCard(hadith: widget.hadith, hadithIndex: widget.hadithIndex, format: _format),
                 ),
               ),
             ),
