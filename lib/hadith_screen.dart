@@ -919,32 +919,59 @@ class _HadithShareCard extends StatelessWidget {
     const double w       = 360;
     final double h       = isStory ? 640 : 360;
 
+    // Sélection automatique du background selon l'ID du hadith
+    const _kBackgrounds = [
+      'assets/hadith_cards/bg_noir_mandala.jpg',
+      'assets/hadith_cards/bg_beige_lanterne.jpg',
+      'assets/hadith_cards/bg_mosquee_coucher.jpg',
+      'assets/hadith_cards/bg_vert_cadre.jpg',
+      'assets/hadith_cards/bg_nuit_croissant.jpg',
+      'assets/hadith_cards/bg_kaaba_nuit.jpg',
+      'assets/hadith_cards/bg_nature_lumiere.jpg',
+      'assets/hadith_cards/bg_coran_ouvert.jpg',
+      'assets/hadith_cards/bg_misbaha_or.jpg',
+    ];
+    final bgAsset = _kBackgrounds[hadith.id % _kBackgrounds.length];
+
     return SizedBox(
       width: w, height: h,
       child: Stack(children: [
-        // ── Fond dégradé sombre ───────────────────────────────────────────────
-        Container(
-          width: w, height: h,
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFF061510), Color(0xFF0F2A1C), Color(0xFF091D13)],
-              begin: Alignment.topCenter,
-              end:   Alignment.bottomCenter,
+        // ── Background photo ──────────────────────────────────────────────────
+        Positioned.fill(
+          child: Image.asset(
+            bgAsset,
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => Container(
+              color: const Color(0xFF0F2A1C),
             ),
           ),
         ),
 
-        // ── Motif islamique discret ───────────────────────────────────────────
-        Positioned.fill(child: CustomPaint(painter: _IslamicPatternPainter())),
+        // ── Overlay sombre pour lisibilité du texte ───────────────────────────
+        Positioned.fill(
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.black.withValues(alpha: 0.55),
+                  Colors.black.withValues(alpha: 0.35),
+                  Colors.black.withValues(alpha: 0.55),
+                ],
+                begin: Alignment.topCenter,
+                end:   Alignment.bottomCenter,
+              ),
+            ),
+          ),
+        ),
 
         // ── Bandes dorées haut / bas ──────────────────────────────────────────
         Positioned(
           top: 0, left: 0, right: 0,
-          child: Container(height: 3, color: const Color(0xFFC8933A).withValues(alpha: 0.65)),
+          child: Container(height: 3, color: const Color(0xFFC8933A).withValues(alpha: 0.85)),
         ),
         Positioned(
           bottom: 0, left: 0, right: 0,
-          child: Container(height: 3, color: const Color(0xFFC8933A).withValues(alpha: 0.65)),
+          child: Container(height: 3, color: const Color(0xFFC8933A).withValues(alpha: 0.85)),
         ),
 
         // ── Contenu ───────────────────────────────────────────────────────────
