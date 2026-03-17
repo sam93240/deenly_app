@@ -20,13 +20,23 @@ import 'audio_player_state.dart';
 
 export 'audio_player_state.dart';     // re-export pour les widgets
 
+// ── Sourates avec audio disponible (Mishary Alafasy) ─────────────
+// Liste des sourates dont les fichiers .mp3 sont présents dans les assets.
+// À mettre à jour quand de nouvelles sourates sont ajoutées.
+const _kSurahsWithAudio = <int>{
+  1, 2, 18, 36, 55, 67,
+  95, 96, 97, 98, 99, 100,
+  101, 102, 103, 104, 105, 106,
+  107, 108, 109, 110, 112, 113, 114,
+};
+
 // ── Utilitaire existence fichier ──────────────────────────────────
-// Sur web  : toujours true (les assets sont packagés dans le build web,
-//            vérifier via rootBundle téléchargerait tout le fichier audio).
+// Sur web   : vérifie via la liste statique (pas de requête réseau).
+//             Évite d'afficher un bouton pour des fichiers absents.
 // Sur native: vérifie via rootBundle (lecture locale depuis les assets).
 Future<bool> audioFileExists(
     AudioConfig config, int surahNumber, int ayahNumber) async {
-  if (kIsWeb) return true;
+  if (kIsWeb) return _kSurahsWithAudio.contains(surahNumber);
   try {
     final data = await rootBundle.load(config.pathFor(surahNumber, ayahNumber));
     return data.lengthInBytes > 0;
