@@ -2490,18 +2490,12 @@ class _HadithStoryDetailState extends State<_HadithStoryDetail> {
             style: const TextStyle(fontSize: 15)),
         elevation: 0,
         actions: [
-          // Bouton taille de police
-          PopupMenuButton<double>(
-            icon: const Icon(Icons.text_fields, color: Colors.white),
-            onSelected: (v) => ReadingPrefs.instance.setFontSize(v),
-            itemBuilder: (_) => [14.0, 16.0, 18.0, 20.0, 22.0]
-                .map((v) => PopupMenuItem(
-                      value: v,
-                      child: Text('${v.toInt()} pt',
-                          style: TextStyle(
-                              fontWeight: fs == v ? FontWeight.bold : FontWeight.normal)),
-                    ))
-                .toList(),
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: ReadingToolbar(
+              buttonColor: Colors.white.withValues(alpha: 0.15),
+              iconColor: Colors.white,
+            ),
           ),
         ],
       ),
