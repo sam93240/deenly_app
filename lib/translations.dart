@@ -217,7 +217,7 @@ class T {
   String get familyTracking => _s('📋 Suivi', '📋 Tracking');
   String get familyChallenges => _s('🎯 Défis', '🎯 Challenges');
   String get familyTips => _s('💡 Conseils', '💡 Tips');
-  String get familyHadithStories => _s('📜 Du Prophète', '📜 Prophet ﷺ');
+  String get familyHadithStories => _s('📜 Hadiths', '📜 Hadiths');
   String get familyHisStory => _s('Son Histoire', 'His Story');
   String get familySummary => _s('Résumé', 'Summary');
   String get familyChapters => _s('Chapitres', 'Chapters');

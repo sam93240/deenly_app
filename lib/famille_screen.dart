@@ -49,7 +49,7 @@ class _FamilleScreenState extends State<FamilleScreen>
   @override
   void initState() {
     super.initState();
-    _tab = TabController(length: 8, vsync: this);
+    _tab = TabController(length: 6, vsync: this);
   }
 
   @override
@@ -122,9 +122,7 @@ class _FamilleScreenState extends State<FamilleScreen>
                 Tab(text: context.t.familyProphets),
                 Tab(text: context.t.familyHadithStories),
                 Tab(text: context.t.familyEvening),
-                Tab(text: context.t.familyTimeline),
                 Tab(text: context.t.familyTracking),
-                Tab(text: context.t.familyChallenges),
                 Tab(text: context.t.familyTips),
               ],
             ),
@@ -137,9 +135,7 @@ class _FamilleScreenState extends State<FamilleScreen>
             _ProphetsTab(),
             _HadithStoriesTab(),
             _BedtimeTab(),
-            _TimelineTab(),
             _SuiviTab(),
-            _DefisTab(),
             _ConseilsTab(),
           ],
         ),
@@ -153,6 +149,42 @@ class _FamilleScreenState extends State<FamilleScreen>
 // ══════════════════════════════════════════════════════════════════════════
 class _ProphetsTab extends StatelessWidget {
   const _ProphetsTab();
+
+  @override
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: 2,
+      child: Column(
+        children: [
+          Container(
+            color: _kGreenDeep,
+            child: TabBar(
+              indicatorColor: _kGold,
+              labelColor: _kGold,
+              unselectedLabelColor: const Color(0xFF8AB8A0),
+              labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+              tabs: [
+                Tab(text: _s('📋 Liste', '📋 List')),
+                Tab(text: _s('🕐 Frise', '🕐 Timeline')),
+              ],
+            ),
+          ),
+          const Expanded(
+            child: TabBarView(
+              children: [
+                _ProphetsListView(),
+                _TimelineTab(),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProphetsListView extends StatelessWidget {
+  const _ProphetsListView();
 
   @override
   Widget build(BuildContext context) {
@@ -1921,6 +1953,8 @@ class _SuiviTabState extends State<_SuiviTab> {
 
   @override
   Widget build(BuildContext context) {
+    final weekIndex = DateTime.now().difference(DateTime(2025, 1, 1)).inDays ~/ 7;
+    final defiSemaine = kFamilyChallenges[weekIndex % kFamilyChallenges.length];
     return ListView(
       padding: const EdgeInsets.all(14),
       children: [
@@ -2098,6 +2132,61 @@ class _SuiviTabState extends State<_SuiviTab> {
                   textAlign: TextAlign.center, style: const TextStyle(color: _kTextMid, fontSize: 13, height: 1.4)),
             ]),
           ),
+
+        // ── Section Défis ─────────────────────────────────────────────
+        const SizedBox(height: 24),
+        const Divider(color: _kBeigeBorder),
+        const SizedBox(height: 12),
+        Text('🎯 ${_s('Défis', 'Challenges')}',
+            style: const TextStyle(color: _kGreenPrimary, fontSize: 16, fontWeight: FontWeight.w800)),
+        const SizedBox(height: 10),
+        Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(colors: [Color(0xFF8A4A1A), Color(0xFFB86B2A)]),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [BoxShadow(color: const Color(0xFF8A4A1A).withValues(alpha: 0.3), blurRadius: 16, offset: const Offset(0, 6))],
+          ),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(12)),
+                child: Text(context.t.familyWeeklyChallenge, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w800)),
+              ),
+              const Spacer(),
+              Text(defiSemaine.emoji, style: const TextStyle(fontSize: 32)),
+            ]),
+            const SizedBox(height: 10),
+            Text(defiSemaine.getTitle(), style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900)),
+            const SizedBox(height: 6),
+            Text(defiSemaine.getDescription(), style: TextStyle(color: Colors.white.withValues(alpha: 0.75), fontSize: 13, height: 1.4)),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
+              child: Text('⏱️ ${defiSemaine.getDuration()}', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
+            ),
+            const SizedBox(height: 14),
+            ...defiSemaine.getSteps().asMap().entries.map((entry) => Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Container(
+                  width: 22, height: 22, margin: const EdgeInsets.only(top: 1),
+                  decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(6)),
+                  child: Center(child: Text('${entry.key + 1}', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700))),
+                ),
+                const SizedBox(width: 8),
+                Expanded(child: Text(entry.value, style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 13, height: 1.3))),
+              ]),
+            )),
+          ]),
+        ),
+        const SizedBox(height: 20),
+        Text(context.t.familyAllChallenges,
+            style: const TextStyle(color: _kGreenPrimary, fontSize: 16, fontWeight: FontWeight.w800)),
+        const SizedBox(height: 10),
+        ...kFamilyChallenges.map((d) => _DefiCard(defi: d)),
       ],
     );
   }
