@@ -83,6 +83,7 @@ flutter:
     - assets/salah/
     - assets/audio/alafasy/
     - assets/hadith_cards/
+    - assets/kadhab_card.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

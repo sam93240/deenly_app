@@ -391,6 +391,7 @@ class T {
   String get moduleFamily => _s('Famille', 'Family');
   String get moduleDiscover => _s('Découvrir', 'Discover');
   String get moduleShop => _s('Boutique', 'Shop');
+  String get moduleKadhab => _s('Qui est le Kadhab ?', 'Who is the Kadhab?');
 
   // Quick access
   String get quickCoran => _s('Coran', 'Quran');

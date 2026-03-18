@@ -18,6 +18,7 @@ import 'notification_data.dart';
 import 'notification_service.dart';
 import 'settings_screen.dart';
 import 'consent_dialog.dart';
+import 'kadhab_screen.dart';
 import 'widgets/save_progress_banner.dart';
 import 'widgets/save_progress_popup.dart';
 import 'services/engagement_service.dart';
@@ -464,6 +465,14 @@ class _HomeScreenState extends State<HomeScreen>
         glow: const Color(0xFF2D6A9F),
         onTap: () => Navigator.push(context,
             MaterialPageRoute(builder: (_) => const DecouvrirScreen())),
+      ),
+      _ModuleData(
+        title: t.moduleKadhab,
+        assetPath: 'assets/modules/module_kadhab.jpg',
+        colors: [const Color(0xFF1A0A2E), const Color(0xFF3D1A5C)],
+        glow: const Color(0xFFD4AF37),
+        onTap: () => Navigator.push(context,
+            MaterialPageRoute(builder: (_) => const KadhabScreen())),
       ),
       _ModuleData(
         title: t.moduleShop,
