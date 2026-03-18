@@ -1842,9 +1842,9 @@ class _KadhabGuessScreenState extends State<_KadhabGuessScreen> {
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                child: const Text(
+                child: Text(
                   isFr ? 'Soumettre ma réponse 🎯' : 'Submit my answer 🎯',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                 ),
               ),
             ),
