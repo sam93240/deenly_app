@@ -117,12 +117,14 @@ class KadhabPlayer {
   final int id;
   final String name;
   bool isKadhab;
+  bool isDall;
   bool isEliminated;
 
   KadhabPlayer({
     required this.id,
     required this.name,
     this.isKadhab = false,
+    this.isDall = false,
     this.isEliminated = false,
   });
 }
@@ -139,6 +141,16 @@ enum GamePhase {
 }
 
 enum GameResult { truthWins, kadhabWins }
+
+// ── Rôles des joueurs ─────────────────────────────────────────────
+enum _PlayerRole { muminun, dall, kadhab }
+
+// ── Slot de carte (rôle pré-assigné, tiré aléatoirement) ─────────
+class _CardSlot {
+  final _PlayerRole role;
+  bool isPicked;
+  _CardSlot(this.role) : isPicked = false;
+}
 
 // ══════════════════════════════════════════════════════════════════
 // MAIN SCREEN
@@ -157,7 +169,9 @@ class _KadhabScreenState extends State<KadhabScreen> {
   List<KadhabPlayer> _players = [];
   late _WordPair _currentPair;
   int _kadhabId = -1;
-  int _currentCardIndex = 0; // for card reveal phase
+  int _dallId = -1;
+  List<_CardSlot> _cardSlots = [];
+  int _currentPickerIndex = 0; // which alive player is currently picking
   int _round = 1;
   GameResult? _result;
   String? _tiebreakerName;
@@ -192,27 +206,79 @@ class _KadhabScreenState extends State<KadhabScreen> {
       ),
     );
 
-    // Assign Kadhab
-    _kadhabId = rng.nextInt(_playerCount);
-    for (final p in _players) {
-      p.isKadhab = (p.id == _kadhabId);
-    }
-
     // Pick word pair
     _currentPair = _kWordPairs[rng.nextInt(_kWordPairs.length)];
-    _currentCardIndex = 0;
     _round = 1;
+
+    // Créer les slots de cartes (rôles mélangés)
+    _cardSlots = _buildCardSlots(_playerCount, rng);
+    _currentPickerIndex = 0;
+    _kadhabId = -1;
+    _dallId = -1;
 
     setState(() => _phase = GamePhase.cardReveal);
   }
 
   void _startNewRound() {
     final rng = Random();
+    final alive = _players.where((p) => !p.isEliminated).toList();
+
+    // Nouveau mot
     _currentPair = _kWordPairs[rng.nextInt(_kWordPairs.length)];
-    _currentCardIndex = 0;
     _votes = {};
     _round++;
+
+    // Réinitialiser les rôles (changent à chaque manche)
+    for (final p in alive) {
+      p.isKadhab = false;
+      p.isDall = false;
+    }
+    _kadhabId = -1;
+    _dallId = -1;
+
+    // Nouveaux slots pour les joueurs encore en vie
+    _cardSlots = _buildCardSlots(alive.length, rng);
+    _currentPickerIndex = 0;
+
     setState(() => _phase = GamePhase.cardReveal);
+  }
+
+  // Crée une liste de slots mélangés : 1 Kadhab + 1 Dall + (n-2) Muminun
+  List<_CardSlot> _buildCardSlots(int count, Random rng) {
+    final roles = <_PlayerRole>[
+      _PlayerRole.kadhab,
+      _PlayerRole.dall,
+      ...List.filled(count - 2, _PlayerRole.muminun),
+    ]..shuffle(rng);
+    return roles.map((r) => _CardSlot(r)).toList();
+  }
+
+  // Appelé quand le joueur courant a choisi et confirmé sa carte
+  void _onCardPicked(int slotIndex) {
+    final alive = _players.where((p) => !p.isEliminated).toList();
+    final currentPlayer = alive[_currentPickerIndex];
+    final slot = _cardSlots[slotIndex];
+
+    slot.isPicked = true;
+    currentPlayer.isKadhab = false;
+    currentPlayer.isDall = false;
+
+    if (slot.role == _PlayerRole.kadhab) {
+      currentPlayer.isKadhab = true;
+      _kadhabId = currentPlayer.id;
+    } else if (slot.role == _PlayerRole.dall) {
+      currentPlayer.isDall = true;
+      _dallId = currentPlayer.id;
+    }
+
+    setState(() {
+      if (_currentPickerIndex < alive.length - 1) {
+        _currentPickerIndex++;
+      } else {
+        _votes = {};
+        _phase = GamePhase.discussion;
+      }
+    });
   }
 
   // ── VOTE HELPERS ───────────────────────────────────────────────
@@ -261,8 +327,14 @@ class _KadhabScreenState extends State<KadhabScreen> {
       _result = GameResult.truthWins;
       setState(() => _phase = GamePhase.result);
     } else if (alive.length <= 2) {
-      // Kadhab survived to the end → gets to guess
-      setState(() => _phase = GamePhase.kadhabGuess);
+      // Vérifie que le Kadhab est encore en vie
+      final kadhabAlive = alive.any((p) => p.isKadhab);
+      if (kadhabAlive) {
+        setState(() => _phase = GamePhase.kadhabGuess);
+      } else {
+        _result = GameResult.truthWins;
+        setState(() => _phase = GamePhase.result);
+      }
     } else {
       setState(() => _phase = GamePhase.elimination);
     }
@@ -286,6 +358,10 @@ class _KadhabScreenState extends State<KadhabScreen> {
     _tiebreakerName = null;
     _lastEliminated = null;
     _round = 1;
+    _kadhabId = -1;
+    _dallId = -1;
+    _cardSlots = [];
+    _currentPickerIndex = 0;
     setState(() => _phase = GamePhase.setup);
   }
 
@@ -330,18 +406,11 @@ class _KadhabScreenState extends State<KadhabScreen> {
       case GamePhase.cardReveal:
         return _CardRevealScreen(
           players: _players.where((p) => !p.isEliminated).toList(),
+          cardSlots: _cardSlots,
+          currentPickerIndex: _currentPickerIndex,
           pair: _currentPair,
-          currentIndex: _currentCardIndex,
           round: _round,
-          onNext: () {
-            final alive = _players.where((p) => !p.isEliminated).toList();
-            if (_currentCardIndex < alive.length - 1) {
-              setState(() => _currentCardIndex++);
-            } else {
-              _votes = {};
-              setState(() => _phase = GamePhase.discussion);
-            }
-          },
+          onCardPicked: _onCardPicked,
         );
       case GamePhase.discussion:
         return _DiscussionScreen(
@@ -736,10 +805,11 @@ class _RulesSummary extends StatelessWidget {
             ),
           ),
           SizedBox(height: 10),
-          _RuleItem('🃏', 'Chaque joueur voit son mot en secret'),
-          _RuleItem('😈', 'Le Kadhab reçoit un mot différent'),
-          _RuleItem('🗣', 'Chacun donne un indice à tour de rôle'),
-          _RuleItem('🚫', 'Le Kadhab ne parle pas en premier'),
+          _RuleItem('🃏', 'Chaque joueur choisit sa carte parmi les disponibles'),
+          _RuleItem('🟢', 'Muminun : reçoit le vrai mot'),
+          _RuleItem('🟠', 'Dall : reçoit un mot différent'),
+          _RuleItem('😈', 'Kadhab : aucun mot — doit bluffer !'),
+          _RuleItem('🚫', 'Le Kadhab ne parle jamais en premier'),
           _RuleItem('🗳', 'Vote : le plus suspect est éliminé'),
           _RuleItem('🏆', 'Trouvez le Kadhab avant qu\'il gagne !'),
         ],
@@ -775,22 +845,28 @@ class _RuleItem extends StatelessWidget {
 }
 
 // ══════════════════════════════════════════════════════════════════
-// SCREEN 2 — CARD REVEAL (one card at a time, flip + shake)
+// SCREEN 2 — CARD REVEAL
+// Phase A : grille de cartes face cachée → joueur choisit la sienne
+// Phase B : grande carte animée → retournement → révèle rôle/mot
 // ══════════════════════════════════════════════════════════════════
 
+enum _RevealStep { picking, revealing }
+
 class _CardRevealScreen extends StatefulWidget {
-  final List<KadhabPlayer> players;
+  final List<KadhabPlayer> players;      // joueurs encore en vie
+  final List<_CardSlot> cardSlots;       // tous les slots (picked + unpicked)
+  final int currentPickerIndex;          // index dans players
   final _WordPair pair;
-  final int currentIndex;
   final int round;
-  final VoidCallback onNext;
+  final void Function(int slotIndex) onCardPicked;
 
   const _CardRevealScreen({
     required this.players,
+    required this.cardSlots,
+    required this.currentPickerIndex,
     required this.pair,
-    required this.currentIndex,
     required this.round,
-    required this.onNext,
+    required this.onCardPicked,
   });
 
   @override
@@ -799,6 +875,8 @@ class _CardRevealScreen extends StatefulWidget {
 
 class _CardRevealScreenState extends State<_CardRevealScreen>
     with TickerProviderStateMixin {
+  _RevealStep _step = _RevealStep.picking;
+  int _selectedSlot = -1;
   bool _isFlipped = false;
   bool _wordRevealed = false;
   late AnimationController _flipController;
@@ -809,6 +887,10 @@ class _CardRevealScreenState extends State<_CardRevealScreen>
   @override
   void initState() {
     super.initState();
+    _initAnimations();
+  }
+
+  void _initAnimations() {
     _flipController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
@@ -816,25 +898,26 @@ class _CardRevealScreenState extends State<_CardRevealScreen>
     _flipAnimation = Tween<double>(begin: 0, end: pi).animate(
       CurvedAnimation(parent: _flipController, curve: Curves.easeInOutCubic),
     );
-
     _shakeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 400),
     );
     _shakeAnimation = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 0, end: -12), weight: 1),
-      TweenSequenceItem(tween: Tween(begin: -12, end: 12), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: 12, end: -8), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: -8, end: 8), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: 8, end: 0), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: 0.0, end: -12.0), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: -12.0, end: 12.0), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: 12.0, end: -8.0),  weight: 2),
+      TweenSequenceItem(tween: Tween(begin: -8.0, end: 8.0),   weight: 2),
+      TweenSequenceItem(tween: Tween(begin: 8.0, end: 0.0),    weight: 1),
     ]).animate(CurvedAnimation(parent: _shakeController, curve: Curves.easeInOut));
   }
 
   @override
   void didUpdateWidget(_CardRevealScreen old) {
     super.didUpdateWidget(old);
-    if (old.currentIndex != widget.currentIndex) {
-      // Reset for next player
+    if (old.currentPickerIndex != widget.currentPickerIndex) {
+      // Nouveau joueur → reset
+      _step = _RevealStep.picking;
+      _selectedSlot = -1;
       _isFlipped = false;
       _wordRevealed = false;
       _flipController.reset();
@@ -848,9 +931,17 @@ class _CardRevealScreenState extends State<_CardRevealScreen>
     super.dispose();
   }
 
+  // Joueur choisit une carte dans la grille
+  void _pickCard(int slotIndex) {
+    setState(() {
+      _selectedSlot = slotIndex;
+      _step = _RevealStep.revealing;
+    });
+  }
+
+  // Retournement de la grande carte
   void _flip() {
     if (_isFlipped) {
-      // Shake if trying to tap again
       _shakeController.forward(from: 0);
       return;
     }
@@ -863,122 +954,225 @@ class _CardRevealScreenState extends State<_CardRevealScreen>
     setState(() {});
   }
 
+  // Mot à afficher selon le rôle du slot
+  String _wordForSlot(int slotIndex, bool isFr) {
+    switch (widget.cardSlots[slotIndex].role) {
+      case _PlayerRole.muminun: return widget.pair.getTrueWord(isFr);
+      case _PlayerRole.dall:    return widget.pair.getImpostorWord(isFr);
+      case _PlayerRole.kadhab:  return '';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final player = widget.players[widget.currentIndex];
-    final isKadhab = player.isKadhab;
     final isFr = T.of(context).isFr;
-    final word = isKadhab
-        ? widget.pair.getImpostorWord(isFr)
-        : widget.pair.getTrueWord(isFr);
-
+    final currentPlayer = widget.players[widget.currentPickerIndex];
     return SafeArea(
       child: Column(
         children: [
-          // Progress bar
           _GameHeader(
             title: '${isFr ? 'Manche' : 'Round'} ${widget.round}',
             subtitle:
-                '${isFr ? 'Carte' : 'Card'} ${widget.currentIndex + 1} / ${widget.players.length}',
+                '${widget.currentPickerIndex + 1} / ${widget.players.length}',
             showBack: false,
           ),
           Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Player name
-                Text(
-                  '👤 ${player.name}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  _wordRevealed
-                      ? (isFr
-                          ? 'Mémorise ton mot et passe le téléphone'
-                          : 'Memorize your word and pass the phone')
-                      : (isFr
-                          ? 'Tape la carte pour découvrir ton mot'
-                          : 'Tap the card to reveal your word'),
-                  style: TextStyle(
-                    color: _wordRevealed ? Colors.amber : Colors.white54,
-                    fontSize: 13,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 40),
-                // Flip card
-                AnimatedBuilder(
-                  animation: _flipAnimation,
-                  builder: (_, child) {
-                    return AnimatedBuilder(
-                      animation: _shakeAnimation,
-                      builder: (_, __) {
-                        return Transform.translate(
-                          offset: Offset(_shakeAnimation.value, 0),
-                          child: GestureDetector(
-                            onTap: _flip,
-                            child: _buildCard(word, isKadhab),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-                const SizedBox(height: 48),
-                // Next button (only after reveal)
-                AnimatedOpacity(
-                  opacity: _wordRevealed ? 1.0 : 0.0,
-                  duration: const Duration(milliseconds: 400),
-                  child: SizedBox(
-                    width: 200,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: _wordRevealed ? widget.onNext : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFD4AF37),
-                        foregroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      child: Text(
-                        widget.currentIndex < widget.players.length - 1
-                            ? (isFr ? 'Joueur suivant →' : 'Next player →')
-                            : (isFr ? 'C\'est parti ! 🎯' : 'Let\'s go! 🎯'),
-                        style: const TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            child: _step == _RevealStep.picking
+                ? _buildPickingStep(currentPlayer, isFr)
+                : _buildRevealingStep(currentPlayer, isFr),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildCard(String word, bool isKadhab) {
-    final angle = _flipAnimation.value;
-    final showBack = angle > pi / 2;
+  // ── Phase A : grille de sélection ────────────────────────────────
+  Widget _buildPickingStep(KadhabPlayer player, bool isFr) {
+    final unpicked = widget.cardSlots.asMap().entries
+        .where((e) => !e.value.isPicked)
+        .toList();
 
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          '👤 ${player.name}',
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(height: 10),
+        Text(
+          isFr
+              ? 'Choisis ta carte parmi les ${unpicked.length} disponibles'
+              : 'Pick your card from ${unpicked.length} available',
+          style: const TextStyle(color: Colors.white54, fontSize: 13),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 40),
+        // Grille de mini cartes face cachée
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 14,
+          runSpacing: 14,
+          children: unpicked.map((entry) {
+            return GestureDetector(
+              onTap: () => _pickCard(entry.key),
+              child: _MiniCardBack(),
+            );
+          }).toList(),
+        ),
+        const SizedBox(height: 32),
+        Text(
+          isFr ? 'Ne montre ta carte à personne !' : 'Don\'t show your card to anyone!',
+          style: const TextStyle(
+            color: Color(0xFFD4AF37),
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ── Phase B : grande carte à retourner ───────────────────────────
+  Widget _buildRevealingStep(KadhabPlayer player, bool isFr) {
+    final role = widget.cardSlots[_selectedSlot].role;
+    final word = _wordForSlot(_selectedSlot, isFr);
+    final isLastPlayer =
+        widget.currentPickerIndex == widget.players.length - 1;
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          '👤 ${player.name}',
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 22,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          _wordRevealed
+              ? (isFr
+                  ? 'Mémorise et passe le téléphone'
+                  : 'Memorize and pass the phone')
+              : (isFr
+                  ? 'Tape la carte pour découvrir ton rôle'
+                  : 'Tap the card to reveal your role'),
+          style: TextStyle(
+            color: _wordRevealed ? Colors.amber : Colors.white54,
+            fontSize: 13,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 40),
+        // Grande carte animée
+        AnimatedBuilder(
+          animation: _flipAnimation,
+          builder: (_, __) => AnimatedBuilder(
+            animation: _shakeAnimation,
+            builder: (_, __) => Transform.translate(
+              offset: Offset(_shakeAnimation.value, 0),
+              child: GestureDetector(
+                onTap: _flip,
+                child: _buildFlipCard(word, role),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 48),
+        AnimatedOpacity(
+          opacity: _wordRevealed ? 1.0 : 0.0,
+          duration: const Duration(milliseconds: 400),
+          child: SizedBox(
+            width: 200,
+            height: 50,
+            child: ElevatedButton(
+              onPressed: _wordRevealed
+                  ? () => widget.onCardPicked(_selectedSlot)
+                  : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFD4AF37),
+                foregroundColor: Colors.black,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+              child: Text(
+                isLastPlayer
+                    ? (isFr ? 'C\'est parti ! 🎯' : 'Let\'s go! 🎯')
+                    : (isFr ? 'Joueur suivant →' : 'Next player →'),
+                style: const TextStyle(fontWeight: FontWeight.w700),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFlipCard(String word, _PlayerRole role) {
+    final angle = _flipAnimation.value;
+    final showFront = angle > pi / 2;
     return Transform(
       alignment: Alignment.center,
       transform: Matrix4.identity()
         ..setEntry(3, 2, 0.002)
         ..rotateY(angle),
-      child: showBack
+      child: showFront
           ? Transform(
               alignment: Alignment.center,
               transform: Matrix4.identity()..rotateY(pi),
-              child: _CardFront(word: word, isKadhab: isKadhab),
+              child: _CardFront(word: word, role: role),
             )
           : _CardBack(),
+    );
+  }
+}
+
+// Mini carte face cachée (dans la grille de sélection)
+class _MiniCardBack extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 82,
+      height: 118,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFD4AF37).withOpacity(0.25),
+            blurRadius: 10,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(14),
+        child: Image.asset(
+          'assets/kadhab_card.jpg',
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => Container(
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF1A0A2E), Color(0xFF2D1B4E)],
+              ),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: const Color(0xFFD4AF37), width: 1.5),
+            ),
+            child: const Center(
+              child: Text('👑', style: TextStyle(fontSize: 30)),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -1041,13 +1235,28 @@ class _CardBack extends StatelessWidget {
 
 class _CardFront extends StatelessWidget {
   final String word;
-  final bool isKadhab;
+  final _PlayerRole role;
 
-  const _CardFront({required this.word, required this.isKadhab});
+  const _CardFront({required this.word, required this.role});
 
   @override
   Widget build(BuildContext context) {
     final isFr = T.of(context).isFr;
+    final isKadhab = role == _PlayerRole.kadhab;
+    final isDall   = role == _PlayerRole.dall;
+
+    final Color accent = isKadhab
+        ? const Color(0xFFFF4444)
+        : isDall
+            ? const Color(0xFFFF9800)
+            : const Color(0xFF4A90D9);
+
+    final List<Color> gradient = isKadhab
+        ? [const Color(0xFF2D0A0A), const Color(0xFF5A1515)]
+        : isDall
+            ? [const Color(0xFF2D1500), const Color(0xFF5A3200)]
+            : [const Color(0xFF0A1A2D), const Color(0xFF0D3A5C)];
+
     return Container(
       width: 220,
       height: 320,
@@ -1055,19 +1264,13 @@ class _CardFront extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: isKadhab
-              ? [const Color(0xFF2D0A0A), const Color(0xFF5A1515)]
-              : [const Color(0xFF0A1A2D), const Color(0xFF0D3A5C)],
+          colors: gradient,
         ),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: isKadhab ? const Color(0xFFFF4444) : const Color(0xFF4A90D9),
-          width: 2,
-        ),
+        border: Border.all(color: accent, width: 2),
         boxShadow: [
           BoxShadow(
-            color: (isKadhab ? const Color(0xFFFF4444) : const Color(0xFF4A90D9))
-                .withOpacity(0.25),
+            color: accent.withOpacity(0.3),
             blurRadius: 24,
             spreadRadius: 4,
           ),
@@ -1078,69 +1281,77 @@ class _CardFront extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Label rôle
             Text(
-              isKadhab
-                  ? (isFr ? 'TU ES LE' : 'YOU ARE THE')
-                  : (isFr ? 'TON MOT' : 'YOUR WORD'),
+              isFr ? 'TU ES LE' : 'YOU ARE THE',
               style: TextStyle(
-                color: isKadhab
-                    ? const Color(0xFFFF8888)
-                    : const Color(0xFF7FC8FF),
-                fontSize: 12,
+                color: accent,
+                fontSize: 11,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 2,
               ),
             ),
-            if (isKadhab) ...[
-              const SizedBox(height: 8),
-              const Text(
-                'KADHAB 😈',
-                style: TextStyle(
-                  color: Color(0xFFFF4444),
-                  fontSize: 22,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 3,
-                ),
-              ),
-            ],
-            const SizedBox(height: 16),
-            Text(
-              isKadhab
-                  ? (isFr ? 'Ton mot imposteur :' : 'Your impostor word:')
-                  : '',
-              style: const TextStyle(color: Colors.white38, fontSize: 12),
-            ),
             const SizedBox(height: 8),
             Text(
-              word,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 28,
-                fontWeight: FontWeight.w800,
+              isKadhab ? 'KADHAB 😈' : isDall ? 'DALL 🌀' : (isFr ? 'MUMINUN 🟢' : 'BELIEVER 🟢'),
+              style: TextStyle(
+                color: accent,
+                fontSize: 20,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 3,
               ),
-              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
-            if (!isKadhab)
+
+            // Mot ou absence de mot
+            if (isKadhab) ...[
               Text(
-                isFr ? 'Ne montre à personne !' : 'Don\'t show anyone!',
-                style: const TextStyle(
-                  color: Colors.white38,
-                  fontSize: 11,
-                  letterSpacing: 0.5,
-                ),
-              )
-            else
+                isFr ? 'Tu n\'as PAS de mot.' : 'You have NO word.',
+                style: TextStyle(color: accent.withOpacity(0.8), fontSize: 14),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
               Text(
                 isFr
-                    ? 'Blende ! Tu ne parles pas en premier.'
-                    : 'Blend in! You don\'t speak first.',
+                    ? 'Observe les autres et blende !'
+                    : 'Watch others and blend in!',
+                style: const TextStyle(color: Colors.white38, fontSize: 12),
+                textAlign: TextAlign.center,
+              ),
+            ] else ...[
+              Text(
+                isDall
+                    ? (isFr ? 'Ton mot (différent) :' : 'Your (different) word:')
+                    : (isFr ? 'Ton mot :' : 'Your word:'),
+                style: const TextStyle(color: Colors.white38, fontSize: 12),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                word,
                 style: const TextStyle(
-                  color: Color(0xFFFF8888),
-                  fontSize: 11,
+                  color: Colors.white,
+                  fontSize: 28,
+                  fontWeight: FontWeight.w800,
                 ),
                 textAlign: TextAlign.center,
               ),
+            ],
+            const SizedBox(height: 20),
+
+            // Conseil
+            Text(
+              isKadhab
+                  ? (isFr ? '⚠ Tu ne parles pas en premier !' : '⚠ Don\'t speak first!')
+                  : isDall
+                      ? (isFr ? '⚠ Ton mot est DIFFÉRENT des autres !' : '⚠ Your word is DIFFERENT!')
+                      : (isFr ? 'Ne montre à personne !' : 'Don\'t show anyone!'),
+              style: TextStyle(
+                color: isKadhab || isDall ? accent : Colors.white38,
+                fontSize: 11,
+                fontWeight: isKadhab || isDall ? FontWeight.w700 : FontWeight.normal,
+              ),
+              textAlign: TextAlign.center,
+            ),
           ],
         ),
       ),
@@ -1717,13 +1928,19 @@ class _EliminationScreen extends StatelessWidget {
             Text(
               eliminated.isKadhab
                   ? (isFr ? 'C\'était le Kadhab 😈 !' : 'That was the Kadhab 😈!')
-                  : (isFr
-                      ? 'Ce n\'était pas le Kadhab... La partie continue !'
-                      : 'Not the Kadhab... The game goes on!'),
+                  : eliminated.isDall
+                      ? (isFr
+                          ? 'C\'était le Dall 🌀 — le jeu continue !'
+                          : 'That was the Dall 🌀 — game goes on!')
+                      : (isFr
+                          ? 'Ce n\'était pas le Kadhab... La partie continue !'
+                          : 'Not the Kadhab... The game goes on!'),
               style: TextStyle(
                 color: eliminated.isKadhab
                     ? const Color(0xFFFF4444)
-                    : const Color(0xFF4A90D9),
+                    : eliminated.isDall
+                        ? const Color(0xFFFF9800)
+                        : const Color(0xFF4A90D9),
                 fontSize: 15,
               ),
               textAlign: TextAlign.center,
@@ -1906,6 +2123,8 @@ class _ResultScreenState extends State<_ResultScreen>
   Widget build(BuildContext context) {
     final truthWins = widget.result == GameResult.truthWins;
     final kadhab = widget.players.firstWhere((p) => p.isKadhab);
+    final dallList = widget.players.where((p) => p.isDall).toList();
+    final dall = dallList.isNotEmpty ? dallList.first : null;
     final isFr = T.of(context).isFr;
 
     return SafeArea(
@@ -1991,9 +2210,9 @@ class _ResultScreenState extends State<_ResultScreen>
                         const SizedBox(width: 12),
                         Expanded(
                           child: _WordRevealTile(
-                            label: isFr ? 'Mot Kadhab' : 'Kadhab word',
+                            label: isFr ? 'Mot du Dall' : 'Dall\'s word',
                             word: widget.pair.getImpostorWord(isFr),
-                            color: const Color(0xFFFF4444),
+                            color: const Color(0xFFFF9800),
                           ),
                         ),
                       ],
@@ -2001,17 +2220,27 @@ class _ResultScreenState extends State<_ResultScreen>
                     const SizedBox(height: 14),
                     Row(
                       children: [
-                        const Icon(Icons.person, color: Colors.white38, size: 16),
+                        const Icon(Icons.person, color: Color(0xFFFF4444), size: 16),
                         const SizedBox(width: 6),
                         Text(
-                          'Kadhab : ${kadhab.name}',
-                          style: const TextStyle(
-                            color: Colors.white60,
-                            fontSize: 13,
-                          ),
+                          '😈 Kadhab : ${kadhab.name}',
+                          style: const TextStyle(color: Color(0xFFFF8888), fontSize: 13),
                         ),
                       ],
                     ),
+                    if (dall != null) ...[
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          const Icon(Icons.person, color: Color(0xFFFF9800), size: 16),
+                          const SizedBox(width: 6),
+                          Text(
+                            '🌀 Dall : ${dall.name}',
+                            style: const TextStyle(color: Color(0xFFFFB74D), fontSize: 13),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
