@@ -240,26 +240,38 @@ class _KadhabScreenState extends State<KadhabScreen> {
   void _afterElimination() {
     final alive = _players.where((p) => !p.isEliminated).toList();
 
+    // Kadhab vient d'être éliminé → dernière chance de deviner
     if (_lastEliminated!.isKadhab) {
-      // Kadhab éliminé par vote → dernière chance de deviner
       setState(() => _phase = GamePhase.kadhabGuess);
-    } else if (alive.length <= 2) {
-      // Il reste 2 joueurs → le Kadhab a survécu jusqu'à la fin
+      return;
+    }
+
+    // Les deux rôles spéciaux sont éliminés → Salihin gagne
+    final kadhabGone = _players.firstWhere((p) => p.isKadhab).isEliminated;
+    if (kadhabGone && _dallWasVotedOut) {
+      _finishGame(GameResult.truthWins);
+      return;
+    }
+
+    // Il reste 2 joueurs → fin de partie
+    if (alive.length <= 2) {
       final kadhabAlive = alive.any((p) => p.isKadhab);
       if (kadhabAlive) {
+        // Kadhab a survécu jusqu'à la fin → il peut deviner
         setState(() => _phase = GamePhase.kadhabGuess);
       } else {
-        // Dall a survécu sans que le Kadhab soit encore là (cas rare)
+        // Dall a survécu (Kadhab éliminé avant, jeu a continué)
         _finishGame(GameResult.truthWins);
       }
-    } else {
-      // La partie continue — mêmes rôles, retour à la discussion
-      setState(() {
-        _votes = {};
-        _round++;
-        _phase = GamePhase.discussion;
-      });
+      return;
     }
+
+    // La partie continue — retour à la discussion
+    setState(() {
+      _votes = {};
+      _round++;
+      _phase = GamePhase.discussion;
+    });
   }
 
   // Crée une liste de slots mélangés : 1 Kadhab + 1 Dall + (n-2) Muminun
@@ -352,7 +364,26 @@ class _KadhabScreenState extends State<KadhabScreen> {
     final correct = g == _currentPair.trueWord.toLowerCase() ||
         g == _currentPair.trueWordEn.toLowerCase();
     _kadhabGuessedCorrectly = correct;
-    _finishGame(correct ? GameResult.kadhabWins : GameResult.truthWins);
+
+    if (correct) {
+      // Bonne réponse → Kadhab gagne immédiatement
+      _finishGame(GameResult.kadhabWins);
+    } else if (_dallWasVotedOut) {
+      // Mauvaise réponse ET Dall déjà éliminé → Salihin gagne
+      _finishGame(GameResult.truthWins);
+    } else {
+      // Mauvaise réponse ET Dall encore en vie → jeu continue
+      final alive = _players.where((p) => !p.isEliminated).toList();
+      if (alive.length <= 2) {
+        _finishGame(GameResult.truthWins); // Dall survit
+      } else {
+        setState(() {
+          _votes = {};
+          _round++;
+          _phase = GamePhase.discussion;
+        });
+      }
+    }
   }
 
   // ── FIN DE PARTIE & CALCUL DES SCORES ─────────────────────────
@@ -2059,7 +2090,9 @@ class _EliminationScreen extends StatelessWidget {
                   ),
                 ),
                 child: Text(
-                  isFr ? 'Manche suivante →' : 'Next round →',
+                  eliminated.isKadhab
+                      ? (isFr ? 'Dernière chance →' : 'Last chance →')
+                      : (isFr ? 'Continuer →' : 'Continue →'),
                   style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                 ),
               ),
