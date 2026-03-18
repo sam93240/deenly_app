@@ -27,17 +27,35 @@ class NativeAudioPlayerImpl extends AbstractAudioPlayer {
   }
 
   // ── play() ────────────────────────────────────────────────────
+  // `assetPath` peut être :
+  //   • Un chemin asset local  (ex: "assets/audio/alafasy/001_001.mp3")
+  //   • Une URL CDN http(s)    (ex: "https://everyayah.com/…")
+  //     → LockCachingAudioSource : téléchargement + mise en cache automatique.
+  //       Dès la 2e écoute, l'audio est disponible hors-ligne.
   @override
   Future<void> play(String assetPath, double speed, {bool repeat = false}) async {
     await stop();
     _setState(AudioPlayerState.loading);
 
+    final bool isCdn = assetPath.startsWith('http');
+    // CDN : timeout plus long (buffering initial réseau)
+    final Duration timeout =
+        isCdn ? const Duration(seconds: 30) : const Duration(seconds: 10);
+
     try {
-      // Timeout sur setAsset() — évite le spinner bloqué si just_audio
-      // ne répond pas (asset corrompu, décodeur absent…).
-      await _player
-          .setAsset(assetPath)
-          .timeout(const Duration(seconds: 10));
+      if (isCdn) {
+        // Streaming CDN avec cache local automatique.
+        // LockCachingAudioSource met en cache après le premier téléchargement :
+        // les écoutes suivantes sont offline-friendly.
+        await _player
+            .setAudioSource(LockCachingAudioSource(Uri.parse(assetPath)))
+            .timeout(timeout);
+      } else {
+        // Asset local bundlé dans l'APK/IPA.
+        await _player
+            .setAsset(assetPath)
+            .timeout(timeout);
+      }
 
       await _player.setLoopMode(repeat ? LoopMode.one : LoopMode.off);
       await _player.setSpeed(speed);
@@ -73,7 +91,11 @@ class NativeAudioPlayerImpl extends AbstractAudioPlayer {
       _cancelSub();
       _setState(
         AudioPlayerState.error,
-        err: const AudioPlayerError(message: 'Délai dépassé (10s) — audio introuvable ?'),
+        err: AudioPlayerError(
+          message: isCdn
+              ? 'Délai dépassé — vérifie ta connexion internet'
+              : 'Délai dépassé (10s) — audio introuvable ?',
+        ),
       );
     } catch (e) {
       _cancelSub();
