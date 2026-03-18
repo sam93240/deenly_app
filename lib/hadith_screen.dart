@@ -158,6 +158,7 @@ class _HadithScreenState extends State<HadithScreen> {
                     final entry = filtered[i];
                     return _HadithCard(
                       hadith:         entry.value,
+                      hadithIndex:    entry.key,
                       isFavori:       _favoris.contains(entry.key),
                       onToggleFavori: () => _toggleFavori(entry.key),
                       onTap:          () => _openDetail(entry.key),
@@ -439,12 +440,14 @@ class _CategoriesFilter extends StatelessWidget {
 // ══════════════════════════════════════════════════════════════════════════════
 class _HadithCard extends StatelessWidget {
   final HadithModel  hadith;
+  final int          hadithIndex;
   final bool         isFavori;
   final VoidCallback onToggleFavori;
   final VoidCallback onTap;
 
   const _HadithCard({
     required this.hadith,
+    required this.hadithIndex,
     required this.isFavori,
     required this.onToggleFavori,
     required this.onTap,
@@ -478,10 +481,12 @@ class _HadithCard extends StatelessWidget {
               ),
               const Spacer(),
               GestureDetector(
-                onTap: () {
-                  final text = '${hadith.arabe}\n\n« ${hadith.traductionLocale} »\n— ${hadith.narrateur}\n${hadith.source}';
-                  Share.share(text);
-                },
+                onTap: () => showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (_) => _ShareBottomSheet(hadith: hadith, hadithIndex: hadithIndex),
+                ),
                 behavior: HitTestBehavior.opaque,
                 child: const Padding(
                   padding: EdgeInsets.only(left: 8),
