@@ -236,28 +236,30 @@ class _KadhabScreenState extends State<KadhabScreen> {
     setState(() => _phase = GamePhase.cardReveal);
   }
 
-  void _startNewRound() {
-    final rng = Random();
+  // Après l'écran d'élimination → décide de la suite
+  void _afterElimination() {
     final alive = _players.where((p) => !p.isEliminated).toList();
 
-    // Nouveau mot
-    _currentPair = _kWordPairs[rng.nextInt(_kWordPairs.length)];
-    _votes = {};
-    _round++;
-
-    // Réinitialiser les rôles (changent à chaque manche)
-    for (final p in alive) {
-      p.isKadhab = false;
-      p.isDall = false;
+    if (_lastEliminated!.isKadhab) {
+      // Kadhab éliminé par vote → dernière chance de deviner
+      setState(() => _phase = GamePhase.kadhabGuess);
+    } else if (alive.length <= 2) {
+      // Il reste 2 joueurs → le Kadhab a survécu jusqu'à la fin
+      final kadhabAlive = alive.any((p) => p.isKadhab);
+      if (kadhabAlive) {
+        setState(() => _phase = GamePhase.kadhabGuess);
+      } else {
+        // Dall a survécu sans que le Kadhab soit encore là (cas rare)
+        _finishGame(GameResult.truthWins);
+      }
+    } else {
+      // La partie continue — mêmes rôles, retour à la discussion
+      setState(() {
+        _votes = {};
+        _round++;
+        _phase = GamePhase.discussion;
+      });
     }
-    _kadhabId = -1;
-    _dallId = -1;
-
-    // Nouveaux slots pour les joueurs encore en vie
-    _cardSlots = _buildCardSlots(alive.length, rng);
-    _currentPickerIndex = 0;
-
-    setState(() => _phase = GamePhase.cardReveal);
   }
 
   // Crée une liste de slots mélangés : 1 Kadhab + 1 Dall + (n-2) Muminun
@@ -338,25 +340,11 @@ class _KadhabScreenState extends State<KadhabScreen> {
     player.isEliminated = true;
     _lastEliminated = player;
 
-    final alive = _players.where((p) => !p.isEliminated).toList();
+    if (player.isKadhab) _kadhabWasVotedOut = true;
+    if (player.isDall)   _dallWasVotedOut   = true;
 
-    if (player.isKadhab) {
-      // Le Kadhab est éliminé → dernière chance de deviner le mot
-      _kadhabWasVotedOut = true;
-      setState(() => _phase = GamePhase.kadhabGuess);
-    } else {
-      if (player.isDall) _dallWasVotedOut = true;
-      if (alive.length <= 2) {
-        final kadhabAlive = alive.any((p) => p.isKadhab);
-        if (kadhabAlive) {
-          setState(() => _phase = GamePhase.kadhabGuess);
-        } else {
-          _finishGame(GameResult.truthWins);
-        }
-      } else {
-        setState(() => _phase = GamePhase.elimination);
-      }
-    }
+    // Toujours afficher l'écran d'élimination d'abord
+    setState(() => _phase = GamePhase.elimination);
   }
 
   void _kadhabGuesses(String guess) {
@@ -546,7 +534,7 @@ class _KadhabScreenState extends State<KadhabScreen> {
       case GamePhase.elimination:
         return _EliminationScreen(
           eliminated: _lastEliminated!,
-          onContinue: _startNewRound,
+          onContinue: _afterElimination,
         );
       case GamePhase.kadhabGuess:
         return _KadhabGuessScreen(
