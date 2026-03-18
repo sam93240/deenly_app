@@ -211,7 +211,7 @@ class T {
   // ══════════════════════════════════════════════
   String get familyTitle => _s('Espace Familles', 'Family Space');
   String get familyProphets => _s('🕌 Prophètes', '🕌 Prophets');
-  String get familyStories => _s('📖 Histoires', '📖 Stories');
+  String get familyStories => _s('📖 Coran', '📖 Quran');
   String get familyTimeline => _s('🕐 Frise', '🕐 Timeline');
   String get familyEvening => _s('🌙 Bonsoir', '🌙 Goodnight');
   String get familyTracking => _s('📋 Suivi', '📋 Tracking');
