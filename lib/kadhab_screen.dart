@@ -142,8 +142,10 @@ enum GamePhase {
 
 enum GameResult { truthWins, kadhabWins }
 
+const int _kTotalGames = 5;
+
 // ── Rôles des joueurs ─────────────────────────────────────────────
-enum _PlayerRole { muminun, dall, kadhab }
+enum _PlayerRole { salihin, dall, kadhab }
 
 // ── Slot de carte (rôle pré-assigné, tiré aléatoirement) ─────────
 class _CardSlot {
@@ -171,11 +173,21 @@ class _KadhabScreenState extends State<KadhabScreen> {
   int _kadhabId = -1;
   int _dallId = -1;
   List<_CardSlot> _cardSlots = [];
-  int _currentPickerIndex = 0; // which alive player is currently picking
+  int _currentPickerIndex = 0;
   int _round = 1;
   GameResult? _result;
   String? _tiebreakerName;
   KadhabPlayer? _lastEliminated;
+
+  // --- Scoring flags (reset each game) ---
+  bool _kadhabWasVotedOut      = false;
+  bool _dallWasVotedOut        = false;
+  bool _kadhabGuessedCorrectly = false;
+
+  // --- Série (5 parties) ---
+  int _gamesPlayed = 0;
+  Map<int, int> _seriesScores = {};   // playerId → cumul
+  Map<int, int> _gameScores   = {};   // playerId → points cette partie
 
   // --- Setup state ---
   int _playerCount = 4;
@@ -206,15 +218,20 @@ class _KadhabScreenState extends State<KadhabScreen> {
       ),
     );
 
-    // Pick word pair
+    // Initialiser les scores de la série
+    _gamesPlayed = 0;
+    _seriesScores = {for (int i = 0; i < _playerCount; i++) i: 0};
+
     _currentPair = _kWordPairs[rng.nextInt(_kWordPairs.length)];
     _round = 1;
-
-    // Créer les slots de cartes (rôles mélangés)
     _cardSlots = _buildCardSlots(_playerCount, rng);
     _currentPickerIndex = 0;
     _kadhabId = -1;
     _dallId = -1;
+    _kadhabWasVotedOut = false;
+    _dallWasVotedOut = false;
+    _kadhabGuessedCorrectly = false;
+    _gameScores = {};
 
     setState(() => _phase = GamePhase.cardReveal);
   }
@@ -248,7 +265,7 @@ class _KadhabScreenState extends State<KadhabScreen> {
     final roles = <_PlayerRole>[
       _PlayerRole.kadhab,
       _PlayerRole.dall,
-      ...List.filled(count - 2, _PlayerRole.muminun),
+      ...List.filled(count - 2, _PlayerRole.salihin),
     ]..shuffle(rng);
     return roles.map((r) => _CardSlot(r)).toList();
   }
@@ -324,19 +341,21 @@ class _KadhabScreenState extends State<KadhabScreen> {
     final alive = _players.where((p) => !p.isEliminated).toList();
 
     if (player.isKadhab) {
-      _result = GameResult.truthWins;
-      setState(() => _phase = GamePhase.result);
-    } else if (alive.length <= 2) {
-      // Vérifie que le Kadhab est encore en vie
-      final kadhabAlive = alive.any((p) => p.isKadhab);
-      if (kadhabAlive) {
-        setState(() => _phase = GamePhase.kadhabGuess);
-      } else {
-        _result = GameResult.truthWins;
-        setState(() => _phase = GamePhase.result);
-      }
+      // Le Kadhab est éliminé → dernière chance de deviner le mot
+      _kadhabWasVotedOut = true;
+      setState(() => _phase = GamePhase.kadhabGuess);
     } else {
-      setState(() => _phase = GamePhase.elimination);
+      if (player.isDall) _dallWasVotedOut = true;
+      if (alive.length <= 2) {
+        final kadhabAlive = alive.any((p) => p.isKadhab);
+        if (kadhabAlive) {
+          setState(() => _phase = GamePhase.kadhabGuess);
+        } else {
+          _finishGame(GameResult.truthWins);
+        }
+      } else {
+        setState(() => _phase = GamePhase.elimination);
+      }
     }
   }
 
@@ -344,14 +363,99 @@ class _KadhabScreenState extends State<KadhabScreen> {
     final g = guess.trim().toLowerCase();
     final correct = g == _currentPair.trueWord.toLowerCase() ||
         g == _currentPair.trueWordEn.toLowerCase();
-    _result = correct ? GameResult.kadhabWins : GameResult.truthWins;
+    _kadhabGuessedCorrectly = correct;
+    _finishGame(correct ? GameResult.kadhabWins : GameResult.truthWins);
+  }
+
+  // ── FIN DE PARTIE & CALCUL DES SCORES ─────────────────────────
+  void _finishGame(GameResult result) {
+    _result = result;
+    _calculateGameScores(result);
+    _gamesPlayed++;
     setState(() => _phase = GamePhase.result);
   }
 
-  void _resetGame() {
-    for (var c in _nameControllers) {
-      c.dispose();
+  void _calculateGameScores(GameResult result) {
+    _gameScores = {};
+
+    final kadhab = _players.firstWhere((p) => p.isKadhab);
+    final dallList = _players.where((p) => p.isDall).toList();
+    final dall = dallList.isNotEmpty ? dallList.first : null;
+    final salihin = _players.where((p) => !p.isKadhab && !p.isDall).toList();
+
+    // ── Kadhab ──────────────────────────────────────────────────
+    if (!_kadhabWasVotedOut) {
+      _addScore(kadhab.id, 5);         // non découvert
+    } else if (_kadhabGuessedCorrectly) {
+      _addScore(kadhab.id, 5);         // découvert MAIS trouve le mot
     }
+
+    // ── Dall ────────────────────────────────────────────────────
+    if (dall != null) {
+      if (!_dallWasVotedOut) {
+        _addScore(dall.id, 5);         // non découvert
+      }
+      // Survit après l'élimination du Kadhab (vérité gagne)
+      if (result == GameResult.truthWins && !dall.isEliminated) {
+        _addScore(dall.id, 2);
+      }
+    }
+
+    // ── Salihin ─────────────────────────────────────────────────
+    final kadhabFound = _kadhabWasVotedOut;
+    final dallFound   = _dallWasVotedOut;
+
+    if (kadhabFound) {
+      for (final p in salihin) _addScore(p.id, 2);
+    }
+    if (dallFound) {
+      for (final p in salihin) _addScore(p.id, 3);
+    }
+    if (kadhabFound && dallFound) {
+      for (final p in salihin) _addScore(p.id, 1); // bonus
+    }
+
+    // Ajouter au cumul série
+    for (final e in _gameScores.entries) {
+      _seriesScores[e.key] = (_seriesScores[e.key] ?? 0) + e.value;
+    }
+  }
+
+  void _addScore(int playerId, int pts) {
+    _gameScores[playerId] = (_gameScores[playerId] ?? 0) + pts;
+  }
+
+  // ── PARTIE SUIVANTE (même joueurs, nouvelle partie) ────────────
+  void _startNextGame() {
+    final rng = Random();
+    for (final p in _players) {
+      p.isKadhab    = false;
+      p.isDall      = false;
+      p.isEliminated = false;
+    }
+    _votes     = {};
+    _result    = null;
+    _tiebreakerName    = null;
+    _lastEliminated    = null;
+    _round             = 1;
+    _kadhabId          = -1;
+    _dallId            = -1;
+    _cardSlots         = [];
+    _currentPickerIndex = 0;
+    _kadhabWasVotedOut      = false;
+    _dallWasVotedOut        = false;
+    _kadhabGuessedCorrectly = false;
+    _gameScores = {};
+
+    _currentPair = _kWordPairs[rng.nextInt(_kWordPairs.length)];
+    _cardSlots   = _buildCardSlots(_players.length, rng);
+
+    setState(() => _phase = GamePhase.cardReveal);
+  }
+
+  // ── NOUVELLE SÉRIE (retour setup) ─────────────────────────────
+  void _resetGame() {
+    for (var c in _nameControllers) c.dispose();
     _nameControllers.clear();
     _votes = {};
     _result = null;
@@ -362,6 +466,12 @@ class _KadhabScreenState extends State<KadhabScreen> {
     _dallId = -1;
     _cardSlots = [];
     _currentPickerIndex = 0;
+    _kadhabWasVotedOut      = false;
+    _dallWasVotedOut        = false;
+    _kadhabGuessedCorrectly = false;
+    _gamesPlayed   = 0;
+    _seriesScores  = {};
+    _gameScores    = {};
     setState(() => _phase = GamePhase.setup);
   }
 
@@ -441,6 +551,7 @@ class _KadhabScreenState extends State<KadhabScreen> {
       case GamePhase.kadhabGuess:
         return _KadhabGuessScreen(
           kadhabName: _players.firstWhere((p) => p.isKadhab).name,
+          wasVotedOut: _kadhabWasVotedOut,
           onGuess: _kadhabGuesses,
         );
       case GamePhase.result:
@@ -448,7 +559,11 @@ class _KadhabScreenState extends State<KadhabScreen> {
           result: _result!,
           players: _players,
           pair: _currentPair,
-          onPlayAgain: _resetGame,
+          gameScores: _gameScores,
+          seriesScores: _seriesScores,
+          gamesPlayed: _gamesPlayed,
+          onNextGame: _gamesPlayed < _kTotalGames ? _startNextGame : null,
+          onNewSeries: _resetGame,
           onHome: () => Navigator.of(context).pop(),
         );
     }
@@ -806,7 +921,7 @@ class _RulesSummary extends StatelessWidget {
           ),
           SizedBox(height: 10),
           _RuleItem('🃏', 'Chaque joueur choisit sa carte parmi les disponibles'),
-          _RuleItem('🟢', 'Muminun : reçoit le vrai mot'),
+          _RuleItem('🟢', 'Salihin : reçoit le vrai mot'),
           _RuleItem('🟠', 'Dall : reçoit un mot différent'),
           _RuleItem('😈', 'Kadhab : aucun mot — doit bluffer !'),
           _RuleItem('🚫', 'Le Kadhab ne parle jamais en premier'),
@@ -957,7 +1072,7 @@ class _CardRevealScreenState extends State<_CardRevealScreen>
   // Mot à afficher selon le rôle du slot
   String _wordForSlot(int slotIndex, bool isFr) {
     switch (widget.cardSlots[slotIndex].role) {
-      case _PlayerRole.muminun: return widget.pair.getTrueWord(isFr);
+      case _PlayerRole.salihin: return widget.pair.getTrueWord(isFr);
       case _PlayerRole.dall:    return widget.pair.getImpostorWord(isFr);
       case _PlayerRole.kadhab:  return '';
     }
@@ -1245,17 +1360,15 @@ class _CardFront extends StatelessWidget {
     final isKadhab = role == _PlayerRole.kadhab;
     final isDall   = role == _PlayerRole.dall;
 
+    // Le Dall voit une carte IDENTIQUE au Muminun — il ne sait pas qu'il est le Dall.
+    // Seul le Kadhab a une carte distincte (rouge, sans mot).
     final Color accent = isKadhab
         ? const Color(0xFFFF4444)
-        : isDall
-            ? const Color(0xFFFF9800)
-            : const Color(0xFF4A90D9);
+        : const Color(0xFF4A90D9); // Dall = même bleu que Muminun
 
     final List<Color> gradient = isKadhab
         ? [const Color(0xFF2D0A0A), const Color(0xFF5A1515)]
-        : isDall
-            ? [const Color(0xFF2D1500), const Color(0xFF5A3200)]
-            : [const Color(0xFF0A1A2D), const Color(0xFF0D3A5C)];
+        : [const Color(0xFF0A1A2D), const Color(0xFF0D3A5C)]; // Dall = même gradient
 
     return Container(
       width: 220,
@@ -1281,30 +1394,28 @@ class _CardFront extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Label rôle
-            Text(
-              isFr ? 'TU ES LE' : 'YOU ARE THE',
-              style: TextStyle(
-                color: accent,
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 2,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              isKadhab ? 'KADHAB 😈' : isDall ? 'DALL 🌀' : (isFr ? 'MUMINUN 🟢' : 'BELIEVER 🟢'),
-              style: TextStyle(
-                color: accent,
-                fontSize: 20,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 3,
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Mot ou absence de mot
             if (isKadhab) ...[
+              // ── Carte Kadhab : rouge, pas de mot ──
+              Text(
+                isFr ? 'TU ES LE' : 'YOU ARE THE',
+                style: TextStyle(
+                  color: accent,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 2,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'KADHAB 😈',
+                style: TextStyle(
+                  color: accent,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 3,
+                ),
+              ),
+              const SizedBox(height: 20),
               Text(
                 isFr ? 'Tu n\'as PAS de mot.' : 'You have NO word.',
                 style: TextStyle(color: accent.withOpacity(0.8), fontSize: 14),
@@ -1312,20 +1423,32 @@ class _CardFront extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                isFr
-                    ? 'Observe les autres et blende !'
-                    : 'Watch others and blend in!',
+                isFr ? 'Observe les autres et blende !' : 'Watch others and blend in!',
                 style: const TextStyle(color: Colors.white38, fontSize: 12),
                 textAlign: TextAlign.center,
               ),
-            ] else ...[
+              const SizedBox(height: 20),
               Text(
-                isDall
-                    ? (isFr ? 'Ton mot (différent) :' : 'Your (different) word:')
-                    : (isFr ? 'Ton mot :' : 'Your word:'),
-                style: const TextStyle(color: Colors.white38, fontSize: 12),
+                isFr ? '⚠ Tu ne parles pas en premier !' : '⚠ Don\'t speak first!',
+                style: TextStyle(
+                  color: accent,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                ),
+                textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 8),
+            ] else ...[
+              // ── Carte Salihin ET Dall (identiques visuellement) ──
+              Text(
+                isFr ? 'TON MOT' : 'YOUR WORD',
+                style: const TextStyle(
+                  color: Color(0xFF7FC8FF),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 2,
+                ),
+              ),
+              const SizedBox(height: 24),
               Text(
                 word,
                 style: const TextStyle(
@@ -1335,23 +1458,12 @@ class _CardFront extends StatelessWidget {
                 ),
                 textAlign: TextAlign.center,
               ),
-            ],
-            const SizedBox(height: 20),
-
-            // Conseil
-            Text(
-              isKadhab
-                  ? (isFr ? '⚠ Tu ne parles pas en premier !' : '⚠ Don\'t speak first!')
-                  : isDall
-                      ? (isFr ? '⚠ Ton mot est DIFFÉRENT des autres !' : '⚠ Your word is DIFFERENT!')
-                      : (isFr ? 'Ne montre à personne !' : 'Don\'t show anyone!'),
-              style: TextStyle(
-                color: isKadhab || isDall ? accent : Colors.white38,
-                fontSize: 11,
-                fontWeight: isKadhab || isDall ? FontWeight.w700 : FontWeight.normal,
+              const SizedBox(height: 24),
+              Text(
+                isFr ? 'Ne montre à personne !' : 'Don\'t show anyone!',
+                style: const TextStyle(color: Colors.white38, fontSize: 11),
               ),
-              textAlign: TextAlign.center,
-            ),
+            ],
           ],
         ),
       ),
@@ -1977,9 +2089,14 @@ class _EliminationScreen extends StatelessWidget {
 
 class _KadhabGuessScreen extends StatefulWidget {
   final String kadhabName;
+  final bool wasVotedOut;
   final ValueChanged<String> onGuess;
 
-  const _KadhabGuessScreen({required this.kadhabName, required this.onGuess});
+  const _KadhabGuessScreen({
+    required this.kadhabName,
+    required this.wasVotedOut,
+    required this.onGuess,
+  });
 
   @override
   State<_KadhabGuessScreen> createState() => _KadhabGuessScreenState();
@@ -2002,12 +2119,21 @@ class _KadhabGuessScreenState extends State<_KadhabGuessScreen> {
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            const Text('😈', style: TextStyle(fontSize: 72)),
+            Text(
+              widget.wasVotedOut ? '⚔️' : '😈',
+              style: const TextStyle(fontSize: 72),
+            ),
             const SizedBox(height: 20),
             Text(
-              isFr ? '${widget.kadhabName} a survécu !' : '${widget.kadhabName} survived!',
-              style: const TextStyle(
-                color: Color(0xFFFF4444),
+              widget.wasVotedOut
+                  ? (isFr ? 'Dernière chance !' : 'Last chance!')
+                  : (isFr
+                      ? '${widget.kadhabName} a survécu !'
+                      : '${widget.kadhabName} survived!'),
+              style: TextStyle(
+                color: widget.wasVotedOut
+                    ? const Color(0xFFFF9800)
+                    : const Color(0xFFFF4444),
                 fontSize: 22,
                 fontWeight: FontWeight.w800,
               ),
@@ -2015,9 +2141,13 @@ class _KadhabGuessScreenState extends State<_KadhabGuessScreen> {
             ),
             const SizedBox(height: 12),
             Text(
-              isFr
-                  ? 'Le Kadhab peut encore gagner.\nDevine le vrai mot pour remporter la partie !'
-                  : 'The Kadhab can still win.\nGuess the true word to take the victory!',
+              widget.wasVotedOut
+                  ? (isFr
+                      ? '${widget.kadhabName} a été éliminé... mais peut encore gagner !\nDevine le vrai mot pour remporter 5 points !'
+                      : '${widget.kadhabName} was eliminated... but can still win!\nGuess the true word to earn 5 points!')
+                  : (isFr
+                      ? 'Le Kadhab peut encore gagner.\nDevine le vrai mot pour remporter la partie !'
+                      : 'The Kadhab can still win.\nGuess the true word to take the victory!'),
               style: const TextStyle(color: Colors.white60, fontSize: 14),
               textAlign: TextAlign.center,
             ),
@@ -2080,14 +2210,22 @@ class _ResultScreen extends StatefulWidget {
   final GameResult result;
   final List<KadhabPlayer> players;
   final _WordPair pair;
-  final VoidCallback onPlayAgain;
+  final Map<int, int> gameScores;    // playerId → pts cette partie
+  final Map<int, int> seriesScores;  // playerId → pts cumulés
+  final int gamesPlayed;             // après cette partie (1–5)
+  final VoidCallback? onNextGame;    // null si série terminée
+  final VoidCallback onNewSeries;
   final VoidCallback onHome;
 
   const _ResultScreen({
     required this.result,
     required this.players,
     required this.pair,
-    required this.onPlayAgain,
+    required this.gameScores,
+    required this.seriesScores,
+    required this.gamesPlayed,
+    this.onNextGame,
+    required this.onNewSeries,
     required this.onHome,
   });
 
@@ -2126,13 +2264,20 @@ class _ResultScreenState extends State<_ResultScreen>
     final dallList = widget.players.where((p) => p.isDall).toList();
     final dall = dallList.isNotEmpty ? dallList.first : null;
     final isFr = T.of(context).isFr;
+    final seriesDone = widget.gamesPlayed >= _kTotalGames;
+
+    // Classement série : trier par score décroissant
+    final sorted = [...widget.players]
+      ..sort((a, b) =>
+          (widget.seriesScores[b.id] ?? 0)
+              .compareTo(widget.seriesScores[a.id] ?? 0));
 
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // ── Résultat de la partie ──────────────────────────────
             FadeTransition(
               opacity: _fadeAnim,
               child: ScaleTransition(
@@ -2141,63 +2286,63 @@ class _ResultScreenState extends State<_ResultScreen>
                   children: [
                     Text(
                       truthWins ? '🏆' : '😈',
-                      style: const TextStyle(fontSize: 90),
+                      style: const TextStyle(fontSize: 72),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 10),
                     Text(
                       truthWins
-                          ? (isFr ? 'Le Kadhab est démasqué !' : 'The Kadhab is unmasked!')
+                          ? (isFr
+                              ? 'Le Kadhab est démasqué !'
+                              : 'The Kadhab is unmasked!')
                           : (isFr ? 'Le Kadhab gagne !' : 'The Kadhab wins!'),
                       style: TextStyle(
                         color: truthWins
                             ? const Color(0xFFD4AF37)
                             : const Color(0xFFFF4444),
-                        fontSize: 26,
+                        fontSize: 22,
                         fontWeight: FontWeight.w900,
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 4),
                     Text(
-                      truthWins
-                          ? (isFr
-                              ? 'La vérité a triomphé. Alhamdulillah ! 🤲'
-                              : 'Truth has prevailed. Alhamdulillah! 🤲')
-                          : (isFr
-                              ? '${kadhab.name} a trompé tout le monde...'
-                              : '${kadhab.name} fooled everyone...'),
+                      isFr
+                          ? 'Partie ${widget.gamesPlayed} / $_kTotalGames'
+                          : 'Game ${widget.gamesPlayed} / $_kTotalGames',
                       style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 15,
+                        color: Colors.white38,
+                        fontSize: 12,
+                        letterSpacing: 1,
                       ),
-                      textAlign: TextAlign.center,
                     ),
                   ],
                 ),
               ),
             ),
-            const SizedBox(height: 32),
-            // Reveal word pair
+            const SizedBox(height: 16),
+
+            // ── Révélation des mots ────────────────────────────────
             FadeTransition(
               opacity: _fadeAnim,
               child: Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
                   color: const Color(0xFF1E1E2E),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: Colors.white12),
                 ),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       '${isFr ? 'Thème' : 'Theme'} : ${widget.pair.getTheme(isFr)}',
                       style: const TextStyle(
                         color: Colors.white38,
-                        fontSize: 13,
+                        fontSize: 12,
                         letterSpacing: 1,
                       ),
                     ),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 10),
                     Row(
                       children: [
                         Expanded(
@@ -2207,36 +2352,40 @@ class _ResultScreenState extends State<_ResultScreen>
                             color: const Color(0xFF4A90D9),
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: 10),
                         Expanded(
                           child: _WordRevealTile(
-                            label: isFr ? 'Mot du Dall' : 'Dall\'s word',
+                            label: isFr ? 'Mot du Dall' : "Dall's word",
                             word: widget.pair.getImpostorWord(isFr),
                             color: const Color(0xFFFF9800),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 10),
                     Row(
                       children: [
-                        const Icon(Icons.person, color: Color(0xFFFF4444), size: 16),
-                        const SizedBox(width: 6),
+                        const Icon(Icons.person,
+                            color: Color(0xFFFF4444), size: 14),
+                        const SizedBox(width: 4),
                         Text(
                           '😈 Kadhab : ${kadhab.name}',
-                          style: const TextStyle(color: Color(0xFFFF8888), fontSize: 13),
+                          style: const TextStyle(
+                              color: Color(0xFFFF8888), fontSize: 12),
                         ),
                       ],
                     ),
                     if (dall != null) ...[
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 4),
                       Row(
                         children: [
-                          const Icon(Icons.person, color: Color(0xFFFF9800), size: 16),
-                          const SizedBox(width: 6),
+                          const Icon(Icons.person,
+                              color: Color(0xFFFF9800), size: 14),
+                          const SizedBox(width: 4),
                           Text(
                             '🌀 Dall : ${dall.name}',
-                            style: const TextStyle(color: Color(0xFFFFB74D), fontSize: 13),
+                            style: const TextStyle(
+                                color: Color(0xFFFFB74D), fontSize: 12),
                           ),
                         ],
                       ),
@@ -2245,7 +2394,160 @@ class _ResultScreenState extends State<_ResultScreen>
                 ),
               ),
             ),
-            const SizedBox(height: 36),
+            const SizedBox(height: 12),
+
+            // ── Points gagnés cette partie ─────────────────────────
+            FadeTransition(
+              opacity: _fadeAnim,
+              child: Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1A1A2E),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                      color: const Color(0xFFD4AF37).withOpacity(0.2)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      isFr ? '⭐ Points cette partie' : '⭐ Points this game',
+                      style: const TextStyle(
+                        color: Color(0xFFD4AF37),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    ...widget.players.map((p) {
+                      final pts = widget.gameScores[p.id] ?? 0;
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 5),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                p.name,
+                                style: const TextStyle(
+                                    color: Colors.white70, fontSize: 13),
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: pts > 0
+                                    ? const Color(0xFFD4AF37).withOpacity(0.15)
+                                    : Colors.white.withOpacity(0.05),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                pts > 0 ? '+$pts pts' : '0 pt',
+                                style: TextStyle(
+                                  color: pts > 0
+                                      ? const Color(0xFFD4AF37)
+                                      : Colors.white38,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // ── Classement de la série ─────────────────────────────
+            FadeTransition(
+              opacity: _fadeAnim,
+              child: Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0A1A2D),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                      color: const Color(0xFF4A90D9).withOpacity(0.3)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      seriesDone
+                          ? (isFr
+                              ? '🏅 Classement final !'
+                              : '🏅 Final standings!')
+                          : (isFr
+                              ? '🏅 Classement série'
+                              : '🏅 Series standings'),
+                      style: const TextStyle(
+                        color: Color(0xFF7FC8FF),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    ...sorted.asMap().entries.map((e) {
+                      final rank = e.key + 1;
+                      final p = e.value;
+                      final total = widget.seriesScores[p.id] ?? 0;
+                      final medal = rank == 1
+                          ? '🥇'
+                          : rank == 2
+                              ? '🥈'
+                              : rank == 3
+                                  ? '🥉'
+                                  : '  ${rank}.';
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 6),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: 34,
+                              child: Text(medal,
+                                  style: const TextStyle(fontSize: 15)),
+                            ),
+                            Expanded(
+                              child: Text(
+                                p.name,
+                                style: TextStyle(
+                                  color: rank == 1
+                                      ? Colors.white
+                                      : Colors.white70,
+                                  fontSize: 13,
+                                  fontWeight: rank == 1
+                                      ? FontWeight.w700
+                                      : FontWeight.w400,
+                                ),
+                              ),
+                            ),
+                            Text(
+                              '$total pts',
+                              style: TextStyle(
+                                color: rank == 1
+                                    ? const Color(0xFFD4AF37)
+                                    : Colors.white54,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // ── Boutons ────────────────────────────────────────────
             Row(
               children: [
                 Expanded(
@@ -2254,9 +2556,9 @@ class _ResultScreenState extends State<_ResultScreen>
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.white60,
                       side: const BorderSide(color: Colors.white24),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(14),
                       ),
                     ),
                     child: Text(isFr ? 'Accueil' : 'Home'),
@@ -2266,18 +2568,27 @@ class _ResultScreenState extends State<_ResultScreen>
                 Expanded(
                   flex: 2,
                   child: ElevatedButton(
-                    onPressed: widget.onPlayAgain,
+                    onPressed:
+                        seriesDone ? widget.onNewSeries : widget.onNextGame,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFD4AF37),
-                      foregroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      backgroundColor: seriesDone
+                          ? const Color(0xFF4A90D9)
+                          : const Color(0xFFD4AF37),
+                      foregroundColor:
+                          seriesDone ? Colors.white : Colors.black,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(14),
                       ),
                     ),
                     child: Text(
-                      isFr ? 'Rejouer 🎮' : 'Play again 🎮',
-                      style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                      seriesDone
+                          ? (isFr ? 'Nouvelle série 🎮' : 'New series 🎮')
+                          : (isFr
+                              ? 'Partie ${widget.gamesPlayed + 1}/$_kTotalGames →'
+                              : 'Game ${widget.gamesPlayed + 1}/$_kTotalGames →'),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w700, fontSize: 14),
                     ),
                   ),
                 ),
