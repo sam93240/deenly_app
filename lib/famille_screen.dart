@@ -114,9 +114,8 @@ class _FamilleScreenState extends State<FamilleScreen>
               indicatorWeight: 3,
               labelColor: _kGold,
               unselectedLabelColor: const Color(0xFF8AB8A0),
-              labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-              isScrollable: true,
-              tabAlignment: TabAlignment.start,
+              labelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+              labelPadding: const EdgeInsets.symmetric(horizontal: 4),
               tabs: [
                 Tab(text: context.t.familyStories),
                 Tab(text: context.t.familyProphets),
