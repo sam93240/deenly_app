@@ -1797,11 +1797,11 @@ class _KadhabGuessScreenState extends State<_KadhabGuessScreen> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
-            const Text(
+            Text(
               isFr
                   ? 'Le Kadhab peut encore gagner.\nDevine le vrai mot pour remporter la partie !'
                   : 'The Kadhab can still win.\nGuess the true word to take the victory!',
-              style: TextStyle(color: Colors.white60, fontSize: 14),
+              style: const TextStyle(color: Colors.white60, fontSize: 14),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 40),
@@ -2046,9 +2046,9 @@ class _ResultScreenState extends State<_ResultScreen>
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    child: const Text(
+                    child: Text(
                       isFr ? 'Rejouer 🎮' : 'Play again 🎮',
-                      style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                      style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
                     ),
                   ),
                 ),
