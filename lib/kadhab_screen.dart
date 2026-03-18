@@ -18,6 +18,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'translations.dart';
 
 // ══════════════════════════════════════════════════════════════════
 // DATA — Paires de mots islamiques (vrai mot / mot imposteur)
@@ -25,70 +26,87 @@ import 'package:flutter/services.dart';
 
 class _WordPair {
   final String theme;
+  final String themeEn;
   final String trueWord;
+  final String trueWordEn;
   final String impostorWord;
-  const _WordPair(this.theme, this.trueWord, this.impostorWord);
+  final String impostorWordEn;
+
+  const _WordPair(
+    this.theme,
+    this.trueWord,
+    this.impostorWord,
+    this.themeEn,
+    this.trueWordEn,
+    this.impostorWordEn,
+  );
+
+  String getTheme(bool isFr) => isFr ? theme : themeEn;
+  String getTrueWord(bool isFr) => isFr ? trueWord : trueWordEn;
+  String getImpostorWord(bool isFr) => isFr ? impostorWord : impostorWordEn;
 }
 
 const List<_WordPair> _kWordPairs = [
-  // Pilliers & Pratiques
-  _WordPair('Pratique', 'La Salah', 'La Méditation'),
-  _WordPair('Pratique', 'Le Ramadan', 'Le Carême'),
-  _WordPair('Pratique', 'La Zakat', 'La Dîme'),
-  _WordPair('Pratique', 'Le Hajj', 'Un pèlerinage'),
-  _WordPair('Pratique', 'L\'Ablution', 'La Douche'),
-  _WordPair('Pratique', 'Le Tahajjud', 'La Sieste'),
-  _WordPair('Pratique', 'L\'Adhan', 'Une cloche'),
-  _WordPair('Pratique', 'Le Miswak', 'La Brosse à dents'),
-  _WordPair('Pratique', 'Le Sajda', 'Une révérence'),
-  _WordPair('Pratique', 'La Qibla', 'Une boussole'),
-  // Coran & Savoirs
-  _WordPair('Coran & Science', 'La Sourate Al-Fatiha', 'La Prière du seigneur'),
-  _WordPair('Coran & Science', 'L\'Ayat Al-Kursi', 'Un verset protecteur'),
-  _WordPair('Coran & Science', 'Le Tafsir', 'La Traduction'),
-  _WordPair('Coran & Science', 'La Sunnah', 'La Tradition'),
-  _WordPair('Coran & Science', 'Le Fiqh', 'La Jurisprudence'),
-  _WordPair('Coran & Science', 'La Tajwid', 'La Grammaire'),
-  _WordPair('Coran & Science', 'L\'Ijaz', 'Un miracle littéraire'),
-  _WordPair('Coran & Science', 'La Hafiz', 'Un mémoriseur'),
-  // Prophètes & Histoire
-  _WordPair('Prophètes', 'Ibrahim (AS)', 'Noé (AS)'),
-  _WordPair('Prophètes', 'Moussa (AS)', 'Issa (AS)'),
-  _WordPair('Prophètes', 'Youssef (AS)', 'Dawoud (AS)'),
-  _WordPair('Prophètes', 'Souleymane (AS)', 'Dawoud (AS)'),
-  _WordPair('Histoire', 'La Hijra', 'L\'Exil'),
-  _WordPair('Histoire', 'La bataille de Badr', 'La bataille d\'Uhud'),
-  _WordPair('Histoire', 'La nuit du Isra', 'Le Mi\'raj'),
-  _WordPair('Histoire', 'La Kaaba', 'Al-Aqsa'),
-  _WordPair('Histoire', 'Médine', 'La Mecque'),
-  // Valeurs & Éthique
-  _WordPair('Valeurs', 'La Sabr', 'La Résignation'),
-  _WordPair('Valeurs', 'Le Tawakkul', 'La Confiance en soi'),
-  _WordPair('Valeurs', 'La Shukr', 'La Gratitude'),
-  _WordPair('Valeurs', 'L\'Istighfar', 'Le Repentir'),
-  _WordPair('Valeurs', 'La Rahma', 'La Compassion'),
-  _WordPair('Valeurs', 'L\'Adl', 'La Justice'),
-  _WordPair('Valeurs', 'L\'Aman', 'La Sécurité'),
-  _WordPair('Valeurs', 'Le Sidq', 'L\'Honnêteté'),
-  // Lieux & Objets
-  _WordPair('Lieux', 'La Mosquée', 'L\'Église'),
-  _WordPair('Lieux', 'Le Minaret', 'La Tour'),
-  _WordPair('Lieux', 'Le Mimbar', 'La Tribune'),
-  _WordPair('Lieux', 'Le Mihrab', 'L\'Alcôve'),
-  _WordPair('Objets', 'Le Tasbeeh', 'Un collier'),
-  _WordPair('Objets', 'Le Tapis de prière', 'Un tapis décoratif'),
-  _WordPair('Objets', 'Le Kufi', 'Un béret'),
-  _WordPair('Objets', 'L\'Abaya', 'Un manteau'),
-  _WordPair('Objets', 'Le Oud', 'La Guitare'),
-  // Vie quotidienne
-  _WordPair('Vie quotidienne', 'La Bismillah', 'Une bénédiction'),
-  _WordPair('Vie quotidienne', 'L\'Alhamdulillah', 'Le Merci'),
-  _WordPair('Vie quotidienne', 'L\'Inshallah', 'Le peut-être'),
-  _WordPair('Vie quotidienne', 'La Baraka', 'La Chance'),
-  _WordPair('Vie quotidienne', 'Le Halal', 'Le Licite'),
-  _WordPair('Vie quotidienne', 'Le Haram', 'L\'Interdit'),
-  _WordPair('Vie quotidienne', 'La Iftar', 'Le Dîner'),
-  _WordPair('Vie quotidienne', 'Le Suhoor', 'Le Petit-déjeuner'),
+  // Pratique / Practice
+  _WordPair('Pratique', 'La Salah', 'La Méditation',          'Practice',       'The Salah',      'Meditation'),
+  _WordPair('Pratique', 'Le Ramadan', 'Le Carême',             'Practice',       'Ramadan',        'Lent'),
+  _WordPair('Pratique', 'La Zakat', 'La Dîme',                 'Practice',       'Zakat',          'The Tithe'),
+  _WordPair('Pratique', 'Le Hajj', 'Un pèlerinage',            'Practice',       'The Hajj',       'A Pilgrimage'),
+  _WordPair('Pratique', 'L\'Ablution', 'La Douche',            'Practice',       'Ablution (Wudu)','The Shower'),
+  _WordPair('Pratique', 'Le Tahajjud', 'La Sieste',            'Practice',       'The Tahajjud',   'A Nap'),
+  _WordPair('Pratique', 'L\'Adhan', 'Une cloche',              'Practice',       'The Adhan',      'A Bell'),
+  _WordPair('Pratique', 'Le Miswak', 'La Brosse à dents',      'Practice',       'The Miswak',     'The Toothbrush'),
+  _WordPair('Pratique', 'Le Sajda', 'Une révérence',           'Practice',       'The Sajda',      'A Bow'),
+  _WordPair('Pratique', 'La Qibla', 'Une boussole',            'Practice',       'The Qibla',      'A Compass'),
+  // Coran & Science / Quran & Knowledge
+  _WordPair('Coran & Science', 'La Sourate Al-Fatiha', 'La Prière du seigneur',  'Quran & Knowledge', 'Surah Al-Fatiha',   'The Lord\'s Prayer'),
+  _WordPair('Coran & Science', 'L\'Ayat Al-Kursi', 'Un verset protecteur',       'Quran & Knowledge', 'Ayat Al-Kursi',     'A Protective Verse'),
+  _WordPair('Coran & Science', 'Le Tafsir', 'La Traduction',                     'Quran & Knowledge', 'The Tafsir',        'The Translation'),
+  _WordPair('Coran & Science', 'La Sunnah', 'La Tradition',                      'Quran & Knowledge', 'The Sunnah',        'The Tradition'),
+  _WordPair('Coran & Science', 'Le Fiqh', 'La Jurisprudence',                    'Quran & Knowledge', 'Fiqh',              'Jurisprudence'),
+  _WordPair('Coran & Science', 'La Tajwid', 'La Grammaire',                      'Quran & Knowledge', 'Tajweed',           'Grammar'),
+  _WordPair('Coran & Science', 'L\'Ijaz', 'Un miracle littéraire',               'Quran & Knowledge', 'The Ijaz',          'A Literary Miracle'),
+  _WordPair('Coran & Science', 'Un Hafiz', 'Un mémoriseur',                      'Quran & Knowledge', 'A Hafiz',           'A Memorizer'),
+  // Prophètes / Prophets
+  _WordPair('Prophètes', 'Ibrahim (AS)', 'Noé (AS)',            'Prophets',       'Ibrahim (AS)',   'Nuh (AS)'),
+  _WordPair('Prophètes', 'Moussa (AS)', 'Issa (AS)',            'Prophets',       'Musa (AS)',      'Isa (AS)'),
+  _WordPair('Prophètes', 'Youssef (AS)', 'Dawoud (AS)',         'Prophets',       'Yusuf (AS)',     'Dawud (AS)'),
+  _WordPair('Prophètes', 'Souleymane (AS)', 'Dawoud (AS)',      'Prophets',       'Sulayman (AS)',  'Dawud (AS)'),
+  // Histoire / History
+  _WordPair('Histoire', 'La Hijra', 'L\'Exil',                         'History', 'The Hijra',            'The Exile'),
+  _WordPair('Histoire', 'La bataille de Badr', 'La bataille d\'Uhud',  'History', 'The Battle of Badr',   'The Battle of Uhud'),
+  _WordPair('Histoire', 'La nuit du Isra', 'Le Mi\'raj',               'History', 'The Night of Isra',    'The Mi\'raj'),
+  _WordPair('Histoire', 'La Kaaba', 'Al-Aqsa',                         'History', 'The Kaaba',            'Al-Aqsa'),
+  _WordPair('Histoire', 'Médine', 'La Mecque',                         'History', 'Madinah',              'Mecca'),
+  // Valeurs / Values
+  _WordPair('Valeurs', 'La Sabr', 'La Résignation',         'Values', 'Sabr (Patience)',    'Resignation'),
+  _WordPair('Valeurs', 'Le Tawakkul', 'La Confiance en soi','Values', 'Tawakkul',           'Self-confidence'),
+  _WordPair('Valeurs', 'La Shukr', 'La Gratitude',          'Values', 'Shukr',              'Thankfulness'),
+  _WordPair('Valeurs', 'L\'Istighfar', 'Le Repentir',       'Values', 'Istighfar',          'Repentance'),
+  _WordPair('Valeurs', 'La Rahma', 'La Compassion',         'Values', 'Rahma (Mercy)',      'Compassion'),
+  _WordPair('Valeurs', 'L\'Adl', 'La Justice',              'Values', 'Al-Adl',             'Fairness'),
+  _WordPair('Valeurs', 'L\'Aman', 'La Sécurité',            'Values', 'Al-Aman',            'Security'),
+  _WordPair('Valeurs', 'Le Sidq', 'L\'Honnêteté',           'Values', 'Al-Sidq',            'Honesty'),
+  // Lieux / Places
+  _WordPair('Lieux', 'La Mosquée', 'L\'Église',   'Places', 'The Mosque',  'The Church'),
+  _WordPair('Lieux', 'Le Minaret', 'La Tour',      'Places', 'The Minaret', 'The Tower'),
+  _WordPair('Lieux', 'Le Mimbar', 'La Tribune',    'Places', 'The Minbar',  'The Podium'),
+  _WordPair('Lieux', 'Le Mihrab', 'L\'Alcôve',     'Places', 'The Mihrab',  'The Alcove'),
+  // Objets / Objects
+  _WordPair('Objets', 'Le Tasbeeh', 'Un collier',              'Objects', 'The Tasbeeh',       'A Necklace'),
+  _WordPair('Objets', 'Le Tapis de prière', 'Un tapis décoratif','Objects','The Prayer Rug',   'A Decorative Rug'),
+  _WordPair('Objets', 'Le Kufi', 'Un béret',                   'Objects', 'The Kufi',          'A Beret'),
+  _WordPair('Objets', 'L\'Abaya', 'Un manteau',                'Objects', 'The Abaya',         'A Coat'),
+  _WordPair('Objets', 'Le Oud', 'La Guitare',                  'Objects', 'The Oud',           'The Guitar'),
+  // Vie quotidienne / Daily Life
+  _WordPair('Vie quotidienne', 'La Bismillah', 'Une bénédiction', 'Daily Life', 'Bismillah',      'A Blessing'),
+  _WordPair('Vie quotidienne', 'L\'Alhamdulillah', 'Le Merci',    'Daily Life', 'Alhamdulillah',  'A Thank You'),
+  _WordPair('Vie quotidienne', 'L\'Inshallah', 'Le peut-être',    'Daily Life', 'Inshallah',      'Maybe'),
+  _WordPair('Vie quotidienne', 'La Baraka', 'La Chance',          'Daily Life', 'Baraka',         'Luck'),
+  _WordPair('Vie quotidienne', 'Le Halal', 'Le Licite',           'Daily Life', 'Halal',          'The Permissible'),
+  _WordPair('Vie quotidienne', 'Le Haram', 'L\'Interdit',         'Daily Life', 'Haram',          'The Forbidden'),
+  _WordPair('Vie quotidienne', 'La Iftar', 'Le Dîner',            'Daily Life', 'Iftar',          'Dinner'),
+  _WordPair('Vie quotidienne', 'Le Suhoor', 'Le Petit-déjeuner',  'Daily Life', 'Suhoor',         'Breakfast'),
 ];
 
 // ══════════════════════════════════════════════════════════════════
@@ -251,8 +269,9 @@ class _KadhabScreenState extends State<KadhabScreen> {
   }
 
   void _kadhabGuesses(String guess) {
-    final correct = guess.trim().toLowerCase() ==
-        _currentPair.trueWord.toLowerCase();
+    final g = guess.trim().toLowerCase();
+    final correct = g == _currentPair.trueWord.toLowerCase() ||
+        g == _currentPair.trueWordEn.toLowerCase();
     _result = correct ? GameResult.kadhabWins : GameResult.truthWins;
     setState(() => _phase = GamePhase.result);
   }
@@ -848,16 +867,19 @@ class _CardRevealScreenState extends State<_CardRevealScreen>
   Widget build(BuildContext context) {
     final player = widget.players[widget.currentIndex];
     final isKadhab = player.isKadhab;
-    final word = isKadhab ? widget.pair.impostorWord : widget.pair.trueWord;
+    final isFr = T.of(context).isFr;
+    final word = isKadhab
+        ? widget.pair.getImpostorWord(isFr)
+        : widget.pair.getTrueWord(isFr);
 
     return SafeArea(
       child: Column(
         children: [
           // Progress bar
           _GameHeader(
-            title: 'Manche ${widget.round}',
+            title: '${isFr ? 'Manche' : 'Round'} ${widget.round}',
             subtitle:
-                'Carte ${widget.currentIndex + 1} / ${widget.players.length}',
+                '${isFr ? 'Carte' : 'Card'} ${widget.currentIndex + 1} / ${widget.players.length}',
             showBack: false,
           ),
           Expanded(
@@ -876,8 +898,12 @@ class _CardRevealScreenState extends State<_CardRevealScreen>
                 const SizedBox(height: 8),
                 Text(
                   _wordRevealed
-                      ? 'Mémorise ton mot et passe le téléphone'
-                      : 'Tape la carte pour découvrir ton mot',
+                      ? (isFr
+                          ? 'Mémorise ton mot et passe le téléphone'
+                          : 'Memorize your word and pass the phone')
+                      : (isFr
+                          ? 'Tape la carte pour découvrir ton mot'
+                          : 'Tap the card to reveal your word'),
                   style: TextStyle(
                     color: _wordRevealed ? Colors.amber : Colors.white54,
                     fontSize: 13,
@@ -922,8 +948,8 @@ class _CardRevealScreenState extends State<_CardRevealScreen>
                       ),
                       child: Text(
                         widget.currentIndex < widget.players.length - 1
-                            ? 'Joueur suivant →'
-                            : 'C\'est parti ! 🎯',
+                            ? (isFr ? 'Joueur suivant →' : 'Next player →')
+                            : (isFr ? 'C\'est parti ! 🎯' : 'Let\'s go! 🎯'),
                         style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                     ),
@@ -1021,6 +1047,7 @@ class _CardFront extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isFr = T.of(context).isFr;
     return Container(
       width: 220,
       height: 320,
@@ -1052,7 +1079,9 @@ class _CardFront extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              isKadhab ? 'TU ES LE' : 'TON MOT',
+              isKadhab
+                  ? (isFr ? 'TU ES LE' : 'YOU ARE THE')
+                  : (isFr ? 'TON MOT' : 'YOUR WORD'),
               style: TextStyle(
                 color: isKadhab
                     ? const Color(0xFFFF8888)
@@ -1076,7 +1105,9 @@ class _CardFront extends StatelessWidget {
             ],
             const SizedBox(height: 16),
             Text(
-              isKadhab ? 'Ton mot imposteur :' : '',
+              isKadhab
+                  ? (isFr ? 'Ton mot imposteur :' : 'Your impostor word:')
+                  : '',
               style: const TextStyle(color: Colors.white38, fontSize: 12),
             ),
             const SizedBox(height: 8),
@@ -1091,26 +1122,24 @@ class _CardFront extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             if (!isKadhab)
-              const Text(
-                'Ne montre à personne !',
-                style: TextStyle(
+              Text(
+                isFr ? 'Ne montre à personne !' : 'Don\'t show anyone!',
+                style: const TextStyle(
                   color: Colors.white38,
                   fontSize: 11,
                   letterSpacing: 0.5,
                 ),
               )
             else
-              Column(
-                children: const [
-                  Text(
-                    'Blende ! Tu ne parles pas en premier.',
-                    style: TextStyle(
-                      color: Color(0xFFFF8888),
-                      fontSize: 11,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
+              Text(
+                isFr
+                    ? 'Blende ! Tu ne parles pas en premier.'
+                    : 'Blend in! You don\'t speak first.',
+                style: const TextStyle(
+                  color: Color(0xFFFF8888),
+                  fontSize: 11,
+                ),
+                textAlign: TextAlign.center,
               ),
           ],
         ),
@@ -1138,12 +1167,13 @@ class _DiscussionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = T.of(context);
     return SafeArea(
       child: Column(
         children: [
           _GameHeader(
-            title: 'Discussion',
-            subtitle: 'Thème : ${pair.theme}',
+            title: t.isFr ? 'Discussion' : 'Discussion',
+            subtitle: '${t.isFr ? 'Thème' : 'Theme'} : ${pair.getTheme(t.isFr)}',
             showBack: false,
           ),
           Expanded(
@@ -1161,23 +1191,25 @@ class _DiscussionScreen extends StatelessWidget {
                     ),
                     child: Column(
                       children: [
-                        const Text(
-                          '🗣 À tour de rôle',
-                          style: TextStyle(
+                        Text(
+                          '🗣 ${t.isFr ? 'À tour de rôle' : 'Take turns'}',
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 18,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
                         const SizedBox(height: 12),
-                        const Text(
-                          'Donnez chacun 1 ou 2 indices sur votre mot.\nLe Kadhab essaie de passer inaperçu.',
-                          style: TextStyle(color: Colors.white60, fontSize: 14),
+                        Text(
+                          t.isFr
+                              ? 'Donnez chacun 1 ou 2 indices sur votre mot.\nLe Kadhab essaie de passer inaperçu.'
+                              : 'Each player gives 1–2 clues about their word.\nThe Kadhab tries to blend in.',
+                          style: const TextStyle(color: Colors.white60, fontSize: 14),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 20),
                         // Player order (Kadhab never first)
-                        _DiscussionOrder(players: players),
+                        _DiscussionOrder(players: players, isFr: t.isFr),
                       ],
                     ),
                   ),
@@ -1194,9 +1226,9 @@ class _DiscussionScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(16),
                         ),
                       ),
-                      child: const Text(
-                        'Passer au vote  🗳',
-                        style: TextStyle(
+                      child: Text(
+                        t.isFr ? 'Passer au vote  🗳' : 'Go to vote  🗳',
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
                         ),
@@ -1215,8 +1247,9 @@ class _DiscussionScreen extends StatelessWidget {
 
 class _DiscussionOrder extends StatelessWidget {
   final List<KadhabPlayer> players;
+  final bool isFr;
 
-  const _DiscussionOrder({required this.players});
+  const _DiscussionOrder({required this.players, required this.isFr});
 
   @override
   Widget build(BuildContext context) {
@@ -1233,9 +1266,9 @@ class _DiscussionOrder extends StatelessWidget {
 
     return Column(
       children: [
-        const Text(
-          'Ordre de parole suggéré',
-          style: TextStyle(color: Colors.white38, fontSize: 12, letterSpacing: 1),
+        Text(
+          isFr ? 'Ordre de parole suggéré' : 'Suggested speaking order',
+          style: const TextStyle(color: Colors.white38, fontSize: 12, letterSpacing: 1),
         ),
         const SizedBox(height: 10),
         ...shuffled.asMap().entries.map((e) {
@@ -1306,6 +1339,7 @@ class _VoteScreenState extends State<_VoteScreen> {
   Widget build(BuildContext context) {
     final totalVoters = widget.players.length;
     final allVoted = _votedCount >= totalVoters;
+    final isFr = T.of(context).isFr;
 
     return SafeArea(
       child: Column(
@@ -1320,18 +1354,18 @@ class _VoteScreenState extends State<_VoteScreen> {
               padding: const EdgeInsets.all(20),
               child: Column(
                 children: [
-                  const Text(
-                    'Qui est le plus suspect ?',
-                    style: TextStyle(
+                  Text(
+                    isFr ? 'Qui est le plus suspect ?' : 'Who is most suspicious?',
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    'Chaque joueur vote une fois.',
-                    style: TextStyle(color: Colors.white54, fontSize: 13),
+                  Text(
+                    isFr ? 'Chaque joueur vote une fois.' : 'Each player votes once.',
+                    style: const TextStyle(color: Colors.white54, fontSize: 13),
                   ),
                   const SizedBox(height: 24),
                   Expanded(
@@ -1369,9 +1403,9 @@ class _VoteScreenState extends State<_VoteScreen> {
                             borderRadius: BorderRadius.circular(16),
                           ),
                         ),
-                        child: const Text(
-                          'Révéler l\'éliminé  ⚡️',
-                          style: TextStyle(
+                        child: Text(
+                          isFr ? 'Révéler l\'éliminé  ⚡️' : 'Reveal eliminated  ⚡️',
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
                           ),
@@ -1659,6 +1693,7 @@ class _EliminationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isFr = T.of(context).isFr;
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -1668,7 +1703,9 @@ class _EliminationScreen extends StatelessWidget {
             const Text('💨', style: TextStyle(fontSize: 80)),
             const SizedBox(height: 24),
             Text(
-              '${eliminated.name} est éliminé !',
+              isFr
+                  ? '${eliminated.name} est éliminé !'
+                  : '${eliminated.name} is eliminated!',
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 24,
@@ -1679,8 +1716,10 @@ class _EliminationScreen extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               eliminated.isKadhab
-                  ? 'C\'était le Kadhab 😈 !'
-                  : 'Ce n\'était pas le Kadhab... La partie continue !',
+                  ? (isFr ? 'C\'était le Kadhab 😈 !' : 'That was the Kadhab 😈!')
+                  : (isFr
+                      ? 'Ce n\'était pas le Kadhab... La partie continue !'
+                      : 'Not the Kadhab... The game goes on!'),
               style: TextStyle(
                 color: eliminated.isKadhab
                     ? const Color(0xFFFF4444)
@@ -1702,9 +1741,9 @@ class _EliminationScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                child: const Text(
-                  'Manche suivante →',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                child: Text(
+                  isFr ? 'Manche suivante →' : 'Next round →',
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                 ),
               ),
             ),
@@ -1740,6 +1779,7 @@ class _KadhabGuessScreenState extends State<_KadhabGuessScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isFr = T.of(context).isFr;
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -1748,7 +1788,7 @@ class _KadhabGuessScreenState extends State<_KadhabGuessScreen> {
             const Text('😈', style: TextStyle(fontSize: 72)),
             const SizedBox(height: 20),
             Text(
-              '${widget.kadhabName} a survécu !',
+              isFr ? '${widget.kadhabName} a survécu !' : '${widget.kadhabName} survived!',
               style: const TextStyle(
                 color: Color(0xFFFF4444),
                 fontSize: 22,
@@ -1758,7 +1798,9 @@ class _KadhabGuessScreenState extends State<_KadhabGuessScreen> {
             ),
             const SizedBox(height: 12),
             const Text(
-              'Le Kadhab peut encore gagner.\nDevine le vrai mot pour remporter la partie !',
+              isFr
+                  ? 'Le Kadhab peut encore gagner.\nDevine le vrai mot pour remporter la partie !'
+                  : 'The Kadhab can still win.\nGuess the true word to take the victory!',
               style: TextStyle(color: Colors.white60, fontSize: 14),
               textAlign: TextAlign.center,
             ),
@@ -1769,7 +1811,7 @@ class _KadhabGuessScreenState extends State<_KadhabGuessScreen> {
               style: const TextStyle(color: Colors.white, fontSize: 18),
               textAlign: TextAlign.center,
               decoration: InputDecoration(
-                hintText: 'Tape ton mot...',
+                hintText: isFr ? 'Tape ton mot...' : 'Type your word...',
                 hintStyle: const TextStyle(color: Colors.white38),
                 filled: true,
                 fillColor: const Color(0xFF1E1E2E),
@@ -1801,7 +1843,7 @@ class _KadhabGuessScreenState extends State<_KadhabGuessScreen> {
                   ),
                 ),
                 child: const Text(
-                  'Soumettre ma réponse 🎯',
+                  isFr ? 'Soumettre ma réponse 🎯' : 'Submit my answer 🎯',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                 ),
               ),
@@ -1864,6 +1906,7 @@ class _ResultScreenState extends State<_ResultScreen>
   Widget build(BuildContext context) {
     final truthWins = widget.result == GameResult.truthWins;
     final kadhab = widget.players.firstWhere((p) => p.isKadhab);
+    final isFr = T.of(context).isFr;
 
     return SafeArea(
       child: Padding(
@@ -1883,7 +1926,9 @@ class _ResultScreenState extends State<_ResultScreen>
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      truthWins ? 'Le Kadhab est démasqué !' : 'Le Kadhab gagne !',
+                      truthWins
+                          ? (isFr ? 'Le Kadhab est démasqué !' : 'The Kadhab is unmasked!')
+                          : (isFr ? 'Le Kadhab gagne !' : 'The Kadhab wins!'),
                       style: TextStyle(
                         color: truthWins
                             ? const Color(0xFFD4AF37)
@@ -1896,8 +1941,12 @@ class _ResultScreenState extends State<_ResultScreen>
                     const SizedBox(height: 16),
                     Text(
                       truthWins
-                          ? 'La vérité a triomphé. Alhamdulillah ! 🤲'
-                          : '${kadhab.name} a trompé tout le monde...',
+                          ? (isFr
+                              ? 'La vérité a triomphé. Alhamdulillah ! 🤲'
+                              : 'Truth has prevailed. Alhamdulillah! 🤲')
+                          : (isFr
+                              ? '${kadhab.name} a trompé tout le monde...'
+                              : '${kadhab.name} fooled everyone...'),
                       style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 15,
@@ -1922,7 +1971,7 @@ class _ResultScreenState extends State<_ResultScreen>
                 child: Column(
                   children: [
                     Text(
-                      'Thème : ${widget.pair.theme}',
+                      '${isFr ? 'Thème' : 'Theme'} : ${widget.pair.getTheme(isFr)}',
                       style: const TextStyle(
                         color: Colors.white38,
                         fontSize: 13,
@@ -1934,16 +1983,16 @@ class _ResultScreenState extends State<_ResultScreen>
                       children: [
                         Expanded(
                           child: _WordRevealTile(
-                            label: 'Vrai mot',
-                            word: widget.pair.trueWord,
+                            label: isFr ? 'Vrai mot' : 'True word',
+                            word: widget.pair.getTrueWord(isFr),
                             color: const Color(0xFF4A90D9),
                           ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: _WordRevealTile(
-                            label: 'Mot Kadhab',
-                            word: widget.pair.impostorWord,
+                            label: isFr ? 'Mot Kadhab' : 'Kadhab word',
+                            word: widget.pair.getImpostorWord(isFr),
                             color: const Color(0xFFFF4444),
                           ),
                         ),
@@ -1981,7 +2030,7 @@ class _ResultScreenState extends State<_ResultScreen>
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    child: const Text('Accueil'),
+                    child: Text(isFr ? 'Accueil' : 'Home'),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -1998,7 +2047,7 @@ class _ResultScreenState extends State<_ResultScreen>
                       ),
                     ),
                     child: const Text(
-                      'Rejouer 🎮',
+                      isFr ? 'Rejouer 🎮' : 'Play again 🎮',
                       style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
                     ),
                   ),
