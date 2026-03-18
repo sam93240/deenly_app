@@ -210,6 +210,7 @@ class T {
   // FAMILY SCREEN
   // ══════════════════════════════════════════════
   String get familyTitle => _s('Espace Familles', 'Family Space');
+  String get familyHistoires => _s('📚 Histoires', '📚 Stories');
   String get familyProphets => _s('🕌 Prophètes', '🕌 Prophets');
   String get familyStories => _s('📖 Coran', '📖 Quran');
   String get familyTimeline => _s('🕐 Frise', '🕐 Timeline');

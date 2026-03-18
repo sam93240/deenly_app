@@ -49,7 +49,7 @@ class _FamilleScreenState extends State<FamilleScreen>
   @override
   void initState() {
     super.initState();
-    _tab = TabController(length: 6, vsync: this);
+    _tab = TabController(length: 4, vsync: this);
   }
 
   @override
@@ -114,12 +114,9 @@ class _FamilleScreenState extends State<FamilleScreen>
               indicatorWeight: 3,
               labelColor: _kGold,
               unselectedLabelColor: const Color(0xFF8AB8A0),
-              labelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
-              labelPadding: const EdgeInsets.symmetric(horizontal: 4),
+              labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
               tabs: [
-                Tab(text: context.t.familyStories),
-                Tab(text: context.t.familyProphets),
-                Tab(text: context.t.familyHadithStories),
+                Tab(text: context.t.familyHistoires),
                 Tab(text: context.t.familyEvening),
                 Tab(text: context.t.familyTracking),
                 Tab(text: context.t.familyTips),
@@ -130,9 +127,7 @@ class _FamilleScreenState extends State<FamilleScreen>
         body: TabBarView(
           controller: _tab,
           children: const [
-            _CoranicTab(),
-            _ProphetsTab(),
-            _HadithStoriesTab(),
+            _HistoiresTab(),
             _BedtimeTab(),
             _SuiviTab(),
             _ConseilsTab(),
@@ -144,7 +139,74 @@ class _FamilleScreenState extends State<FamilleScreen>
 }
 
 // ══════════════════════════════════════════════════════════════════════════
-// TAB 1 — PROPHÈTES
+// TAB 1 — HISTOIRES (Coran · Prophètes · Hadiths)
+// ══════════════════════════════════════════════════════════════════════════
+class _HistoiresTab extends StatefulWidget {
+  const _HistoiresTab();
+  @override
+  State<_HistoiresTab> createState() => _HistoiresTabState();
+}
+
+class _HistoiresTabState extends State<_HistoiresTab> {
+  int _cat = 0;
+
+  static const _labels = ['📖 Coran', '🕌 Prophètes', '📜 Hadiths'];
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          color: _kGreenDeep,
+          padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
+          child: Row(
+            children: List.generate(_labels.length, (i) {
+              final sel = i == _cat;
+              return Padding(
+                padding: EdgeInsets.only(right: i < _labels.length - 1 ? 8 : 0),
+                child: GestureDetector(
+                  onTap: () => setState(() => _cat = i),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                    decoration: BoxDecoration(
+                      color: sel ? _kGold : Colors.white.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: sel ? _kGold : Colors.white.withValues(alpha: 0.2),
+                      ),
+                    ),
+                    child: Text(
+                      _labels[i],
+                      style: TextStyle(
+                        color: sel ? Colors.white : Colors.white.withValues(alpha: 0.6),
+                        fontSize: 13,
+                        fontWeight: sel ? FontWeight.w700 : FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }),
+          ),
+        ),
+        Expanded(
+          child: IndexedStack(
+            index: _cat,
+            children: const [
+              _CoranicTab(),
+              _ProphetsTab(),
+              _HadithStoriesTab(),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// TAB 1b — PROPHÈTES (liste + frise)
 // ══════════════════════════════════════════════════════════════════════════
 class _ProphetsTab extends StatelessWidget {
   const _ProphetsTab();
