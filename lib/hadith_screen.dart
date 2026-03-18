@@ -1310,20 +1310,52 @@ class _ShareBottomSheetState extends State<_ShareBottomSheet> {
 
           const SizedBox(height: 20),
 
-          // Aperçu de la carte
-          Container(
-            height: isStory ? 280 : 230,
-            alignment: Alignment.center,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(14),
-              child: FittedBox(
-                fit: BoxFit.contain,
-                child: SizedBox(
-                  width: 360,
-                  height: isStory ? 640 : 360,
-                  child: _HadithShareCard(hadith: widget.hadith, hadithIndex: widget.hadithIndex, format: _format),
+          // Aperçu de la carte (tap = plein écran)
+          GestureDetector(
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => _FullScreenPreviewPage(
+                hadith:      widget.hadith,
+                hadithIndex: widget.hadithIndex,
+                format:      _format,
+                onShare:     _share,
+              )),
+            ),
+            child: Stack(
+              alignment: Alignment.bottomCenter,
+              children: [
+                Container(
+                  height: isStory ? 280 : 230,
+                  alignment: Alignment.center,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(14),
+                    child: FittedBox(
+                      fit: BoxFit.contain,
+                      child: SizedBox(
+                        width: 360,
+                        height: isStory ? 640 : 360,
+                        child: _HadithShareCard(hadith: widget.hadith, hadithIndex: widget.hadithIndex, format: _format),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+                Positioned(
+                  bottom: 8,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.55),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(mainAxisSize: MainAxisSize.min, children: [
+                      Icon(Icons.zoom_in_rounded, color: Colors.white.withValues(alpha: 0.85), size: 13),
+                      const SizedBox(width: 4),
+                      Text('Appuyer pour agrandir',
+                          style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 11)),
+                    ]),
+                  ),
+                ),
+              ],
             ),
           ),
 
@@ -1437,6 +1469,115 @@ class _ShareFormatButton extends StatelessWidget {
           Text(sublabel,
               style: const TextStyle(color: _kTextLight, fontSize: 10)),
         ]),
+      ),
+    );
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// PRÉVISUALISATION PLEIN ÉCRAN
+// ══════════════════════════════════════════════════════════════════════════════
+class _FullScreenPreviewPage extends StatelessWidget {
+  final HadithModel  hadith;
+  final int          hadithIndex;
+  final _ShareFormat format;
+  final VoidCallback onShare;
+
+  const _FullScreenPreviewPage({
+    required this.hadith,
+    required this.hadithIndex,
+    required this.format,
+    required this.onShare,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isStory = format == _ShareFormat.story;
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: SafeArea(
+        child: Column(
+          children: [
+            // ── Barre haute ──────────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+              child: Row(children: [
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(Icons.close_rounded, color: Colors.white, size: 20),
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  isStory ? 'Story · 1080 × 1920' : 'Carte · 1080 × 1080',
+                  style: TextStyle(color: Colors.white.withValues(alpha: 0.45), fontSize: 12),
+                ),
+              ]),
+            ),
+
+            // ── Aperçu zoomable ──────────────────────────────────────────
+            Expanded(
+              child: InteractiveViewer(
+                minScale: 0.5,
+                maxScale: 4.0,
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(18),
+                      child: AspectRatio(
+                        aspectRatio: isStory ? 9 / 16 : 1,
+                        child: _HadithShareCard(
+                          hadith: hadith,
+                          hadithIndex: hadithIndex,
+                          format: format,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            // ── Bouton partager ──────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 12, 24, 28),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.pop(context);
+                  onShare();
+                },
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  decoration: BoxDecoration(
+                    color: _kGold,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [BoxShadow(
+                      color: _kGold.withValues(alpha: 0.4),
+                      blurRadius: 14, offset: const Offset(0, 4),
+                    )],
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.ios_share_rounded, color: Colors.white, size: 17),
+                      SizedBox(width: 8),
+                      Text('Partager', style: TextStyle(
+                        color: Colors.white, fontSize: 14, fontWeight: FontWeight.w800)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
